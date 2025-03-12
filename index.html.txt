@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aebrandingtz - Ubunifu wa Matangazo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Kichwa cha Tovuti -->
+    <header>
+        <h1>Aebrandingtz</h1>
+        <p>Ubunifu wa Kisasa kwa Biashara Yako</p>
+    </header>
+
+    <!-- Menyu ya Urambazaji -->
+    <nav>
+        <ul>
+            <li><a href="#home">Nyumbani</a></li>
+            <li><a href="#about">Kuhusu Sisi</a></li>
+            <li><a href="#services">Huduma</a></li>
+            <li><a href="#contact">Mawasiliano</a></li>
+        </ul>
+    </nav>
+
+    <!-- Ukurasa wa Nyumbani -->
+    <section id="home">
+        <h2>Karibu Aebrandingtz</h2>
+        <p>Tunatoa huduma za ubunifu wa matangazo, kutengeneza nembo, graphics design, Tunapiga picha sehemu zote, tunafanya video shoot, Tunafanya video livestreaming kwenye events mbalimbali , Tunatengeneza tovuti.</p>
+    </section>
+
+    <!-- Kuhusu Sisi -->
+    <section id="about">
+        <h2>Kuhusu Sisi</h2>
+        <img src="images/logo.png" alt="Logo ya Aebrandingtz" width="200">
+        <p>Aebrandingtz ni kampuni inayoongoza katika ubunifu wa matangazo na digital branding. Tunahakikisha biashara yako inapata taswira bora mtandaoni na nje ya mtandao.</p>
+    </section>
+
+    <!-- Huduma Zetu -->
+    <section id="services">
+        <h2>Huduma Zetu</h2>
+        <ul>
+            <li>Ubunifu wa Nembo (Logos)</li>
+            <li>Matangazo ya Mitandaoni</li>
+            <li>Uundaji wa Tovuti</li>
+            <li>Usimamizi wa Mitandao ya Kijamii</li>
+        </ul>
+    </section>
+
+    <!-- Mawasiliano -->
+    <section id="contact">
+        <h2>Wasiliana Nasi 0764009731</h2>
+        <p>Una maswali au unataka huduma? Tutumie ujumbe!</p>
+        <form>
+            <label for="name">Jina:</label>
+            <input type="text" id="name" name="name" required><br><br>
+
+            <label for="email">Barua pepe:</label>
+            <input type="email" id="email" name="aebrandingtz@gmail.com" required><br><br>
+
+            <label for="message">Ujumbe wako:</label><br>
+            <textarea id="message" name="message" rows="4" required></textarea><br><br>
+
+            <input type="submit" value="Tuma Ujumbe">
+        </form>
+    </section>
+
+    <!-- Sehemu ya Chini -->
+    <footer>
+        <p>&copy; 2024 Aebrandingtz. Haki zote zimehifadhiwa.</p>
+    </footer>
+
+</body>
+</html>
