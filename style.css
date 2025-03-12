@@ -1,0 +1,58 @@
+/* Muundo wa Tovuti */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+/* Kichwa cha Tovuti */
+header {
+    background-color: #333;
+    color: orange;
+    padding: 20px;
+}
+
+/* Menyu ya Urambazaji */
+nav ul {
+    list-style: none;
+    padding: 0;
+    background: #444;
+}
+
+nav ul li {
+    display: inline;
+    margin: 10px;
+}
+
+nav ul li a {
+    color: orangee;
+    text-decoration: none;
+    padding: 10px;
+}
+
+/* Sehemu za Maudhui */
+section {
+    background: orange;
+    margin: 20px auto;
+    padding: 20px;
+    width: 80%;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px white;
+}
+
+/* Fomu ya Mawasiliano */
+form input, form textarea {
+    width: 80%;
+    padding: 10px;
+    margin: 5px;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    margin-top: 20px;
+}
