@@ -928,6 +928,18 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
 .pm-style{position:relative}
 .pm-badge{position:absolute;top:10px;left:10px;z-index:2;font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.02em;color:#fff;background:var(--blue,#2f48b8);padding:3px 8px;border-radius:999px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 
+/* help & guide */
+.help-head{display:flex;gap:12px;align-items:center;margin:0 0 14px}.help-head h2{margin:0;font-size:20px}.help-head p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.help-q{border:1px solid var(--line);border-radius:12px;margin:0 0 10px;background:var(--surface)}
+.help-q summary{cursor:pointer;list-style:none;padding:13px 16px;font-weight:700;font-size:14.5px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.help-q summary::-webkit-details-marker{display:none}
+.help-q summary::after{content:"+";font-size:20px;line-height:1;color:var(--muted);flex:none}
+.help-q[open] summary::after{content:"\2212"}
+.help-q .help-a{padding:0 16px 14px;color:var(--ink-2,#3a4660);font-size:13.5px;line-height:1.6}
+.help-q .help-a ol,.help-q .help-a ul{margin:6px 0 0;padding-left:20px}.help-q .help-a li{margin:3px 0}
+.help-contact{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--blue-soft,#e8eefc);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.help-contact div{flex:1 1 220px;font-size:13.5px}.help-contact b{display:block;font-size:14.5px}
+
 </style>
 </head>
 <body>
@@ -1084,6 +1096,9 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
     <div class="side-label">Administration</div>
     <button class="nav" id="adminNavBtn" data-view="admin" onclick="showView('admin',this)"><svg class="i"><use href="#i-shield"/></svg>Admin Console</button>
   </div>
+
+  <div class="side-label">Support</div>
+  <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
   <div class="side-foot"><b>SHEREHE HUB</b><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
@@ -1408,7 +1423,8 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
     <div class="topline-actions">
       <select id="reportEventSelect" aria-label="Event"></select>
       <button class="gray" onclick="exportEventReportExcel()"><svg class="i"><use href="#i-sheet"/></svg>Excel</button>
-      <button class="dark" onclick="printEventReport()"><svg class="i"><use href="#i-download"/></svg>PDF / Print</button>
+      <button class="primary" id="evReportPdfBtn" onclick="downloadEventReportPdf()"><svg class="i"><use href="#i-download"/></svg>Full report (PDF)</button>
+      <button class="dark" onclick="printEventReport()"><svg class="i"><use href="#i-download"/></svg>Print</button>
     </div>
   </div>
   <div id="reportContent"></div>
@@ -1459,6 +1475,7 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
 </div></div>
 <div id="galleryPage" class="gallery-page" style="display:none" aria-label="Photos"></div>
 <div id="lightbox" class="lightbox" style="display:none" role="dialog" aria-modal="true" aria-label="Photo"></div>
+<div id="helpModal" class="modal"><div class="modal-box" id="helpBox" style="max-width:640px"></div></div>
 <div id="contribModal" class="modal"><div class="modal-box" id="contribModalBox" style="max-width:560px"></div></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
@@ -4193,6 +4210,77 @@ window.downloadContributorsPdf = async function(){
   finally{ if(btn){ btn.disabled=false; btn.innerHTML=old; } }
 };
 
+/* ----- full event report (PDF): guests + attendance + money, for after the event ----- */
+window.downloadEventReportPdf = async function(){
+  const ev=reportEvent&&reportEvent(); if(!ev) return toast('Please choose an event first.');
+  if(!navigator.onLine) return toast('Creating the PDF needs an internet connection.');
+  const btn=$('evReportPdfBtn'); const old=btn?btn.innerHTML:''; if(btn){ btn.disabled=true; btn.textContent='Preparing PDF…'; }
+  try{
+    const JsPDF=await ctEnsurePdfLib();
+    const money_ok = !window.__offlineMode && supabaseClient ? await ctEnsure(ev.id) : false;
+    const hasMoney = money_ok && CT.eventId===ev.id && (CT.contributors.length||(CT.expenses||[]).length);
+    const n=v=>Number(v).toLocaleString('en-US');
+    const gs=(ev.guests||[]).slice(); const st=reportStats(ev);
+    const rank=g=>g.checkedIn?0:(g.rsvp==='Yes'?1:(g.rsvp==='No'?3:2));
+    gs.sort((a,b)=>rank(a)-rank(b)||nameCmp(a.name,b.name));
+    const label=g=>g.checkedIn?'Arrived':(g.rsvp==='Yes'?'Did not arrive':(g.rsvp==='No'?'Declined':'No reply'));
+    const noShow=gs.filter(g=>g.rsvp==='Yes'&&!g.checkedIn).length;
+    const arrivedPeople=gs.filter(g=>g.checkedIn).reduce((a,g)=>a+(String(g.type).toLowerCase()==='double'?Math.max(1,Number(g.rsvpAttendees)||2):1),0);
+    const doc=new JsPDF({unit:'pt',format:'a4'}); const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=40;
+    doc.setFillColor(30,58,138); doc.rect(0,0,W,86,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.text('Event Report',M,38);
+    doc.setFont('helvetica','normal'); doc.setFontSize(11.5); doc.text(pdfTxt(ev.name||''),M,58,{maxWidth:W-2*M});
+    doc.setFontSize(9.5); doc.setTextColor(210,220,245); doc.text(pdfTxt([ev.type,ev.date?fmtDate(ev.date):'',ev.venue].filter(Boolean).join('  |  ')),M,74,{maxWidth:W-2*M});
+    const boxes=[['Guests invited',st.total,[30,58,138],st.single+' single, '+st.double+' double'],['Replied Yes',st.att,[22,128,80],st.people+' people'],['Arrived',st.checked,[22,128,80],st.checkRate+'% of guests'],['Did not arrive',noShow,[160,100,10],'said Yes, not seen'],['Declined',st.no,[185,28,28],st.pending+' never replied']];
+    const gap=8, bw=(W-2*M-gap*4)/5, by=104;
+    boxes.forEach((b,i)=>{ const x=M+i*(bw+gap); doc.setFillColor(243,245,250); doc.roundedRect(x,by,bw,58,6,6,'F'); doc.setTextColor(100,110,130); doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.text(b[0],x+8,by+16); doc.setTextColor(...b[2]); doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.text(String(b[1]),x+8,by+38); doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,110,130); doc.text(pdfTxt(b[3]),x+8,by+51); });
+    doc.setTextColor(100,110,130); doc.setFontSize(9.5);
+    doc.text(`${st.sent} of ${st.total} invitations were sent  |  ${arrivedPeople} ${arrivedPeople===1?'person':'people'} arrived in total (including double-card partners)`,M,by+82);
+    let y=by+110;
+    doc.setTextColor(30,35,50); doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.text('Guest attendance',M,y);
+    if(gs.length){
+      doc.autoTable({ startY:y+8, margin:{left:M,right:M,bottom:44},
+        head:[['#','Guest','Card','Table','RSVP','Attendance']],
+        body:gs.map((g,i)=>[i+1,pdfTxt(g.name),pdfTxt(g.type||''),pdfTxt(g.table||''),pdfTxt(g.rsvp||'Pending'),label(g)]),
+        theme:'striped', styles:{font:'helvetica',fontSize:9,cellPadding:4.2,textColor:[30,35,50]},
+        headStyles:{fillColor:[30,58,138],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[248,249,252]},
+        columnStyles:{0:{cellWidth:24,halign:'center'},2:{cellWidth:48},3:{cellWidth:48},4:{cellWidth:60},5:{cellWidth:78}},
+        didParseCell:d=>{ if(d.section==='body'&&d.column.index===5){ const v=d.cell.raw; d.cell.styles.fontStyle='bold'; d.cell.styles.textColor=v==='Arrived'?[22,128,80]:(v==='Did not arrive'?[160,100,10]:(v==='Declined'?[185,28,28]:[100,110,130])); } } });
+      y=doc.lastAutoTable.finalY+28;
+    } else { doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(100,110,130); doc.text('No guests were added to this event.',M,y+22); y+=48; }
+    if(hasMoney){
+      const people=ctPeople(), t=ctTotals(people), spent=ctSpentTotal(), cash=t.collected-spent;
+      if(y>H-250){ doc.addPage(); y=52; }
+      doc.setTextColor(30,35,50); doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.text('Contributions and expenses',M,y);
+      const mb=[['Collected',t.collected,[22,128,80]],['Pledged',t.pledged,[30,58,138]],['Still to collect',t.left,[160,100,10]],['Expenses',spent,[185,28,28]],['Cash in hand',cash,cash<0?[185,28,28]:[22,128,80]]];
+      const my=y+12;
+      mb.forEach((b,i)=>{ const x=M+i*(bw+gap); doc.setFillColor(243,245,250); doc.roundedRect(x,my,bw,52,6,6,'F'); doc.setTextColor(100,110,130); doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.text(b[0],x+8,my+17); doc.setTextColor(...b[2]); doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.text((b[1]<0?'-':'')+n(Math.abs(b[1])),x+8,my+36); doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.text('TZS',x+8,my+46); });
+      doc.setTextColor(100,110,130); doc.setFontSize(9.5); doc.setFont('helvetica','normal');
+      doc.text(`${people.length} contributors  |  ${t.cleared} fully paid  |  ${t.owing} still owing  |  ${t.pct}% of pledges collected`,M,my+72);
+      y=my+88;
+      const exps=(CT.expenses||[]); const cat={}; exps.forEach(e=>{ const k=e.category||'Other'; cat[k]=(cat[k]||0)+Number(e.amount||0); });
+      const rows=Object.keys(cat).sort((a,b)=>cat[b]-cat[a]).map(k=>[pdfTxt(k),n(cat[k]),spent?Math.round(cat[k]/spent*100)+'%':'']);
+      if(rows.length){
+        doc.autoTable({ startY:y, margin:{left:M,right:M,bottom:44}, head:[['Expense category','Amount (TZS)','Share']], body:rows, foot:[['Total expenses',n(spent),'']], showFoot:'lastPage', theme:'striped',
+          styles:{font:'helvetica',fontSize:9,cellPadding:4.2,textColor:[30,35,50]}, headStyles:{fillColor:[120,53,15],textColor:255,fontStyle:'bold'}, footStyles:{fillColor:[245,232,222],textColor:[20,25,40],fontStyle:'bold'}, alternateRowStyles:{fillColor:[252,249,246]},
+          columnStyles:{1:{halign:'right'},2:{halign:'right',cellWidth:50}}, didParseCell:d=>{ if(d.section!=='body'&&[1,2].includes(d.column.index)) d.cell.styles.halign='right'; } });
+        y=doc.lastAutoTable.finalY+22;
+      }
+      if(y>H-120){ doc.addPage(); y=56; }
+      doc.setFillColor(243,245,250); doc.roundedRect(M,y,W-2*M,40,6,6,'F'); doc.setTextColor(30,35,50); doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
+      doc.text(`Collected TZS ${n(t.collected)}  -  Expenses TZS ${n(spent)}  =  Cash in hand TZS ${cash<0?'-':''}${n(Math.abs(cash))}`,M+12,y+25);
+      y+=62;
+    }
+    if(y>H-110){ doc.addPage(); y=70; } else y+=18;
+    doc.setDrawColor(150,158,175); doc.line(M,y,M+170,y); doc.line(W-M-170,y,W-M,y); doc.setFontSize(8.5); doc.setTextColor(100,110,130); doc.setFont('helvetica','normal');
+    doc.text('Host / Organiser (name & signature)',M,y+13); doc.text('Chairperson (name & signature)',W-M-170,y+13);
+    const pages=doc.internal.getNumberOfPages(), stamp=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    for(let p=1;p<=pages;p++){ doc.setPage(p); doc.setFontSize(8.5); doc.setTextColor(130,138,155); doc.setFont('helvetica','normal'); doc.text('Generated by SHEREHE HUB  |  '+stamp,M,H-22); doc.text(`Page ${p} of ${pages}`,W-M,H-22,{align:'right'}); }
+    doc.save((ev.name||'event').replace(/[^\w.-]+/g,'_')+'-event-report.pdf'); toast(hasMoney?'Event report downloaded.':'Event report downloaded (without money section).');
+  }catch(e){ console.warn('event pdf',e); toast('Could not create the PDF. Check your internet connection and try again.'); }
+  finally{ if(btn){ btn.disabled=false; btn.innerHTML=old; } }
+};
+
 /* ----- contributors <-> guest list ----- */
 async function ctEnsure(eventId){
   if(CT.loaded && CT.eventId===eventId) return true;
@@ -4398,7 +4486,7 @@ function thanksNudgeHtml(ev){
   const title=done?`Thank-you messages opened \u2014 ${ev.name}`:`${ev.name} is over \u2014 say thank you`;
   const text=done?'You can still send to the guests who were not reached, or share the photo gallery.'
     :`${came} guest${came===1?'':'s'} came${missed?` and ${missed} did not make it`:''}. A short thank-you keeps people warm for your next event.`;
-  return `<div class="rsvp-nudge ${done?'ok':'info'}"><span class="rn-ic">${ic(done?'check':'send')}</span><div class="rn-t"><b>${E(title)}</b><span>${E(text)}</span></div><div class="rn-a">${came?`<button class="primary sm" onclick="thanksFor('${id}','arrived')">${ic('send')}Thank guests who came (${came})</button>`:''}${missed?`<button class="gray sm" onclick="thanksFor('${id}','absent')">Message those who missed (${missed})</button>`:''}<button class="gray sm" onclick="thanksHide('${id}')">Hide</button></div></div>`;
+  return `<div class="rsvp-nudge ${done?'ok':'info'}"><span class="rn-ic">${ic(done?'check':'send')}</span><div class="rn-t"><b>${E(title)}</b><span>${E(text)}</span></div><div class="rn-a">${came?`<button class="primary sm" onclick="thanksFor('${id}','arrived')">${ic('send')}Thank guests who came (${came})</button>`:''}${missed?`<button class="gray sm" onclick="thanksFor('${id}','absent')">Message those who missed (${missed})</button>`:''}<button class="gray sm" onclick="thanksReport('${id}')">${ic('chart')}Event report</button><button class="gray sm" onclick="thanksHide('${id}')">Hide</button></div></div>`;
 }
 /* the most recently finished event (within 3 weeks) that still deserves a thank-you */
 function thanksTarget(){
@@ -4406,6 +4494,11 @@ function thanksTarget(){
   return db.events.filter(e=>e.date&&eventIsOver(e)&&now-new Date(e.date).getTime()<21*86400000)
     .sort((a,b)=>new Date(b.date)-new Date(a.date)).find(e=>thanksNudgeHtml(e))||null;
 }
+window.thanksReport = function(eid){
+  const ev=getEvent(eid); if(!ev) return;
+  setCurrentEvent(eid); showView('reports');
+  setTimeout(()=>{ const sel=$('reportEventSelect'); if(sel){ sel.value=eid; } renderReports(); toast('Press \u201cFull report (PDF)\u201d to download the report.'); },80);
+};
 window.thanksFor = function(eid,aud){
   const ev=getEvent(eid); if(!ev) return;
   setCurrentEvent(eid); showView('messaging'); thxSet(ev,'1');
@@ -4459,6 +4552,29 @@ window.saveDeadline = async function(eid,clear){
   if(r.error) return toast('Could not save: '+r.error.message);
   ev.rsvpDeadline=iso; OFFLINE.snapshot(); closeContributor(); doRefresh(); toast(iso?'RSVP deadline saved.':'RSVP deadline removed.');
 };
+
+/* ---------- help & guide ---------- */
+const SUPPORT_WA = ''; /* support WhatsApp number in international format without +, e.g. 255712345678 */
+const HELP_TOPICS = [
+  ['Getting started in 5 steps', '<ol><li><b>Create Event</b>: name, date, venue, and a poster (upload your own or let SHEREHE HUB make one).</li><li><b>Guests</b>: add them one by one or import an Excel file. Choose Single (1 person) or Double (2 people).</li><li><b>Cards &amp; QR</b>: generate each guest’s personal invitation card with their QR code.</li><li><b>Messaging</b>: send the invitations by WhatsApp or SMS.</li><li><b>Check-in</b>: on the day, scan the QR codes at the door.</li></ol>'],
+  ['Making a poster', '<p>On <b>Create Event</b>, open the Poster section. Choose <b>Upload poster</b> to use your own design, or <b>Make one for me</b> to pick from 20 modern styles and 4 colours each. The poster uses your event name, date, venue and message, so fill those in first. You can download the poster before saving.</p>'],
+  ['Sending invitations and reminders', '<ul><li>Go to <b>Messaging</b>, choose the channel and the audience, then send.</li><li>Set an <b>RSVP deadline</b> on the event so guests know when to reply.</li><li>The dashboard shows who has not replied; use <b>Remind them</b> to nudge them.</li><li>Guests open their invitation link to answer Yes or No. A Double card lets them confirm one or two people.</li></ul>'],
+  ['Event day: check-in at the door', '<ul><li>Open <b>Check-in</b> and scan each guest’s QR code, or search by name.</li><li>You can give door staff access with their e-mail address; they only see the check-in screen.</li><li>Check-in keeps working if the internet drops and syncs when it returns.</li></ul>'],
+  ['Contributions and expenses', '<ul><li><b>Contributions</b> records who pledged and who paid. Add payments as they arrive; balances update automatically.</li><li>Add <b>expenses</b> to see the cash in hand.</li><li>Download the contribution report as PDF or Excel. You can also give a treasurer their own access.</li></ul>'],
+  ['After the event', '<ul><li>On the dashboard, use <b>Thank guests who came</b> and <b>Message those who missed</b>.</li><li>Open <b>Photos</b> to share a gallery link with your guests.</li><li>On <b>Reports</b>, press <b>Full report (PDF)</b> for attendance, contributions and expenses in one document.</li></ul>'],
+  ['Privacy and your guests’ data', '<p>Your guest lists, phone numbers and contributions are visible only to you and to people you give access. Guests can only see their own invitation.</p>']
+];
+window.openHelp = function(){
+  const wa = String(SUPPORT_WA||'').replace(/\D/g,'');
+  $('helpBox').innerHTML = `<button class="modal-close" onclick="closeHelp()" aria-label="Close">×</button>
+    <div class="help-head"><div class="guest-modal-icon">${ic('info')}</div><div><h2>Help &amp; guide</h2><p>Quick answers for the most common tasks.</p></div></div>
+    ${HELP_TOPICS.map((t,i)=>`<details class="help-q"${i===0?' open':''}><summary>${t[0]}</summary><div class="help-a">${t[1]}</div></details>`).join('')}
+    ${wa?`<div class="help-contact"><div><b>Still need help?</b>Message us on WhatsApp and we will help you.</div><a class="primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px" href="https://wa.me/${wa}?text=${encodeURIComponent('Hello SHEREHE HUB, I need help with...')}" target="_blank" rel="noopener noreferrer">${ic('chat')}WhatsApp us</a></div>`:''}`;
+  $('helpModal').classList.add('open');
+  if(typeof toggleMobileNav==='function') try{ toggleMobileNav(false); }catch(e){}
+};
+window.closeHelp = function(){ $('helpModal').classList.remove('open'); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('helpModal')&&$('helpModal').classList.contains('open')) closeHelp(); });
 
 /* ---------- reports ---------- */
 window.renderReports = function(){ sortGuests();
