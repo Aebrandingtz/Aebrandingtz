@@ -720,15 +720,14 @@ body.staff-mode #adminNavGroup{display:none!important}
   @page{margin:12mm}
 }
 
-/* ---- v49: phone-friendly lists (no sideways scrolling for the guest and check-in lists) ---- */
-@media (max-width:640px){
-  #rsvpTable .table-wrap,#guests .table-wrap{overflow:visible;border:0;background:transparent;box-shadow:none}
-  #rsvpTable table,#rsvpTable tbody,#rsvpTable tr,#rsvpTable td,
-  #guests table,#guests tbody,#guests tr,#guests td{display:block;width:100%;box-sizing:border-box}
-  #rsvpTable table,#guests table{min-width:0}
-  #rsvpTable thead,#guests thead{display:none}
-  #rsvpTable tr,#guests tr{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:0 0 10px;padding:12px 14px}
-  #rsvpTable td,#guests td{padding:0;border:0;width:auto}
+/* ---- v49/v65: phone- and tablet-friendly lists (no sideways scrolling) ---- */
+@media (max-width:1100px){
+  #rsvpTable .table-wrap{overflow:visible;border:0;background:transparent;box-shadow:none}
+  #rsvpTable table,#rsvpTable tbody,#rsvpTable tr,#rsvpTable td{display:block;width:100%;box-sizing:border-box}
+  #rsvpTable table{min-width:0}
+  #rsvpTable thead{display:none}
+  #rsvpTable tr{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:0 0 10px;padding:12px 14px}
+  #rsvpTable td{padding:0;border:0;width:auto}
   /* check-in: name + big button on the first line, badges below */
   #rsvpTable tr{display:grid;grid-template-columns:auto auto auto minmax(max-content,1fr);gap:8px 8px;align-items:center}
   #rsvpTable td:nth-child(1){grid-column:1 / 4;grid-row:1;min-width:0}
@@ -738,13 +737,22 @@ body.staff-mode #adminNavGroup{display:none!important}
   #rsvpTable td:nth-child(4){grid-column:3 / 5;grid-row:2}
   #rsvpTable td.actions .row-actions{justify-content:flex-end}
   #rsvpTable td.actions button{min-height:40px;padding:8px 14px;font-size:13.5px;white-space:nowrap}
+  #rsvpTable td.empty{flex:1 1 100%}
+}
+@media (max-width:1320px){
+  #guests .table-wrap{overflow:visible;border:0;background:transparent;box-shadow:none}
+  #guests table,#guests tbody,#guests tr,#guests td{display:block;width:100%;box-sizing:border-box}
+  #guests table{min-width:0}
+  #guests thead{display:none}
+  #guests tr{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:0 0 10px;padding:12px 14px}
+  #guests td{padding:0;border:0;width:auto}
   /* guests: name, badges, then actions */
   #guests tr{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   #guests td:nth-child(1){flex:1 1 100%}
   #guests td:nth-child(2),#guests td:nth-child(3),#guests td:nth-child(4),#guests td:nth-child(5){flex:0 0 auto}
   #guests td.actions{flex:1 1 100%;border-top:1px solid var(--line-2);padding-top:8px;margin-top:2px}
   #guests td.actions .row-actions{justify-content:flex-start;gap:8px}
-  #guests td.empty,#rsvpTable td.empty{flex:1 1 100%}
+  #guests td.empty{flex:1 1 100%}
 }
 @media (pointer:coarse){
   button.sm,.gray.sm,.green.sm,.text-button{min-height:36px}
@@ -820,7 +828,7 @@ tr.ct-total td{font-weight:700;background:var(--line-2);border-top:2px solid var
 .pick-list{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:12px}
 .pick-item{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line-2);margin:0;cursor:pointer}
 .pick-item:last-child{border-bottom:0}.pick-item b{display:block;font-size:14px}.pick-item small{color:var(--muted);font-size:12.5px}
-@media(max-width:640px){
+@media(max-width:1100px){
   #contribListBox .table-wrap{overflow:visible;border:0;background:transparent;box-shadow:none}
   #contribListBox table,#contribListBox tbody,#contribListBox tfoot,#contribListBox tr,#contribListBox td{display:block;width:100%;box-sizing:border-box;min-width:0}
   #contribListBox thead{display:none}
@@ -939,6 +947,19 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
 .help-q .help-a ol,.help-q .help-a ul{margin:6px 0 0;padding-left:20px}.help-q .help-a li{margin:3px 0}
 .help-contact{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--blue-soft,#e8eefc);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .help-contact div{flex:1 1 220px;font-size:13.5px}.help-contact b{display:block;font-size:14.5px}
+
+/* ---- v65: very small phones (320px) and drawer shadow ---- */
+@media(max-width:860px){.app-sidebar:not(.mobile-open){box-shadow:none}}
+@media(max-width:380px){
+  #rsvpTable tr{display:flex;flex-wrap:wrap;gap:8px}
+  #rsvpTable td{flex:0 0 auto;min-width:0;width:auto}
+  #rsvpTable td:nth-child(1){flex:1 1 100%}
+  #rsvpTable td:nth-child(5){flex:1 1 100%}
+  #rsvpTable td.actions .row-actions{justify-content:stretch}
+  #rsvpTable td.actions .row-actions button{flex:1}
+  #contributions .ct-dl button{white-space:normal;min-width:0;padding-left:10px;padding-right:10px}
+}
+@media(max-width:380px){.app-header .brand,.brand b,.brand-name{white-space:nowrap}.brand{font-size:15px}}
 
 </style>
 </head>
