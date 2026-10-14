@@ -950,7 +950,7 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
 
 /* ---- v65: very small phones (320px) and drawer shadow ---- */
 @media(max-width:860px){.app-sidebar:not(.mobile-open){box-shadow:none}}
-@media(max-width:380px){
+@media(max-width:480px){
   #rsvpTable tr{display:flex;flex-wrap:wrap;gap:8px}
   #rsvpTable td{flex:0 0 auto;min-width:0;width:auto}
   #rsvpTable td:nth-child(1){flex:1 1 100%}
@@ -960,6 +960,79 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
   #contributions .ct-dl button{white-space:normal;min-width:0;padding-left:10px;padding-right:10px}
 }
 @media(max-width:380px){.app-header .brand,.brand b,.brand-name{white-space:nowrap}.brand{font-size:15px}}
+
+/* ---- v67: language switch ---- */
+.lang-btn{min-width:42px;padding:8px 10px;font-weight:800;letter-spacing:.5px}
+.lang-pill{position:fixed;top:12px;right:12px;z-index:9999;display:none;align-items:center;justify-content:center;min-width:44px;height:34px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.55);background:rgba(11,30,63,.82);color:#fff;font-weight:800;font-size:13px;letter-spacing:.6px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.lang-pill:hover{background:rgba(11,30,63,.95)}
+@media(max-width:380px){.lang-btn{min-width:36px;padding:8px 8px}}
+
+@media(max-width:380px){
+  .app-header{padding:0 10px;gap:6px}
+  .app-header .header-right{gap:6px}
+  .app-header .brand-word{font-size:14px}
+  .lang-btn{min-width:34px;padding:7px 6px;font-size:12px}
+  .header-logout{padding:8px 9px}
+  .user-chip{padding:2px}
+}
+
+/* ---- v68: invitation countdown, envelope intro, guest wishes ---- */
+.inv-cd{margin:0 0 18px;padding:14px 12px;border-radius:14px;background:linear-gradient(135deg,#1f3fae,#2f66d0);color:#fff;text-align:center}
+.cd-label{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-bottom:8px;font-weight:700}
+.cd-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cd-cell{background:rgba(255,255,255,.14);border-radius:10px;padding:9px 4px}
+.cd-cell b{display:block;font:700 24px/1 var(--font-display,inherit);font-variant-numeric:tabular-nums}
+.cd-cell span{display:block;margin-top:4px;font-size:11px;opacity:.9}
+.cd-today{font-weight:750;font-size:15px;padding:4px 0}
+.inv-wish{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line)}
+.inv-wish h3{font-size:16px;margin:0 0 4px}
+.inv-wish p{font-size:13px;color:var(--muted);margin:0 0 10px}
+.inv-wish textarea{width:100%;resize:vertical;min-height:84px;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:14.5px;box-sizing:border-box}
+.wish-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
+.wish-row span{font-size:12px;color:var(--muted)}
+.wish-msg{margin-top:8px;font-size:13.5px;font-weight:650}
+.wish-msg.ok{color:var(--ok)}.wish-msg.bad{color:var(--bad)}
+
+.inv-env{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#2a4fc4,#0f1f5c);pointer-events:none;animation:envOut .6s ease 2.5s forwards}
+.env-wrap{position:relative;width:min(260px,70vw);height:min(170px,46vw);animation:envIn .6s cubic-bezier(.2,.8,.2,1) both}
+.env-back,.env-front,.env-flap{position:absolute;left:0;right:0}
+.env-back{top:0;bottom:0;background:#e9d9a6;border-radius:8px}
+.env-card{position:absolute;left:8%;right:8%;top:8%;bottom:8%;background:#fffdf6;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px;box-shadow:0 2px 10px rgba(0,0,0,.18);animation:cardUp .7s cubic-bezier(.3,.9,.3,1) 1.3s forwards}
+.env-card small{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a6d1f}
+.env-card b{font:700 16px/1.2 var(--font-display,inherit);color:#1c2a5a;margin-top:4px;word-break:break-word}
+.env-front{bottom:0;height:62%;background:#f3e6b8;clip-path:polygon(0 0,50% 58%,100% 0,100% 100%,0 100%);border-radius:0 0 8px 8px}
+.env-flap{top:0;height:58%;background:#dcc882;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;animation:flapOpen .7s ease .7s forwards;z-index:3}
+.env-seal{position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:#c0392b;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:4;box-shadow:0 2px 8px rgba(0,0,0,.3);animation:sealOut .4s ease .6s forwards}
+@keyframes envIn{from{opacity:0;transform:scale(.8) translateY(20px)}to{opacity:1;transform:none}}
+@keyframes flapOpen{to{transform:rotateX(180deg);z-index:0}}
+@keyframes sealOut{to{opacity:0;transform:scale(.5)}}
+@keyframes cardUp{to{transform:translateY(-62%) scale(1.08)}}
+@keyframes envOut{to{opacity:0;visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.inv-env{display:none}}
+
+/* ---- v68: guest messages (host) ---- */
+.wish-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.wish-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.wish-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.wish-card.is-hidden{opacity:.55;border-style:dashed}
+.wish-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.wish-top b{font-size:14.5px}.wish-top span{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.wish-card p{margin:0;font-size:14px;line-height:1.55;color:var(--ink-2);white-space:pre-wrap;word-break:break-word}
+.wish-actions{display:flex;gap:8px;margin-top:auto}
+.wish-live{position:fixed;inset:0;z-index:10001;display:none;flex-direction:column;align-items:center;justify-content:center;padding:6vh 7vw;background:radial-gradient(circle at 50% 30%,#2a4fc4,#0b1747);color:#fff;text-align:center}
+.wish-live.open{display:flex}
+.wl-event{position:absolute;top:4vh;left:0;right:0;font:600 clamp(18px,2.4vw,30px)/1.2 var(--font-display,inherit);letter-spacing:.04em;opacity:.9}
+.wl-stage{max-width:1100px;opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+.wl-stage.in{opacity:1;transform:none}
+.wl-stage blockquote{margin:0;font:500 clamp(24px,4.2vw,58px)/1.3 var(--font-display,inherit);word-break:break-word}
+.wl-stage cite{display:block;margin-top:3vh;font-style:normal;font-weight:700;font-size:clamp(16px,2.2vw,30px);color:#ffd77a}
+.wl-foot{position:absolute;bottom:4vh;left:0;right:0;font-size:14px;opacity:.7}
+.wl-close{position:absolute;top:2.5vh;right:3vw;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);color:#fff;font-size:26px;line-height:1;cursor:pointer}
+@media(max-width:700px){.wish-list{grid-template-columns:1fr}.wish-tools button{flex:1 1 40%}}
+.wish-card{min-width:0}
+.wish-top{flex-wrap:wrap;row-gap:2px}
+.wish-top b{min-width:0;overflow-wrap:anywhere}
+.wish-top span{white-space:normal}
 
 </style>
 </head>
@@ -1108,6 +1181,7 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
 
   <div class="side-label">After the event</div>
   <button class="nav" data-view="photos" onclick="showView('photos',this)"><svg class="i"><use href="#i-image"/></svg>Photos</button>
+  <button class="nav" data-view="wishes" onclick="showView('wishes',this)"><svg class="i"><use href="#i-heart"/></svg>Guest messages</button>
 
   <div class="side-label">Insights</div>
   <button class="nav" data-view="reports" onclick="showView('reports',this)"><svg class="i"><use href="#i-chart"/></svg>Reports</button>
@@ -1383,6 +1457,15 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
     <div class="topline-actions"><select id="photoEventSelect" aria-label="Event"></select></div>
   </div>
   <div id="photoContent"></div>
+</section>
+
+<!-- ============ GUEST MESSAGES ============ -->
+<section id="wishes" class="view">
+  <div class="topline">
+    <div><h1>Guest messages</h1><p class="muted">Blessings and congratulations your guests leave when they answer their invitation.</p></div>
+    <div class="topline-actions"><select id="wishEventSelect" aria-label="Event"></select></div>
+  </div>
+  <div id="wishContent"></div>
 </section>
 
 <section id="contributions" class="view">
@@ -2907,7 +2990,7 @@ document.addEventListener('keydown',e=>{
 
   // Replace direct selector changes with the authoritative event setter.
   document.addEventListener('change',function(e){
-    if(e.target && ['guestEventSelect','cardEventSelect','messageEventSelect','contributionEventSelect','reportEventSelect','checkinEventSelect','photoEventSelect','seatEventSelect'].includes(e.target.id)){
+    if(e.target && ['guestEventSelect','cardEventSelect','messageEventSelect','contributionEventSelect','reportEventSelect','checkinEventSelect','photoEventSelect','seatEventSelect','wishEventSelect'].includes(e.target.id)){
       setCurrentEvent(e.target.value);
     }
   });
@@ -3170,7 +3253,7 @@ const VIEW_META = {
   create:['Create Event','New event'], guests:['Guests','Guest list'],
   cards:['Cards & QR','Guest cards'], messaging:['Messaging','Send invitations'],
   rsvp:['Check-in','Event day'], reports:['Reports','Event statistics'],
-  contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], admin:['Admin Console','Customers and system usage']
+  contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], wishes:['Guest messages','Messages from your guests'], admin:['Admin Console','Customers and system usage']
 };
 window.showView = function(id,btn){
   if(window.__staffMode){ const want=staffRole()==='treasurer'?'contributions':'rsvp'; if(id!==want) id=want; }
@@ -3184,6 +3267,7 @@ window.showView = function(id,btn){
   if(id==='contributions') loadContributions();
   if(id==='seating') renderSeating();
   if(id==='photos') loadPhotos();
+  if(id==='wishes') loadWishes();
   if(id==='admin') loadAdminData();
   window.scrollTo({top:0});
 };
@@ -3192,6 +3276,7 @@ window.setCurrentEvent = function(id){
   if(!id || !getEvent(id)) return;
   currentEventId=id; persistState(); doRefresh();
   if(isActive('contributions')) loadContributions();
+  if(isActive('wishes')) loadWishes();
 };
 window.selectEvent = window.setCurrentEvent;
 
@@ -3222,7 +3307,7 @@ window.populateEventSelects = function(){
   if(currentEventId && !getEvent(currentEventId)) currentEventId=null;
   if(!currentEventId && db.events[0]) currentEventId=db.events[0].id;
   const opts = db.events.map(e=>`<option value="${e.id}" ${e.id===currentEventId?'selected':''}>${E(e.name)} — ${E(e.type)}</option>`).join('') || '<option value="">No events yet</option>';
-  ['guestEventSelect','cardEventSelect','reportEventSelect','messageEventSelect','contributionEventSelect','checkinEventSelect','photoEventSelect','seatEventSelect'].forEach(id=>{
+  ['guestEventSelect','cardEventSelect','reportEventSelect','messageEventSelect','contributionEventSelect','checkinEventSelect','photoEventSelect','seatEventSelect','wishEventSelect'].forEach(id=>{
     const s=$(id); if(s && s.innerHTML!==opts) s.innerHTML=opts;
   });
 };
@@ -3249,6 +3334,7 @@ function doRefresh(){ sortGuests();
   if(isActive('reports')) renderReports();
   if(isActive('messaging')) renderMessaging();
   if(isActive('photos') && window.renderPhotos) renderPhotos();
+  if(isActive('wishes') && window.renderWishes) renderWishes();
   if(isActive('admin')) renderAdmin();
   const gs=db.events.reduce((n,e)=>n+e.guests.length,0);
   $('navEventsCount').textContent=db.events.length; $('navGuestsCount').textContent=gs;
@@ -3749,7 +3835,12 @@ async function sendOne(channel,gid){
   toast('Sending '+label+' to '+g.name+'…');
   const api=await sendViaApi(channel,ev,g,phone,message);
   if(api.ok){ markSent(g,channel); logGuestMessage(ev,g,label,message,'Sent',api.provider_message_id); doRefresh(); toast(label+' sent to '+g.name+'.'); }
-  else{ openLink(manualLink(channel,phone,message),channel); markSent(g,channel); logGuestMessage(ev,g,label,message,'Manual'); doRefresh(); toast(label+' opened for '+g.name+' (send it from your phone).'); }
+  else{
+    const why=String(api.error?.message||api.error||'').replace(/\s+/g,' ').trim().slice(0,120);
+    const gatewayErr=why && !/haijawekwa|not configured|not set|credential|secret|not enabled|not ready|Failed to send a request|non-2xx|network|fetch/i.test(why);
+    openLink(manualLink(channel,phone,message),channel); markSent(g,channel); logGuestMessage(ev,g,label,message,'Manual'); doRefresh();
+    toast(gatewayErr ? label+' could not be sent automatically ('+why+'). Opened on your phone instead.' : label+' opened for '+g.name+' (send it from your phone).');
+  }
 }
 window.sendWA = gid => sendOne('whatsapp',gid);
 window.sendSMS = gid => sendOne('sms',gid);
@@ -4171,7 +4262,7 @@ async function ctEnsurePdfLib(){
   if(!(window.jspdf&&window.jspdf.jsPDF)) await ctLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
   const J=window.jspdf.jsPDF;
   if(!(J.API&&J.API.autoTable)) await ctLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
-  return window.jspdf.jsPDF;
+  return window.pdfLang?window.pdfLang(window.jspdf.jsPDF):window.jspdf.jsPDF;
 }
 const pdfTxt = s => String(s==null?'':s).replace(/[^\x20-\x7E -ÿ]/g,'?');
 window.downloadContributorsPdf = async function(){
@@ -4582,6 +4673,7 @@ const HELP_TOPICS = [
   ['Sending invitations and reminders', '<ul><li>Go to <b>Messaging</b>, choose the channel and the audience, then send.</li><li>Set an <b>RSVP deadline</b> on the event so guests know when to reply.</li><li>The dashboard shows who has not replied; use <b>Remind them</b> to nudge them.</li><li>Guests open their invitation link to answer Yes or No. A Double card lets them confirm one or two people.</li></ul>'],
   ['Event day: check-in at the door', '<ul><li>Open <b>Check-in</b> and scan each guest’s QR code, or search by name.</li><li>You can give door staff access with their e-mail address; they only see the check-in screen.</li><li>Check-in keeps working if the internet drops and syncs when it returns.</li></ul>'],
   ['Contributions and expenses', '<ul><li><b>Contributions</b> records who pledged and who paid. Add payments as they arrive; balances update automatically.</li><li>Add <b>expenses</b> to see the cash in hand.</li><li>Download the contribution report as PDF or Excel. You can also give a treasurer their own access.</li></ul>'],
+  ['Guest messages and the big screen', '<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>'],
   ['After the event', '<ul><li>On the dashboard, use <b>Thank guests who came</b> and <b>Message those who missed</b>.</li><li>Open <b>Photos</b> to share a gallery link with your guests.</li><li>On <b>Reports</b>, press <b>Full report (PDF)</b> for attendance, contributions and expenses in one document.</li></ul>'],
   ['Privacy and your guests’ data', '<p>Your guest lists, phone numbers and contributions are visible only to you and to people you give access. Guests can only see their own invitation.</p>']
 ];
@@ -4596,6 +4688,119 @@ window.openHelp = function(){
 };
 window.closeHelp = function(){ $('helpModal').classList.remove('open'); };
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('helpModal')&&$('helpModal').classList.contains('open')) closeHelp(); });
+
+
+/* ---------- guest wishes (Kitabu cha Kumbukumbu) ---------- */
+const WISH_ST={}; let __wishTimer=null, __liveTimer=null, __liveIdx=0;
+const wishState=id=>(WISH_ST[id]=WISH_ST[id]||{items:[],loaded:false,err:''});
+window.loadWishes = async function(quiet){
+  const ev=getEvent(currentEventId); if(!ev){ renderWishes(); return; }
+  const st=wishState(ev.id);
+  try{
+    const r=await supabaseClient.from('guest_wishes').select('id,guest_name,message,hidden,created_at,updated_at').eq('event_id',ev.id).order('created_at',{ascending:false}).limit(500);
+    if(r.error) throw r.error; st.items=r.data||[]; st.loaded=true; st.err='';
+  }catch(e){ st.err=(window.__offlineMode||!navigator.onLine)?'Messages need an internet connection.':(e.message||String(e)); }
+  renderWishes();
+  clearInterval(__wishTimer);
+  __wishTimer=setInterval(()=>{ if(isActive('wishes')&&!document.hidden) loadWishes(true); else if(!isActive('wishes')) clearInterval(__wishTimer); },20000);
+};
+window.renderWishes = function(){
+  const box=$('wishContent'); if(!box) return;
+  const ev=getEvent(currentEventId);
+  if(!ev){ box.innerHTML=NEED_EVENT; return; }
+  const st=wishState(ev.id), shown=st.items.filter(x=>!x.hidden).length;
+  if(st.err){ box.innerHTML=`<div class="panel"><div class="empty">${E(st.err)}</div></div>`; return; }
+  const list=st.items.length?st.items.map(w=>`<div class="wish-card ${w.hidden?'is-hidden':''}">
+      <div class="wish-top"><b>${E(w.guest_name)}</b><span>${E(fmtDate(w.created_at,true))}</span></div>
+      <p>${E(w.message)}</p>
+      <div class="wish-actions"><button class="gray sm" onclick="wishToggle('${w.id}',${w.hidden?'false':'true'})">${ic(w.hidden?'eye':'x')}${w.hidden?'Show':'Hide'}</button><button class="gray sm" onclick="wishDelete('${w.id}')">${ic('trash')}Delete</button></div>
+    </div>`).join(''):`<div class="panel">${emptyState('No messages yet','When guests answer their invitation they can leave a message for you. It will appear here.','')}</div>`;
+  box.innerHTML=`<div class="cards" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:14px">
+      <div class="stat stat-blue"><span>Messages</span><b>${st.items.length}</b></div>
+      <div class="stat stat-green"><span>Visible on the big screen</span><b>${shown}</b></div>
+      <div class="stat stat-gold"><span>Hidden</span><b>${st.items.length-shown}</b></div></div>
+    <div class="wish-tools"><button class="primary" onclick="openWishLive()" ${shown?'':'disabled'}>${ic('sparkle')}Big screen</button><button class="dark" id="wishPdfBtn" onclick="downloadWishBook()" ${shown?'':'disabled'}>${ic('download')}Memory book (PDF)</button><button class="gray" onclick="loadWishes()">${ic('refresh')}Refresh</button></div>
+    <div class="wish-list">${list}</div>`;
+};
+window.wishToggle = async function(id,hide){
+  try{ const r=await supabaseClient.from('guest_wishes').update({hidden:!!hide}).eq('id',id); if(r.error) throw r.error; }catch(e){ toast('Could not change this: '+(e.message||e)); return; }
+  loadWishes();
+};
+window.wishDelete = async function(id){
+  const ok=await confirmDialog({title:'Delete message?',text:'This message will be permanently removed.',ok:'Delete'}); if(!ok) return;
+  try{ const r=await supabaseClient.from('guest_wishes').delete().eq('id',id); if(r.error) throw r.error; }catch(e){ toast('Not deleted: '+(e.message||e)); return; }
+  loadWishes();
+};
+/* full-screen display for a projector / TV */
+window.openWishLive = function(){
+  const ev=getEvent(currentEventId); if(!ev) return;
+  let m=$('wishLive'); if(!m){ m=document.createElement('div'); m.id='wishLive'; m.className='wish-live'; document.body.appendChild(m); }
+  m.innerHTML=`<button class="wl-close" onclick="closeWishLive()" aria-label="Close">×</button><div class="wl-event">${E(ev.name)}</div><div class="wl-stage" id="wlStage"></div><div class="wl-foot" id="wlFoot"></div>`;
+  m.classList.add('open'); __liveIdx=0; wlShow();
+  try{ if(m.requestFullscreen) m.requestFullscreen().catch(()=>{}); }catch(e){}
+  clearInterval(__liveTimer); __liveTimer=setInterval(()=>{ __liveIdx++; wlShow(); },8000);
+  window.__wlRefresh=setInterval(()=>{ if($('wishLive')&&$('wishLive').classList.contains('open')) loadWishes(true); },25000);
+};
+function wlShow(){
+  const ev=getEvent(currentEventId); if(!ev) return;
+  const items=wishState(ev.id).items.filter(x=>!x.hidden); const stage=$('wlStage'); if(!stage) return;
+  if(!items.length){ stage.innerHTML=''; $('wlFoot').textContent=''; return; }
+  const w=items[__liveIdx%items.length];
+  stage.classList.remove('in'); void stage.offsetWidth;
+  stage.innerHTML=`<blockquote>${E(w.message)}</blockquote><cite>— ${E(w.guest_name)}</cite>`; stage.classList.add('in');
+  $('wlFoot').textContent=((__liveIdx%items.length)+1)+' / '+items.length;
+}
+window.closeWishLive = function(){
+  clearInterval(__liveTimer); clearInterval(window.__wlRefresh);
+  const m=$('wishLive'); if(m){ m.classList.remove('open'); }
+  try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){}
+};
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('wishLive')&&$('wishLive').classList.contains('open')) closeWishLive(); });
+document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement&&$('wishLive')&&$('wishLive').classList.contains('open')) closeWishLive(); });
+
+/* memory book PDF */
+window.downloadWishBook = async function(){
+  const ev=getEvent(currentEventId); if(!ev){ toast('Please choose an event first.'); return; }
+  const items=wishState(ev.id).items.filter(x=>!x.hidden).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  if(!items.length){ toast('There is nothing to download yet.'); return; }
+  if(!navigator.onLine){ toast('Creating the PDF needs an internet connection.'); return; }
+  const btn=$('wishPdfBtn'); if(btn) btn.disabled=true;
+  try{
+    const JsPDF=await ctEnsurePdfLib(); const doc=new JsPDF({unit:'pt',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=48;
+    const fix=t=>pdfTxt(String(t==null?'':t).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/…/g,'...').replace(/[\u{1F000}-\u{1FFFF}☀-➿]/gu,''));
+    /* cover */
+    doc.setFillColor(31,63,174); doc.rect(0,0,W,H,'F');
+    doc.setFillColor(255,255,255); doc.rect(M,M,W-2*M,H-2*M,'S');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','normal'); doc.setFontSize(13);
+    doc.text(fix(window.tr?window.tr('Guest book'):'Guest book'),W/2,230,{align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(30);
+    const tl=doc.splitTextToSize(fix(ev.name),W-2*M-40); doc.text(tl,W/2,285,{align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(13);
+    const sub=[ev.date?fmtDate(ev.date,true):'',ev.venue||''].filter(Boolean).join('  |  '); if(sub) doc.text(fix(sub),W/2,285+tl.length*34+14,{align:'center'});
+    doc.setFontSize(12); doc.text(fix(items.length+' '+(items.length===1?'message':'messages')),W/2,H-110,{align:'center'});
+    doc.setFontSize(9); doc.text('SHEREHE HUB',W/2,H-70,{align:'center'});
+    /* pages */
+    doc.addPage(); let y=M+10;
+    const title=()=>{ doc.setTextColor(31,63,174); doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text(fix(ev.name),M,M); doc.setDrawColor(220,226,240); doc.line(M,M+8,W-M,M+8); };
+    title();
+    items.forEach(w=>{
+      doc.setFont('helvetica','normal'); doc.setFontSize(11.5);
+      const lines=doc.splitTextToSize(fix(w.message),W-2*M-28); const hbox=lines.length*15+46;
+      if(y+hbox>H-M-20){ doc.addPage(); y=M+10; title(); }
+      y+=22; const top=y;
+      doc.setFillColor(247,249,253); doc.setDrawColor(222,228,242); doc.roundedRect(M,top,W-2*M,hbox,8,8,'FD');
+      doc.setTextColor(20,30,60); doc.setFont('helvetica','normal'); doc.setFontSize(11.5); doc.text(lines,M+14,top+22);
+      doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(31,63,174); doc.text(fix('- '+w.guest_name),M+14,top+hbox-12);
+      y=top+hbox;
+    });
+    const pages=doc.getNumberOfPages();
+    for(let i=2;i<=pages;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(130,140,160); doc.text(fix('SHEREHE HUB  |  '+(i-1)+' / '+(pages-1)),W/2,H-24,{align:'center'}); }
+    doc.save((ev.name||'event').replace(/[^\w.-]+/g,'_')+'-guest-book.pdf');
+    toast('PDF report downloaded.');
+  }catch(e){ toast('Could not create the PDF. Check your internet connection and try again.'); }
+  finally{ if(btn) btn.disabled=false; }
+};
 
 /* ---------- reports ---------- */
 window.renderReports = function(){ sortGuests();
@@ -4671,13 +4876,13 @@ const INV_I18N={
     howmany:'Idadi ya watakaokuja',two:'Wawili (2)',one:'Mmoja (1)',yes:'Ndiyo, nitahudhuria',no:'Sitaweza kuhudhuria',
     d_yes:'✓ Umeshajibu: utahudhuria. Unaweza kubadilisha jibu hapo juu.',d_no:'Umeshajibu: hutahudhuria. Unaweza kubadilisha jibu hapo juu.',saving:'Inahifadhi jibu lako…',
     ok_yes:'✓ Asante! Tumepokea jibu lako — tunakusubiri kwa hamu.',ok_no:'✓ Asante kwa kutujulisha. Tumepokea jibu lako.',fail:'Jibu halijahifadhiwa: ',
-    dl:'Tafadhali jibu kabla ya',dl_soon:'Muda wa kujibu unaisha karibuni:',dl_past:'Muda wa kujibu ulipita tarehe',dl_pastn:'Bado unaweza kujibu hapa chini.',tbl:'Meza yako',tblh:'Utakaa hapa — wahudumu watakuelekeza.',foot:'Imetumwa kupitia SHEREHE HUB',privacy:'Faragha',terms:'Masharti',back:'← Dashboard',alt:'Mwaliko',locale:'sw-TZ'},
+    dl:'Tafadhali jibu kabla ya',dl_soon:'Muda wa kujibu unaisha karibuni:',dl_past:'Muda wa kujibu ulipita tarehe',dl_pastn:'Bado unaweza kujibu hapa chini.',tbl:'Meza yako',tblh:'Utakaa hapa — wahudumu watakuelekeza.',foot:'Imetumwa kupitia SHEREHE HUB',privacy:'Faragha',terms:'Masharti',back:'← Dashboard',alt:'Mwaliko',locale:'sw-TZ',wish_h:'Acha salamu kwa wenyeji',wish_p:'Andika ujumbe mfupi wa pongezi au baraka. Wenyeji pekee ndio watakaousoma.',wish_ph:'Andika salamu yako hapa…',wish_btn:'Tuma salamu',wish_edit:'Sasisha salamu',wish_ok:'✓ Asante! Salamu yako imewafikia wenyeji.',wish_fail:'Salamu haijatumwa: ',wish_empty:'Tafadhali andika salamu kwanza.',cd_label:'Zimebaki',cd_d:'siku',cd_h:'saa',cd_m:'dakika',cd_s:'sekunde',cd_today:'Siku ni leo! Tunakusubiri.',env_for:'Mwaliko maalum kwa'},
   en:{top:'Invitation',loading:'Loading your invitation…',nf_h:'Invitation not found',nf_p:'This link is not valid or the event has been removed. Please contact the host.',err_h:'The invitation could not be opened',retry:'Try again',
     hello:'Hello',cal:'Add to calendar',maps:'Open in Google Maps →',ask:'Will you attend?',dbl:'Double card · for two people',sgl:'Single card · for one person',
     howmany:'Number attending',two:'Two (2)',one:'One (1)',yes:'Yes, I will attend',no:'Sorry, I cannot attend',
     d_yes:'✓ You have replied: you will attend. You can change your reply above.',d_no:'You have replied: you will not attend. You can change your reply above.',saving:'Saving your reply…',
     ok_yes:'✓ Thank you! We have received your reply — we look forward to seeing you.',ok_no:'✓ Thank you for letting us know. We have received your reply.',fail:'Your reply was not saved: ',
-    dl:'Please reply before',dl_soon:'The reply deadline is close:',dl_past:'The reply deadline passed on',dl_pastn:'You can still reply below.',tbl:'Your table',tblh:'You will be seated here — the ushers will guide you.',foot:'Sent through SHEREHE HUB',privacy:'Privacy',terms:'Terms',back:'← Dashboard',alt:'Invitation',locale:'en-GB'}
+    dl:'Please reply before',dl_soon:'The reply deadline is close:',dl_past:'The reply deadline passed on',dl_pastn:'You can still reply below.',tbl:'Your table',tblh:'You will be seated here — the ushers will guide you.',foot:'Sent through SHEREHE HUB',privacy:'Privacy',terms:'Terms',back:'← Dashboard',alt:'Invitation',locale:'en-GB',wish_h:'Leave a message for the hosts',wish_p:'Write a short note of congratulations or blessings. Only the hosts will read it.',wish_ph:'Write your message here…',wish_btn:'Send message',wish_edit:'Update message',wish_ok:'✓ Thank you! Your message has reached the hosts.',wish_fail:'Your message was not sent: ',wish_empty:'Please write a message first.',cd_label:'Time left',cd_d:'days',cd_h:'hours',cd_m:'min',cd_s:'sec',cd_today:'The day is here! We are waiting for you.',env_for:'A special invitation for'}
 };
 function invLang(){
   if(window.__invLang) return window.__invLang;
@@ -4697,6 +4902,7 @@ window.setInviteLang = function(l){
   if(l!=='sw'&&l!=='en') return;
   window.__invLang=l; try{ localStorage.setItem('sherehe_lang',l); }catch(e){}
   document.documentElement.lang=l;
+  if(!window.__langSync&&window.setLang&&window.currentLang&&window.currentLang()!==l){ window.__langSync=true; try{ window.setLang(l); }finally{ window.__langSync=false; } }
   renderInvite(); if(window.renderGallery && $('galleryPage').style.display!=='none') renderGallery();
 };
 window.leaveInvite = function(){ history.replaceState(null,'',location.pathname+location.search); document.body.classList.remove('invite-mode'); $('publicRsvp').style.display='none'; doRefresh(); };
@@ -4714,6 +4920,70 @@ function invStatusHtml(T){
   if(s==='d_no') return `<div id="publicRsvpStatus" class="inv-done wait">${T.d_no}</div>`;
   return `<div id="publicRsvpStatus"></div>`;
 }
+
+/* ---------- invitation extras: countdown, envelope, guest wishes ---------- */
+let __cdTimer=null;
+function tickInviteCountdown(){
+  clearInterval(__cdTimer);
+  const el=$('invCd'); if(!el) return;
+  const T=INV_I18N[invLang()], ts=Number(el.getAttribute('data-ts'));
+  const draw=()=>{
+    const e=$('invCd'); if(!e){ clearInterval(__cdTimer); return; }
+    let ms=ts-Date.now();
+    if(ms<=0){ e.innerHTML=`<div class="cd-today">${E(T.cd_today)}</div>`; clearInterval(__cdTimer); return; }
+    const d=Math.floor(ms/86400000); ms%=86400000; const h=Math.floor(ms/3600000); ms%=3600000; const m=Math.floor(ms/60000); const sc=Math.floor((ms%60000)/1000);
+    const cell=(n,l)=>`<div class="cd-cell"><b>${String(n).padStart(2,'0')}</b><span>${l}</span></div>`;
+    e.innerHTML=`<div class="cd-label">${E(T.cd_label)}</div><div class="cd-row">${cell(d,T.cd_d)}${cell(h,T.cd_h)}${cell(m,T.cd_m)}${cell(sc,T.cd_s)}</div>`;
+  };
+  draw(); __cdTimer=setInterval(draw,1000);
+}
+function playEnvelope(g){
+  try{
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const key='inv_env_'+(g.id||''); if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key,'1');
+  }catch(e){ return; }
+  if($('invEnv')) return;
+  const T=INV_I18N[invLang()];
+  const d=document.createElement('div'); d.id='invEnv'; d.className='inv-env'; d.setAttribute('aria-hidden','true');
+  d.innerHTML=`<div class="env-wrap"><div class="env-back"></div><div class="env-card"><small>${E(T.env_for)}</small><b>${E((g.name||'').trim())}</b></div><div class="env-front"></div><div class="env-flap"></div><div class="env-seal">S</div></div>`;
+  document.body.appendChild(d);
+  setTimeout(()=>{ d.remove(); },3200);
+}
+function wishHtml(T){
+  const replied=['ok_yes','ok_no','d_yes','d_no'].includes(window.__invStatus);
+  if(!replied) return '';
+  const w=window.__invWish||{};
+  return `<div class="inv-wish"><h3>${E(T.wish_h)}</h3><p>${E(T.wish_p)}</p>
+    <textarea id="wishText" maxlength="400" rows="3" placeholder="${E(T.wish_ph)}" oninput="wishInput(this)">${E(w.text||'')}</textarea>
+    <div class="wish-row"><span id="wishCount">${(w.text||'').length}/400</span><button class="primary" id="wishBtn" type="button" onclick="submitWish()">${E(w.saved?T.wish_edit:T.wish_btn)}</button></div>
+    <div id="wishMsg" class="wish-msg"></div></div>`;
+}
+window.wishInput=function(t){ window.__invWish=window.__invWish||{}; window.__invWish.text=t.value; const c=$('wishCount'); if(c) c.textContent=t.value.length+'/400'; };
+window.refreshWishBox=function(){ const el=$('inviteWish'); if(el) el.innerHTML=wishHtml(INV_I18N[invLang()]); };
+window.loadWish=async function(){
+  const d=window.__invData; if(!d||!supabaseClient) return;
+  if(!['ok_yes','ok_no','d_yes','d_no'].includes(window.__invStatus)) return;
+  try{
+    const {data,error}=await supabaseClient.rpc('get_guest_wish',{p_event_id:d.event.id,p_guest_id:d.guest.id});
+    if(error) return;
+    if(data){ window.__invWish={text:String(data),saved:true}; refreshWishBox(); }
+  }catch(e){}
+};
+window.submitWish=async function(){
+  const T=INV_I18N[invLang()], d=window.__invData; if(!d) return;
+  const t=$('wishText'), msg=$('wishMsg'), btn=$('wishBtn'); const text=(t&&t.value||'').trim();
+  if(!text){ if(msg){ msg.className='wish-msg bad'; msg.textContent=T.wish_empty; } return; }
+  if(btn) btn.disabled=true;
+  try{
+    const {error}=await supabaseClient.rpc('submit_guest_wish',{p_event_id:d.event.id,p_guest_id:d.guest.id,p_message:text});
+    if(error) throw error;
+    window.__invWish={text,saved:true}; refreshWishBox();
+    const m2=$('wishMsg'); if(m2){ m2.className='wish-msg ok'; m2.textContent=T.wish_ok; }
+  }catch(err){
+    if(btn) btn.disabled=false;
+    const m2=$('wishMsg'); if(m2){ m2.className='wish-msg bad'; m2.textContent=T.wish_fail+(err.message||err); }
+  }
+};
 function renderInvite(){
   const data=window.__invData; if(!data) return;
   const L=invLang(), T=INV_I18N[L], ev=data.event, g=data.guest, dbl=String(g.card_type).toLowerCase()==='double';
@@ -4730,13 +5000,15 @@ function renderInvite(){
     <div class="inv-body"><div class="inv-hello">${T.hello} ${E((g.name||'').trim())},</div>
     <h1 class="inv-title">${E(ev.name||'Event')}</h1>
     <div class="inv-who"><span class="tag blue">${E(ev.type||'Event')}</span><span class="tag ${dbl?'gold':''}">${dbl?T.dbl:T.sgl}</span></div>
+    ${ev.date&&new Date(ev.date)>new Date(Date.now()-6*3600000)?`<div class="inv-cd" id="invCd" data-ts="${E(String(new Date(ev.date).getTime()))}"></div>`:''}
     ${rows.length?`<div class="inv-list">${rows.join('')}</div>`:''}
     ${ev.message?`<div class="inv-msg">${E(ev.message)}</div>`:''}
     <div class="inv-ask">${T.ask}</div>
     ${dbl?`<div class="inv-attend"><label for="publicAttendees">${T.howmany}</label><select id="publicAttendees"><option value="2">${T.two}</option><option value="1">${T.one}</option></select></div>`:''}
     <div class="inv-btns"><button class="yes" onclick="submitPublicRsvp('${eventId}','${guestId}','Yes','${dbl?'Double':'Single'}',this)">${T.yes}</button><button class="no" onclick="submitPublicRsvp('${eventId}','${guestId}','No','${dbl?'Double':'Single'}',this)">${T.no}</button></div>
-    ${invStatusHtml(T)}</div><div class="inv-foot">${T.foot} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${T.privacy}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${T.terms}</a></div>`);
+    ${invStatusHtml(T)}<div id="inviteWish">${wishHtml(T)}</div></div><div class="inv-foot">${T.foot} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${T.privacy}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${T.terms}</a></div>`);
   if(prevAtt && $('publicAttendees')) $('publicAttendees').value=prevAtt;
+  tickInviteCountdown(); playEnvelope(g);
 }
 window.loadPublicInvitationFromSupabase = async function(){
   const p=new URLSearchParams(location.hash.replace(/^#/,'')), eventId=p.get('invite'), guestId=p.get('guest'), type=p.get('type');
@@ -4758,7 +5030,7 @@ window.loadPublicInvitationFromSupabase = async function(){
     window.__invData=data;
     window.__inv={id:data.event.id,name:data.event.name,date:data.event.date,venue:data.event.venue};
     window.__invStatus = data.guest.rsvp==='Yes' ? 'd_yes' : data.guest.rsvp==='No' ? 'd_no' : '';
-    renderInvite();
+    window.__invWish=null; renderInvite(); loadWish();
     return true;
   }catch(err){
     const T2=INV_I18N[invLang()];
@@ -4781,6 +5053,7 @@ window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
   finally{
     const T=INV_I18N[invLang()], s=window.__invStatus;
     box=$('publicRsvpStatus'); if(box){ box.outerHTML=invStatusHtml(T); }
+    refreshWishBox(); loadWish();
     document.querySelectorAll('.inv-btns button').forEach(b=>b.disabled=false);
   }
 };
@@ -5951,6 +6224,991 @@ document.addEventListener('change',e=>{ if(e.target&&e.target.id==='fDate') sche
 document.addEventListener('click',e=>{ if(PM.on&&e.target.closest&&e.target.closest('#eventTypes .type')) setTimeout(()=>{ if(!PM.picked){ PM.style=sortedIds()[0]; PM.pal=0; paintPals(); apply(false); } else { paintStyles(); schedule(); } },30); });
 const _reset=window.resetForm;
 window.resetForm=function(){ if(_reset) _reset.apply(this,arguments); PM.has=false; PM.picked=false; PM.style='ivory'; PM.pal=0; setMode(false); const l=$('pmLang'); if(l) l.value='sw'; PM.lang='sw'; };
+})();
+
+</script>
+<script>
+/* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
+window.SW_EXACT = {
+"(Single or Double).":"(Single au Double).",
+", choose the channel and the audience, then send.":", chagua njia na wapokeaji, kisha tuma.",
+", open the Poster section. Choose":", fungua sehemu ya Poster. Chagua",
+", press":", bonyeza",
+"0 guests":"Wageni 0",
+"Across all events":"Katika matukio yote",
+"Action":"Kitendo",
+"Actions":"Vitendo",
+"Add":"Ongeza",
+"Add a contributor":"Ongeza mchangiaji",
+"Add expense":"Ongeza matumizi",
+"Add guest":"Ongeza mgeni",
+"Add guests":"Ongeza wageni",
+"Add guests one by one or upload an Excel/CSV list.":"Ongeza wageni mmoja mmoja au pakia orodha ya Excel/CSV.",
+"Add member":"Ongeza mwanachama",
+"Add payment":"Ongeza malipo",
+"Add table":"Ongeza meza",
+"Add the details, poster and guests. The system will generate QR cards and help you send invitations.":"Weka maelezo, poster na wageni. Mfumo utatengeneza kadi za QR na kukusaidia kutuma mialiko.",
+"Admin":"Msimamizi",
+"Admin Console":"Dashibodi ya Msimamizi",
+"Administration":"Usimamizi",
+"Administrator":"Msimamizi",
+"Africa's Talking. Requires AT_USERNAME and AT_API_KEY in the Edge Function secrets.":"Africa's Talking. Inahitaji AT_USERNAME na AT_API_KEY kwenye siri za Edge Function.",
+"After the event":"Baada ya tukio",
+"Airtel Money":"Airtel Money",
+"All":"Wote",
+"All accounts":"Akaunti zote",
+"All contributors (statement)":"Wachangiaji wote (taarifa)",
+"All events":"Matukio yote",
+"All events you created":"Matukio yote uliyounda",
+"All guests":"Wageni wote",
+"All guests of this event.":"Wageni wote wa tukio hili.",
+"Allow camera access, then point it at the invitation QR code.":"Ruhusu kamera, kisha ielekeze kwenye QR code ya mwaliko.",
+"Already registered?":"Umeshajisajili?",
+"Amount":"Kiasi",
+"Amount (TZS)":"Kiasi (TZS)",
+"An overview of all customers, their events and system usage. View only — customer data cannot be changed here.":"Muhtasari wa wateja wote, matukio yao na matumizi ya mfumo. Kutazama tu — data ya wateja haibadilishwi hapa.",
+"An overview of your events, guests and RSVP responses.":"Muhtasari wa matukio yako, wageni na majibu ya RSVP.",
+"Are you sure?":"Una uhakika?",
+"Arrange guests by table":"Panga wageni kwa meza",
+"Arrived":"Wamefika",
+"Arrived at the venue":"Waliofika ukumbini",
+"Attendance overview":"Muhtasari wa mahudhurio",
+"Attending":"Watahudhuria",
+"Attending · 2":"Watahudhuria · 2",
+"Auto-seat the rest":"Panga waliobaki kiotomatiki",
+"Automatic reminders":"Vikumbusho vya kiotomatiki",
+"Automatic sending. Requires WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID in the Edge Function secrets.":"Kutuma kiotomatiki. Inahitaji WHATSAPP_TOKEN na WHATSAPP_PHONE_NUMBER_ID kwenye siri za Edge Function.",
+"Awaiting":"Wanasubiriwa",
+"Baby Shower":"Baby Shower",
+"Balance":"Salio",
+"Bank transfer":"Uhamisho wa benki",
+"Basic details that guests will see on their invitation.":"Maelezo ya msingi ambayo wageni wataona kwenye mwaliko wao.",
+"Birthday":"Siku ya kuzaliwa",
+"Browse":"Vinjari",
+"Budget & expenses":"Bajeti na matumizi",
+"Cancel":"Ghairi",
+"Card":"Kadi",
+"Card Type":"Aina ya kadi",
+"Card type *":"Aina ya kadi *",
+"Cards":"Kadi",
+"Cards & QR":"Kadi na QR",
+"Cash":"Pesa taslimu",
+"Cash in hand (collected − expenses)":"Pesa mkononi (zilizokusanywa − matumizi)",
+"Category":"Aina",
+"Change password":"Badilisha nenosiri",
+"Channel":"Njia",
+"Check in":"Check-in",
+"Check-in":"Check-in",
+"Check-in keeps working if the internet drops and syncs when it returns.":"Check-in inaendelea kufanya kazi mtandao ukikatika na kusawazisha unaporudi.",
+"Check-ins":"Check-in",
+"Checked in":"Wamefika (check-in)",
+"Choose a channel, review the message, then send it to the selected guests.":"Chagua njia, pitia ujumbe, kisha uutume kwa wageni waliochaguliwa.",
+"Choose a poster to see the preview here.":"Chagua poster uone mwonekano hapa.",
+"Choose photos or drop them here":"Chagua picha au zidondoshe hapa",
+"Choose poster file":"Chagua faili ya poster",
+"Choose poster file (Double)":"Chagua faili ya poster (Double)",
+"Choose the Double card poster.":"Chagua poster ya kadi ya Double.",
+"Church / offering":"Kanisa / sadaka",
+"Church Event":"Tukio la kanisa",
+"Church Fundraising":"Uchangiaji wa kanisa",
+"Clear form":"Futa fomu",
+"Click here to register":"Bonyeza hapa kujisajili",
+"Close":"Funga",
+"Color":"Rangi",
+"Colours":"Rangi",
+"Confirm":"Thibitisha",
+"Confirm password":"Thibitisha nenosiri",
+"Connected":"Imeunganishwa",
+"Contributions":"Michango",
+"Contributions and expenses":"Michango na matumizi",
+"Contributions and pledges":"Michango na ahadi",
+"Contributor":"Mchangiaji",
+"Contributor name":"Jina la mchangiaji",
+"Contributors":"Wachangiaji",
+"Contributors fully paid (thank-you)":"Wachangiaji waliokamilisha (asante)",
+"Contributors past their due date (reminder)":"Wachangiaji waliopitisha tarehe (kikumbusho)",
+"Contributors who still owe (reminder)":"Wachangiaji wanaodaiwa (kikumbusho)",
+"Copy":"Nakili",
+"Copy link":"Nakili kiungo",
+"Create Event":"Tengeneza tukio",
+"Create account":"Fungua akaunti",
+"Create an event":"Tengeneza tukio",
+"Create event":"Tengeneza tukio",
+"Create events, manage your guest list, send personal invitations with QR codes by WhatsApp or SMS, and check guests in at the door — all in one place.":"Tengeneza matukio, simamia orodha ya wageni, tuma mialiko binafsi yenye QR code kwa WhatsApp au SMS, na uwaingize wageni mlangoni — yote mahali pamoja.",
+"Create your account":"Fungua akaunti yako",
+"Create your first event":"Tengeneza tukio lako la kwanza",
+"Create your first event to get started.":"Tengeneza tukio lako la kwanza ili uanze.",
+"Current status.":"Hali ya sasa.",
+"Customer":"Mteja",
+"Customers":"Wateja",
+"Customers and system usage":"Wateja na matumizi ya mfumo",
+"DOUBLE CARD":"KADI YA DOUBLE",
+"Dashboard":"Dashibodi",
+"Database, login, storage and data security (RLS).":"Hifadhidata, kuingia, hifadhi na usalama wa data (RLS).",
+"Date":"Tarehe",
+"Date & time":"Tarehe na saa",
+"Declined":"Wamekataa",
+"Decoration":"Mapambo",
+"Delete guest":"Futa mgeni",
+"Delete guest?":"Kufuta mgeni?",
+"Description":"Maelezo",
+"Do you want to permanently remove this guest?":"Unataka kumfuta mgeni huyu moja kwa moja?",
+"Door staff (check-in)":"Mlinzi wa mlango (check-in)",
+"Double":"Double",
+"Double (two people)":"Double (watu wawili)",
+"Double card · watu wawili":"Double card · watu wawili",
+"Double cards only":"Kadi za Double tu",
+"Download ZIP":"Pakua ZIP",
+"Download poster":"Pakua poster",
+"Download template":"Pakua kiolezo",
+"Download the contribution report as PDF or Excel. You can also give a treasurer their own access.":"Pakua ripoti ya michango kama PDF au Excel. Unaweza pia kumpa mhazini ufikiaji wake.",
+"Drag guests onto tables (or tap a guest, then tap a table). Changes are saved instantly.":"Buruta wageni kwenye meza (au gusa mgeni, kisha gusa meza). Mabadiliko yanahifadhiwa papo hapo.",
+"Drag the name box to the right place on the poster.":"Buruta kisanduku cha jina hadi mahali sahihi kwenye poster.",
+"Each event has its own poster, guest list, cards and QR codes.":"Kila tukio lina poster, orodha ya wageni, kadi na QR code zake.",
+"Edit event":"Hariri tukio",
+"Edit guest":"Hariri mgeni",
+"Email address":"Barua pepe",
+"English":"Kiingereza",
+"Event":"Tukio",
+"Event Invitation & Guest Management Portal":"Mfumo wa Mialiko ya Matukio na Usimamizi wa Wageni",
+"Event and poster":"Tukio na poster",
+"Event day":"Siku ya tukio",
+"Event day: check-in at the door":"Siku ya tukio: check-in mlangoni",
+"Event details":"Maelezo ya tukio",
+"Event name":"Jina la tukio",
+"Event name *":"Jina la tukio *",
+"Event photos":"Picha za tukio",
+"Event photos and gallery":"Picha za tukio na albamu",
+"Event readiness":"Maandalizi ya tukio",
+"Event statistics":"Takwimu za tukio",
+"Event type":"Aina ya tukio",
+"Event-day check-in":"Check-in siku ya tukio",
+"Events":"Matukio",
+"Events from all customers.":"Matukio ya wateja wote.",
+"Events you created":"Matukio uliyounda",
+"Every guest gets a card with their name, card type and a unique QR code.":"Kila mgeni anapata kadi yenye jina lake, aina ya kadi na QR code ya kipekee.",
+"Everyone":"Kila mtu",
+"Excel":"Excel",
+"Excel report":"Ripoti ya Excel",
+"Expected (RSVP yes)":"Wanaotarajiwa (RSVP ndiyo)",
+"Export":"Hamisha",
+"Family":"Familia",
+"Fatuma Ali":"Fatuma Ali",
+"Fill in the details, upload a poster, then position the guest name on it.":"Jaza maelezo, pakia poster, kisha weka jina la mgeni mahali pake.",
+"Font":"Herufi",
+"Food & drinks":"Chakula na vinywaji",
+"Friends":"Marafiki",
+"From contributors":"Kutoka kwa wachangiaji",
+"Full name":"Jina kamili",
+"Full name *":"Jina kamili *",
+"Full report (PDF)":"Ripoti kamili (PDF)",
+"Fully paid":"Wamekamilisha",
+"Fundraising":"Uchangiaji",
+"Generate all":"Tengeneza zote",
+"Get started":"Anza",
+"Getting started":"Kuanza",
+"Getting started in 5 steps":"Kuanza kwa hatua 5",
+"Give a colleague access to the selected event. They create an account with the email below. A":"Mpe mwenzako ufikiaji wa tukio ulilochagua. Anafungua akaunti kwa barua pepe iliyo hapa chini.",
+"Go to":"Nenda",
+"Google Maps link":"Kiungo cha Google Maps",
+"Graduation":"Mahafali",
+"Group":"Kundi",
+"Guest":"Mgeni",
+"Guest cards":"Kadi za wageni",
+"Guest details":"Maelezo ya mgeni",
+"Guest list":"Orodha ya wageni",
+"Guest name position — Double":"Mahali pa jina la mgeni — Double",
+"Guest name position — Single":"Mahali pa jina la mgeni — Single",
+"Guest not found.":"Mgeni hajapatikana.",
+"Guest report":"Ripoti ya wageni",
+"Guests":"Wageni",
+"Guests added":"Wageni walioongezwa",
+"Guests can see the gallery":"Wageni wanaweza kuona albamu",
+"Guests not yet invited":"Wageni ambao hawajaalikwa bado",
+"Guests open one link to view and download the photos. No account needed.":"Wageni wanafungua kiungo kimoja kutazama na kupakua picha. Hakuna akaunti inayohitajika.",
+"Guests open their invitation link to answer Yes or No. A Double card lets them confirm one or two people.":"Wageni wanafungua kiungo cha mwaliko kujibu Ndiyo au Hapana. Kadi ya Double inawawezesha kuthibitisha mtu mmoja au wawili.",
+"Guests reply from their phones":"Wageni wanajibu kwa simu zao",
+"Guests reply to RSVP from their phone, no account needed":"Wageni wanajibu RSVP kwa simu zao, hakuna akaunti inayohitajika",
+"Guests see “Please reply before…” on their card.":"Wageni wataona “Tafadhali jibu kabla ya…” kwenye kadi yao.",
+"Guests who arrived (thank-you)":"Wageni waliofika (asante)",
+"Guests who received an invitation":"Wageni waliopokea mwaliko",
+"Hall hire":"Kukodi ukumbi",
+"Halopesa":"Halopesa",
+"Harambee":"Harambee",
+"Help & guide":"Msaada na mwongozo",
+"How sending works":"Jinsi kutuma kunavyofanya kazi",
+"Import Excel":"Ingiza Excel",
+"Insights":"Uchambuzi",
+"Invitation":"Mwaliko",
+"Invitations sent":"Mialiko iliyotumwa",
+"Invite":"Alika",
+"Invited":"Walioalikwa",
+"Invited but did not arrive (thank-you)":"Walioalikwa lakini hawakufika (asante)",
+"Invited, no reply yet (reminder)":"Walioalikwa, bado hawajajibu (kikumbusho)",
+"It takes effect as soon as you save.":"Inaanza kutumika mara unapohifadhi.",
+"JPG, PNG or WEBP":"JPG, PNG au WEBP",
+"JPG, PNG or WebP":"JPG, PNG au WebP",
+"Joined":"Alijiunga",
+"Kiswahili":"Kiswahili",
+"Kitchen Party":"Kitchen Party",
+"Leave “Pledged” empty if the person just gave money without promising an amount; the balance will be zero.":"Acha “Ahadi” wazi kama mtu ametoa pesa bila kuahidi kiasi; salio litakuwa sifuri.",
+"Live reports on invitations, replies and attendance":"Ripoti za moja kwa moja za mialiko, majibu na mahudhurio",
+"Login":"Ingia",
+"Login into SHEREHE HUB":"Ingia kwenye SHEREHE HUB",
+"Logout":"Toka",
+"M-Pesa":"M-Pesa",
+"Make one for me":"Nitengenezee",
+"Making a poster":"Kutengeneza poster",
+"Manage guests":"Simamia wageni",
+"Manual check-in for guests without a QR code or phone.":"Check-in ya mkono kwa wageni wasio na QR code au simu.",
+"Message":"Ujumbe",
+"Message those who missed":"Waandikie waliokosa",
+"Message to guests":"Ujumbe kwa wageni",
+"Message us on WhatsApp and we will help you.":"Tuandikie WhatsApp tutakusaidia.",
+"Messages are sent automatically when WhatsApp Business is connected; otherwise WhatsApp opens on your phone for each guest.":"Ujumbe unatumwa kiotomatiki WhatsApp Business ikiunganishwa; vinginevyo WhatsApp inafunguka kwenye simu yako kwa kila mgeni.",
+"Messaging":"Ujumbe",
+"My Events":"Matukio yangu",
+"My account":"Akaunti yangu",
+"Name":"Jina",
+"Name, date, venue and poster":"Jina, tarehe, ukumbi na poster",
+"New event":"Tukio jipya",
+"New password":"Nenosiri jipya",
+"New table":"Meza mpya",
+"Next event":"Tukio lijalo",
+"No designer needed. The poster is built from the event name, date, venue and message you entered above, and updates as you type. Guest names are added on top automatically.":"Huhitaji mbunifu. Poster inatengenezwa kutokana na jina la tukio, tarehe, ukumbi na ujumbe ulioandika hapo juu, na inabadilika unapoandika. Majina ya wageni yanaongezwa juu yake kiotomatiki.",
+"No events yet":"Bado hakuna matukio",
+"No photos yet":"Bado hakuna picha",
+"No poster selected.":"Hakuna poster iliyochaguliwa.",
+"No scans yet":"Bado hakuna skani",
+"Not Registered?":"Hujajisajili?",
+"Not attending":"Hawatahudhuria",
+"Not replied yet":"Bado hawajajibu",
+"Not seated":"Hawajapangwa",
+"Not seated yet":"Bado hawajapangwa",
+"Not sent":"Haijatumwa",
+"Not yet arrived":"Bado hawajafika",
+"Not yet arrived (of those attending)":"Bado hawajafika (kati ya wanaohudhuria)",
+"Off — turn on when you are ready.":"Imezimwa — washa ukiwa tayari.",
+"On":"Imewashwa",
+"On the dashboard, use":"Kwenye dashibodi, tumia",
+"One by one or from Excel":"Mmoja mmoja au kutoka Excel",
+"One day before the event, guests who have not replied are reminded automatically (when automatic WhatsApp/SMS sending is connected).":"Siku moja kabla ya tukio, wageni ambao hawajajibu wanakumbushwa kiotomatiki (kutuma kiotomatiki WhatsApp/SMS kukiwa kumeunganishwa).",
+"Only that guest's own table is shown. Guests without a table see nothing.":"Meza ya mgeni huyo tu ndiyo inaonyeshwa. Wageni wasio na meza hawaoni chochote.",
+"Open":"Fungua",
+"Open an event to manage its guests, cards or reports.":"Fungua tukio kusimamia wageni, kadi au ripoti zake.",
+"Optional":"Si lazima",
+"Organiser":"Mwandaaji",
+"Other":"Nyingine",
+"Overdue":"Umechelewa",
+"Overview":"Muhtasari",
+"PDF report":"Ripoti ya PDF",
+"PNG":"PNG",
+"Paid":"Walilipa",
+"Paid so far (TZS)":"Kilicholipwa hadi sasa (TZS)",
+"Password":"Nenosiri",
+"Payment method":"Njia ya malipo",
+"People confirmed":"Watu waliothibitisha",
+"Phone":"Simu",
+"Phone (WhatsApp)":"Simu (WhatsApp)",
+"Phone *":"Simu *",
+"Photos":"Picha",
+"Photos (0)":"Picha (0)",
+"Photos are resized automatically to save space. Up to 250 per event.":"Picha zinapunguzwa ukubwa kiotomatiki kuokoa nafasi. Hadi 250 kwa kila tukio.",
+"Placeholders filled in automatically:":"Maneno yanayojazwa kiotomatiki:",
+"Plan":"Panga",
+"Plan. Invite. Celebrate.":"Panga. Alika. Sherehekea.",
+"Pledge due date":"Tarehe ya mwisho ya ahadi",
+"Pledged":"Ahadi",
+"Pledged amount (TZS)":"Kiasi cha ahadi (TZS)",
+"Pledged, paid and balance for every person.":"Ahadi, kilicholipwa na salio kwa kila mtu.",
+"Position the name on the Double card poster.":"Weka jina kwenye poster ya kadi ya Double.",
+"Poster":"Poster",
+"Poster language":"Lugha ya poster",
+"Poster uploaded":"Poster imepakiwa",
+"Poster — Double card":"Poster — Kadi ya Double",
+"Poster — Single card":"Poster — Kadi ya Single",
+"Preview":"Mwonekano",
+"Print":"Chapisha",
+"Print by table":"Chapisha kwa meza",
+"Print list":"Chapisha orodha",
+"Printing":"Uchapishaji",
+"Privacy Policy":"Sera ya Faragha",
+"Privacy and your guests’ data":"Faragha na data ya wageni wako",
+"Quick answers for the most common tasks.":"Majibu ya haraka kwa kazi za kawaida.",
+"RSVP":"RSVP",
+"RSVP and check-in for this event.":"RSVP na check-in ya tukio hili.",
+"RSVP deadline":"Mwisho wa kujibu RSVP",
+"RSVP pending":"RSVP zinasubiriwa",
+"RSVP replies":"Majibu ya RSVP",
+"Receive RSVPs":"Pokea majibu ya RSVP",
+"Recipients":"Wapokeaji",
+"Record what was spent. It is subtracted from the money collected, and appears in the report.":"Rekodi kilichotumika. Kinatolewa kwenye pesa zilizokusanywa, na kinaonekana kwenye ripoti.",
+"Record who pledged and how much. If they already paid something, enter it too.":"Rekodi nani aliahidi na kiasi gani. Kama tayari amelipa kiasi, kiweke pia.",
+"Refresh":"Onyesha upya",
+"Register to start managing your events.":"Jisajili uanze kusimamia matukio yako.",
+"Registered users.":"Watumiaji waliosajiliwa.",
+"Remind them":"Wakumbushe",
+"Reports":"Ripoti",
+"Reset Password?":"Umesahau nenosiri?",
+"Reset position":"Rudisha mahali",
+"Role":"Jukumu",
+"SINGLE CARD":"KADI YA SINGLE",
+"SMS":"SMS",
+"SMS gateway":"Mfumo wa SMS",
+"Save changes":"Hifadhi mabadiliko",
+"Save contributor":"Hifadhi mchangiaji",
+"Save event":"Hifadhi tukio",
+"Save guest":"Hifadhi mgeni",
+"Save password":"Hifadhi nenosiri",
+"Save to cloud":"Hifadhi mtandaoni",
+"Scan QR codes on the day":"Skani QR code siku ya tukio",
+"Scan a guest's QR code to verify them.":"Skani QR code ya mgeni kumthibitisha.",
+"Scan guest QR":"Skani QR ya mgeni",
+"Scan results appear here.":"Matokeo ya skani yanaonekana hapa.",
+"Scan the guest's QR code at the door, or find their name in the list.":"Skani QR code ya mgeni mlangoni, au tafuta jina lake kwenye orodha.",
+"Scanner is ready.":"Skana iko tayari.",
+"Seated":"Wamepangwa",
+"Seating":"Mpangilio wa meza",
+"Seating plan":"Mpangilio wa meza",
+"Seats":"Viti",
+"Send":"Tuma",
+"Send Off":"Send Off",
+"Send a friendly reminder, or set an RSVP deadline so guests know when to reply.":"Tuma kikumbusho cha kirafiki, au weka mwisho wa kujibu RSVP ili wageni wajue lini wajibu.",
+"Send invitations":"Tuma mialiko",
+"Send invitations to all your guests at once by WhatsApp or SMS.":"Tuma mialiko kwa wageni wako wote kwa mara moja kwa WhatsApp au SMS.",
+"Send messages":"Tuma ujumbe",
+"Send thank-you to guests":"Tuma shukrani kwa wageni",
+"Sending invitations and reminders":"Kutuma mialiko na vikumbusho",
+"Sent through the SMS gateway; if it is not connected, your phone's SMS app opens for each guest.":"Inatumwa kupitia mfumo wa SMS; kama haujaunganishwa, programu ya SMS ya simu yako inafunguka kwa kila mgeni.",
+"Sent · WhatsApp":"Imetumwa · WhatsApp",
+"Service connections":"Miunganisho ya huduma",
+"Set a new password":"Weka nenosiri jipya",
+"Set an":"Weka",
+"Set deadline":"Weka mwisho",
+"Share with guests":"Shiriki na wageni",
+"Show each guest's table on their invitation card":"Onyesha meza ya kila mgeni kwenye kadi yake ya mwaliko",
+"Single":"Single",
+"Single (one person)":"Single (mtu mmoja)",
+"Single cards only":"Kadi za Single tu",
+"Size":"Ukubwa",
+"Start scanner":"Anza kuskani",
+"Status":"Hali",
+"Status of the services that power the system. Secret keys are stored in Supabase and never appear in the browser.":"Hali ya huduma zinazoendesha mfumo. Funguo za siri zinahifadhiwa Supabase na hazionekani kwenye kivinjari.",
+"Still need help?":"Bado unahitaji msaada?",
+"Still owing":"Bado wanadaiwa",
+"Still to collect":"Bado kukusanya",
+"Stop":"Simamisha",
+"Style":"Mtindo",
+"Summary":"Muhtasari",
+"Summary of guests, RSVPs, invitations and check-ins.":"Muhtasari wa wageni, RSVP, mialiko na check-in.",
+"Support":"Msaada",
+"Table / seat":"Meza / kiti",
+"Tables":"Meza",
+"Team access":"Ufikiaji wa timu",
+"Terms of Use":"Masharti ya Matumizi",
+"Thank guests who came":"Washukuru wageni waliokuja",
+"The dashboard shows who has not replied; use":"Dashibodi inaonyesha nani hajajibu; tumia",
+"The guest will be added to the selected event.":"Mgeni ataongezwa kwenye tukio ulilochagua.",
+"The invitation card image. Use a JPG or PNG at least 1000 pixels wide.":"Picha ya kadi ya mwaliko. Tumia JPG au PNG yenye upana wa angalau pikseli 1000.",
+"The poster and name position cannot be changed here.":"Poster na mahali pa jina havibadilishwi hapa.",
+"The system guides you step by step.":"Mfumo unakuongoza hatua kwa hatua.",
+"The thank-you message includes the gallery link when sharing is on.":"Ujumbe wa shukrani unajumuisha kiungo cha albamu pale kushiriki kumewashwa.",
+"This is a preview of each card. Click":"Huu ni mwonekano wa kila kadi. Bonyeza",
+"Tigo Pesa":"Tigo Pesa",
+"Total guests":"Jumla ya wageni",
+"Total collected":"Jumla iliyokusanywa",
+"Total expenses":"Jumla ya matumizi",
+"Total pledged":"Jumla ya ahadi",
+"Track what each person pledged, what they have paid and what they still owe.":"Fuatilia kila mtu aliahidi nini, amelipa nini na anadaiwa nini.",
+"Transport":"Usafiri",
+"Treasurer (contributions)":"Mhazini (michango)",
+"Type":"Aina",
+"Undo":"Tendua",
+"Update this guest's details.":"Sasisha maelezo ya mgeni huyu.",
+"Update your details or change your password.":"Sasisha maelezo yako au badilisha nenosiri lako.",
+"Upload my poster":"Pakia poster yangu",
+"Upload photos":"Pakia picha",
+"Upload photos from the event, share them with your guests and send a thank-you message.":"Pakia picha za tukio, zishiriki na wageni wako na utume ujumbe wa shukrani.",
+"Upload poster":"Pakia poster",
+"Upload the first photos from the event.":"Pakia picha za kwanza za tukio.",
+"Use a different poster for the Double card":"Tumia poster tofauti kwa kadi ya Double",
+"VIP":"VIP",
+"Venue":"Ukumbi",
+"Verification":"Uthibitisho",
+"View all":"Tazama zote",
+"Waiting":"Anasubiriwa",
+"Wedding":"Harusi",
+"Welcome":"Karibu",
+"What was it for?":"Ilikuwa ya nini?",
+"WhatsApp":"WhatsApp",
+"WhatsApp Business API":"WhatsApp Business API",
+"WhatsApp or SMS":"WhatsApp au SMS",
+"WhatsApp us":"Tuandikie WhatsApp",
+"WhatsApp: if WhatsApp Business is connected, messages are sent automatically. Otherwise you get a list to click through, and WhatsApp opens on your phone for each guest.":"WhatsApp: WhatsApp Business ikiunganishwa, ujumbe unatumwa kiotomatiki. Vinginevyo unapata orodha ya kubonyeza, na WhatsApp inafunguka kwenye simu yako kwa kila mgeni.",
+"Workflow: Event → Guests → Cards → Invitations → Check-in":"Hatua: Tukio → Wageni → Kadi → Mialiko → Check-in",
+"You are invited":"Umealikwa",
+"You can give door staff access with their e-mail address; they only see the check-in screen.":"Unaweza kumpa mlinzi wa mlango ufikiaji kwa barua pepe yake; anaona skrini ya check-in pekee.",
+"Your Excel/CSV file needs three columns:":"Faili yako ya Excel/CSV inahitaji safu tatu:",
+"Your events":"Matukio yako",
+"Your guest lists, phone numbers and contributions are visible only to you and to people you give access. Guests can only see their own invitation.":"Orodha za wageni, namba za simu na michango vinaonekana kwako tu na kwa watu uliowapa ufikiaji. Wageni wanaona mwaliko wao tu.",
+"Your workspace overview":"Muhtasari wa kazi yako",
+"and":"na",
+"and scan each guest’s QR code, or search by name.":"na uskani QR code ya kila mgeni, au tafuta kwa jina.",
+"days to go":"siku zimebaki",
+"door staff":"mlinzi wa mlango",
+"expenses":"matumizi",
+"for attendance, contributions and expenses in one document.":"kupata mahudhurio, michango na matumizi katika hati moja.",
+"member only sees the Check-in page. A":"anaona ukurasa wa Check-in tu.",
+"on the event so guests know when to reply.":"kwenye tukio ili wageni wajue lini wajibu.",
+"only sees Contributions (can add and edit payments and expenses, but cannot delete or see guests).":"anaona Michango tu (anaweza kuongeza na kuhariri malipo na matumizi, lakini hawezi kufuta wala kuona wageni).",
+"people":"watu",
+"records who pledged and who paid. Add payments as they arrive; balances update automatically.":"inarekodi nani aliahidi na nani amelipa. Ongeza malipo yanapofika; salio linajisasisha.",
+"to download a guest's full card, or":"kupakua kadi kamili ya mgeni, au",
+"to get them all at once.":"kuzipata zote kwa mara moja.",
+"to nudge them.":"kuwakumbusha.",
+"to pick from 20 modern styles and 4 colours each. The poster uses your event name, date, venue and message, so fill those in first. You can download the poster before saving.":"kuchagua kati ya mitindo 20 ya kisasa yenye rangi 4 kila mmoja. Poster inatumia jina la tukio, tarehe, ukumbi na ujumbe wako, kwa hiyo jaza hivyo kwanza. Unaweza kupakua poster kabla ya kuhifadhi.",
+"to see the cash in hand.":"kuona pesa mkononi.",
+"to share a gallery link with your guests.":"kushiriki kiungo cha albamu na wageni wako.",
+"to use your own design, or":"kutumia muundo wako mwenyewe, au",
+"treasurer":"mhazini",
+"© SHEREHE HUB · Made for moments worth celebrating":"© SHEREHE HUB · Imetengenezwa kwa nyakati za kusherehekea",
+"· Contributors:":"· Wachangiaji:",
+"✨ Create it here":"✨ Itengeneze hapa",
+/* ---- public RSVP page ---- */
+"YOU ARE INVITED":"UMEALIKWA",
+"Will you attend?":"Utahudhuria?",
+"✓ Will Attend":"✓ Nitahudhuria",
+"✕ Will Not Attend":"✕ Sitaweza kuhudhuria",
+"Number attending":"Idadi ya watakaokuja",
+"1 person":"Mtu 1",
+"2 people":"Watu 2",
+"Venue TBA":"Ukumbi utatangazwa",
+"Open venue in Google Maps":"Fungua ukumbi kwenye Google Maps",
+"Saving RSVP...":"Inahifadhi jibu lako...",
+"Please reply before":"Tafadhali jibu kabla ya",
+
+"About SHEREHE HUB":"Kuhusu SHEREHE HUB","Your full name":"Jina lako kamili","Show or hide password":"Onyesha au ficha nenosiri",
+"Open menu":"Fungua menyu","Main navigation":"Menyu kuu","Duplicate event":"Nakili tukio","Delete event":"Futa tukio",
+"e.g. Amina & John Wedding":"mf. Harusi ya Amina na John","Hall or location":"Ukumbi au mahali",
+"Paste the Google Maps link":"Bandika kiungo cha Google Maps",
+"e.g. We would love to celebrate with you. Dress code: blue.":"mf. Tungependa kusherehekea nawe. Mavazi: rangi ya bluu.",
+"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…",
+"e.g. Table 7, VIP, Family":"mf. Meza 7, VIP, Familia","e.g. Mzee Kimaro":"mf. Mzee Kimaro","e.g. Hall booking":"mf. Malipo ya ukumbi",
+"Legal":"Kisheria","8+ characters, letters and numbers":"Herufi 8+, herufi na namba","Repeat the password":"Rudia nenosiri",
+"e.g. Table 5":"mf. Meza 5","e.g. Family, VIP":"mf. Familia, VIP","e.g. Amina Juma":"mf. Amina Juma",
+"View details":"Tazama maelezo","Search guest or group…":"Tafuta mgeni au kundi…","Rename or change seats":"Badilisha jina au viti",
+"Edit table":"Hariri meza","Delete table":"Futa meza","Remove from table":"Ondoa mezani","Open invitation":"Fungua mwaliko",
+"Gallery link":"Kiungo cha albamu","Details and history":"Maelezo na historia","Delete expense":"Futa matumizi",
+"Share gallery with guests":"Shiriki albamu na wageni","Remove":"Ondoa","Switch to English":"Switch to English","you@example.com":"you@example.com",
+
+"Add a payment":"Ongeza malipo","Add a table above, or press “Auto-seat the rest” to create tables automatically.":"Ongeza meza hapo juu, au bonyeza “Panga waliobaki kiotomatiki” kutengeneza meza kiotomatiki.",
+"Add from contributors":"Ongeza kutoka kwa wachangiaji","Add many people at once from an Excel or CSV file.":"Ongeza watu wengi kwa mara moja kutoka faili ya Excel au CSV.",
+"Add the first one below.":"Ongeza wa kwanza hapa chini.","Already in the guest list":"Yupo kwenye orodha ya wageni tayari","Arrange by":"Panga kwa",
+"Arrived · syncing":"Amefika · inasawazisha","Attendance Overview":"Muhtasari wa mahudhurio","Automatic sending: Supabase Edge Function":"Kutuma kiotomatiki: Supabase Edge Function",
+"Best for this event":"Bora kwa tukio hili","Card Breakdown":"Mgawanyo wa kadi","Card type":"Aina ya kadi","Change the name or the number of seats.":"Badilisha jina au idadi ya viti.",
+"Cleared":"Imekamilika","Columns:":"Safu:","Customers / Owners":"Wateja / Wamiliki","Data for this event only.":"Data ya tukio hili tu.","Delete payment":"Futa malipo",
+"Double Cards":"Kadi za Double","Double cards":"Kadi za Double","Drop guests here":"Weka wageni hapa","Due date":"Tarehe ya mwisho","Edit details":"Hariri maelezo",
+"Event poster":"Poster ya tukio","Everyone invited has replied":"Wote walioalikwa wamejibu","Generate":"Tengeneza","Guest Report":"Ripoti ya wageni","Guest distribution.":"Mgawanyo wa wageni.",
+"Guests should reply before":"Wageni wanapaswa kujibu kabla ya","Hide":"Ficha","Import contributors":"Ingiza wachangiaji","Include":"Jumuisha",
+"Invitation could not be opened":"Mwaliko haukuweza kufunguliwa","Invitation not found":"Mwaliko haupatikani","Invitations Sent":"Mialiko iliyotumwa","Method":"Njia",
+"Name (A–Z)":"Jina (A–Z)","No contributions yet.":"Bado hakuna michango.","No contributors yet":"Bado hakuna wachangiaji","No data.":"Hakuna data.","No events":"Hakuna matukio",
+"No events to report yet.":"Bado hakuna matukio ya kuripoti.","No events yet. Create an event first.":"Bado hakuna matukio. Tengeneza tukio kwanza.",
+"No guests match this search or filter.":"Hakuna wageni wanaolingana na utafutaji au kichujio hiki.","No guests yet":"Bado hakuna wageni","No guests yet.":"Bado hakuna wageni.",
+"No payments yet.":"Bado hakuna malipo.","No tables yet":"Bado hakuna meza","Nothing new to import from this file.":"Hakuna kipya cha kuingiza kutoka faili hii.","Offline.":"Nje ya mtandao.",
+"Open Invitation":"Fungua mwaliko","Opens your printer, or choose “Save as PDF”.":"Inafungua printa yako, au chagua “Save as PDF”.","Paid so far":"Kilicholipwa hadi sasa",
+"Payer":"Aliyelipa","Payment history":"Historia ya malipo","People":"Watu","People who contributed to":"Watu waliochangia","Please contact the event organiser.":"Tafadhali wasiliana na mwandaaji wa tukio.",
+"Point the camera at their QR code.":"Elekeza kamera kwenye QR code yake.","Previous":"Iliyotangulia","Print guest list":"Chapisha orodha ya wageni","Provider":"Mtoa huduma",
+"RSVP Attending":"RSVP: Watahudhuria","RSVP was not saved.":"Jibu la RSVP halikuhifadhiwa.","Reading file…":"Inasoma faili…","Receipt (PDF)":"Risiti (PDF)","Receipt PDF":"Risiti ya PDF",
+"Scan again":"Skani tena","Scan next":"Skani inayofuata","Search guest by name or phone...":"Tafuta mgeni kwa jina au simu...","Send a statement":"Tuma taarifa",
+"Send receipt on WhatsApp":"Tuma risiti kwa WhatsApp","Sent":"Imetumwa","Shown on every invitation card. Late replies are still accepted.":"Inaonyeshwa kwenye kila kadi ya mwaliko. Majibu ya kuchelewa bado yanakubaliwa.",
+"Single Cards":"Kadi za Single","Single cards":"Kadi za Single","The RSVP deadline has passed":"Muda wa kujibu RSVP umepita",
+"The contributions table is not set up yet.":"Jedwali la michango halijaandaliwa bado.","The expenses table is not set up yet. Run the expenses SQL file in Supabase.":"Jedwali la matumizi halijaandaliwa bado. Endesha faili ya SQL ya matumizi kwenye Supabase.",
+"This QR code does not match the event, guest or card type.":"QR code hii hailingani na tukio, mgeni au aina ya kadi.",
+"This guest will be permanently removed from this event's guest list.":"Mgeni huyu ataondolewa kabisa kwenye orodha ya wageni ya tukio hili.",
+"This is not a valid SHEREHE HUB QR code.":"Hii si QR code halali ya SHEREHE HUB.","This link is not valid or has been removed.":"Kiungo hiki si sahihi au kimeondolewa.","This link is not valid.":"Kiungo hiki si sahihi.",
+"Total Guests":"Jumla ya wageni","Unique":"Pekee","View":"Tazama","Will be added":"Ataongezwa","and are not in the guest list yet.":"na bado hawapo kwenye orodha ya wageni.",
+"confirmed attendees":"waliothibitisha kuhudhuria","host":"mwenyeji","Welcome,":"Karibu,","e.g. 200,000":"mf. 200,000","e.g. 50,000":"mf. 50,000","e.g. Mzee Kimaro":"mf. Mzee Kimaro",
+
+"Event Report":"Ripoti ya Tukio","Guests invited":"Wageni walioalikwa","Replied Yes":"Waliojibu Ndiyo","Did not arrive":"Hawakufika","No reply":"Hajajibu","said Yes, not seen":"walijibu Ndiyo, hawajaonekana",
+"Collected":"Zilizokusanywa","Expenses":"Matumizi","Cash in hand":"Pesa mkononi","Guest attendance":"Mahudhurio ya wageni","Attendance":"Mahudhurio",
+"No guests were added to this event.":"Hakuna wageni walioongezwa kwenye tukio hili.","Expense category":"Aina ya matumizi","Share":"Mgao",
+"Host / Organiser (name & signature)":"Mwenyeji / Mwandaaji (jina na sahihi)","Chairperson (name & signature)":"Mwenyekiti (jina na sahihi)","Treasurer (name & signature)":"Mhazini (jina na sahihi)",
+"Contribution Report":"Ripoti ya Michango","Due":"Mwisho","Preparing PDF…":"Inaandaa PDF…","Owing":"Anadaiwa","No pledge":"Hana ahadi",
+"PAYMENT RECEIPT":"RISITI YA MALIPO","RECEIVED FROM":"IMEPOKELEWA KUTOKA KWA","AMOUNT RECEIVED":"KIASI KILICHOPOKELEWA","Total paid to date":"Jumla iliyolipwa hadi sasa","Extra given":"Kilichozidi",
+"Balance remaining":"Salio lililobaki","Thank you for your contribution. God bless you.":"Asante kwa mchango wako. Mungu akubariki.","Received by (signature)":"Imepokelewa na (sahihi)",
+"Generated by SHEREHE HUB":"Imetengenezwa na SHEREHE HUB","Try again":"Jaribu tena",
+
+"Guest messages":"Salamu za wageni","Messages from your guests":"Ujumbe kutoka kwa wageni wako","Blessings and congratulations your guests leave when they answer their invitation.":"Baraka na pongezi ambazo wageni wako wanaacha wanapojibu mwaliko wao.",
+"Messages":"Salamu","Visible on the big screen":"Zinazoonekana kwenye skrini kubwa","Hidden":"Zilizofichwa","Big screen":"Skrini kubwa","Memory book (PDF)":"Kitabu cha kumbukumbu (PDF)","Show":"Onyesha",
+"No messages yet":"Bado hakuna salamu","When guests answer their invitation they can leave a message for you. It will appear here.":"Wageni wakijibu mwaliko wao wanaweza kukuachia salamu. Zitaonekana hapa.",
+"Delete message?":"Kufuta salamu?","This message will be permanently removed.":"Salamu hii itaondolewa kabisa.","Messages need an internet connection.":"Salamu zinahitaji mtandao.","Guest book":"Kitabu cha wageni",
+"Guest messages and the big screen":"Salamu za wageni na skrini kubwa","Close":"Funga",
+/* ---- other UI ---- */
+"Invitation card":"Kadi ya mwaliko",
+"Download PNG":"Pakua PNG",
+"Download":"Pakua",
+"Delete":"Futa",
+"Edit":"Hariri",
+"Save":"Hifadhi",
+"Yes":"Ndiyo",
+"No":"Hapana",
+"Search":"Tafuta",
+"Loading…":"Inapakia…",
+"Loading...":"Inapakia...",
+"Remove":"Ondoa",
+"Back":"Rudi",
+"Next":"Endelea",
+"Done":"Imekamilika",
+"Total":"Jumla",
+"Not yet":"Bado",
+"Checked-in":"Amefika",
+"Pending":"Anasubiriwa",
+"Not Attending":"Hawatahudhuria",
+"Single card":"Kadi ya Single",
+"Double card":"Kadi ya Double",
+"Invitation sent":"Mwaliko umetumwa",
+"Waiting for reply":"Anasubiri jibu",
+"Contributors:":"Wachangiaji:",
+"Date and time":"Tarehe na saa",
+"Phone number":"Namba ya simu",
+"Email":"Barua pepe",
+"Send WhatsApp":"Tuma WhatsApp",
+"Send SMS":"Tuma SMS",
+"Poster style":"Mtindo wa poster",
+"Language":"Lugha",
+"Photo":"Picha",
+"Detail":"Maelezo",
+"Details":"Maelezo",
+"Table":"Meza",
+"Tables:":"Meza:",
+"Remove access":"Ondoa ufikiaji"
+};
+
+/* element-level translations (innerHTML with inline tags) */
+window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>":"<ul><li>Mgeni akishajibu mwaliko wake, kisanduku kinatokea ambapo anaweza kukuachia <b>salamu</b>.</li><li>Fungua <b>Salamu za wageni</b> kuzisoma. Tumia <b>Ficha</b> kwa salamu usiyotaka ionekane.</li><li>Bonyeza <b>Skrini kubwa</b> siku ya tukio kuonyesha salamu moja moja kwenye TV au projekta.</li><li>Bonyeza <b>Kitabu cha kumbukumbu (PDF)</b> kuhifadhi salamu zote kama kumbukumbu.</li></ul>",
+
+"<b>Cards &amp; QR</b>: generate each guest’s personal invitation card with their QR code.":"<b>Kadi na QR</b>: tengeneza kadi ya mwaliko binafsi ya kila mgeni yenye QR code yake.",
+"<b>Check-in</b>: on the day, scan the QR codes at the door.":"<b>Check-in</b>: siku ya tukio, skani QR code mlangoni.",
+"<b>Contributions</b> records who pledged and who paid. Add payments as they arrive; balances update automatically.":"<b>Michango</b> inarekodi nani aliahidi na nani amelipa. Ongeza malipo yanapofika; salio linajisasisha lenyewe.",
+"<b>Create Event</b>: name, date, venue, and a poster (upload your own or let SHEREHE HUB make one).":"<b>Tengeneza tukio</b>: jina, tarehe, ukumbi, na poster (pakia yako au iache SHEREHE HUB iitengeneze).",
+"<b>Guests</b>: add them one by one or import an Excel file. Choose Single (1 person) or Double (2 people).":"<b>Wageni</b>: waongeze mmoja mmoja au ingiza faili ya Excel. Chagua Single (mtu 1) au Double (watu 2).",
+"<b>Messaging</b>: send the invitations by WhatsApp or SMS.":"<b>Ujumbe</b>: tuma mialiko kwa WhatsApp au SMS.",
+"<b>No photos yet</b>Upload the first photos from the event.":"<b>Bado hakuna picha</b>Pakia picha za kwanza za tukio.",
+"<b>No scans yet</b>Scan a guest's QR code to verify them.":"<b>Bado hakuna skani</b>Skani QR code ya mgeni kumthibitisha.",
+"<b>SHEREHE HUB</b><br>Workflow: Event → Guests → Cards → Invitations → Check-in":"<b>SHEREHE HUB</b><br>Hatua: Tukio → Wageni → Kadi → Mialiko → Check-in",
+"<b>Still need help?</b>Message us on WhatsApp and we will help you.":"<b>Bado unahitaji msaada?</b>Tuandikie WhatsApp tutakusaidia.",
+"Add <b>expenses</b> to see the cash in hand.":"Ongeza <b>matumizi</b> kuona pesa mkononi.",
+"Give a colleague access to the selected event. They create an account with the email below. A <b>door staff</b> member only sees the Check-in page. A <b>treasurer</b> only sees Contributions (can add and edit payments and expenses, but cannot delete or see guests).":"Mpe mwenzako ufikiaji wa tukio ulilochagua. Anafungua akaunti kwa barua pepe iliyo hapa chini. <b>Mlinzi wa mlango</b> anaona ukurasa wa Check-in tu. <b>Mhazini</b> anaona Michango tu (anaweza kuongeza na kuhariri malipo na matumizi, lakini hawezi kufuta wala kuona wageni).",
+"Go to <b>Messaging</b>, choose the channel and the audience, then send.":"Nenda <b>Ujumbe</b>, chagua njia na wapokeaji, kisha tuma.",
+"Imetumwa kupitia SHEREHE HUB · <a href=\"#privacy\" class=\"legal-link\" onclick=\"openLegal('privacy');return false\">Faragha</a> · <a href=\"#terms\" class=\"legal-link\" onclick=\"openLegal('terms');return false\">Masharti</a>":null,
+"On <b>Create Event</b>, open the Poster section. Choose <b>Upload poster</b> to use your own design, or <b>Make one for me</b> to pick from 20 modern styles and 4 colours each. The poster uses your event name, date, venue and message, so fill those in first. You can download the poster before saving.":"Kwenye <b>Tengeneza tukio</b>, fungua sehemu ya Poster. Chagua <b>Pakia poster</b> kutumia muundo wako mwenyewe, au <b>Nitengenezee</b> kuchagua kati ya mitindo 20 ya kisasa yenye rangi 4 kila mmoja. Poster inatumia jina la tukio, tarehe, ukumbi na ujumbe wako, kwa hiyo jaza hivyo kwanza. Unaweza kupakua poster kabla ya kuhifadhi.",
+"On <b>Reports</b>, press <b>Full report (PDF)</b> for attendance, contributions and expenses in one document.":"Kwenye <b>Ripoti</b>, bonyeza <b>Ripoti kamili (PDF)</b> kupata mahudhurio, michango na matumizi katika hati moja.",
+"On the dashboard, use <b>Thank guests who came</b> and <b>Message those who missed</b>.":"Kwenye dashibodi, tumia <b>Washukuru wageni waliokuja</b> na <b>Waandikie waliokosa</b>.",
+"Open <b>Check-in</b> and scan each guest’s QR code, or search by name.":"Fungua <b>Check-in</b> na uskani QR code ya kila mgeni, au tafuta kwa jina.",
+"Open <b>Photos</b> to share a gallery link with your guests.":"Fungua <b>Picha</b> kushiriki kiungo cha albamu na wageni wako.",
+"Set an <b>RSVP deadline</b> on the event so guests know when to reply.":"Weka <b>mwisho wa kujibu RSVP</b> kwenye tukio ili wageni wajue lini wajibu.",
+"The dashboard shows who has not replied; use <b>Remind them</b> to nudge them.":"Dashibodi inaonyesha nani hajajibu; tumia <b>Wakumbushe</b> kuwakumbusha.",
+"This is a preview of each card. Click <b>PNG</b> to download a guest's full card, or <b>Download ZIP</b> to get them all at once.":"Huu ni mwonekano wa kila kadi. Bonyeza <b>PNG</b> kupakua kadi kamili ya mgeni, au <b>Pakua ZIP</b> kuzipata zote kwa mara moja.",
+"© SHEREHE HUB · Made for moments worth celebrating<br><a href=\"#privacy\" class=\"legal-link\">Privacy Policy</a> · <a href=\"#terms\" class=\"legal-link\">Terms of Use</a>":"© SHEREHE HUB · Imetengenezwa kwa nyakati za kusherehekea<br><a href=\"#privacy\" class=\"legal-link\">Sera ya Faragha</a> · <a href=\"#terms\" class=\"legal-link\">Masharti ya Matumizi</a>"
+};
+
+/* patterns: {0},{1} are captured pieces (numbers/names), kept as-is */
+window.SW_PAT = [["{#0} messages","Salamu {0}"],["{#0} message","Salamu {0}"],
+["{#0} single, {#1} double","Single {0}, Double {1}"],["{#0} never replied","{0} hawakujibu"],
+["{#0} of {#1} invitations were sent | {#2} people arrived in total (including double-card partners)","Mialiko {0} kati ya {1} ilitumwa | watu {2} walifika kwa jumla (pamoja na wenza wa kadi za Double)"],
+["{#0} of {#1} invitations were sent | {#2} person arrived in total (including double-card partners)","Mialiko {0} kati ya {1} ilitumwa | mtu {2} alifika kwa jumla (pamoja na wenza wa kadi za Double)"],
+["{#0} contributors | {#1} fully paid | {#2} still owing | {#3}% of pledges collected","Wachangiaji {0} | {1} wamekamilisha | {2} wanadaiwa | {3}% ya ahadi imekusanywa"],
+["Collected TZS {#0} - Expenses TZS {#1} = Cash in hand TZS {#2}","Zilizokusanywa TZS {0} - Matumizi TZS {1} = Pesa mkononi TZS {2}"],
+["Page {#0} of {#1}","Ukurasa {0} wa {1}"],["Generated by SHEREHE HUB | {0}","Imetengenezwa na SHEREHE HUB | {0}"],
+["No. {0} | {1}","Na. {0} | {1}"],["Receipt-{0}","Risiti-{0}"],
+
+["Table {0}","Meza {0}"],["Tables ({#0})","Meza ({0})"],["{#0} seats","Viti {0}"],["{#0} seat","Kiti {0}"],["{#0} guests","Wageni {0}"],["{#0} guest","Mgeni {0}"],
+["{#0} people","Watu {0}"],["{#0} person","Mtu {0}"],
+["{#0} guests on the list","Wageni {0} kwenye orodha"],
+["{#0} of {#1} invited","{0} kati ya {1} wamealikwa"],
+["{#0} of {#1} replied","{0} kati ya {1} wamejibu"],
+["{#0} guest has not replied yet","Mgeni {0} bado hajajibu"],
+["{#0} guests have not replied yet","Wageni {0} bado hawajajibu"],
+["{#0} guests will receive this","Wageni {0} watapokea hii"],
+["{#0} guest will receive this","Mgeni {0} atapokea hii"],
+["{#0} / {#1} seats","Viti {0} / {1}"],
+["{#0}% of guests","{0}% ya wageni"],
+["{#0}% · {#1} people","{0}% · watu {1}"],
+["{#0}% of pledges collected","{0}% ya ahadi imekusanywa"],
+["{#0} single · {#1} double","Single {0} · Double {1}"],
+["{#0} contributor · {#1} fully paid · {#2} still owing","Mchangiaji {0} · {1} wamekamilisha · {2} wanadaiwa"],
+["{#0} contributors · {#1} fully paid · {#2} still owing","Wachangiaji {0} · {1} wamekamilisha · {2} wanadaiwa"],
+["{#0} guests · {#1} invited · {#2} attending · {#3} arrived","Wageni {0} · {1} wamealikwa · {2} watahudhuria · {3} wamefika"],
+["{#0} arrived","{0} wamefika"],
+["Attending {#0}","Watahudhuria {0}"],["Declined {#0}","Wamekataa {0}"],["Awaiting {#0}","Wanasubiriwa {0}"],
+["Photos ({#0})","Picha ({0})"],["Total ({#0})","Jumla ({0})"],["Total expenses ({#0})","Jumla ya matumizi ({0})"],
+["Welcome, {0}","Karibu, {0}"],
+["Poster for {0}","Poster ya {0}"],
+["Door staff · can check in guests for {0}","Mlinzi wa mlango · anaweza kufanya check-in ya wageni wa {0}"],
+["Treasurer · can record contributions and expenses for {0}","Mhazini · anaweza kurekodi michango na matumizi ya {0}"],
+["{0} · in guest list","{0} · yupo kwenye orodha ya wageni"],
+["Guests ({0})","Wageni ({0})"],
+["{#0} photos","Picha {0}"],["{#0} photo","Picha {0}"],
+/* toasts / alerts */
+["{#0} contributors imported.","Wachangiaji {0} wameingizwa."],
+["{#0} guests added{1}","Wageni {0} wameongezwa{1}"],
+["{0} added to the guest list.","{0} ameongezwa kwenye orodha ya wageni."],
+["{0} is already on the list. Add the payment there.","{0} yupo kwenye orodha tayari. Ongeza malipo hapo."],
+["{0} was removed.","{0} ameondolewa."],
+["{#0} guests seated{1}","Wageni {0} wamepangwa{1}"],
+["{0} added for {1}.","{0} imeongezwa kwa {1}."],
+["{#0} of {#1} cards saved.","Kadi {0} kati ya {1} zimehifadhiwa."],
+["{#0}/{#1} cards prepared for {2}.","Kadi {0}/{1} zimeandaliwa kwa {2}."],
+["{#0} photos uploaded{1}","Picha {0} zimepakiwa{1}"],
+["{#0} photo uploaded{1}","Picha {0} imepakiwa{1}"],
+["Card for {0} downloaded.","Kadi ya {0} imepakuliwa."],
+["Welcome, {0}!","Karibu, {0}!"],
+["Sending {0}","Inatuma {0}"],["Saving {0}","Inahifadhi {0}"],
+["Sending SMS to {0}…","Inatuma SMS kwa {0}…"],["Sending WhatsApp to {0}…","Inatuma WhatsApp kwa {0}…"],
+["SMS sent to {0}.","SMS imetumwa kwa {0}."],["WhatsApp sent to {0}.","WhatsApp imetumwa kwa {0}."],
+["{0} could not be sent automatically ({1}). Opened on your phone instead.","{0} haikutumwa kiotomatiki ({1}). Imefunguliwa kwenye simu yako badala yake."],
+["WhatsApp opened for {0}","WhatsApp imefunguka kwa {0}"],
+["SMS app opened for {0}","Programu ya SMS imefunguka kwa {0}"],
+["WhatsApp sent automatically to {0}","WhatsApp imetumwa kiotomatiki kwa {0}"],
+["SMS sent automatically to {0}","SMS imetumwa kiotomatiki kwa {0}"],
+["Guest saved to {0}","Mgeni ameongezwa kwenye {0}"],
+["Could not save: {0}","Imeshindwa kuhifadhi: {0}"],
+["Not saved: {0}","Haikuhifadhiwa: {0}"],
+["Not added: {0}","Haikuongezwa: {0}"],
+["Not deleted: {0}","Haikufutwa: {0}"],
+["Failed: {0}","Imeshindwa: {0}"],
+["Download failed: {0}","Kupakua kumeshindwa: {0}"],
+["Import failed: {0}","Kuingiza kumeshindwa: {0}"],
+["Import stopped: {0}","Kuingiza kumesimama: {0}"],
+["Could not change this: {0}","Imeshindwa kubadilisha: {0}"],
+["Could not change sharing: {0}","Imeshindwa kubadilisha kushiriki: {0}"],
+["Guest not saved: {0}","Mgeni hakuhifadhiwa: {0}"],
+["Check-in was not saved: {0}","Check-in haikuhifadhiwa: {0}"],
+["Check-in could not be saved. {0}","Check-in haikuweza kuhifadhiwa. {0}"],
+["The RSVP was not saved: {0}","Jibu la RSVP halikuhifadhiwa: {0}"],
+["The card could not be generated: {0}","Kadi haikuweza kutengenezwa: {0}"],
+["The card was not saved: {0}","Kadi haikuhifadhiwa: {0}"],
+["Card download failed: {0}","Kupakua kadi kumeshindwa: {0}"],
+["The event was not saved: {0}","Tukio halikuhifadhiwa: {0}"],
+["The event was not updated: {0}","Tukio halikusasishwa: {0}"],
+["The event was not deleted: {0}","Tukio halikufutwa: {0}"],
+["The event was not duplicated: {0}","Tukio halikunakiliwa: {0}"],
+["The guest could not be updated. {0}","Mgeni hakuweza kusasishwa. {0}"],
+["The guest was not deleted. {0}","Mgeni hakufutwa. {0}"],
+["These guests were not saved: {0}","Wageni hawa hawakuhifadhiwa: {0}"],
+["Some photos were not uploaded: {0}","Baadhi ya picha hazikupakiwa: {0}"],
+["Event duplicated{0}","Tukio limenakiliwa{0}"],
+["Delete event \"{0}\"? Its guests, RSVPs and check-in records will be removed.","Kufuta tukio \"{0}\"? Wageni wake, RSVP na rekodi za check-in zitaondolewa."],
+["We sent you a password reset link. Check your email ({0}","Tumekutumia kiungo cha kubadilisha nenosiri. Angalia barua pepe yako ({0}"],
+["No new guests to add ({0}","Hakuna wageni wapya wa kuongeza ({0}"],
+["This event already has {#0} photos (the limit).","Tukio hili tayari lina picha {0} (kikomo)."],
+["{#0} check-in could not be uploaded (guest or event no longer exists).","Check-in {0} haikuweza kupakiwa (mgeni au tukio halipo tena)."],
+["{#0} check-ins could not be uploaded (guest or event no longer exists).","Check-in {0} hazikuweza kupakiwa (mgeni au tukio halipo tena)."]
+];
+
+window.SW_MSG = {
+"A table with this name already exists.":"Meza yenye jina hili tayari ipo.",
+"Access removed.":"Ufikiaji umeondolewa.",
+"Account updated.":"Akaunti imesasishwa.",
+"Add a valid phone number for this person first (Edit details).":"Weka kwanza namba sahihi ya simu ya mtu huyu (Hariri maelezo).",
+"All cards downloaded in a ZIP file.":"Kadi zote zimepakuliwa kwenye faili ya ZIP.",
+"Another table already has this name.":"Meza nyingine tayari ina jina hili.",
+"Browser imezuia popup. Ruhusu popups.":"Browser imezuia popup. Ruhusu popups.",
+"CSV file downloaded.":"Faili ya CSV imepakuliwa.",
+"Check-in removed.":"Check-in imeondolewa.",
+"Check-in saved.":"Check-in imehifadhiwa.",
+"Choose an event.":"Chagua tukio.",
+"Contribution messages need an internet connection.":"Ujumbe wa michango unahitaji mtandao.",
+"Contributions could not be loaded. Please try again.":"Michango haikuweza kupakiwa. Tafadhali jaribu tena.",
+"Contributors could not be loaded. Run the contributors SQL file in Supabase.":"Wachangiaji hawakuweza kupakiwa. Endesha faili ya SQL ya wachangiaji kwenye Supabase.",
+"Copy this link:":"Nakili kiungo hiki:",
+"Could not create the PDF. Check your internet connection and try again.":"Imeshindwa kutengeneza PDF. Angalia mtandao wako kisha ujaribu tena.",
+"Could not create the poster on this device.":"Imeshindwa kutengeneza poster kwenye kifaa hiki.",
+"Could not create the receipt. Check your internet connection.":"Imeshindwa kutengeneza risiti. Angalia mtandao wako.",
+"Create an event before adding guests.":"Tengeneza tukio kabla ya kuongeza wageni.",
+"Creating the PDF needs an internet connection (Excel works offline).":"Kutengeneza PDF kunahitaji mtandao (Excel inafanya kazi bila mtandao).",
+"Creating the PDF needs an internet connection.":"Kutengeneza PDF kunahitaji mtandao.",
+"Duplicating event…":"Inanakili tukio…",
+"Duplicating needs an internet connection.":"Kunakili kunahitaji mtandao.",
+"Enter the pledged amount, or what the person has paid.":"Weka kiasi cha ahadi, au kilichokwisha kulipwa.",
+"Enter your email and we will send you a password reset link:":"Weka barua pepe yako nasi tutakutumia kiungo cha kubadilisha nenosiri:",
+"Event Name:":"Jina la tukio:",
+"Event deleted.":"Tukio limefutwa.",
+"Event not found.":"Tukio halijapatikana.",
+"Event report downloaded.":"Ripoti ya tukio imepakuliwa.",
+"Event saved.":"Tukio limehifadhiwa.",
+"Event updated.":"Tukio limesasishwa.",
+"Events could not be loaded.":"Matukio hayakuweza kupakiwa.",
+"Events loaded, but guests could not be loaded.":"Matukio yamepakiwa, lakini wageni hawakuweza kupakiwa.",
+"Everyone already has a seat.":"Kila mtu ana kiti tayari.",
+"Excel library unavailable; a CSV was downloaded and can be opened in Excel.":"Maktaba ya Excel haipatikani; CSV imepakuliwa na inaweza kufunguliwa kwenye Excel.",
+"Excel report downloaded.":"Ripoti ya Excel imepakuliwa.",
+"Excel template downloaded.":"Kiolezo cha Excel kimepakuliwa.",
+"Gallery link copied.":"Kiungo cha albamu kimenakiliwa.",
+"Guest list downloaded as Excel.":"Orodha ya wageni imepakuliwa kama Excel.",
+"Guest not found in this event.":"Mgeni hayupo kwenye tukio hili.",
+"Importing needs an internet connection.":"Kuingiza kunahitaji mtandao.",
+"Invitation link copied.":"Kiungo cha mwaliko kimenakiliwa.",
+"Name cannot be empty.":"Jina haliwezi kuwa tupu.",
+"No guests match this filter.":"Hakuna wageni wanaolingana na kichujio hiki.",
+"No guests.":"Hakuna wageni.",
+"PDF report downloaded.":"Ripoti ya PDF imepakuliwa.",
+"Password changed. You are signed in.":"Nenosiri limebadilishwa. Umeingia.",
+"Photo deleted.":"Picha imefutwa.",
+"Please choose a date, or press Remove.":"Tafadhali chagua tarehe, au bonyeza Ondoa.",
+"Please choose an event first.":"Tafadhali chagua tukio kwanza.",
+"Please choose image files (JPG, PNG or WebP).":"Tafadhali chagua picha (JPG, PNG au WebP).",
+"Please choose or create an event first.":"Tafadhali chagua au tengeneza tukio kwanza.",
+"Please enter a phone number.":"Tafadhali weka namba ya simu.",
+"Please enter a valid amount.":"Tafadhali weka kiasi sahihi.",
+"Please enter a valid email address.":"Tafadhali weka barua pepe sahihi.",
+"Please enter the amount paid.":"Tafadhali weka kiasi kilicholipwa.",
+"Please enter the amount spent.":"Tafadhali weka kiasi kilichotumika.",
+"Please enter the contributor's name.":"Tafadhali weka jina la mchangiaji.",
+"Please enter the event name.":"Tafadhali weka jina la tukio.",
+"Please enter the guest name.":"Tafadhali weka jina la mgeni.",
+"Please paste a valid Google Maps link (it must start with https://).":"Tafadhali bandika kiungo sahihi cha Google Maps (lazima kianze na https://).",
+"Please say what the money was spent on.":"Tafadhali eleza pesa ilitumika kwa nini.",
+"Please sign in first.":"Tafadhali ingia kwanza.",
+"Please type a table name.":"Tafadhali andika jina la meza.",
+"Please type the table name or number.":"Tafadhali andika jina au namba ya meza.",
+"Please upload the event poster first.":"Tafadhali pakia poster ya tukio kwanza.",
+"Please wait, contributions are still loading.":"Tafadhali subiri, michango bado inapakiwa.",
+"Preparing all cards...":"Inaandaa kadi zote...",
+"Press “Full report (PDF)” to download the report.":"Bonyeza “Ripoti kamili (PDF)” kupakua ripoti.",
+"RSVP saved.":"Jibu la RSVP limehifadhiwa.",
+"RSVP updated":"Jibu la RSVP limesasishwa",
+"Receipt downloaded.":"Risiti imepakuliwa.",
+"Saved.":"Imehifadhiwa.",
+"Saving all cards…":"Inahifadhi kadi zote…",
+"Saving contributions needs an internet connection.":"Kuhifadhi michango kunahitaji mtandao.",
+"Saving event...":"Inahifadhi tukio...",
+"Saving expenses needs an internet connection.":"Kuhifadhi matumizi kunahitaji mtandao.",
+"Saving payments needs an internet connection.":"Kuhifadhi malipo kunahitaji mtandao.",
+"Seating changes need an internet connection.":"Mabadiliko ya meza yanahitaji mtandao.",
+"Select at least one person.":"Chagua angalau mtu mmoja.",
+"Sending needs an internet connection.":"Kutuma kunahitaji mtandao.",
+"Template downloaded — it opens directly in Excel.":"Kiolezo kimepakuliwa — kinafunguka moja kwa moja kwenye Excel.",
+"The RSVP deadline must be on or before the event date.":"Mwisho wa kujibu RSVP lazima uwe tarehe ya tukio au kabla yake.",
+"The deadline must be on or before the event date.":"Mwisho lazima uwe tarehe ya tukio au kabla yake.",
+"The event and its files were removed.":"Tukio na mafaili yake vimeondolewa.",
+"The file could not be read.":"Faili haikuweza kusomwa.",
+"There are no guests in this event.":"Hakuna wageni kwenye tukio hili.",
+"There are no guests to print yet.":"Bado hakuna wageni wa kuchapisha.",
+"There is nothing to download yet.":"Bado hakuna cha kupakua.",
+"This browser cannot attach the poster automatically. Use “Download poster” and upload it instead.":"Kivinjari hiki hakiwezi kuambatanisha poster kiotomatiki. Tumia “Pakua poster” kisha uipakie.",
+"This guest does not have a valid phone number.":"Mgeni huyu hana namba sahihi ya simu.",
+"This guest has already checked in.":"Mgeni huyu tayari amefanya check-in.",
+"This needs an internet connection.":"Hii inahitaji mtandao.",
+"Tip: turn on gallery sharing on the Photos page to include the photo link.":"Ushauri: washa kushiriki albamu kwenye ukurasa wa Picha ili kujumuisha kiungo cha picha.",
+"Undo needs an internet connection.":"Kutendua kunahitaji mtandao.",
+"Upload in progress…":"Kupakia kunaendelea…",
+"Uploading photos needs an internet connection.":"Kupakia picha kunahitaji mtandao.",
+"Venue:":"Ukumbi:",
+"You already have full access to this event.":"Tayari una ufikiaji kamili wa tukio hili.",
+"You do not have access to the Admin Console.":"Huna ufikiaji wa Dashibodi ya Msimamizi.",
+"Your account is ready. You are signed in.":"Akaunti yako iko tayari. Umeingia.",
+"ZIP library unavailable; cards were downloaded one by one.":"Maktaba ya ZIP haipatikani; kadi zimepakuliwa moja moja."
+};
+
+/* ===== Language switch (English / Kiswahili) =====
+   The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
+   dictionary in sw_dict.js. Switching back to English restores the original text. */
+(function(){
+  'use strict';
+  const LS_KEY='sherehe_lang';   /* same key as the guest invitation page, so one choice applies everywhere */
+  const norm=s=>String(s).replace(/\s+/g,' ').trim();
+  const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  let lang='en';
+
+  function detect(){
+    try{ const s=localStorage.getItem(LS_KEY); if(s==='sw'||s==='en') return s; }catch(e){}
+    try{
+      if(/^sw/i.test(navigator.language||'')) return 'sw';
+      const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone)||'';
+      if(/^Africa\/(Dar_es_Salaam|Nairobi|Kampala)$/.test(tz)) return 'sw';
+    }catch(e){}
+    return 'en';
+  }
+
+  /* ----- lookup tables ----- */
+  const EXACT=Object.assign({}, window.SW_EXACT||{}, window.SW_MSG||{});
+  const EXACT_N={}; Object.keys(EXACT).forEach(k=>{ EXACT_N[norm(k)]=EXACT[k]; });
+  const HTML_N={}; Object.keys(window.SW_HTML||{}).forEach(k=>{ if(window.SW_HTML[k]!=null) HTML_N[norm(k)]=window.SW_HTML[k]; });
+  const PATS=(window.SW_PAT||[]).slice().sort((a,b)=>b[0].replace(/\{#?\d\}/g,'').length-a[0].replace(/\{#?\d\}/g,'').length).map(([en,sw])=>{
+    const parts=en.split(/(\{#?\d\})/); let rx='^'; const order=[];
+    parts.forEach(p=>{ const m=p.match(/^\{(#?)(\d)\}$/); if(m){ rx+=m[1]?'(\\d[\\d,.]*)':'([\\s\\S]*?)'; order.push(+m[2]); } else rx+=esc(p); });
+    return {rx:new RegExp(rx+'$'), sw, order};
+  });
+  const MONTHS={Jan:'Jan',Feb:'Feb',Mar:'Mac',Apr:'Apr',May:'Mei',Jun:'Jun',Jul:'Jul',Aug:'Ago',Sep:'Sep',Sept:'Sep',Oct:'Okt',Nov:'Nov',Dec:'Des',
+    January:'Januari',February:'Februari',March:'Machi',April:'Aprili',June:'Juni',July:'Julai',August:'Agosti',September:'Septemba',October:'Oktoba',November:'Novemba',December:'Desemba'};
+  const DAYS={Mon:'Jtatu',Tue:'Jnne',Wed:'Jtano',Thu:'Alh',Fri:'Ijm',Sat:'Jmosi',Sun:'Jpili',
+    Monday:'Jumatatu',Tuesday:'Jumanne',Wednesday:'Jumatano',Thursday:'Alhamisi',Friday:'Ijumaa',Saturday:'Jumamosi',Sunday:'Jumapili'};
+  const MON_RX=new RegExp('\\b('+Object.keys(MONTHS).sort((a,b)=>b.length-a.length).join('|')+')\\b','g');
+  const DAY_RX=new RegExp('\\b('+Object.keys(DAYS).sort((a,b)=>b.length-a.length).join('|')+')\\b','g');
+  const TILE_RX=/^(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)$/;
+  const TILE={JAN:'JAN',FEB:'FEB',MAR:'MAC',APR:'APR',MAY:'MEI',JUN:'JUN',JUL:'JUL',AUG:'AGO',SEP:'SEP',OCT:'OKT',NOV:'NOV',DEC:'DES'};
+
+  function dateLoc(s){
+    if(!/\d/.test(s)) return s;
+    if(!(/\b\d{1,2}\b/.test(s)&&(MON_RX.test(s)||DAY_RX.test(s)))){ MON_RX.lastIndex=0; DAY_RX.lastIndex=0; return s; }
+    MON_RX.lastIndex=0; DAY_RX.lastIndex=0;
+    return s.replace(DAY_RX,m=>DAYS[m]).replace(MON_RX,m=>MONTHS[m]).replace(/(\d) at (\d{1,2}:\d{2})/g,'$1 saa $2');
+  }
+
+  const TYPES={'Wedding':'Harusi','Birthday':'Siku ya kuzaliwa','Church Event':'Tukio la kanisa','Church Fundraising':'Uchangiaji wa kanisa','Graduation':'Mahafali','Fundraising':'Uchangiaji','Baby Shower':'Baby Shower','Kitchen Party':'Kitchen Party','Send Off':'Send Off','Harambee':'Harambee','Other':'Nyingine'};
+  const TYPE_RX=new RegExp('(^|[\\u2014\\u00b7\\u2022|] )('+Object.keys(TYPES).join('|')+')(?= [\\u2014\\u00b7\\u2022|]|$)','g');
+  function typeLoc(s){ return s.replace(TYPE_RX,(m,a,t)=>a+TYPES[t]); }
+  function lookup(s){
+    const core=norm(s);
+    if(!core) return null;
+    if(Object.prototype.hasOwnProperty.call(EXACT_N,core)) return EXACT_N[core];
+    if(TILE_RX.test(core)) return TILE[core];
+    for(const p of PATS){
+      const m=core.match(p.rx); if(!m) continue;
+      let out=p.sw; const vals=[]; p.order.forEach((n,i)=>{ vals[n]=m[i+1]; });
+      out=out.replace(/\{(\d)\}/g,(_,d)=>{ const v=vals[+d]; return v==null?'':v; });
+      return dateLoc(out);
+    }
+    const d=typeLoc(dateLoc(core)); if(d!==core) return d;
+    return null;
+  }
+  /* public helper: tr('text') returns Swahili when in Kiswahili mode, otherwise the text unchanged */
+  window.tr=function(s){ if(lang!=='sw'||s==null) return s; const t=lookup(String(s)); return t==null?s:t; };
+  window.currentLang=()=>lang;
+
+  /* ----- DOM translation ----- */
+  const NODE=new WeakMap();           /* text node -> {en, sw} */
+  const HTMLREC=new Map();            /* element -> {en, sw}  (innerHTML translations) */
+  const SKIP_TAG=/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|CODE|PRE|SVG|svg|CANVAS)$/;
+  const INLINE=/^(B|STRONG|I|EM|A|SPAN|BR|CODE|U|SMALL|svg|SVG)$/;
+  const ATTRS=['placeholder','title','aria-label','alt'];
+  const ATTR_REC=new Map();           /* element -> {attr:{en,sw}} */
+
+  function translateText(n){
+    const p=n.parentElement; if(!p||SKIP_TAG.test(p.tagName)) return;
+    const rec=NODE.get(n); if(rec&&n.nodeValue===rec.sw) return;
+    const v=n.nodeValue; const core=norm(v);
+    if(!/[A-Za-z]{2}/.test(core)) return;
+    const t=lookup(core); if(t==null||t===core) return;
+    if(p.tagName==='OPTION'&&!p.hasAttribute('value')) p.setAttribute('value',core);   /* keep stored value in English */
+    const lead=v.match(/^\s*/)[0], trail=v.match(/\s*$/)[0];
+    const out=lead+t+trail; NODE.set(n,{en:v,sw:out}); n.nodeValue=out;
+  }
+  function translateAttrs(el){
+    for(const a of ATTRS){
+      if(!el.hasAttribute||!el.hasAttribute(a)) continue;
+      const cur=el.getAttribute(a); const r=ATTR_REC.get(el); if(r&&r[a]&&cur===r[a].sw) continue;
+      if(!/[A-Za-z]{2}/.test(cur)||/^(file|https?):/.test(cur)) continue;
+      const t=lookup(cur); if(t==null||t===norm(cur)) continue;
+      const rr=r||{}; rr[a]={en:cur,sw:t}; ATTR_REC.set(el,rr); el.setAttribute(a,t);
+    }
+  }
+  function translateHtmlEl(el){
+    if(!el.firstElementChild) return false;
+    if(el.hasAttribute&&el.hasAttribute('data-i18n-h')) return true;
+    const kids=el.childNodes; let hasText=false;
+    for(const k of kids){ if(k.nodeType===3){ if(/[A-Za-z]{2}/.test(k.nodeValue)) hasText=true; } else if(k.nodeType===1){ if(!INLINE.test(k.tagName)) return false; } }
+    if(!hasText) return false;
+    const key=norm(el.innerHTML); const t=HTML_N[key]; if(t==null) return false;
+    HTMLREC.set(el,{en:el.innerHTML,sw:t}); el.setAttribute('data-i18n-h','1'); el.innerHTML=t; return true;
+  }
+  function walk(root){
+    if(!root) return;
+    if(root.nodeType===3){ translateText(root); return; }
+    if(root.nodeType!==1) return;
+    if(SKIP_TAG.test(root.tagName)) return;
+    translateAttrs(root);
+    if(translateHtmlEl(root)) return;
+    for(let c=root.firstChild;c;c=c.nextSibling){
+      if(c.nodeType===3) translateText(c);
+      else if(c.nodeType===1) walk(c);
+    }
+  }
+  function restoreAll(){
+    HTMLREC.forEach((r,el)=>{ if(el.isConnected&&el.getAttribute('data-i18n-h')){ el.innerHTML=r.en; el.removeAttribute('data-i18n-h'); } });
+    HTMLREC.clear();
+    const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT); let n;
+    while(n=w.nextNode()){ const r=NODE.get(n); if(r&&n.nodeValue===r.sw) n.nodeValue=r.en; }
+    ATTR_REC.forEach((r,el)=>{ for(const a in r){ if(el.getAttribute(a)===r[a].sw) el.setAttribute(a,r[a].en); } });
+    ATTR_REC.clear();
+  }
+
+  let obs=null;
+  function startObserver(){
+    if(obs||!document.body) return;
+    obs=new MutationObserver(muts=>{
+      if(lang!=='sw') return;
+      for(const m of muts){
+        if(m.type==='childList'){
+          if(m.target.nodeType===1&&m.target.hasAttribute&&m.target.hasAttribute('data-i18n-h')&&!m.addedNodes.length) continue;
+          m.addedNodes.forEach(n=>walk(n));
+          if(m.target&&m.target.nodeType===1&&m.addedNodes.length){ /* re-check mixed element (innerHTML set by app) */
+            const t=m.target; if(!t.hasAttribute('data-i18n-h')) translateHtmlEl(t);
+          }
+        }else if(m.type==='characterData'){ translateText(m.target); }
+        else if(m.type==='attributes'){ if(m.target.nodeType===1&&m.attributeName!=='data-i18n-h') translateAttrs(m.target); }
+      }
+    });
+    obs.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTRS});
+  }
+
+  /* ----- native dialogs ----- */
+  const _alert=window.alert.bind(window), _confirm=window.confirm.bind(window), _prompt=window.prompt.bind(window);
+  window.alert=m=>_alert(window.tr(m));
+  window.confirm=m=>_confirm(window.tr(m));
+  window.prompt=(m,d)=>_prompt(window.tr(m),d);
+
+  /* ----- PDF: translate jsPDF text and autoTable cells when in Kiswahili mode ----- */
+  const trAny=t=>Array.isArray(t)?t.map(trAny):(typeof t==='string'?window.tr(t):t);
+  const mapCell=c=>typeof c==='string'?window.tr(c):(c&&typeof c==='object'&&typeof c.content==='string'?Object.assign({},c,{content:window.tr(c.content)}):c);
+  const mapRows=r=>Array.isArray(r)?r.map(x=>Array.isArray(x)?x.map(mapCell):x):r;
+  window.pdfLang=function(J){
+    if(!J) return J; if(J.__swWrap) return J.__swWrap;
+    class P extends J{
+      constructor(...a){ super(...a);
+        const t0=this.text.bind(this); this.text=(t,...r)=>t0(trAny(t),...r);
+        if(this.autoTable){ const a0=this.autoTable.bind(this);
+          this.autoTable=o=>{ if(o&&lang==='sw'){ o=Object.assign({},o); ['head','body','foot'].forEach(k=>{ if(o[k]) o[k]=mapRows(o[k]); }); } return a0(o); }; }
+      }
+    }
+    P.API=J.API; J.__swWrap=P; return P;
+  };
+
+  /* ----- switch ----- */
+  function pillVisible(){ if(document.body.classList.contains('invite-mode')) return false; const a=document.getElementById('authScreen'); return !!(a&&getComputedStyle(a).display!=='none'); }
+  function renderButtons(){
+    const label=lang==='sw'?'EN':'SW';
+    const t=lang==='sw'?'Switch to English':'Badili kwenda Kiswahili';
+    ['langBtnHdr','langPill'].forEach(id=>{ const b=document.getElementById(id); if(b){ b.textContent=label; b.title=t; b.setAttribute('aria-label',t); } });
+    const pill=document.getElementById('langPill'); if(pill) pill.style.display=pillVisible()?'inline-flex':'none';
+  }
+  window.setLang=function(l,silent){
+    if(l!=='sw'&&l!=='en') l='en';
+    const prev=lang; lang=l;
+    try{ if(!silent) localStorage.setItem(LS_KEY,l); }catch(e){}
+    document.documentElement.setAttribute('lang',l==='sw'?'sw':'en');
+    if(!silent) window.__invLang=l;
+    if(!window.__langSync&&document.body.classList.contains('invite-mode')&&typeof window.setInviteLang==='function'){ window.__langSync=true; try{ window.setInviteLang(l); }finally{ window.__langSync=false; } }
+    if(prev==='sw'&&l==='en') restoreAll();
+    if(l==='sw'){ startObserver(); walk(document.body); }
+    renderButtons();
+    try{ window.dispatchEvent(new CustomEvent('langchange',{detail:l})); }catch(e){}
+  };
+  window.toggleLang=()=>window.setLang(lang==='sw'?'en':'sw');
+
+  function init(){
+    const hdr=document.querySelector('.header-right');
+    if(hdr&&!document.getElementById('langBtnHdr')){
+      const b=document.createElement('button'); b.id='langBtnHdr'; b.type='button'; b.className='gray lang-btn'; b.onclick=window.toggleLang; hdr.insertBefore(b,hdr.firstChild);
+    }
+    if(!document.getElementById('langPill')){
+      const b=document.createElement('button'); b.id='langPill'; b.type='button'; b.className='lang-pill'; b.onclick=window.toggleLang; document.body.appendChild(b);
+    }
+    window.setLang(detect(),true);
+    setInterval(renderButtons,800);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
 
 </script>
