@@ -1717,6 +1717,11 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
     <div id="adminCustomers"></div>
   </div>
   <div class="panel">
+    <div class="panel-heading"><div><h2>Photographer subscriptions</h2><p>Photographers pay a monthly fee to upload photos. After a payment arrives, activate their email here.</p></div></div>
+    <div class="toolbar"><input id="subEmail" type="email" placeholder="photographer@example.com" style="max-width:300px" aria-label="Photographer email" onkeydown="if(event.key==='Enter')photogSubAdd()"><select id="subDays" aria-label="Duration" style="max-width:190px"><option value="7">Trial (7 days)</option><option value="30" selected>1 month</option><option value="90">3 months</option><option value="180">6 months</option><option value="365">12 months</option></select><button class="primary" onclick="photogSubAdd()"><svg class="i"><use href="#i-check"/></svg>Activate / extend</button></div>
+    <div id="adminSubs"></div>
+  </div>
+  <div class="panel">
     <div class="panel-heading"><div><h2>All events</h2><p>Events from all customers.</p></div></div>
     <div id="adminTable"></div>
   </div>
@@ -5136,7 +5141,8 @@ window.loadAdminData = async function(force){
       fetchAll(()=>supabaseClient.from('profiles').select('id,full_name,email,phone,role,created_at').order('created_at',{ascending:false})),
       fetchAll(()=>supabaseClient.from('guests').select('id,event_id,rsvp_status,checked_in,sent_whatsapp,sent_sms').order('id'))
     ]);
-    window.__admin={events,profiles,guests,at:Date.now()}; renderAdmin();
+    let subs=[]; try{ subs=await fetchAll(()=>supabaseClient.from('photographer_subscriptions').select('email,active_until,note,updated_at').order('active_until',{ascending:false})); }catch(e){ subs=null; }
+    window.__admin={events,profiles,guests,subs,at:Date.now()}; renderAdmin();
   }catch(e){ $('adminTable').innerHTML=emptyState('Data could not be loaded',String(e.message||e)); }
 };
 window.renderAdmin = function(){
@@ -5147,8 +5153,28 @@ window.renderAdmin = function(){
   const evByOwner={}, gByOwner={};
   d.events.forEach(e=>{ evByOwner[e.owner_id]=(evByOwner[e.owner_id]||0)+1; gByOwner[e.owner_id]=(gByOwner[e.owner_id]||0)+(byEvent[e.id]?.n||0); });
   $('adminCustomers').innerHTML = d.profiles.length ? `<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Role</th><th>Events</th><th>Guests</th><th>Joined</th></tr></thead><tbody>${d.profiles.map(p=>`<tr><td><div class="guest-cell"><span class="avatar">${E(initials(p.full_name||p.email))}</span><div style="min-width:0"><span class="cell-name">${E(p.full_name||'(no name)')}</span><span class="cell-sub">${E(p.email||'')}</span></div></div></td><td>${E(p.phone||'—')}</td><td>${p.role==='admin'?'<span class="tag gold">Admin</span>':'<span class="tag">Customer</span>'}</td><td>${evByOwner[p.id]||0}</td><td>${gByOwner[p.id]||0}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</td></tr>`).join('')}</tbody></table></div>` : emptyState('No customers yet','');
+  renderAdminSubs();
   $('adminTable').innerHTML = d.events.length ? `<div class="table-wrap"><table><thead><tr><th>Event</th><th>Organiser</th><th>Date</th><th>Guests</th><th>Invited</th><th>Attending</th><th>Arrived</th></tr></thead><tbody>${d.events.map(e=>{ const x=byEvent[e.id]||{n:0,sent:0,yes:0,in:0}, o=owner[e.owner_id]; return `<tr><td><span class="cell-name">${E(e.event_name)}</span><span class="cell-sub">${E(e.event_type||'')}</span></td><td><span class="cell-name">${E(o?.full_name||'—')}</span><span class="cell-sub">${E(o?.email||'')}</span></td><td>${e.event_date?E(fmtDate(e.event_date)):'—'}</td><td>${x.n}</td><td><div class="progress" title="${pct(x.sent,x.n)}%"><i style="width:${pct(x.sent,x.n)}%"></i></div></td><td>${x.yes}</td><td>${x.in}</td></tr>`; }).join('')}</tbody></table></div>` : emptyState('No events yet','');
 };
+
+window.renderAdminSubs = function(){
+  const box=$('adminSubs'); if(!box) return; const d=window.__admin;
+  if(!d||d.subs===null){ box.innerHTML='<div class="help">The subscriptions table is missing. Run the V75 SQL file in Supabase.</div>'; return; }
+  const now=Date.now(), dFmt=x=>new Date(x).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  box.innerHTML=(d.subs.length?`<div class="table-wrap"><table><thead><tr><th>Photographer email</th><th>Status</th><th>Active until</th><th></th></tr></thead><tbody>${d.subs.map(s=>{ const on=new Date(s.active_until)>now; return `<tr><td>${E(s.email)}</td><td><span class="tag ${on?'ok':''}">${on?'Active':'Expired'}</span></td><td>${E(dFmt(s.active_until))}</td><td style="white-space:nowrap"><button class="gray" onclick="photogSubSet(${jq(s.email)},30)">+1 month</button> <button class="gray" onclick="photogSubSet(${jq(s.email)},0)">Deactivate</button></td></tr>`; }).join('')}</tbody></table></div>`:'<div class="help">No subscriptions yet.</div>');
+};
+window.photogSubSet = async function(email,days){
+  email=String(email||'').trim().toLowerCase();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return toast('Please enter a valid email address.');
+  const cur=((window.__admin&&window.__admin.subs)||[]).find(s=>s.email===email);
+  let until;
+  if(days===0) until=new Date().toISOString();
+  else { const base=cur&&new Date(cur.active_until)>new Date()?new Date(cur.active_until):new Date(); until=new Date(base.getTime()+days*86400000).toISOString(); }
+  const r=await supabaseClient.from('photographer_subscriptions').upsert({email,active_until:until,updated_at:new Date().toISOString()},{onConflict:'email'});
+  if(r.error) return toast('Could not save: '+r.error.message);
+  toast(days===0?'Subscription deactivated.':'Subscription saved.'); const f=$('subEmail'); if(f&&days!==0) f.value=''; loadAdminData(true);
+};
+window.photogSubAdd = function(){ photogSubSet(($('subEmail')||{}).value, +(($('subDays')||{}).value||30)); };
 
 /* ---------- remote guest state (RSVP headcount) ---------- */
 window.loadRemoteGuestState = async function(){
@@ -5865,6 +5891,30 @@ window.addEventListener('load',()=>{
    v50 — event photos (host) and public gallery (guests)
    ========================================================================= */
 const PHOTOS_BUCKET = 'event-photos', PHOTO_MAX = 500, PHOTO_EDGE = 1600;
+/* photographer subscription (V75): edit these three lines to change the price or payment number */
+const PHOTOG_PRICE = 'TSh 15,000 / month', PHOTOG_PAY = 'M-Pesa 0764 009 731 (Yosiah Simbeye)', PHOTOG_WA = '255764009731';
+const isPhotog = () => !!(window.__staffMode && staffRole()==='photographer');
+window.photogBlocked = () => { const s=window.__photogSub; return isPhotog() && !!s && s.loaded && !s.err && !(s.until && new Date(s.until)>new Date()); };
+window.loadPhotogSub = async function(){
+  if(!isPhotog()||!supabaseClient) return;
+  try{
+    const r=await supabaseClient.from('photographer_subscriptions').select('active_until').eq('email',String(currentSupabaseUser?.email||'').toLowerCase()).maybeSingle();
+    if(r.error) throw r.error; window.__photogSub={loaded:true,until:r.data?r.data.active_until:null,err:false};
+  }catch(e){ window.__photogSub={loaded:true,until:null,err:true}; }
+  renderPhotos();
+};
+function photogPanel(){
+  if(!isPhotog()) return '';
+  const s=window.__photogSub; if(!s||!s.loaded||s.err) return '';
+  const dFmt=d=>new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const wa='https://wa.me/'+PHOTOG_WA+'?text='+encodeURIComponent('Habari, nataka kulipia usajili wa mpiga picha SHEREHE HUB. Email yangu: '+String(currentSupabaseUser?.email||''));
+  if(photogBlocked()) return `<div class="panel"><div class="panel-heading"><div><h2>Subscription required</h2><p>To upload photos you need an active monthly subscription.</p></div></div>
+    <div class="help"><b>Price:</b> ${E(PHOTOG_PRICE)}</div><div class="help"><b>Pay to:</b> ${E(PHOTOG_PAY)}</div>
+    <div class="help">After paying, send the payment confirmation on WhatsApp and we will activate your account.</div>
+    <div class="toolbar" style="margin-top:10px"><button class="primary" type="button" onclick="window.open(${jq(wa)},'_blank','noopener')">${ic('whatsapp')}Contact us on WhatsApp</button></div></div>`;
+  const left=(new Date(s.until)-Date.now())/86400000;
+  return left<=5 ? `<div class="hint-box">${ic('alert')}<span>Your subscription ends on ${E(dFmt(s.until))}. Renew to keep uploading.</span></div>` : `<div class="help" style="margin-bottom:10px">Subscription active until ${E(dFmt(s.until))}.</div>`;
+}
 const PH = {};
 function galleryUrl(ev){ return location.href.split('#')[0]+'#gallery='+encodeURIComponent(ev.id); }
 window.galleryUrl = galleryUrl;
@@ -5881,6 +5931,7 @@ async function zipPhotos(photos,name,onProgress){
 
 /* ----- host side ----- */
 window.loadPhotos = async function(){
+  if(isPhotog()) loadPhotogSub();
   const ev=getEvent(currentEventId); if(!ev){ renderPhotos(); return; }
   const st=phState(ev.id);
   try{
@@ -5895,12 +5946,12 @@ window.renderPhotos = function(){
   if(!ev){ box.innerHTML=NEED_EVENT; return; }
   const st=phState(ev.id), url=galleryUrl(ev), open=!!ev.galleryOpen;
   const pctDone = st.total? Math.round(st.done/st.total*100):0;
-  box.innerHTML=`<div class="photo-top">
-    <div class="panel"><div class="panel-heading"><div><h2>Upload photos</h2><p>Photos are resized automatically to save space. Up to ${PHOTO_MAX} per event.</p></div></div>
+  box.innerHTML=`${photogPanel()}<div class="photo-top">
+    ${photogBlocked()?'':`<div class="panel"><div class="panel-heading"><div><h2>Upload photos</h2><p>Photos are resized automatically to save space. Up to ${PHOTO_MAX} per event.</p></div></div>
       <label class="drop" for="photoFile" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="event.preventDefault();this.classList.remove('over');uploadPhotos(event.dataTransfer.files)">${ic('upload')}<b>Choose photos or drop them here</b><span>JPG, PNG or WebP</span></label>
       <input hidden id="photoFile" type="file" accept="image/*" multiple onchange="uploadPhotos(this.files);this.value=''">
       <div class="upl-bar" style="display:${st.busy?'block':'none'}"><i style="width:${pctDone}%"></i></div>
-      <div class="upl-status" id="photoStatus">${st.busy?`Uploading ${st.done} of ${st.total}…`:''}</div></div>
+      <div class="upl-status" id="photoStatus">${st.busy?`Uploading ${st.done} of ${st.total}…`:''}</div></div>`}
     <div class="panel"><div class="panel-heading"><div><h2>Share with guests</h2><p>Guests open one link to view and download the photos. No account needed.</p></div></div>
       <div class="share-row"><div><b>Guests can see the gallery</b><span>${open?'On — anyone with the link can view it.':(window.__staffMode&&staffRole()==='photographer'?'Off — the host turns this on when the photos are ready.':'Off — turn on when you are ready.')}</span></div>
         ${window.__staffMode&&staffRole()==='photographer'?'':`<label class="sw"><input type="checkbox" id="galleryToggle" ${open?'checked':''} onchange="toggleGallery(this.checked)" aria-label="Share gallery with guests"><i></i></label>`}</div>
@@ -5934,6 +5985,7 @@ async function shrinkImage(file){
 window.uploadPhotos = async function(files){
   const ev=getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
   const st=phState(ev.id); if(st.busy) return toast('Upload in progress…');
+  if(photogBlocked()) return toast('Your subscription is not active. Please pay to upload photos.');
   if(window.__offlineMode||!navigator.onLine) return toast('Uploading photos needs an internet connection.');
   let list=[...(files||[])].filter(f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|heic|heif)$/i.test(f.name));
   if(!list.length) return toast('Please choose image files (JPG, PNG or WebP).');
@@ -6746,6 +6798,8 @@ window.SW_EXACT = {
 "Photographer (photos)":"Mpiga picha (picha)","Photographer":"Mpiga picha",
 "Off — the host turns this on when the photos are ready.":"Imezimwa — mwenyeji huiwasha picha zikiwa tayari.",
 "Send invitation on WhatsApp":"Mtumie mwaliko kwa WhatsApp","Copy invitation message":"Nakili ujumbe wa mwaliko","Invitation message copied. Paste it to WhatsApp or SMS.":"Ujumbe wa mwaliko umenakiliwa. Ubandike WhatsApp au SMS.",
+"Subscription required":"Unahitaji usajili","To upload photos you need an active monthly subscription.":"Ili kupakia picha unahitaji usajili wa kila mwezi uliofunguliwa.","Price:":"Bei:","Pay to:":"Lipa kwa:","After paying, send the payment confirmation on WhatsApp and we will activate your account.":"Ukishalipa, tuma uthibitisho wa malipo kwa WhatsApp nasi tutakufungulia akaunti yako.","Contact us on WhatsApp":"Wasiliana nasi kwa WhatsApp","Your subscription is not active. Please pay to upload photos.":"Usajili wako haujafunguliwa. Tafadhali lipia ili upakie picha.",
+"Photographer subscriptions":"Usajili wa wapiga picha","Photographers pay a monthly fee to upload photos. After a payment arrives, activate their email here.":"Wapiga picha hulipa ada ya kila mwezi kupakia picha. Malipo yakifika, wafungulie email yao hapa.","Photographer email":"Email ya mpiga picha","Trial (7 days)":"Majaribio (siku 7)","1 month":"Mwezi 1","3 months":"Miezi 3","6 months":"Miezi 6","12 months":"Miezi 12","Activate / extend":"Fungulia / ongeza muda","Active until":"Inafanya kazi hadi","Active":"Inafanya kazi","Expired":"Imeisha","+1 month":"+ Mwezi 1","Deactivate":"Zima","No subscriptions yet.":"Bado hakuna usajili.","Subscription saved.":"Usajili umehifadhiwa.","Subscription deactivated.":"Usajili umezimwa.","The subscriptions table is missing. Run the V75 SQL file in Supabase.":"Jedwali la usajili halipo. Endesha faili ya SQL ya V75 kwenye Supabase.",
 "Other (type your own)…":"Nyingine (andika jina lako)…",
 "People allowed on this card":"Watu wanaoruhusiwa kwenye kadi hii",
 "Card type name":"Jina la aina ya kadi",
@@ -7415,6 +7469,8 @@ window.SW_PAT = [["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zot
 ["Poster for {0}","Poster ya {0}"],
 ["Photographer · can upload and manage photos for {0}","Mpiga picha · anaweza kupakia na kusimamia picha za {0}"],
 ["Photographer added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Mpiga picha ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kumtumia mwaliko (lazima ajisajili kwa {0})."],
+["Subscription active until {0}.","Usajili unafanya kazi hadi {0}."],
+["Your subscription ends on {0}. Renew to keep uploading.","Usajili wako unaisha tarehe {0}. Ulipie upya uendelee kupakia."],
 ["Door staff · can check in guests for {0}","Mlinzi wa mlango · anaweza kufanya check-in ya wageni wa {0}"],
 ["Treasurer · can record contributions and expenses for {0}","Mhazini · anaweza kurekodi michango na matumizi ya {0}"],
 ["Co-host · full control of this event (cannot delete it or add team members) for {0}","Mwenyeji · udhibiti kamili wa tukio hili (hawezi kulifuta wala kuongeza watu kwenye timu) kwa {0}"],
