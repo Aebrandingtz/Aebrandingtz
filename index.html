@@ -1045,6 +1045,158 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
 body.cohost-mode .no-cohost,body.cohost-mode #staffPanel,body.cohost-mode #adminNavGroup,body.cohost-mode #create{display:none!important}
 body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.del{display:none!important}
 
+/* =========================================================================
+   v73 — dashboard polish: stat cards, hero, readiness timeline, event cards
+   ========================================================================= */
+.dash-stats{gap:16px}
+.dash-stats .stat{--tone:var(--blue);--tone-soft:var(--blue-soft);position:relative;overflow:hidden;padding:18px 20px 16px;gap:0;border-radius:16px;box-shadow:0 1px 2px rgba(20,32,90,.05),0 8px 24px -16px rgba(20,32,90,.25)}
+.dash-stats .stat:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--tone);opacity:.9}
+.dash-stats .stat-teal{--tone:#1c7a8c;--tone-soft:#e1f3f5}
+.dash-stats .stat-gold{--tone:#d99a00;--tone-soft:#fff3cf}
+.dash-stats .stat-green{--tone:#0f7b53;--tone-soft:#e3f4ec}
+.dash-stats .stat .stat-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+.dash-stats .stat .stat-top span{font-size:13px;color:var(--muted);font-weight:600}
+.dash-stats .stat-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--tone-soft);color:var(--tone);flex:none;font-style:normal}
+.dash-stats .stat-ic svg{width:20px;height:20px;stroke-width:1.9}
+.dash-stats .stat b,.dash-stats .stat-blue b,.dash-stats .stat-green b,.dash-stats .stat-gold b,.dash-stats .stat-teal b{font:600 36px/1.05 var(--font-display);letter-spacing:-.02em;color:var(--ink);margin-top:12px}
+.dash-stats .stat small{font-size:12.5px;color:var(--faint);margin-top:6px}
+.stat-bar{height:6px;border-radius:99px;background:var(--line-2);overflow:hidden;margin-top:14px}
+.stat-bar i{display:block;height:100%;width:0;border-radius:99px;background:var(--tone,var(--blue));transition:width .7s cubic-bezier(.2,.7,.2,1)}
+.dash-stats .stat .stat-bar{margin-top:auto}
+.dash-stats .stat small + .stat-bar{margin-top:14px}
+
+/* hero */
+.dash-grid{gap:20px;align-items:stretch}
+.next-event{border-radius:20px;padding:28px 30px;gap:22px;justify-content:flex-start;box-shadow:0 18px 40px -22px rgba(36,69,180,.7)}
+.next-event:before{background:radial-gradient(70% 90% at 100% 0%,rgba(255,255,255,.2),transparent 60%),radial-gradient(60% 80% at 0% 110%,rgba(255,201,51,.16),transparent 60%)}
+.next-event:after{content:"";position:absolute;right:-70px;bottom:-90px;width:260px;height:260px;border-radius:50%;border:38px solid rgba(255,255,255,.05);pointer-events:none}
+.ne-top{align-items:center}
+.ne-main{display:flex;gap:18px;align-items:center;min-width:0}
+.ne-txt{min-width:0}
+.ne-thumb{width:70px;height:92px;border-radius:12px;object-fit:cover;flex:none;border:2px solid rgba(255,255,255,.55);box-shadow:0 10px 22px -10px rgba(0,0,0,.5);background:rgba(255,255,255,.12)}
+.ne-thumb-ph{display:grid;place-items:center;color:#fff;border-style:dashed}
+.ne-thumb-ph svg{width:26px;height:26px}
+.ne-kicker{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);padding:4px 11px;border-radius:99px;font-size:12px;font-weight:650;color:#fff}
+.ne-title{font-size:26px;margin-top:10px;line-height:1.15;overflow-wrap:anywhere}
+.ne-count{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:12px 18px;text-align:center;min-width:104px;backdrop-filter:blur(3px)}
+.ne-count b{font-size:44px}
+.ne-count span{display:block;margin-top:4px}
+.ne-rsvp{display:grid;gap:14px}
+.ne-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.ne-tile{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:11px 14px;position:relative}
+.ne-tile:before{content:"";position:absolute;left:14px;top:13px;width:8px;height:8px;border-radius:50%;background:#4cc38a}
+.ne-tile.p:before{background:var(--gold-l)}.ne-tile.n:before{background:#f0877e}.ne-tile.c:before{background:#fff}
+.ne-tile b{display:block;font:600 24px/1 var(--font-display);margin-left:16px;font-variant-numeric:lining-nums tabular-nums}
+.ne-tile span{display:block;font-size:12px;color:#d9e1fa;margin-top:6px}
+.ne-bar{height:10px}
+.ne-actions{margin-top:auto}
+.ne-actions button{display:inline-flex;align-items:center;gap:7px}
+.ne-actions button svg{width:16px;height:16px}
+
+/* readiness timeline */
+.readiness{padding:24px;border-radius:20px;margin-bottom:0}
+.rd-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.rd-head h2{font-size:16px;font-weight:700;margin:0}
+.rd-head .muted{font-size:12.5px;margin-top:2px;overflow-wrap:anywhere}
+.rd-ring{--p:0;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;flex:none;background:conic-gradient(var(--ok) calc(var(--p)*1%),var(--line-2) 0)}
+.rd-ring b{width:42px;height:42px;border-radius:50%;background:#fff;display:grid;place-items:center;font:700 12.5px/1 var(--font-display);color:var(--ink)}
+.steps.tl{margin-top:18px;gap:0;counter-reset:none}
+.steps.tl li{position:relative;border-bottom:0;padding:0 0 18px 0;gap:14px;align-items:center}
+.steps.tl li:last-child{padding-bottom:0}
+.steps.tl li:not(:last-child):after{content:"";position:absolute;left:17px;top:38px;bottom:-2px;width:2px;background:var(--line)}
+.steps.tl li.done:not(:last-child):after{background:var(--ok)}
+.steps.tl .dot{width:36px;height:36px;margin:0;border:2px solid var(--line);background:#fff;color:var(--faint);position:relative;z-index:1}
+.steps.tl .dot svg{width:17px;height:17px;stroke-width:2}
+.steps.tl li.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.steps.tl li.now .dot{border-color:var(--blue);color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 4px rgba(42,69,180,.12)}
+.steps.tl li.todo b{color:var(--ink-2)}
+.steps.tl b{font-size:14px}
+.steps.tl li.todo span,.steps.tl li span{color:var(--muted)}
+
+/* event cards */
+.event-card.ev2{padding:0;overflow:hidden;border-radius:16px;gap:0;box-shadow:0 1px 2px rgba(20,32,90,.05),0 10px 28px -18px rgba(20,32,90,.28)}
+.event-card.ev2:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(20,32,90,.06),0 18px 34px -16px rgba(20,32,90,.35)}
+.ev2 .poster-wrap{position:relative;aspect-ratio:16/10;background:var(--line-2)}
+.ev2 .poster-wrap img,.ev2 .poster-ph{width:100%;height:100%;border-radius:0;object-fit:cover}
+.ev2 .poster-wrap:after{content:"";position:absolute;inset:auto 0 0 0;height:46%;background:linear-gradient(0deg,rgba(15,27,70,.38),transparent);pointer-events:none}
+.ev2 .date-chip{left:12px;top:12px;background:#fff;color:var(--blue-d);border-radius:12px;padding:6px 10px 5px;min-width:46px;box-shadow:0 6px 16px -6px rgba(0,0,0,.35);z-index:1}
+.ev2 .date-chip b{font-size:20px;color:var(--ink)}
+.ev2 .date-chip em{display:block;font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--blue);margin-top:2px}
+.ev-badge{position:absolute;right:12px;top:12px;z-index:1;background:rgba(255,255,255,.94);color:var(--blue-d);font-size:12px;font-weight:700;padding:5px 11px;border-radius:99px;box-shadow:0 6px 16px -8px rgba(0,0,0,.4)}
+.ev-badge.live{background:var(--gold-l);color:#4a3600}
+.ev-badge.off{background:rgba(27,35,54,.78);color:#fff}
+.ev2 h3,.ev2 .tags,.ev2 .event-meta,.ev2 .ev-prog,.ev2 .event-actions{margin-left:16px;margin-right:16px}
+.ev2 h3{margin-top:14px;margin-bottom:8px;font-size:15.5px}
+.ev2 .tag svg{width:13px;height:13px}
+.ev2 .event-actions{margin-bottom:16px}
+.ev-prog{margin-top:12px;display:grid;gap:6px}
+.ev-prog .stat-bar{margin:0;--tone:var(--blue)}
+.ev-prog span{font-size:12px;color:var(--muted)}
+
+@media(max-width:1100px){.ne-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){
+  .dash-stats{gap:10px}
+  .dash-stats .stat{padding:14px 14px 12px}
+  .dash-stats .stat b{font-size:28px;margin-top:8px}
+  .dash-stats .stat-ic{width:34px;height:34px;border-radius:10px}
+  .dash-stats .stat-ic svg{width:17px;height:17px}
+  .dash-stats .stat .stat-top span{font-size:12px}
+  .dash-stats .stat small{font-size:11.5px}
+  .next-event{padding:20px 18px;border-radius:18px}
+  .ne-top{flex-direction:column;align-items:stretch;gap:14px}
+  .ne-count{display:flex;align-items:baseline;gap:10px;justify-content:flex-start;text-align:left;padding:10px 14px}
+  .ne-count b{font-size:32px}
+  .ne-count span{margin:0}
+  .ne-thumb{width:54px;height:72px}
+  .ne-title{font-size:21px}
+  .readiness{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){.stat-bar i,.event-card.ev2{transition:none}}
+.ev2 .poster-wrap img,.ev2 .poster-ph{position:absolute;inset:0;height:100%;object-position:center 28%}
+.ev2 .poster-ph svg{width:34px;height:34px}
+.ev2 .event-actions{margin-top:auto;padding-top:14px}
+.ev2 .ev-prog,.ev2 .event-meta:last-of-type{margin-bottom:0}
+.next-event{justify-content:space-between}
+.ne-actions{margin-top:0}
+.ev2 .pw-bg{position:absolute;inset:-14px;background-size:cover;background-position:center;filter:blur(18px) saturate(1.15);opacity:.9;transform:scale(1.05)}
+.ev2 .poster-wrap:after{display:none}
+.ev2 .poster-wrap img{object-fit:contain;object-position:center;padding:10px 0;filter:drop-shadow(0 8px 14px rgba(15,27,70,.35))}
+.ev2 .poster-wrap{overflow:hidden}
+@media(max-width:640px){.ev2 .event-actions button{flex:1 1 40%}.ev2 .event-actions button.icon{flex:1 1 26%}}
+
+/* v73 — photobook */
+.pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.pb-grid .full{grid-column:1/-1}
+.pb-of{font-weight:500;color:var(--muted);font-size:12.5px;margin-left:4px}
+.pb-count{display:flex;align-items:center;gap:12px}
+.pb-count input[type=range]{flex:1;accent-color:var(--blue);padding:0;min-width:0}
+.pb-count input[type=number]{width:86px;flex:none;text-align:center}
+.pb-foot{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--line-2)}
+.pb-sum{font-size:13.5px;color:var(--muted)}.pb-sum b{color:var(--ink);font-size:15px}
+.pb-foot button{display:inline-flex;align-items:center;gap:8px}
+.pb-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;max-height:56vh;overflow:auto;margin:6px 0 4px;padding:2px}
+.pb-pick{position:relative;padding:0;border:2px solid transparent;border-radius:10px;overflow:hidden;background:var(--line-2);aspect-ratio:1;cursor:pointer;display:block}
+.pb-pick img{width:100%;height:100%;object-fit:cover;display:block}
+.pb-pick i{position:absolute;right:6px;top:6px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.85);border:2px solid #fff;display:grid;place-items:center;color:transparent;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.pb-pick i svg{width:14px;height:14px;stroke-width:3}
+.pb-pick.on{border-color:var(--blue)}
+.pb-pick.on i{background:var(--blue);color:#fff}
+@media(max-width:640px){.pb-grid{grid-template-columns:1fr}.pb-count{flex-wrap:wrap}.pb-foot{flex-direction:column;align-items:stretch}.pb-foot button{justify-content:center}}
+.dotsep:before{content:"·";margin:0 8px;color:var(--faint)}
+
+/* ---- card types (v73) ---- */
+.tag.cardt{background:color-mix(in srgb,var(--c,#1d4ed8) 13%,#fff);color:var(--c,#1d4ed8);border:1px solid color-mix(in srgb,var(--c,#1d4ed8) 28%,#fff);font-weight:800}
+.ct-extra{margin-top:-4px}
+.ct-extra-row{display:grid;grid-template-columns:minmax(210px,230px) 1fr;gap:12px;align-items:end}
+.ct-extra label{white-space:nowrap}
+.ct-extra-row > div:only-child{grid-column:1/-1;max-width:220px}
+.ct-extra input[type=number]{width:100%}
+.pick-top{flex-wrap:wrap}
+.pick-top .pick-type{margin:0;min-width:180px}
+.pick-top .pick-type label{font-size:11.5px;margin-bottom:3px;display:block}
+.pick-top .ct-extra{flex:1 0 100%}
+@media (max-width:520px){.ct-extra-row{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -1217,11 +1369,11 @@ body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.d
     <div><h1 id="dashGreeting">Welcome</h1><p class="muted">An overview of your events, guests and RSVP responses.</p></div>
     <div class="topline-actions"><button class="primary no-cohost" onclick="showView('create')"><svg class="i"><use href="#i-plus"/></svg>New event</button></div>
   </div>
-  <div class="cards">
-    <div class="stat stat-blue"><span>Events</span><b id="sEvents">0</b><small>All events you created</small></div>
-    <div class="stat"><span>Guests</span><b id="sGuests">0</b><small>Across all events</small></div>
-    <div class="stat stat-gold"><span>Invitations sent</span><b id="sCards">0</b><small id="sCardsSub">Guests who received an invitation</small></div>
-    <div class="stat stat-green"><span>Checked in</span><b id="sRsvp">0</b><small>Arrived at the venue</small></div>
+  <div class="cards dash-stats">
+    <div class="stat stat-blue"><div class="stat-top"><span>Events</span><i class="stat-ic"><svg class="i"><use href="#i-calendar"/></svg></i></div><b id="sEvents">0</b><small>All events you created</small></div>
+    <div class="stat stat-teal"><div class="stat-top"><span>Guests</span><i class="stat-ic"><svg class="i"><use href="#i-users"/></svg></i></div><b id="sGuests">0</b><small>Across all events</small></div>
+    <div class="stat stat-gold"><div class="stat-top"><span>Invitations sent</span><i class="stat-ic"><svg class="i"><use href="#i-send"/></svg></i></div><b id="sCards">0</b><small id="sCardsSub">Guests who received an invitation</small><div class="stat-bar"><i id="sbCards"></i></div></div>
+    <div class="stat stat-green"><div class="stat-top"><span>Checked in</span><i class="stat-ic"><svg class="i"><use href="#i-scan"/></svg></i></div><b id="sRsvp">0</b><small>Arrived at the venue</small><div class="stat-bar"><i id="sbRsvp"></i></div></div>
   </div>
   <div id="rsvpNudge"></div>
   <div class="dash-grid">
@@ -1339,7 +1491,7 @@ body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.d
     <div class="guest-bar">
       <div class="search"><svg class="i"><use href="#i-search"/></svg><input id="guestSearchBox" placeholder="Search by name or phone…" oninput="guestSearch=this.value;renderGuests()"></div>
       <select id="guestFilterBox" onchange="guestFilter=this.value;renderGuests()" aria-label="Filter">
-        <option value="All">All guests</option><option>Single</option><option>Double</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option>
+        <option value="All">All guests</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option>
       </select>
       <span class="spacer"></span>
       <button class="gray" onclick="exportGuestsExcel()"><svg class="i"><use href="#i-download"/></svg>Export</button>
@@ -1349,7 +1501,7 @@ body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.d
       <button class="primary" onclick="openAddGuestModal()"><svg class="i"><use href="#i-plus"/></svg>Add guest</button>
     </div>
     <input hidden id="guestFile" type="file" accept=".xlsx,.xls,.csv" onchange="importGuests(this)">
-    <div class="hint-box"><svg class="i"><use href="#i-info"/></svg><span>Your Excel/CSV file needs three columns: <b>Name</b>, <b>Phone</b>, <b>Card Type</b> (Single or Double). <button class="text-button" style="padding:0 4px" onclick="downloadTemplate()">Download template</button></span></div>
+    <div class="hint-box"><svg class="i"><use href="#i-info"/></svg><span>Your Excel/CSV file needs three columns: <b>Name</b>, <b>Phone</b>, <b>Card Type</b> (Single, Double, VIP, Family, Wakwe…). Optional: Table, Group, People. <button class="text-button" style="padding:0 4px" onclick="downloadTemplate()">Download template</button></span></div>
     <div id="guestSummary" class="help" style="margin:0 0 12px"></div>
     <div class="table-wrap"><table>
       <thead><tr><th>Guest</th><th>Card</th><th>Invitation</th><th>RSVP</th><th>Check-in</th><th class="actions">Actions</th></tr></thead>
@@ -1421,7 +1573,7 @@ body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.d
   <div class="panel">
     <div class="channel-pick">
       <div class="field"><label for="messageChannel">Channel</label><select id="messageChannel" onchange="renderMessagingHelp()"><option value="whatsapp">WhatsApp</option><option value="sms">SMS</option></select></div>
-      <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Guests not yet invited</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><option value="single">Single cards only</option><option value="double">Double cards only</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
+      <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Guests not yet invited</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
     </div>
     <div class="field"><label for="bulkMessage">Message</label><textarea id="bulkMessage" rows="6" oninput="this.dataset.dirty='1'"></textarea></div>
     <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
@@ -1932,6 +2084,102 @@ function persistState(){try{localStorage.setItem(KEY+"_cur",currentEventId||"")}
 function saveDB(){persistState();refreshAll()}
 function toast(m){let t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
 function showView(id,btn){if(id==="admin"&&!isAdmin){toast("You do not have access to the Admin Console.");return}document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("aside button").forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active");if(id==="guests"||id==="cards"||id==="reports")populateEventSelects();refreshAll()}
+/* ---- card types (v73): a label plus how many people the card admits.
+   The stored base type stays Single/Double so posters, QR links and RSVP keep working. ---- */
+const CARD_TYPES=[['Single',1],['Double',2],['VIP',2],['Special',1],['Family',4],['Wakwe',2],['Friends',1],['Colleagues',1],['Church',1],['Committee',1]];
+const CARD_STD={Single:1,Double:2};
+const CARD_COLORS={Single:'#1d4ed8',Double:'#b91c1c',VIP:'#a16207',Special:'#6d28d9',Family:'#15803d',Wakwe:'#be185d',Friends:'#0e7490',Colleagues:'#0f766e',Church:'#4338ca',Committee:'#334155'};
+function cardParty(g){ const p=Number(g&&g.party); return p>=1?Math.min(10,Math.round(p)):(String(g&&g.type).toLowerCase()==='double'?2:1); }
+function cardLabel(g){ return String((g&&g.label)||(g&&g.type)||'Single'); }
+function cardColor(label){ if(CARD_COLORS[label]) return CARD_COLORS[label]; let h=0; String(label).split('').forEach(c=>h=(h*31+c.charCodeAt(0))%6); return ['#0e7490','#be185d','#15803d','#6d28d9','#a16207','#4338ca'][h]; }
+function cardTag(g){ const l=cardLabel(g); return `<span class="tag cardt" style="--c:${cardColor(l)}">${escapeHtml(l)}</span>`; }
+function cardFieldsFrom(label,party){
+  label=String(label||'Single').replace(/\s+/g,' ').trim().slice(0,30)||'Single';
+  const key=Object.keys(CARD_STD).find(k=>k.toLowerCase()===label.toLowerCase()); if(key) label=key;
+  const std=!!key; const p=std?CARD_STD[key]:Math.max(1,Math.min(10,Math.round(Number(party)||1)));
+  return {type:p>=2?'Double':'Single',label:std?'':label,party:std?0:p};
+}
+/* only send the new columns when needed, so older databases keep working for Single/Double */
+function cardDbFields(f,prev){
+  const o={card_type:f.type};
+  if(f.label){ o.card_label=f.label; o.party_size=f.party; }
+  else if(prev&&prev.label){ o.card_label=null; o.party_size=null; }
+  return o;
+}
+function cardDbError(err){ const m=String((err&&err.message)||err||''); return /card_label|party_size/.test(m)?'This card type needs a database update. Run the card types SQL file in Supabase (SHEREHE_HUB_CARDTYPES_V73.sql).':m; }
+/* read a card type typed in an Excel/CSV file: "VIP", "Double", "Family 5", "VIP Double" */
+function cardParseText(text,partyCol){
+  let t=String(text==null?'':text).replace(/\s+/g,' ').trim(); if(!t) return cardFieldsFrom('Single');
+  const low=t.toLowerCase();
+  if(low==='single') return cardFieldsFrom('Single');
+  if(low==='double') return cardFieldsFrom('Double');
+  let n=Number(partyCol)||0; const m=t.match(/^(.*?)[\s-]+(\d{1,2})$/); if(m&&!n){ n=Number(m[2]); t=m[1].trim(); }
+  const preset=CARD_TYPES.find(c=>c[0].toLowerCase()===t.toLowerCase());
+  const fixed=preset?preset[0]:t;
+  const dflt=preset?preset[1]:(/double|couple|two/i.test(t)?2:1);
+  return cardFieldsFrom(fixed,n||dflt);
+}
+/* the Card type picker (select + people allowed + custom name) shared by the guest forms */
+function cardTypeFill(selId){
+  const sel=document.getElementById(selId); if(!sel||sel.dataset.ct) return; sel.dataset.ct='1';
+  sel.innerHTML=CARD_TYPES.map(([k])=>`<option value="${k}">${k==='Single'?'Single (one person)':k==='Double'?'Double (two people)':k}</option>`).join('')+'<option value="__other">Other (type your own)…</option>';
+  const host=sel.closest('.field')||sel.parentElement;
+  host.insertAdjacentHTML('afterend',`<div class="field full ct-extra" id="${selId}Extra" style="display:none"><div class="ct-extra-row"><div><label for="${selId}Party">People allowed on this card</label><input type="number" id="${selId}Party" min="1" max="10" value="2" inputmode="numeric"></div><div id="${selId}CustomWrap" style="display:none"><label for="${selId}Custom">Card type name</label><input id="${selId}Custom" maxlength="30" placeholder="e.g. Kamati ya harusi"></div></div></div>`);
+  sel.addEventListener('change',()=>cardTypeChange(selId,true));
+}
+function cardTypeChange(selId,useDefault){
+  const sel=document.getElementById(selId); if(!sel) return;
+  const ex=document.getElementById(selId+'Extra'), party=document.getElementById(selId+'Party'), cw=document.getElementById(selId+'CustomWrap');
+  const v=sel.value, std=Object.prototype.hasOwnProperty.call(CARD_STD,v);
+  if(ex) ex.style.display=std?'none':'block';
+  if(cw) cw.style.display=v==='__other'?'block':'none';
+  if(useDefault&&!std&&party){ const pr=CARD_TYPES.find(c=>c[0]===v); party.value=pr?pr[1]:1; }
+  if(v==='__other'){ const c=document.getElementById(selId+'Custom'); if(c&&useDefault) c.focus(); }
+}
+function cardTypeSet(selId,g){
+  cardTypeFill(selId); const sel=document.getElementById(selId); if(!sel) return;
+  const label=cardLabel(g), party=cardParty(g);
+  if(![...sel.options].some(o=>o.value===label)){ const o=document.createElement('option'); o.value=label; o.textContent=label; sel.insertBefore(o,sel.querySelector('option[value="__other"]')); }
+  sel.value=label; cardTypeChange(selId,false);
+  const p=document.getElementById(selId+'Party'); if(p) p.value=Object.prototype.hasOwnProperty.call(CARD_STD,label)?CARD_STD[label]:party;
+  const c=document.getElementById(selId+'Custom'); if(c) c.value='';
+}
+function cardTypeRead(selId){
+  const sel=document.getElementById(selId); if(!sel) return cardFieldsFrom('Single');
+  let label=sel.value; if(label==='__other'){ const c=document.getElementById(selId+'Custom'); label=(c?c.value:'').trim(); if(!label) return null; }
+  const p=document.getElementById(selId+'Party');
+  return cardFieldsFrom(label,p?p.value:1);
+}
+function cardSummary(gs){
+  const by=new Map(); (gs||[]).forEach(g=>{ const l=cardLabel(g); by.set(l,(by.get(l)||0)+1); });
+  const rank=l=>{ const i=CARD_TYPES.findIndex(c=>c[0]===l); return i<0?99:i; };
+  return [...by.entries()].sort((a,b)=>rank(a[0])-rank(b[0])||a[0].localeCompare(b[0]));
+}
+function cardBandText(g){ const l=cardLabel(g).toUpperCase(); return l.length<=7?l+' CARD':l.slice(0,18); }
+function cardSummaryText(gs,max,sep){
+  const a=cardSummary(gs); sep=sep||', '; max=max||3;
+  if(!a.length) return '0';
+  const shown=a.slice(0,max).map(([l,n])=>n+' '+l), rest=a.slice(max).length;
+  return shown.join(sep)+(rest?sep+'+'+rest+' other':'');
+}
+/* keep the guest filter and the message audience in step with the card types this event really uses */
+function cardLabelsOf(ev){ const l=cardSummary(ev?ev.guests:[]).map(x=>x[0]); ['Single','Double'].forEach(k=>{ if(!l.includes(k)) l.push(k); }); const r=k=>{const i=CARD_TYPES.findIndex(c=>c[0]===k);return i<0?99:i;}; return l.sort((a,b)=>r(a)-r(b)||a.localeCompare(b)); }
+function cardFilterFill(ev){
+  const f=document.getElementById('guestFilterBox'); if(!f) return;
+  const labels=cardSummary(ev?ev.guests:[]).map(x=>x[0]); const key=labels.join('|'); if(f.dataset.k===key) return; f.dataset.k=key;
+  const cur=f.value; f.querySelectorAll('option[data-ct]').forEach(o=>o.remove());
+  const anchor=f.querySelector('option[value="Attending"]');
+  labels.forEach(l=>{ const o=document.createElement('option'); o.value=l; o.textContent=l; o.dataset.ct='1'; f.insertBefore(o,anchor); });
+  if([...f.options].some(o=>o.value===cur)) f.value=cur; else { f.value='All'; window.guestFilter='All'; }
+}
+function cardAudienceFill(ev){
+  const a=document.getElementById('messageAudience'); if(!a) return;
+  const sum=new Map(cardSummary(ev?ev.guests:[])); const labels=cardLabelsOf(ev); const key=labels.map(l=>l+':'+(sum.get(l)||0)).join('|'); if(a.dataset.k===key) return; a.dataset.k=key;
+  const cur=a.value; let g=document.getElementById('audCards');
+  if(!g){ g=document.createElement('optgroup'); g.id='audCards'; g.label='By card type'; a.insertBefore(g,a.querySelector('optgroup')); }
+  g.innerHTML=labels.map(l=>`<option value="card:${escapeHtml(l)}">${escapeHtml(l)} cards only (${sum.get(l)||0})</option>`).join('');
+  if([...a.options].some(o=>o.value===cur)) a.value=cur; else a.value='pending';
+}
 function setType(el,type){document.querySelectorAll("#eventTypes .type").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");selectedType=type}
 async function saveEvent(){
   if(!currentSupabaseUser) return alert("Please sign in first.");
@@ -2066,7 +2314,7 @@ async function fetchAllGuests(ids){
   let out=[], from=0; const size=1000;
   for(;;){
     const {data,error}=await supabaseClient.from("guests")
-      .select("id,event_id,name,phone,card_type,rsvp_status,checked_in,sent_whatsapp,sent_sms,created_at,table_no,guest_group")
+      .select("*")
       .in("event_id", ids).order("created_at",{ascending:true}).order("id").range(from, from+size-1);
     if(error) return {data:null,error};
     out=out.concat(data||[]);
@@ -2152,6 +2400,8 @@ async function loadEventsFromSupabase(){
         name: g.name || "",
         phone: g.phone || "",
         type: String(g.card_type || "Single").toLowerCase().includes("double") ? "Double" : "Single",
+        label: g.card_label || "",
+        party: Number(g.party_size) || 0,
         sent_whatsapp: !!g.sent_whatsapp,
         sent_sms: !!g.sent_sms,
         sent: !!(g.sent_whatsapp || g.sent_sms),
@@ -2184,12 +2434,12 @@ async function insertGuestToSupabase(ev,g){
     event_id: ev.id,
     name: g.name,
     phone: g.phone,
-    card_type: g.type,
+    ...cardDbFields({type:g.type,label:g.label||'',party:g.party||0}),
     table_no: g.table || null,
     guest_group: g.group || null
   };
   const {error} = await supabaseClient.from("guests").insert(row);
-  if(error) throw error;
+  if(error) throw new Error(cardDbError(error));
 }
 
 function parseCsvText(text){
@@ -2264,7 +2514,7 @@ function openAddGuestModal(){
   document.getElementById('addGuestEvent').value=currentEventId || (db.events[0]&&db.events[0].id) || '';
   document.getElementById('addGuestName').value='';
   document.getElementById('addGuestPhone').value='';
-  document.getElementById('addGuestType').value='Single';
+  cardTypeSet('addGuestType',{type:'Single'});
   document.getElementById('addGuestTable').value=''; document.getElementById('addGuestGroup').value='';
   document.getElementById('addGuestModal').classList.add('open');
   setTimeout(()=>document.getElementById('addGuestName').focus(),50);
@@ -2278,14 +2528,14 @@ async function saveGuestFromModal(){
   const eid=document.getElementById('addGuestEvent').value;
   const n=document.getElementById('addGuestName').value.trim();
   const p=document.getElementById('addGuestPhone').value.trim();
-  const t=document.getElementById('addGuestType').value==='Double'?'Double':'Single';
+  const cf=cardTypeRead('addGuestType'); if(!cf) return alert('Please type the card type name.');
   const tbl=document.getElementById('addGuestTable').value.trim(), grp=document.getElementById('addGuestGroup').value.trim();
   if(!eid)return alert('Choose an event.');
   if(!n)return alert('Please enter the guest name.');
   if(!p)return alert('Please enter a phone number.');
   const ev=getEvent(eid);
   if(!ev)return alert('Event not found.');
-  const g={id:crypto.randomUUID(),name:n,phone:p,type:t,table:tbl,group:grp,sent:false,rsvp:'Pending',checkedIn:false};
+  const g={id:crypto.randomUUID(),name:n,phone:p,type:cf.type,label:cf.label,party:cf.party,table:tbl,group:grp,sent:false,rsvp:'Pending',checkedIn:false};
   const btn=document.querySelector('#addGuestModal .guest-form-actions .primary');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
@@ -2322,7 +2572,7 @@ function openEditGuest(gid){
   document.getElementById('editGuestEvent').value=ev.name+' — '+ev.type;
   document.getElementById('editGuestName').value=g.name||'';
   document.getElementById('editGuestPhone').value=g.phone||'';
-  document.getElementById('editGuestType').value=(g.type||'Single').toLowerCase().includes('double')?'Double':'Single';
+  cardTypeSet('editGuestType',g);
   document.getElementById('editGuestTable').value=g.table||''; document.getElementById('editGuestGroup').value=g.group||'';
   closeGuestDetailModal(); document.getElementById('editGuestModal').classList.add('open'); setTimeout(()=>document.getElementById('editGuestName').focus(),50);
 }
@@ -2330,13 +2580,13 @@ function closeEditGuestModal(){document.getElementById('editGuestModal').classLi
 async function saveEditedGuest(){
   const eid=window.editingGuestEventId, gid=window.editingGuestId, ev=getEvent(eid), g=ev?.guests.find(x=>String(x.id)===String(gid));
   if(!ev||!g)return;
-  const name=document.getElementById('editGuestName').value.trim(), phone=document.getElementById('editGuestPhone').value.trim(), type=document.getElementById('editGuestType').value==='Double'?'Double':'Single', tbl=document.getElementById('editGuestTable').value.trim(), grp=document.getElementById('editGuestGroup').value.trim();
-  if(!name)return alert('Please enter the guest name.'); if(!phone)return alert('Please enter a phone number.');
+  const name=document.getElementById('editGuestName').value.trim(), phone=document.getElementById('editGuestPhone').value.trim(), cf=cardTypeRead('editGuestType'), tbl=document.getElementById('editGuestTable').value.trim(), grp=document.getElementById('editGuestGroup').value.trim();
+  if(!name)return alert('Please enter the guest name.'); if(!phone)return alert('Please enter a phone number.'); if(!cf)return alert('Please type the card type name.');
   const btn=document.getElementById('saveEditGuestBtn'); btn.disabled=true; btn.textContent='Saving...';
   try{
-    const {error}=await supabaseClient.from('guests').update({name,phone,card_type:type,table_no:tbl||null,guest_group:grp||null}).eq('id',gid).eq('event_id',eid);
-    if(error)throw error;
-    g.name=name; g.phone=phone; g.type=type; g.table=tbl; g.group=grp;
+    const {error}=await supabaseClient.from('guests').update({name,phone,...cardDbFields(cf,g),table_no:tbl||null,guest_group:grp||null}).eq('id',gid).eq('event_id',eid);
+    if(error)throw new Error(cardDbError(error));
+    g.name=name; g.phone=phone; g.type=cf.type; g.label=cf.label; g.party=cf.party; g.table=tbl; g.group=grp;
     saveDB(); closeEditGuestModal(); renderGuests(); renderCards(); renderRsvp(); renderAdmin(); refreshAll(); toast('Guest updated.');
   }catch(err){console.error('SHEREHE HUB editGuest:',err);alert('The guest could not be updated. '+(err.message||err));}
   finally{btn.disabled=false;btn.textContent='✓ Save Changes'}
@@ -2357,7 +2607,7 @@ function showPublicRsvp(){
 }
 async function submitPublicRsvp(eventId,guestId,status){
   const ev=getEvent(eventId), g=ev?.guests.find(x=>String(x.id)===String(guestId)); if(!ev||!g)return;
-  const attendees=(g.type==='Double'&&document.getElementById('publicAttendees'))?Number(document.getElementById('publicAttendees').value):1;
+  const attendees=(cardParty(g)>1&&document.getElementById('publicAttendees'))?Number(document.getElementById('publicAttendees').value):1;
   const box=document.getElementById('publicRsvpStatus'); if(box)box.innerHTML='<div class="help">Saving RSVP...</div>';
   try{
     const row={id:crypto.randomUUID(),event_id:eventId,guest_id:guestId,status,attendees,responded_at:new Date().toISOString()};
@@ -2391,7 +2641,7 @@ async function logGuestMessage(ev,g,channel,message,status='opened',providerMess
 }
 function buildGuestMessage(ev,g){
   const url=guestInviteUrl(ev,g);
-  return `Hello ${g.name}, you are invited to ${ev.name}. Card: ${g.type}. Please open your invitation: ${url}`;
+  return `Hello ${g.name}, you are invited to ${ev.name}. Card: ${cardLabel(g)}. Please open your invitation: ${url}`;
 }
 function buildBulkTemplate(ev){
   return `Hello {{name}}, you are invited to ${ev?.name||'our event'}. Card: {{card_type}}. Please open your invitation: {{link}}`;
@@ -2420,15 +2670,16 @@ async function sendBulkMessages(){
   const template=document.getElementById('bulkMessage')?.value?.trim()||buildBulkTemplate(ev);
   let list=ev.guests.filter(g=>{
     if(audience==='pending') return !g.sent;
-    if(audience==='single') return g.type==='Single';
-    if(audience==='double') return g.type==='Double';
+    if(audience==='single') return cardLabel(g)==='Single';
+    if(audience==='double') return cardLabel(g)==='Double';
+    if(String(audience).startsWith('card:')) return cardLabel(g)===String(audience).slice(5);
     return true;
   });
   if(!list.length)return alert('No guests match this filter.');
   const progress=document.getElementById('messageProgress'), results=document.getElementById('messageResults');
   let ok=0,fail=0; const rows=[]; if(results)results.innerHTML='';
   for(let i=0;i<list.length;i++){
-    const g=list[i]; const msg=template.replaceAll('{{name}}',g.name).replaceAll('{{card_type}}',g.type).replaceAll('{{link}}',guestInviteUrl(ev,g));
+    const g=list[i]; const msg=template.replaceAll('{{name}}',g.name).replaceAll('{{card_type}}',cardLabel(g)).replaceAll('{{link}}',guestInviteUrl(ev,g));
     if(progress)progress.textContent=`Sending ${i+1}/${list.length}: ${g.name}`;
     const r=await sendViaApi(channel,ev,g,normalizeTzPhone(g.phone),msg);
     if(r.ok){ok++;g.sent=true;g.lastChannel=channel;g.lastSentAt=new Date().toISOString();rows.push(`<div class="tag" style="margin:3px">✓ ${escapeHtml(g.name)} — ${channel.toUpperCase()}</div>`);await logGuestMessage(ev,g,channel==='whatsapp'?'WhatsApp':'SMS',msg,'Sent',r.provider_message_id||null);}
@@ -2730,10 +2981,10 @@ function downloadBlobFile(blob, filename){
 }
 function csvEscape(v){const x=String(v??'');return /[",\n\r]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x;}
 function downloadTemplate(){
-  const rows=[['Name','Phone','Card Type','Table','Group'],['Amina Juma','0712345678','Single','Table 1','Family'],['John & Mary','0755123456','Double','Table 2','VIP']];
+  const rows=[['Name','Phone','Card Type','Table','Group','People'],['Amina Juma','0712345678','Single','Table 1','Family',''],['John & Mary','0755123456','Double','Table 2','Friends',''],['Mzee Kassim','0765000111','VIP','Table 1','Elders',''],['Familia ya Mwanga','0788222333','Family','Table 5','Family',4]];
   try{
     if(window.XLSX?.utils?.aoa_to_sheet && XLSX.writeFile){
-      const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:28},{wch:20},{wch:16},{wch:14},{wch:14}];
+      const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:28},{wch:20},{wch:16},{wch:14},{wch:14},{wch:10}];
       const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Guests');
       XLSX.writeFile(wb,'SHEREHE_HUB_Guest_Template.xlsx'); toast('Excel template downloaded.'); return;
     }
@@ -2890,11 +3141,11 @@ document.addEventListener('keydown',e=>{
 
   window.exportGuestsExcel=function(){
     const ev=getEvent(currentEventId); if(!ev){alert('Please choose an event first.');return;}
-    const rows=[['Event','Event ID','Name','Phone','Card Type','Table','Group','Invitation','RSVP','RSVP People','Check-in','Invitation URL']];
-    ev.guests.forEach(g=>rows.push([ev.name||'',ev.id,g.name||'',g.phone||'',g.type||'',g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
+    const rows=[['Event','Event ID','Name','Phone','Card Type','People','Table','Group','Invitation','RSVP','RSVP People','Check-in','Invitation URL']];
+    ev.guests.forEach(g=>rows.push([ev.name||'',ev.id,g.name||'',g.phone||'',cardLabel(g),cardParty(g),g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
     try{
       if(window.XLSX?.utils?.aoa_to_sheet && XLSX.writeFile){
-        const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:28},{wch:38},{wch:28},{wch:20},{wch:14},{wch:12},{wch:14},{wch:14},{wch:14},{wch:13},{wch:15},{wch:60}];
+        const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:28},{wch:38},{wch:28},{wch:20},{wch:14},{wch:9},{wch:12},{wch:14},{wch:14},{wch:14},{wch:13},{wch:15},{wch:60}];
         const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Guests');
         XLSX.writeFile(wb,(ev.name||'event').replace(/[^a-z0-9]+/gi,'-')+'-guests.xlsx'); toast('Guest list downloaded as Excel.'); return;
       }
@@ -3009,8 +3260,8 @@ document.addEventListener('keydown',e=>{
   // CSV fallback is always available, even if CDN libraries fail.
   window.downloadGuestsCsv=function(){
     const ev=getEvent(currentEventId); if(!ev)return alert('Please choose an event first.');
-    const rows=[['Event','Event ID','Name','Phone','Card Type','Table','Group','Invitation','RSVP','RSVP People','Check-in','Invitation URL']];
-    ev.guests.forEach(g=>rows.push([ev.name,ev.id,g.name,g.phone,g.type,g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
+    const rows=[['Event','Event ID','Name','Phone','Card Type','People','Table','Group','Invitation','RSVP','RSVP People','Check-in','Invitation URL']];
+    ev.guests.forEach(g=>rows.push([ev.name,ev.id,g.name,g.phone,cardLabel(g),cardParty(g),g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
     const csv='\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n');
     downloadBlobFile(new Blob([csv],{type:'text/csv;charset=utf-8'}),(ev.name||'event').replace(/[^a-z0-9]+/gi,'-')+'-guests.csv');
   };
@@ -3352,19 +3603,35 @@ function doRefresh(){ sortGuests();
 }
 
 /* ---------- dashboard ---------- */
+function countTo(el,n){
+  if(!el) return; n=Number(n)||0;
+  const prev=el.dataset.v===undefined?NaN:Number(el.dataset.v);
+  if(prev===n) return;
+  el.dataset.v=String(n);
+  const from=isNaN(prev)?0:prev;
+  let reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion:reduce)').matches; }catch(e){}
+  if(reduce||from===n||document.hidden){ el.textContent=n; return; }
+  const t0=performance.now(), dur=650;
+  const step=t=>{ const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3);
+    el.textContent=Math.round(from+(n-from)*e); if(k<1&&el.dataset.v===String(n)) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+  setTimeout(()=>{ if(el.dataset.v===String(n)) el.textContent=n; },dur+120);
+}
 window.renderDashboard = function(){
   const evs=db.events;
   const guests=evs.reduce((n,e)=>n+e.guests.length,0);
   const sent=evs.reduce((n,e)=>n+e.guests.filter(g=>g.sent).length,0);
   const arrived=evs.reduce((n,e)=>n+e.guests.filter(g=>g.checkedIn).length,0);
-  $('sEvents').textContent=evs.length; $('sGuests').textContent=guests; $('sCards').textContent=sent; $('sRsvp').textContent=arrived;
+  countTo($('sEvents'),evs.length); countTo($('sGuests'),guests); countTo($('sCards'),sent); countTo($('sRsvp'),arrived);
+  const b1=$('sbCards'), b2=$('sbRsvp');
+  if(b1) b1.style.width=pct(sent,guests)+'%';
+  if(b2) b2.style.width=pct(arrived,guests)+'%';
 
   const box=$('nextEvent'), rd=$('readiness');
   if(!evs.length){ const nb0=$('rsvpNudge'); if(nb0) nb0.innerHTML='';
     box.innerHTML=`<div class="ne-empty"><div class="ne-kicker">Get started</div><div class="ne-title">Create your first event</div><p>Add the details, poster and guests. The system will generate QR cards and help you send invitations.</p><button class="primary" onclick="showView('create')">${ic('plus')}Create event</button></div>`;
-    rd.innerHTML=`<h2>Getting started</h2><p class="muted" style="font-size:12.5px">The system guides you step by step.</p><ul class="steps">${[
-      ['Create an event','Name, date, venue and poster'],['Add guests','One by one or from Excel'],['Send invitations','WhatsApp or SMS'],['Receive RSVPs','Guests reply from their phones'],['Check-in','Scan QR codes on the day']
-    ].map(([t,d])=>`<li><span class="dot">${ic('check')}</span><div><b>${t}</b><span>${d}</span></div></li>`).join('')}</ul>`;
+    const first=[['calendar','Create an event','Name, date, venue and poster'],['users','Add guests','One by one or from Excel'],['send','Send invitations','WhatsApp or SMS'],['message','Receive RSVPs','Guests reply from their phones'],['scan','Check-in','Scan QR codes on the day']];
+    rd.innerHTML=`<div class="rd-head"><div><h2>Getting started</h2><p class="muted">The system guides you step by step.</p></div></div><ol class="steps tl">${first.map(([i,t,d],k)=>`<li class="${k===0?'now':'todo'}"><span class="dot">${ic(i)}</span><div><b>${t}</b><span>${d}</span></div></li>`).join('')}</ol>`;
     return;
   }
   const now=Date.now()-24*3600*1000;
@@ -3375,24 +3642,32 @@ window.renderDashboard = function(){
   const d = ev.date ? daysUntil(ev.date) : null;
   let count='—', sub='date not set';
   if(d!==null){ if(d>1){count=d;sub='days to go';} else if(d===1){count='1';sub='day to go';} else if(d===0){count='Today';sub='is the big day';} else {count=Math.abs(d);sub='days ago';} }
+  const thumb = ev.poster?`<img class="ne-thumb" src="${E(ev.poster)}" alt="" loading="lazy">`:`<span class="ne-thumb ne-thumb-ph">${ic('calendar')}</span>`;
   box.innerHTML=`
-    <div class="ne-top"><div>
+    <div class="ne-top"><div class="ne-main">${thumb}<div class="ne-txt">
       <div class="ne-kicker">${isUp?'Next event':'Latest event'}</div>
       <div class="ne-title">${E(ev.name)}</div>
       <div class="ne-meta">${ev.date?`<span>${ic('calendar')}${E(fmtDate(ev.date))}</span>`:''}${ev.venue?`<span>${ic('pin')}${E(ev.venue)}</span>`:''}<span>${ic('users')}${st.total} guests</span></div>
-    </div><div class="ne-count"><b>${count}</b><span>${sub}</span></div></div>
-    <div><div class="ne-bar" title="RSVP"><i class="y" style="width:${pct(st.att,st.total)}%"></i><i class="p" style="width:${pct(st.pending,st.total)}%"></i><i class="n" style="width:${pct(st.no,st.total)}%"></i></div>
-    <div class="ne-legend"><span><i style="background:#4cc38a"></i>Attending ${st.att}</span><span><i style="background:var(--gold-l)"></i>Awaiting ${st.pending}</span><span><i style="background:#e36b61"></i>Declined ${st.no}</span></div></div>
-    <div class="ne-actions"><button class="primary" onclick="openEventHub('${ev.id}','guests')">Manage guests</button><button class="ghost" onclick="openEventHub('${ev.id}','messaging')">Send invitations</button><button class="ghost" onclick="openEventHub('${ev.id}','rsvp')">Check-in</button></div>`;
+    </div></div><div class="ne-count"><b>${count}</b><span>${sub}</span></div></div>
+    <div class="ne-rsvp"><div class="ne-tiles">
+      <div class="ne-tile y"><b>${st.att}</b><span>Attending</span></div>
+      <div class="ne-tile p"><b>${st.pending}</b><span>Awaiting</span></div>
+      <div class="ne-tile n"><b>${st.no}</b><span>Declined</span></div>
+      <div class="ne-tile c"><b>${st.checked}</b><span>Arrived</span></div>
+    </div>
+    <div class="ne-bar" title="RSVP"><i class="y" style="width:${pct(st.att,st.total)}%"></i><i class="p" style="width:${pct(st.pending,st.total)}%"></i><i class="n" style="width:${pct(st.no,st.total)}%"></i></div></div>
+    <div class="ne-actions"><button class="primary" onclick="openEventHub('${ev.id}','guests')">${ic('users')}Manage guests</button><button class="ghost" onclick="openEventHub('${ev.id}','messaging')">${ic('send')}Send invitations</button><button class="ghost" onclick="openEventHub('${ev.id}','rsvp')">${ic('scan')}Check-in</button></div>`;
   const steps=[
-    {done:!!ev.poster, t:'Event and poster', d:ev.poster?'Poster uploaded':'No poster yet'},
-    {done:st.total>0, t:'Guests added', d:st.total?`${st.total} guests on the list`:'No guests yet', a:['Add guests','guests']},
-    {done:st.total>0&&st.sent===st.total, t:'Invitations sent', d:st.total?`${st.sent} of ${st.total} invited`:'Add guests first', a:st.total&&st.sent<st.total?['Send','messaging']:null},
-    {done:st.att+st.no>0, t:'RSVP replies', d:`${st.att+st.no} of ${st.total} replied`},
-    {done:st.checked>0, t:'Event-day check-in', d:st.checked?`${st.checked} arrived`:'Starts on the event day', a:st.checked?null:['Open','rsvp']}
+    {i:'image', done:!!ev.poster, t:'Event and poster', d:ev.poster?'Poster uploaded':'No poster yet'},
+    {i:'users', done:st.total>0, t:'Guests added', d:st.total?`${st.total} guests on the list`:'No guests yet', a:['Add guests','guests']},
+    {i:'send', done:st.total>0&&st.sent===st.total, t:'Invitations sent', d:st.total?`${st.sent} of ${st.total} invited`:'Add guests first', a:st.total&&st.sent<st.total?['Send','messaging']:null},
+    {i:'message', done:st.att+st.no>0, t:'RSVP replies', d:`${st.att+st.no} of ${st.total} replied`},
+    {i:'scan', done:st.checked>0, t:'Event-day check-in', d:st.checked?`${st.checked} arrived`:'Starts on the event day', a:st.checked?null:['Open','rsvp']}
   ];
+  const nDone=steps.filter(s=>s.done).length, cur=steps.findIndex(s=>!s.done);
   renderRsvpNudge(ev);
-  rd.innerHTML=`<h2>Event readiness</h2><p class="muted" style="font-size:12.5px">${E(ev.name)}</p><ul class="steps">${steps.map(s=>`<li class="${s.done?'done':''}"><span class="dot">${ic('check')}</span><div><b>${s.t}</b><span>${s.d}</span></div>${s.a&&!s.done?`<button class="gray sm" onclick="openEventHub('${ev.id}','${s.a[1]}')">${s.a[0]}</button>`:''}</li>`).join('')}</ul>`;
+  rd.innerHTML=`<div class="rd-head"><div><h2>Event readiness</h2><p class="muted">${E(ev.name)}</p></div><div class="rd-ring" style="--p:${Math.round(nDone/steps.length*100)}"><b>${nDone}/${steps.length}</b></div></div>
+    <ol class="steps tl">${steps.map((s,k)=>`<li class="${s.done?'done':k===cur?'now':'todo'}"><span class="dot">${ic(s.done?'check':s.i)}</span><div><b>${s.t}</b><span>${s.d}</span></div>${s.a&&!s.done?`<button class="${k===cur?'primary':'gray'} sm" onclick="openEventHub('${ev.id}','${s.a[1]}')">${s.a[0]}</button>`:''}</li>`).join('')}</ol>`;
 };
 
 /* ---------- event cards ---------- */
@@ -3402,13 +3677,18 @@ window.renderEventCards = function(containerId){
   if(!list.length){ box.innerHTML=`<div style="grid-column:1/-1">${emptyState('No events yet','Create your first event to get started.',`<button class="primary" onclick="showView('create')">${ic('plus')}Create event</button>`)}</div>`; return; }
   box.innerHTML=list.map(e=>{
     const d=e.date?new Date(e.date):null, valid=d&&!isNaN(d);
-    const chip = valid?`<div class="date-chip"><b>${d.getDate()}</b>${d.toLocaleString('en-GB',{month:'short'}).toUpperCase()}</div>`:'';
-    const img = e.poster?`<img loading="lazy" src="${E(e.poster)}" alt="Poster for ${E(e.name)}">`:`<div class="poster-ph">${ic('image')}</div>`;
-    return `<div class="event-card"><div class="poster-wrap">${img}${chip}</div>
+    const chip = valid?`<div class="date-chip"><b>${d.getDate()}</b><em>${d.toLocaleString('en-GB',{month:'short'}).toUpperCase()}</em></div>`:'';
+    const du = valid?daysUntil(e.date):null;
+    const badge = du===null?'':du<0?`<span class="ev-badge off">Ended</span>`:du===0?`<span class="ev-badge live">Today</span>`:du===1?`<span class="ev-badge">Tomorrow</span>`:`<span class="ev-badge">In ${du} days</span>`;
+    const img = e.poster?`<i class="pw-bg" style="background-image:url('${E(e.poster)}')"></i><img loading="lazy" src="${E(e.poster)}" alt="Poster for ${E(e.name)}">`:`<div class="poster-ph">${ic('image')}</div>`;
+    const tot=e.guests.length, sentN=e.guests.filter(g=>g.sent).length;
+    const prog = tot?`<div class="ev-prog"><div class="stat-bar"><i style="width:${pct(sentN,tot)}%"></i></div><span>${sentN} of ${tot} invited</span></div>`:'';
+    return `<div class="event-card ev2"><div class="poster-wrap">${img}${chip}${badge}</div>
       <h3>${E(e.name)}</h3>
-      <div class="tags"><span class="tag blue">${E(e.type)}</span><span class="tag">${e.guests.length} guests</span></div>
+      <div class="tags"><span class="tag blue">${E(e.type)}</span><span class="tag">${ic('users')}${tot} guests</span></div>
       ${valid?`<div class="event-meta">${ic('clock')}${E(fmtDate(e.date))}</div>`:''}
       ${e.venue?`<div class="event-meta">${ic('pin')}${E(e.venue)}</div>`:''}
+      ${prog}
       <div class="event-actions"><button class="primary" onclick="openEventHub('${e.id}','guests')">Guests</button><button class="gray" onclick="openEventHub('${e.id}','cards')">Cards</button>
       <button class="gray icon" title="Edit event" aria-label="Edit event" onclick="openEditEvent('${e.id}')">${ic('edit')}</button><button class="gray icon no-cohost" title="Duplicate event" aria-label="Duplicate event" onclick="duplicateEvent('${e.id}')">${ic('copy')}</button><button class="danger icon no-cohost" title="Delete event" aria-label="Delete event" onclick="deleteEvent('${e.id}')">${ic('trash')}</button></div></div>`;
   }).join('');
@@ -3460,7 +3740,7 @@ window.deleteEvent = async function(eid){
 /* ---------- guests ---------- */
 window.guestSearch=''; window.guestFilter='All';
 function rsvpBadge(g){
-  if(g.rsvp==='Yes') return `<span class="status ok">Attending${g.type==='Double'&&g.rsvpAttendees?` · ${g.rsvpAttendees}`:''}</span>`;
+  if(g.rsvp==='Yes') return `<span class="status ok">Attending${cardParty(g)>1&&g.rsvpAttendees?` · ${g.rsvpAttendees}`:''}</span>`;
   if(g.rsvp==='No') return `<span class="status no">Declined</span>`;
   return `<span class="status idle">Awaiting</span>`;
 }
@@ -3477,12 +3757,13 @@ window.renderGuests = function(){ sortGuests();
   const ev=getEvent(currentEventId);
   const sum=$('guestSummary');
   if(!ev){ tb.innerHTML=`<tr><td colspan="6" class="empty">${db.events.length?'Choose an event.':'Create an event first, then add guests here.'}</td></tr>`; if(sum) sum.textContent=''; return; }
+  cardFilterFill(ev);
   const st=reportStats(ev);
   if(sum) sum.textContent = st.total ? `${st.total} guests · ${st.sent} invited · ${st.att} attending · ${st.checked} arrived` : 'No guests in this event yet.';
   const q=(window.guestSearch||'').trim().toLowerCase(), f=window.guestFilter||'All';
   const list=ev.guests.filter(g=>{
     const m=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.table||'').toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q);
-    const ok=f==='All'||g.type===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn);
+    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn);
     return m&&ok;
   });
   if(!list.length){
@@ -3490,7 +3771,7 @@ window.renderGuests = function(){ sortGuests();
   }
   tb.innerHTML=list.map(g=>`<tr>
     <td>${guestCell(g)}</td>
-    <td><span class="tag ${g.type==='Double'?'double':''}">${E(g.type)}</span></td>
+    <td>${cardTag(g)}</td>
     <td>${inviteBadge(g)}</td>
     <td>${rsvpBadge(g)}</td>
     <td>${g.checkedIn?'<span class="status ok">Arrived</span>':'<span class="status idle">—</span>'}</td>
@@ -3509,7 +3790,7 @@ window.openGuestDetails = function(gid){
   if(!ev||!g){ toast('Guest not found.'); return; }
   $('guestDetailTitle').textContent=g.name;
   $('guestDetailSubtitle').textContent=ev.name+' · '+ev.type;
-  const items=[['Phone',g.phone||'—'],['Card type',g.type+' card'],['Invitation',g.sent?('Sent'+(g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'')):'Not sent'],['RSVP',g.rsvp==='Yes'?'Attending'+(g.rsvpAttendees?` (${g.rsvpAttendees})`:''):g.rsvp==='No'?'Declined':'Awaiting'],['Check-in',g.checkedIn?'Arrived':'Not yet'],['Invitation link',guestInviteUrl(ev,g)]];
+  const items=[['Phone',g.phone||'—'],['Card type',cardLabel(g)+' card'+(cardParty(g)>1?' · '+cardParty(g)+' people':'')],['Invitation',g.sent?('Sent'+(g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'')):'Not sent'],['RSVP',g.rsvp==='Yes'?'Attending'+(g.rsvpAttendees?` (${g.rsvpAttendees})`:''):g.rsvp==='No'?'Declined':'Awaiting'],['Check-in',g.checkedIn?'Arrived':'Not yet'],['Invitation link',guestInviteUrl(ev,g)]];
   $('guestDetailBody').innerHTML=`<div class="guest-detail-grid">${items.map(([k,v])=>`<div class="detail-item" ${k==='Invitation link'?'style="grid-column:1/-1"':''}><span>${k}</span><b ${k==='Invitation link'?'style="font-size:12.5px;font-weight:500"':''}>${E(v)}</b></div>`).join('')}</div>
     <div class="guest-detail-actions"><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray" onclick="openEditGuest('${g.id}')">${ic('edit')}Edit</button><button class="primary" onclick="openInvite('${g.id}')">${ic('external')}Open invitation</button></div>`;
   $('guestDetailModal').classList.add('open');
@@ -3548,6 +3829,7 @@ window.importGuests = function(inp){
         const name=String(row.Name??row.name??row['full name']??row['Full Name']??vals[0]??'').trim();
         let phone=String(row.Phone??row.phone??row.Mobile??row.mobile??vals[1]??'').trim();
         const type=String(row['Card Type']??row['card type']??row['card_type']??row.Type??row.type??vals[2]??'Single');
+        const pcol=row.People??row.people??row['People allowed']??row['people allowed']??row.Party??row.party??'';
         if(!name){ skipped++; continue; }
         if(/^7\d{8}$/.test(phone)||/^6\d{8}$/.test(phone)) phone='0'+phone;
         const key=name.toLowerCase()+'|'+phone.replace(/\D/g,'');
@@ -3555,23 +3837,24 @@ window.importGuests = function(inp){
         existing.add(key);
         const table=String(row.Table??row.table??row['Table No']??row['table no']??row.table_no??row.Seat??row.seat??'').trim();
         const group=String(row.Group??row.group??row.guest_group??'').trim();
-        fresh.push({id:crypto.randomUUID(),name,phone,type:type.toLowerCase().includes('double')?'Double':'Single',table,group});
+        const cf=cardParseText(type,pcol);
+        fresh.push({id:crypto.randomUUID(),name,phone,type:cf.type,label:cf.label,party:cf.party,table,group});
       }
       if(!fresh.length){ toast('No new guests to add ('+skipped+' skipped).'); return; }
       toast('Saving '+fresh.length+' guests…');
-      let added=0, failed=[];
+      let added=0, failed=[], needSql=false;
       for(let i=0;i<fresh.length;i+=200){
         const chunk=fresh.slice(i,i+200);
-        const payload=chunk.map(g=>({id:g.id,event_id:ev.id,name:g.name,phone:g.phone,card_type:g.type,table_no:g.table||null,guest_group:g.group||null}));
+        const payload=chunk.map(g=>({id:g.id,event_id:ev.id,name:g.name,phone:g.phone,...cardDbFields(g),table_no:g.table||null,guest_group:g.group||null}));
         const {error}=await supabaseClient.from('guests').insert(payload);
         if(!error){ chunk.forEach(g=>ev.guests.push({...g,sent:false,sent_whatsapp:false,sent_sms:false,rsvp:'Pending',checkedIn:false})); added+=chunk.length; continue; }
         for(const g of chunk){
-          const r=await supabaseClient.from('guests').insert({id:g.id,event_id:ev.id,name:g.name,phone:g.phone,card_type:g.type,table_no:g.table||null,guest_group:g.group||null});
-          if(r.error) failed.push(g.name); else { ev.guests.push({...g,sent:false,sent_whatsapp:false,sent_sms:false,rsvp:'Pending',checkedIn:false}); added++; }
+          const r=await supabaseClient.from('guests').insert({id:g.id,event_id:ev.id,name:g.name,phone:g.phone,...cardDbFields(g),table_no:g.table||null,guest_group:g.group||null});
+          if(r.error){ failed.push(g.name); if(/card_label|party_size/.test(String(r.error.message))) needSql=true; } else { ev.guests.push({...g,sent:false,sent_whatsapp:false,sent_sms:false,rsvp:'Pending',checkedIn:false}); added++; }
         }
       }
       doRefresh();
-      toast(`${added} guests added${skipped?`, ${skipped} skipped`:''}${failed.length?`, ${failed.length} failed`:''}.`);
+      toast(needSql?'Some card types need a database update (run SHEREHE_HUB_CARDTYPES_V73.sql in Supabase). '+added+' guests added, '+failed.length+' failed.':`${added} guests added${skipped?`, ${skipped} skipped`:''}${failed.length?`, ${failed.length} failed`:''}.`);
       if(failed.length) alert('These guests were not saved: '+failed.slice(0,10).join(', ')+(failed.length>10?'…':''));
     }catch(err){ console.error(err); alert('Import failed: '+(err.message||err)); }
     finally{ inp.value=''; }
@@ -3589,17 +3872,17 @@ window.renderCards = function(){ sortGuests();
   if(!ev.guests.length){ box.innerHTML=`<div style="grid-column:1/-1">${emptyState('No guests yet','Add guests so their cards can be generated.',`<button class="primary" onclick="showView('guests')">Go to guests</button>`)}</div>`; return; }
   const shown=ev.guests.slice(0,window.cardsLimit);
   box.innerHTML=shown.map(g=>{
-    const pf=posterFor(ev,g), dbl=g.type==='Double', f=pf.pos.font||'Arial', script=SCRIPT_FONTS.includes(f);
+    const pf=posterFor(ev,g), f=pf.pos.font||'Arial', script=SCRIPT_FONTS.includes(f);
     const fs=(Number(pf.pos.size)/Number(pf.pos.basis||480)*100).toFixed(3);
     const state=g.generatedUrl?['sent','Saved']:g.generatedDataUrl?['valid','Generated']:['idle','Preview'];
     return `<div class="event-card card-item" id="card-wrap-${g.id}">
       <div class="card-stage" id="mini-${g.id}">
         <img src="${E(safeUrl(pf.url))}" crossorigin="anonymous" alt="Poster" loading="lazy">
         <div class="nm" style="left:${pf.pos.left};top:${pf.pos.top};font-size:${fs}cqw;font-family:'${E(f)}',sans-serif;font-weight:${script?400:700};color:${E(pf.pos.color)}">${E(g.name)}</div>
-        <div class="qrb"><span class="band ${dbl?'double':'single'}">${dbl?'DOUBLE':'SINGLE'} CARD</span><div class="code" id="qr-${g.id}"></div></div>
+        <div class="qrb"><span class="band" style="background:${cardColor(cardLabel(g))}">${E(cardBandText(g))}</span><div class="code" id="qr-${g.id}"></div></div>
       </div>
       <h3>${E(g.name)}</h3>
-      <div class="meta-row"><span class="tag ${dbl?'double':''}">${E(g.type)}</span><span class="status ${state[0]}" id="gen-status-${g.id}">${state[1]}</span></div>
+      <div class="meta-row">${cardTag(g)}<span class="status ${state[0]}" id="gen-status-${g.id}">${state[1]}</span></div>
       <div class="event-actions"><button class="primary" onclick="downloadCard('${g.id}')">${ic('download')}PNG</button><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray icon" title="Save to cloud" aria-label="Save to cloud" onclick="saveGeneratedCard('${g.id}')">${ic('upload')}</button><button class="gray icon" title="Open invitation" aria-label="Open invitation" onclick="openInvite('${g.id}')">${ic('external')}</button></div>
     </div>`;
   }).join('') + (ev.guests.length>shown.length?`<div style="grid-column:1/-1;text-align:center"><button class="gray" onclick="cardsLimit+=60;renderCards()">Show more (${ev.guests.length-shown.length} zaidi)</button></div>`:'');
@@ -3620,13 +3903,12 @@ window.buildCardCanvas = async function(ev,g){
   ctx.font=`${weight} ${px}px "${font}", sans-serif`;
   ctx.fillText(g.name, parseFloat(pf.pos.left)/100*W, parseFloat(pf.pos.top)/100*H);
   // QR block (same proportions as the on-screen preview)
-  const dbl=String(g.type).toLowerCase()==='double';
   const pad=.8*u, bw=20*u, band=4.5*u, qr=bw-2*pad, bh=pad+band+pad+qr+pad, bx=W-3*u-bw, by=H-3*u-bh;
   ctx.save(); ctx.shadowColor='rgba(0,0,0,.28)'; ctx.shadowBlur=2*u; ctx.shadowOffsetY=.4*u;
   ctx.fillStyle='#fff'; roundRect(ctx,bx,by,bw,bh,1.2*u); ctx.fill(); ctx.restore();
-  ctx.fillStyle=dbl?'#b91c1c':'#1d4ed8'; roundRect(ctx,bx+pad,by+pad,bw-2*pad,band,.8*u); ctx.fill();
+  ctx.fillStyle=cardColor(cardLabel(g)); roundRect(ctx,bx+pad,by+pad,bw-2*pad,band,.8*u); ctx.fill();
   ctx.fillStyle='#fff'; ctx.font=`700 ${2.3*u}px "Hanken Grotesk", Arial, sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText((dbl?'DOUBLE':'SINGLE')+' CARD', bx+bw/2, by+pad+band/2+.1*u);
+  { const bt=cardBandText(g); let fz=2.3*u; ctx.font=`700 ${fz}px "Hanken Grotesk", Arial, sans-serif`; const maxw=bw-2*pad-1.2*u; while(ctx.measureText(bt).width>maxw&&fz>1.1*u){ fz-=.1*u; ctx.font=`700 ${fz}px "Hanken Grotesk", Arial, sans-serif`; } ctx.fillText(bt, bx+bw/2, by+pad+band/2+.1*u); }
   const holder=document.createElement('div');
   new QRCode(holder,{text:qrUrl(ev,g),width:512,height:512,correctLevel:QRCode.CorrectLevel.M});
   await new Promise(r=>setTimeout(r,40));
@@ -3703,7 +3985,7 @@ window.verifyScannedQr = async function(text){
   const other = ev.id!==currentEventId ? scanBox('warn','Guest of another event',ev.name) : '';
   const head = g.checkedIn ? scanBox('warn','Already checked in',g.name+' has already checked in.') : scanBox('ok',g.name,'Valid QR code — confirm entry.');
   const seat=(g.table||g.group)?`<div class="seat-callout">${g.table?`<b>${E(g.table)}</b>`:''}${g.group?`<span>${E(g.group)}</span>`:''}</div>`:'';
-  out.innerHTML=other+head+seat+`<div class="guest-detail-grid"><div class="detail-item"><span>Event</span><b>${E(ev.name)}</b></div><div class="detail-item"><span>Guest</span><b>${E(g.name)}</b></div><div class="detail-item"><span>Card</span><b>${E(g.type)} card</b></div><div class="detail-item"><span>RSVP</span><b>${g.rsvp==='Yes'?'Attending':g.rsvp==='No'?'Declined':'Awaiting'}</b></div></div>
+  out.innerHTML=other+head+seat+`<div class="guest-detail-grid"><div class="detail-item"><span>Event</span><b>${E(ev.name)}</b></div><div class="detail-item"><span>Guest</span><b>${E(g.name)}</b></div><div class="detail-item"><span>Card</span><b>${E(cardLabel(g))} card${cardParty(g)>1?' · '+cardParty(g)+' people':''}</b></div><div class="detail-item"><span>RSVP</span><b>${g.rsvp==='Yes'?'Attending':g.rsvp==='No'?'Declined':'Awaiting'}</b></div></div>
     <div class="guest-detail-actions">${g.checkedIn?'':`<button class="green" onclick="checkin('${eventId}','${guestId}')">${ic('check')}Confirm check-in</button>`}<button class="gray" onclick="scanNext()">Scan next</button></div>`;
 };
 window.checkin = async function(eid,gid){
@@ -3748,7 +4030,7 @@ window.renderRsvp = function(){ sortGuests();
   const q=($('checkinSearch').value||'').trim().toLowerCase(), f=$('checkinFilter').value;
   const list=ev.guests.filter(g=>(!q||g.name.toLowerCase().includes(q)||String(g.phone||'').includes(q)) && (f==='all'||(f==='in'&&g.checkedIn)||(f==='waiting'&&!g.checkedIn)));
   if(!list.length){ box.innerHTML=emptyState(ev.guests.length?'No matches':'No guests yet',ev.guests.length?'Change the search or filter.':'Add guests first.'); return; }
-  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Card</th><th>RSVP</th><th>Status</th><th class="actions">Action</th></tr></thead><tbody>${list.map(g=>`<tr><td>${guestCell(g)}</td><td><span class="tag ${g.type==='Double'?'double':''}">${E(g.type)}</span></td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?(g.pending?'<span class="status pending">Arrived · syncing</span>':'<span class="status ok">Arrived</span>'):'<span class="status pending">Waiting</span>'}</td><td class="actions"><div class="row-actions">${g.checkedIn?`<button class="gray sm" onclick="undoCheckin('${ev.id}','${g.id}')">Undo</button>`:`<button class="green sm" onclick="checkin('${ev.id}','${g.id}')">${ic('check')}Check in</button>`}</div></td></tr>`).join('')}</tbody></table></div>`;
+  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Card</th><th>RSVP</th><th>Status</th><th class="actions">Action</th></tr></thead><tbody>${list.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?(g.pending?'<span class="status pending">Arrived · syncing</span>':'<span class="status ok">Arrived</span>'):'<span class="status pending">Waiting</span>'}</td><td class="actions"><div class="row-actions">${g.checkedIn?`<button class="gray sm" onclick="undoCheckin('${ev.id}','${g.id}')">Undo</button>`:`<button class="green sm" onclick="checkin('${ev.id}','${g.id}')">${ic('check')}Check in</button>`}</div></td></tr>`).join('')}</tbody></table></div>`;
 };
 
 /* ---------- messaging ---------- */
@@ -3766,7 +4048,7 @@ window.buildBulkTemplate = function(ev){
 function fillTemplate(tpl,ev,g){
   return tpl.replaceAll('{{name}}',g.name).replaceAll('{{event}}',ev.name)
     .replaceAll('{{date}}',ev.date?fmtDate(ev.date):'tarehe itatangazwa').replaceAll('{{venue}}',ev.venue||'ukumbi utatangazwa')
-    .replaceAll('{{deadline}}',ev.rsvpDeadline?dlFmt(new Date(ev.rsvpDeadline),'sw-TZ'):'').replaceAll('{{photos}}',galleryUrl(ev)).replaceAll('{{card_type}}',g.type).replaceAll('{{table}}',g.table||'').replaceAll('{{group}}',g.group||'').replaceAll('{{link}}',g._ct?'':guestInviteUrl(ev,g))
+    .replaceAll('{{deadline}}',ev.rsvpDeadline?dlFmt(new Date(ev.rsvpDeadline),'sw-TZ'):'').replaceAll('{{photos}}',galleryUrl(ev)).replaceAll('{{card_type}}',cardLabel(g)).replaceAll('{{table}}',g.table||'').replaceAll('{{group}}',g.group||'').replaceAll('{{link}}',g._ct?'':guestInviteUrl(ev,g))
     .replaceAll('{{pledged}}',g._ct?money(g._ct.pledged):'').replaceAll('{{paid}}',g._ct?money(g._ct.paid):'').replaceAll('{{balance}}',g._ct?money(g._ct.left):'').replaceAll('{{due}}',g._ct&&g._ct.due?fmtDay(g._ct.due):'');
 }
 /* contributors as message recipients (built from the Contributions page data) */
@@ -3785,12 +4067,13 @@ window.buildGuestMessage = function(ev,g){ return fillTemplate(buildBulkTemplate
 function audienceList(ev){ sortGuests();
   const a=$('messageAudience')?.value||'pending';
   if(a.startsWith('ct_')) return ctAudience(ev,a);
-  return ev.guests.filter(g=>a==='arrived'?g.checkedIn:a==='absent'?(g.sent&&!g.checkedIn):a==='pending'?!g.sent:a==='noreply'?(g.sent&&(!g.rsvp||g.rsvp==='Pending')):a==='single'?g.type==='Single':a==='double'?g.type==='Double':true);
+  return ev.guests.filter(g=>a==='arrived'?g.checkedIn:a==='absent'?(g.sent&&!g.checkedIn):a==='pending'?!g.sent:a==='noreply'?(g.sent&&(!g.rsvp||g.rsvp==='Pending')):a==='single'?cardLabel(g)==='Single':a==='double'?cardLabel(g)==='Double':a.startsWith('card:')?cardLabel(g)===a.slice(5):true);
 }
 window.renderMessagingHelp = function(){
   window.messageProviderStatus();
   const help=$('messageHelp'), cnt=$('messageCount'); if(!help) return;
   const ch=$('messageChannel').value, ev=getEvent(currentEventId);
+  cardAudienceFill(ev);
   help.innerHTML=ic('info')+`<span>${ch==='whatsapp'
     ?'WhatsApp: if WhatsApp Business is connected, messages are sent automatically. Otherwise you get a list to click through, and WhatsApp opens on your phone for each guest.'
     :'SMS: if the SMS gateway is connected, messages are sent automatically. Otherwise you get a list to click through, and the SMS app on your phone opens for each guest.'}</span>`;
@@ -4348,13 +4631,13 @@ window.downloadEventReportPdf = async function(){
     gs.sort((a,b)=>rank(a)-rank(b)||nameCmp(a.name,b.name));
     const label=g=>g.checkedIn?'Arrived':(g.rsvp==='Yes'?'Did not arrive':(g.rsvp==='No'?'Declined':'No reply'));
     const noShow=gs.filter(g=>g.rsvp==='Yes'&&!g.checkedIn).length;
-    const arrivedPeople=gs.filter(g=>g.checkedIn).reduce((a,g)=>a+(String(g.type).toLowerCase()==='double'?Math.max(1,Number(g.rsvpAttendees)||2):1),0);
+    const arrivedPeople=gs.filter(g=>g.checkedIn).reduce((a,g)=>a+(cardParty(g)>1?Math.max(1,Number(g.rsvpAttendees)||cardParty(g)):1),0);
     const doc=new JsPDF({unit:'pt',format:'a4'}); const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=40;
     doc.setFillColor(30,58,138); doc.rect(0,0,W,86,'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.text('Event Report',M,38);
     doc.setFont('helvetica','normal'); doc.setFontSize(11.5); doc.text(pdfTxt(ev.name||''),M,58,{maxWidth:W-2*M});
     doc.setFontSize(9.5); doc.setTextColor(210,220,245); doc.text(pdfTxt([ev.type,ev.date?fmtDate(ev.date):'',ev.venue].filter(Boolean).join('  |  ')),M,74,{maxWidth:W-2*M});
-    const boxes=[['Guests invited',st.total,[30,58,138],st.single+' single, '+st.double+' double'],['Replied Yes',st.att,[22,128,80],st.people+' people'],['Arrived',st.checked,[22,128,80],st.checkRate+'% of guests'],['Did not arrive',noShow,[160,100,10],'said Yes, not seen'],['Declined',st.no,[185,28,28],st.pending+' never replied']];
+    const boxes=[['Guests invited',st.total,[30,58,138],cardSummaryText(gs,3)],['Replied Yes',st.att,[22,128,80],st.people+' people'],['Arrived',st.checked,[22,128,80],st.checkRate+'% of guests'],['Did not arrive',noShow,[160,100,10],'said Yes, not seen'],['Declined',st.no,[185,28,28],st.pending+' never replied']];
     const gap=8, bw=(W-2*M-gap*4)/5, by=104;
     boxes.forEach((b,i)=>{ const x=M+i*(bw+gap); doc.setFillColor(243,245,250); doc.roundedRect(x,by,bw,58,6,6,'F'); doc.setTextColor(100,110,130); doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.text(b[0],x+8,by+16); doc.setTextColor(...b[2]); doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.text(String(b[1]),x+8,by+38); doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,110,130); doc.text(pdfTxt(b[3]),x+8,by+51); });
     doc.setTextColor(100,110,130); doc.setFontSize(9.5);
@@ -4364,10 +4647,10 @@ window.downloadEventReportPdf = async function(){
     if(gs.length){
       doc.autoTable({ startY:y+8, margin:{left:M,right:M,bottom:44},
         head:[['#','Guest','Card','Table','RSVP','Attendance']],
-        body:gs.map((g,i)=>[i+1,pdfTxt(g.name),pdfTxt(g.type||''),pdfTxt(g.table||''),pdfTxt(g.rsvp||'Pending'),label(g)]),
+        body:gs.map((g,i)=>[i+1,pdfTxt(g.name),pdfTxt(cardLabel(g)),pdfTxt(g.table||''),pdfTxt(g.rsvp||'Pending'),label(g)]),
         theme:'striped', styles:{font:'helvetica',fontSize:9,cellPadding:4.2,textColor:[30,35,50]},
         headStyles:{fillColor:[30,58,138],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[248,249,252]},
-        columnStyles:{0:{cellWidth:24,halign:'center'},2:{cellWidth:48},3:{cellWidth:48},4:{cellWidth:60},5:{cellWidth:78}},
+        columnStyles:{0:{cellWidth:24,halign:'center'},2:{cellWidth:62},3:{cellWidth:46},4:{cellWidth:60},5:{cellWidth:78}},
         didParseCell:d=>{ if(d.section==='body'&&d.column.index===5){ const v=d.cell.raw; d.cell.styles.fontStyle='bold'; d.cell.styles.textColor=v==='Arrived'?[22,128,80]:(v==='Did not arrive'?[160,100,10]:(v==='Declined'?[185,28,28]:[100,110,130])); } } });
       y=doc.lastAutoTable.finalY+28;
     } else { doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(100,110,130); doc.text('No guests were added to this event.',M,y+22); y+=48; }
@@ -4424,23 +4707,25 @@ window.openContribPicker = async function(){
   let m=$('pickModal'); if(!m){ m=document.createElement('div'); m.id='pickModal'; m.className='modal'; m.innerHTML='<div class="modal-box" id="pickBox" style="max-width:520px"></div>'; document.body.appendChild(m); }
   $('pickBox').innerHTML=`<button class="modal-close" onclick="closePicker()" aria-label="Close">×</button>
     <div class="guest-modal-head"><div class="guest-modal-icon">${ic('wallet')}</div><div><h2>Add from contributors</h2><p>People who contributed to <b>${E(ev.name)}</b> and are not in the guest list yet.</p></div></div>
-    ${avail.length?`<div class="pick-top"><label class="pick-all"><input type="checkbox" id="pickAll" onchange="document.querySelectorAll('.pick-cb').forEach(c=>c.checked=this.checked)"> Select all (${avail.length})</label><select id="pickType" aria-label="Card type"><option value="Single">Single cards</option><option value="Double">Double cards</option></select></div>
+    ${avail.length?`<div class="pick-top"><label class="pick-all"><input type="checkbox" id="pickAll" onchange="document.querySelectorAll('.pick-cb').forEach(c=>c.checked=this.checked)"> Select all (${avail.length})</label><div class="field pick-type"><label for="pickType">Card type</label><select id="pickType"></select></div></div>
     <div class="pick-list">${avail.map(c=>`<label class="pick-item"><input type="checkbox" class="pick-cb" value="${c.id}" checked><span><b>${E(c.name)}</b><small>${E(c.phone||'No phone number')}</small></span></label>`).join('')}</div>
     <div class="guest-form-actions"><button class="gray" onclick="closePicker()">Cancel</button><button class="primary" onclick="addPicked()">Add selected to guests</button></div>`
     : `<div class="empty"><b>${CT.contributors.length?'Everyone is already a guest':'No contributors yet'}</b>${CT.contributors.length?'All contributors are in this guest list.':'Add contributors on the Contributions page first.'}</div><div class="guest-form-actions"><button class="gray" onclick="closePicker()">Close</button></div>`}`;
+  if($('pickType')) cardTypeSet('pickType',{type:'Single'});
   m.classList.add('open');
 };
 window.closePicker = function(){ const m=$('pickModal'); if(m) m.classList.remove('open'); };
 window.addPicked = async function(){
   const ev=getEvent(currentEventId); if(!ev) return;
   const ids=[...document.querySelectorAll('.pick-cb:checked')].map(c=>c.value); if(!ids.length) return toast('Select at least one person.');
-  const type=$('pickType').value; let ok=0, bad=0;
-  const rows=ids.map(id=>CT.contributors.find(c=>c.id===id)).filter(Boolean).map(c=>({id:crypto.randomUUID(),name:c.name,phone:c.phone||'',type,table:'',group:'Contributors'}));
+  const cf=cardTypeRead('pickType'); if(!cf) return toast('Type the name of the card type.'); let ok=0, bad=0, errMsg='';
+  const rows=ids.map(id=>CT.contributors.find(c=>c.id===id)).filter(Boolean).map(c=>({id:crypto.randomUUID(),name:c.name,phone:c.phone||'',type:cf.type,label:cf.label,party:cf.party,table:'',group:'Contributors'}));
   for(let i=0;i<rows.length;i+=100){
     const chunk=rows.slice(i,i+100);
-    const r=await supabaseClient.from('guests').insert(chunk.map(g=>({id:g.id,event_id:ev.id,name:g.name,phone:g.phone,card_type:g.type,table_no:null,guest_group:g.group})));
-    if(r.error) bad+=chunk.length; else { ok+=chunk.length; chunk.forEach(g=>ev.guests.push({...g,sent:false,sent_whatsapp:false,sent_sms:false,rsvp:'Pending',checkedIn:false})); }
+    const r=await supabaseClient.from('guests').insert(chunk.map(g=>({id:g.id,event_id:ev.id,name:g.name,phone:g.phone,...cardDbFields(g),table_no:null,guest_group:g.group})));
+    if(r.error){ bad+=chunk.length; errMsg=cardDbError(r.error); } else { ok+=chunk.length; chunk.forEach(g=>ev.guests.push({...g,sent:false,sent_whatsapp:false,sent_sms:false,rsvp:'Pending',checkedIn:false})); }
   }
+  if(bad&&!ok){ toast(errMsg||'Not added.'); return; }
   closePicker(); doRefresh(); toast(`${ok} added to the guest list${bad?`, ${bad} failed`:''}.`);
 };
 /* suggestions while typing a guest name */
@@ -4463,7 +4748,7 @@ const SEAT = {sel:null,search:''};
 const seatKey = id => 'sherehe_seat_v1_'+id;
 function seatCfg(ev){ try{ const j=JSON.parse(localStorage.getItem(seatKey(ev.id))||'null'); if(j&&typeof j==='object') return {extra:j.extra||[],caps:j.caps||{},cap:j.cap||10}; }catch(e){} return {extra:[],caps:{},cap:10}; }
 function seatSave(ev,cfg){ try{ localStorage.setItem(seatKey(ev.id),JSON.stringify(cfg)); }catch(e){} }
-const seatPeople = g => g.type==='Double'?2:1;
+const seatPeople = g => cardParty(g);
 function seatTables(ev){
   const cfg=seatCfg(ev), names=new Map();
   ev.guests.forEach(g=>{ const t=String(g.table||'').trim(); if(t&&!names.has(t.toLowerCase())) names.set(t.toLowerCase(),t); });
@@ -4485,7 +4770,7 @@ window.renderSeating = function(){
   const q=(SEAT.search||'').trim().toLowerCase();
   const pool=unseated.filter(g=>!q||g.name.toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q));
   const sel=SEAT.sel&&ev.guests.find(g=>g.id===SEAT.sel);
-  const chip=(g,inTable)=>`<div class="seat-chip${sel&&sel.id===g.id?' sel':''}" draggable="true" data-gid="${E(g.id)}" role="button" tabindex="0" onclick="seatPick('${E(g.id)}',event)"><span class="nm">${E(g.name)}</span>${g.type==='Double'?'<i class="seat-2">2</i>':''}${g.group?`<em>${E(g.group)}</em>`:''}${inTable?`<button class="x" title="Remove from table" aria-label="Remove from table" onclick="seatUnseat('${E(g.id)}',event)">×</button>`:''}</div>`;
+  const chip=(g,inTable)=>`<div class="seat-chip${sel&&sel.id===g.id?' sel':''}" draggable="true" data-gid="${E(g.id)}" role="button" tabindex="0" onclick="seatPick('${E(g.id)}',event)"><span class="nm">${E(g.name)}</span>${cardParty(g)>1?`<i class="seat-2">${cardParty(g)}</i>`:''}${g.group?`<em>${E(g.group)}</em>`:''}${inTable?`<button class="x" title="Remove from table" aria-label="Remove from table" onclick="seatUnseat('${E(g.id)}',event)">×</button>`:''}</div>`;
   box.innerHTML=`<div class="seat-layout">
     <aside class="seat-pool panel" data-drop="">
       <div class="panel-heading" style="margin-bottom:8px"><div><h2>Not seated</h2><p>${unseated.length} guest${unseated.length===1?'':'s'}${sel?` · <b>${E(sel.name)}</b> selected, tap a table`:''}</p></div></div>
@@ -4679,9 +4964,9 @@ window.saveDeadline = async function(eid,clear){
 /* ---------- help & guide ---------- */
 const SUPPORT_WA = '255764009731'; /* support WhatsApp number in international format without +, e.g. 255712345678 */
 const HELP_TOPICS = [
-  ['Getting started in 5 steps', '<ol><li><b>Create Event</b>: name, date, venue, and a poster (upload your own or let SHEREHE HUB make one).</li><li><b>Guests</b>: add them one by one or import an Excel file. Choose Single (1 person) or Double (2 people).</li><li><b>Cards &amp; QR</b>: generate each guest’s personal invitation card with their QR code.</li><li><b>Messaging</b>: send the invitations by WhatsApp or SMS.</li><li><b>Check-in</b>: on the day, scan the QR codes at the door.</li></ol>'],
+  ['Getting started in 5 steps', '<ol><li><b>Create Event</b>: name, date, venue, and a poster (upload your own or let SHEREHE HUB make one).</li><li><b>Guests</b>: add them one by one or import an Excel file. Choose the card type (Single, Double, VIP, Family, Wakwe…) and how many people it admits.</li><li><b>Cards &amp; QR</b>: generate each guest’s personal invitation card with their QR code.</li><li><b>Messaging</b>: send the invitations by WhatsApp or SMS.</li><li><b>Check-in</b>: on the day, scan the QR codes at the door.</li></ol>'],
   ['Making a poster', '<p>On <b>Create Event</b>, open the Poster section. Choose <b>Upload poster</b> to use your own design, or <b>Make one for me</b> to pick from 20 modern styles and 4 colours each. The poster uses your event name, date, venue and message, so fill those in first. You can download the poster before saving.</p>'],
-  ['Sending invitations and reminders', '<ul><li>Go to <b>Messaging</b>, choose the channel and the audience, then send.</li><li>Set an <b>RSVP deadline</b> on the event so guests know when to reply.</li><li>The dashboard shows who has not replied; use <b>Remind them</b> to nudge them.</li><li>Guests open their invitation link to answer Yes or No. A Double card lets them confirm one or two people.</li></ul>'],
+  ['Sending invitations and reminders', '<ul><li>Go to <b>Messaging</b>, choose the channel and the audience, then send.</li><li>Set an <b>RSVP deadline</b> on the event so guests know when to reply.</li><li>The dashboard shows who has not replied; use <b>Remind them</b> to nudge them.</li><li>Guests open their invitation link to answer Yes or No. A card for several people lets them confirm how many are coming.</li></ul>'],
   ['Event day: check-in at the door', '<ul><li>Open <b>Check-in</b> and scan each guest’s QR code, or search by name.</li><li>You can give door staff access with their e-mail address; they only see the check-in screen.</li><li>Check-in keeps working if the internet drops and syncs when it returns.</li></ul>'],
   ['Contributions and expenses', '<ul><li><b>Contributions</b> records who pledged and who paid. Add payments as they arrive; balances update automatically.</li><li>Add <b>expenses</b> to see the cash in hand.</li><li>Download the contribution report as PDF or Excel. You can also give a treasurer their own access.</li></ul>'],
   ['Guest messages and the big screen', '<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>'],
@@ -4821,7 +5106,7 @@ window.renderReports = function(){ sortGuests();
   if(meta) meta.textContent=[ev.type,ev.venue||'Venue not set',ev.date?fmtDate(ev.date):''].filter(Boolean).join(' · ');
   const bar=(label,n,p)=>`<div class="bar-row"><span>${label}</span><div class="bar-track"><div class="bar-fill" style="width:${p}%"></div></div><b>${n}</b></div>`;
   box.innerHTML=`<div class="report-grid">
-    <div class="report-stat"><span>Total guests</span><b>${st.total}</b><small>${st.single} single · ${st.double} double</small></div>
+    <div class="report-stat"><span>Total guests</span><b>${st.total}</b><small>${E(cardSummaryText(ev.guests,3,' · '))}</small></div>
     <div class="report-stat"><span>Attending</span><b>${st.att}</b><small>${pct(st.att,st.total)}% · ${st.people} people</small></div>
     <div class="report-stat"><span>Invitations sent</span><b>${st.sent}</b><small>${pct(st.sent,st.total)}% of guests</small></div>
     <div class="report-stat"><span>Checked in</span><b>${st.checked}</b><small>${st.checkRate}% of guests</small></div></div>
@@ -4830,7 +5115,7 @@ window.renderReports = function(){ sortGuests();
     <div class="panel"><div class="panel-heading"><div><h2>Summary</h2><p>Current status.</p></div></div>
       <div class="stack"><div class="detail-item"><span>People confirmed</span><b>${st.people}</b></div><div class="detail-item"><span>Not replied yet</span><b>${st.pending}</b></div><div class="detail-item"><span>Not yet arrived (of those attending)</span><b>${Math.max(0,ev.guests.filter(g=>g.rsvp==='Yes'&&!g.checkedIn).length)}</b></div></div></div></div>
     <div class="panel"><div class="panel-heading"><div><h2>Guest report</h2><p>All guests of this event.</p></div></div>
-      ${st.total?`<div class="table-wrap"><table class="report-table"><thead><tr><th>Guest</th><th>Card</th><th>Invitation</th><th>RSVP</th><th>Check-in</th></tr></thead><tbody>${ev.guests.map(g=>`<tr><td>${guestCell(g)}</td><td><span class="tag ${g.type==='Double'?'double':''}">${E(g.type)}</span></td><td>${inviteBadge(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?'<span class="status ok">Arrived</span>':'<span class="status idle">—</span>'}</td></tr>`).join('')}</tbody></table></div>`:emptyState('No guests yet','Add guests to populate this report.')}</div>`;
+      ${st.total?`<div class="table-wrap"><table class="report-table"><thead><tr><th>Guest</th><th>Card</th><th>Invitation</th><th>RSVP</th><th>Check-in</th></tr></thead><tbody>${ev.guests.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${inviteBadge(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?'<span class="status ok">Arrived</span>':'<span class="status idle">—</span>'}</td></tr>`).join('')}</tbody></table></div>`:emptyState('No guests yet','Add guests to populate this report.')}</div>`;
 };
 
 /* ---------- admin ---------- */
@@ -4997,7 +5282,8 @@ window.submitWish=async function(){
 };
 function renderInvite(){
   const data=window.__invData; if(!data) return;
-  const L=invLang(), T=INV_I18N[L], ev=data.event, g=data.guest, dbl=String(g.card_type).toLowerCase()==='double';
+  const L=invLang(), T=INV_I18N[L], ev=data.event, g=data.guest, dbl=String(g.card_type).toLowerCase()==='double', plabel=String(g.card_label||'').trim(), party=Math.max(dbl?2:1,Math.min(10,Number(g.party_size)||(dbl?2:1)));
+  const peopleOpt=n=>n===1?T.one:n===2?T.two:`${L==='sw'?'Watu':'People'} (${n})`;
   const eventId=ev.id, guestId=g.id||window.__invGuestId;
   const prevAtt=$('publicAttendees')?.value;
   const rows=[];
@@ -5010,12 +5296,12 @@ function renderInvite(){
   invShell(`${ev.poster_url?`<img class="inv-poster" src="${E(ev.poster_url)}" alt="${T.alt}">`:''}
     <div class="inv-body"><div class="inv-hello">${T.hello} ${E((g.name||'').trim())},</div>
     <h1 class="inv-title">${E(ev.name||'Event')}</h1>
-    <div class="inv-who"><span class="tag blue">${E(ev.type||'Event')}</span><span class="tag ${dbl?'gold':''}">${dbl?T.dbl:T.sgl}</span></div>
+    <div class="inv-who"><span class="tag blue">${E(ev.type||'Event')}</span><span class="tag ${dbl?'gold':''}">${plabel?E(plabel)+' · '+(party>1?(L==='sw'?'watu '+party:party+' people'):(L==='sw'?'mtu mmoja':'one person')):(dbl?T.dbl:T.sgl)}</span></div>
     ${ev.date&&new Date(ev.date)>new Date(Date.now()-6*3600000)?`<div class="inv-cd" id="invCd" data-ts="${E(String(new Date(ev.date).getTime()))}"></div>`:''}
     ${rows.length?`<div class="inv-list">${rows.join('')}</div>`:''}
     ${ev.message?`<div class="inv-msg">${E(ev.message)}</div>`:''}
     <div class="inv-ask">${T.ask}</div>
-    ${dbl?`<div class="inv-attend"><label for="publicAttendees">${T.howmany}</label><select id="publicAttendees"><option value="2">${T.two}</option><option value="1">${T.one}</option></select></div>`:''}
+    ${dbl?`<div class="inv-attend"><label for="publicAttendees">${T.howmany}</label><select id="publicAttendees">${Array.from({length:party},(_,i)=>party-i).map(n=>`<option value="${n}">${peopleOpt(n)}</option>`).join('')}</select></div>`:''}
     <div class="inv-btns"><button class="yes" onclick="submitPublicRsvp('${eventId}','${guestId}','Yes','${dbl?'Double':'Single'}',this)">${T.yes}</button><button class="no" onclick="submitPublicRsvp('${eventId}','${guestId}','No','${dbl?'Double':'Single'}',this)">${T.no}</button></div>
     ${invStatusHtml(T)}<div id="inviteWish">${wishHtml(T)}</div></div><div class="inv-foot">${T.foot} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${T.privacy}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${T.terms}</a></div>`);
   if(prevAtt && $('publicAttendees')) $('publicAttendees').value=prevAtt;
@@ -5321,10 +5607,11 @@ window.duplicateEvent = async function(eid){
     }
     let copied=0, failed=0;
     if(withGuests){
-      const rows=ev.guests.map(g=>({id:crypto.randomUUID(),event_id:newId,name:g.name,phone:g.phone,card_type:g.type,table_no:g.table||null,guest_group:g.group||null}));
+      const rows=ev.guests.map(g=>({id:crypto.randomUUID(),event_id:newId,name:g.name,phone:g.phone,...cardDbFields({type:g.type,label:g.label||'',party:g.party||0}),table_no:g.table||null,guest_group:g.group||null}));
       for(let i=0;i<rows.length;i+=200){
         const chunk=rows.slice(i,i+200);
-        const r=await supabaseClient.from('guests').insert(chunk);
+        let r=await supabaseClient.from('guests').insert(chunk);
+        if(r.error&&/card_label|party_size/.test(String(r.error.message))) r=await supabaseClient.from('guests').insert(chunk.map(x=>{ const y={...x}; delete y.card_label; delete y.party_size; return y; }));
         if(r.error) failed+=chunk.length; else copied+=chunk.length;
       }
     }
@@ -5366,8 +5653,8 @@ window.buildPrintSheet = function(by,who){
   if(who==='waiting') list=list.filter(g=>!g.checkedIn);
   const nat=(a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'});
   list.sort((a,b)=>nat(a.name,b.name));
-  const people=g=>g.type==='Double'?(g.rsvp==='Yes'&&g.rsvpAttendees?g.rsvpAttendees:2):1;
-  const row=g=>`<tr><td style="width:22px"><span class="bx"></span></td><td>${E(g.name)}</td><td>${g.type==='Double'?'Double (2)':'Single'}</td><td>${E(g.phone||'')}</td><td>${E(by==='group'?(g.table||''):(g.group||''))}</td><td>${g.rsvp==='Yes'?'Yes':g.rsvp==='No'?'No':'—'}</td></tr>`;
+  const people=g=>cardParty(g)>1?(g.rsvp==='Yes'&&g.rsvpAttendees?g.rsvpAttendees:cardParty(g)):1;
+  const row=g=>`<tr><td style="width:22px"><span class="bx"></span></td><td>${E(g.name)}</td><td>${E(cardLabel(g))}${cardParty(g)>1?' ('+cardParty(g)+')':''}</td><td>${E(g.phone||'')}</td><td>${E(by==='group'?(g.table||''):(g.group||''))}</td><td>${g.rsvp==='Yes'?'Yes':g.rsvp==='No'?'No':'—'}</td></tr>`;
   const head=`<thead><tr><th></th><th>Guest</th><th>Card</th><th>Phone</th><th>${by==='group'?'Table':'Group'}</th><th>RSVP</th></tr></thead>`;
   let body='';
   if(by==='name'){
@@ -5414,7 +5701,7 @@ const OFFLINE = (function(){
   function snapshot(){
     if(!currentSupabaseUser || currentSupabaseUser.offline) return;
     const events=db.events.map(e=>({id:e.id,owner_id:e.owner_id,name:e.name,type:e.type,date:e.date,venue:e.venue,maps:e.maps,message:e.message,galleryOpen:!!e.galleryOpen,showTable:e.showTable!==false,rsvpDeadline:e.rsvpDeadline||null,poster:e.poster,posterDouble:e.posterDouble,namePos:e.namePos,namePosDouble:e.namePosDouble,
-      guests:e.guests.map(g=>({id:g.id,name:g.name,phone:g.phone,type:g.type,table:g.table,group:g.group,rsvp:g.rsvp,rsvpAttendees:g.rsvpAttendees,checkedIn:!!g.checkedIn,pending:!!g.pending,sent:!!g.sent,sent_whatsapp:!!g.sent_whatsapp,sent_sms:!!g.sent_sms}))}));
+      guests:e.guests.map(g=>({id:g.id,name:g.name,phone:g.phone,type:g.type,label:g.label||'',party:g.party||0,table:g.table,group:g.group,rsvp:g.rsvp,rsvpAttendees:g.rsvpAttendees,checkedIn:!!g.checkedIn,pending:!!g.pending,sent:!!g.sent,sent_whatsapp:!!g.sent_whatsapp,sent_sms:!!g.sent_sms}))}));
     wr(SNAP,{v:1,at:Date.now(),user:{id:currentSupabaseUser.id,email:currentSupabaseUser.email||''},staff:!!window.__staffMode,roles:window.__staffRoles||{},events});
   }
   function applyQueue(){
@@ -5610,12 +5897,14 @@ window.renderPhotos = function(){
       <div class="toolbar" style="margin-top:12px"><button class="primary" onclick="goThanks()">${ic('send')}Send thank-you to guests</button></div>
       <div class="help" style="margin-top:8px">The thank-you message includes the gallery link when sharing is on.</div></div>
   </div>
+  ${pbPanelHtml(st,ev)}
   <div class="panel"><div class="panel-heading"><div><h2>Photos${st.loaded?` (${st.photos.length})`:''}</h2><p>${E(ev.name)}</p></div>
     ${st.photos.length?`<button class="gray" id="zipBtn" onclick="downloadAllHost()">${ic('download')}Download all (ZIP)</button>`:''}</div>
     ${st.err?`<div class="hint-box">${ic('alert')}<span>Photos could not be loaded: ${E(st.err)}. If this keeps happening, run the photos SQL file in Supabase.</span></div>`:''}
     ${st.photos.length?`<div class="photo-grid">${st.photos.map(p=>`<div class="photo-tile"><img loading="lazy" src="${E(safeUrl(p.url))}" alt="Event photo"><button class="x" title="Delete photo" aria-label="Delete photo" onclick="deletePhoto('${p.id}')">${ic('trash')}</button></div>`).join('')}</div>`
       : (st.loaded&&!st.err? emptyState('No photos yet','Upload the first photos from the event.'):'')}
   </div>`;
+  pbUpdateUI();
 };
 async function shrinkImage(file){
   let bmp;
@@ -5699,6 +5988,165 @@ window.downloadAllHost = async function(){
   try{ if(btn) btn.disabled=true; await zipPhotos(st.photos,(ev.name||'photos').replace(/[^\w.-]+/g,'_')+'-photos.zip',(d,n)=>{ if(btn) btn.textContent=`Preparing ${d}/${n}…`; }); }
   catch(e){ toast('Download failed: '+(e.message||e)); }
   finally{ if(btn){ btn.disabled=false; btn.innerHTML=old; } }
+};
+
+/* ----- photobook (memory book from the event photos) ----- */
+const PB_PER={1:{edge:1500,kb:380},2:{edge:1200,kb:260},4:{edge:900,kb:160},6:{edge:800,kb:120}};
+function pbState(st){
+  const n=st.photos.length, pb=st.pb||(st.pb={count:null,mode:'spread',per:2,msgs:false,title:'',sel:[]});
+  if(n&&pb.count==null) pb.count=Math.min(n,40);
+  if(pb.count!=null&&n) pb.count=Math.max(1,Math.min(pb.count,n));
+  const ids=new Set(st.photos.map(p=>p.id)); pb.sel=(pb.sel||[]).filter(id=>ids.has(id));
+  return pb;
+}
+function pbSelect(st){
+  const pb=pbState(st), n=st.photos.length;
+  if(pb.mode==='manual'){ const ids=new Set(pb.sel); return st.photos.filter(p=>ids.has(p.id)); }
+  const k=Math.min(Math.max(1,pb.count),n);
+  if(pb.mode==='first') return st.photos.slice(0,k);
+  if(pb.mode==='last') return st.photos.slice(n-k);
+  if(k>=n) return st.photos.slice();
+  if(k===1) return [st.photos[Math.floor(n/2)]];
+  const out=[]; for(let i=0;i<k;i++) out.push(st.photos[Math.round(i*(n-1)/(k-1))]);
+  return out;
+}
+function pbPanelHtml(st,ev){
+  const n=st.photos.length;
+  if(!n) return `<div class="panel pb-panel"><div class="panel-heading"><div><h2>Photobook</h2><p>Turn the event photos into a memory book (PDF) to print or share.</p></div></div>${st.loaded&&!st.err?'<div class="help">Upload some photos first, then you can create the photobook here.</div>':''}</div>`;
+  const pb=pbState(st), man=pb.mode==='manual';
+  return `<div class="panel pb-panel"><div class="panel-heading"><div><h2>Photobook</h2><p>Turn the event photos into a memory book (PDF) to print or share. Choose how many photos to include.</p></div></div>
+    <div class="pb-grid">
+      <div class="field full"><label for="pbTitle">Book title</label><input id="pbTitle" maxlength="80" value="${E(pb.title||ev.name||'')}" oninput="pbSet('title',this.value)"></div>
+      <div class="field"><label for="pbMode">Which photos</label><select id="pbMode" onchange="pbSet('mode',this.value)">
+        <option value="spread"${pb.mode==='spread'?' selected':''}>Spread across all photos</option><option value="first"${pb.mode==='first'?' selected':''}>The first ones</option><option value="last"${pb.mode==='last'?' selected':''}>The latest ones</option><option value="manual"${man?' selected':''}>I will choose them</option></select></div>
+      <div class="field"><label for="pbPer">Photos per page</label><select id="pbPer" onchange="pbSet('per',+this.value)">${[1,2,4,6].map(k=>`<option value="${k}"${pb.per===k?' selected':''}>${k}</option>`).join('')}</select></div>
+      <div class="field full" id="pbCountRow"><label for="pbCount">Number of photos <span class="pb-of">of ${n} available</span></label>
+        <div class="pb-count"><input type="range" id="pbRange" min="1" max="${n}" value="${pb.count}" oninput="pbSet('count',+this.value)" aria-label="Number of photos"><input type="number" id="pbCount" min="1" max="${n}" value="${pb.count}" oninput="pbSet('count',+this.value,true)"><button type="button" class="gray sm" onclick="pbSet('count',${n})">All (${n})</button></div></div>
+      <div class="field full" id="pbManualRow" style="display:${man?'block':'none'}"><button type="button" class="gray" onclick="pbOpenPicker()">${ic('image')}<span id="pbManualLbl">Choose photos (${pb.sel.length} selected)</span></button></div>
+      <label class="check-line full"><input type="checkbox" id="pbMsgs" ${pb.msgs?'checked':''} onchange="pbSet('msgs',this.checked)"> Add guest messages at the end <span class="optional">If guests left any</span></label>
+    </div>
+    <div class="pb-foot"><div class="pb-sum" id="pbSum"></div><button class="primary" id="pbBtn" onclick="createPhotobook()">${ic('download')}Create photobook (PDF)</button></div>
+    <div class="upl-status" id="pbStatus"></div></div>`;
+}
+window.pbUpdateUI=function(){
+  const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id), pb=pbState(st); if(!st.photos.length) return;
+  const sel=pbSelect(st), k=sel.length, per=PB_PER[pb.per]?pb.per:2, pages=1+Math.ceil(k/per), mb=Math.max(0.3,k*PB_PER[per].kb/1024);
+  const man=pb.mode==='manual';
+  const rng=$('pbRange'), num=$('pbCount'); if(rng){ rng.disabled=man; rng.value=pb.count; } if(num){ num.disabled=man; if(document.activeElement!==num) num.value=man?k:pb.count; }
+  const row=$('pbCountRow'); if(row) row.style.opacity=man?.5:1;
+  const mr=$('pbManualRow'); if(mr) mr.style.display=man?'block':'none';
+  const lbl=$('pbManualLbl'); if(lbl) lbl.textContent=`Choose photos (${pb.sel.length} selected)`;
+  const sum=$('pbSum'); if(sum) sum.innerHTML=`<b>${k} ${k===1?'photo':'photos'}</b><span class="dotsep">${pages} pages</span><span class="dotsep">about ${mb<10?mb.toFixed(1):Math.round(mb)} MB</span>`;
+  const b=$('pbBtn'); if(b&&!st.pbBusy) b.disabled=!k;
+};
+window.pbSet=function(key,val,fromNum){
+  const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id), pb=pbState(st), n=st.photos.length;
+  if(key==='count'){ val=Math.round(Number(val)); if(!isFinite(val)) return; pb.count=Math.max(1,Math.min(n,val)); }
+  else if(key==='mode'){ pb.mode=val; if(val==='manual'){ if(!pb.sel.length) pb.sel=pbSelectAuto(st).map(p=>p.id); pbUpdateUI(); pbOpenPicker(); return; } }
+  else pb[key]=val;
+  pbUpdateUI();
+};
+function pbSelectAuto(st){ const keep=st.pb.mode; st.pb.mode='spread'; const r=pbSelect(st); st.pb.mode=keep; return r; }
+window.pbOpenPicker=function(){
+  const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id), pb=pbState(st);
+  let m=$('pbPickModal'); if(!m){ m=document.createElement('div'); m.id='pbPickModal'; m.className='modal'; m.innerHTML='<div class="modal-box" id="pbPickBox" style="max-width:860px"></div>'; document.body.appendChild(m); }
+  pbPickDraw(); m.classList.add('open');
+};
+function pbPickDraw(){
+  const ev=getEvent(currentEventId), st=phState(ev.id), pb=pbState(st), sel=new Set(pb.sel);
+  $('pbPickBox').innerHTML=`<button class="modal-close" onclick="pbClosePicker()" aria-label="Close">×</button>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('image')}</div><div><h2>Choose photos for the book</h2><p><b id="pbPickN">${sel.size}</b> of ${st.photos.length} selected. They appear in the book in this order.</p></div></div>
+    <div class="pick-top"><div style="display:flex;gap:8px"><button class="gray sm" onclick="pbPickAll(true)">Select all</button><button class="gray sm" onclick="pbPickAll(false)">Clear</button></div></div>
+    <div class="pb-pick-grid">${st.photos.map(p=>`<button type="button" class="pb-pick${sel.has(p.id)?' on':''}" data-id="${E(p.id)}" onclick="pbPickToggle(this)" aria-pressed="${sel.has(p.id)}"><img loading="lazy" src="${E(safeUrl(p.url))}" alt="Photo"><i>${ic('check')}</i></button>`).join('')}</div>
+    <div class="guest-form-actions"><button class="primary" onclick="pbClosePicker()">Done</button></div>`;
+}
+window.pbPickToggle=function(btn){
+  const ev=getEvent(currentEventId), st=phState(ev.id), pb=pbState(st), id=btn.dataset.id, i=pb.sel.indexOf(id);
+  if(i>=0){ pb.sel.splice(i,1); btn.classList.remove('on'); btn.setAttribute('aria-pressed','false'); } else { pb.sel.push(id); btn.classList.add('on'); btn.setAttribute('aria-pressed','true'); }
+  const c=$('pbPickN'); if(c) c.textContent=pb.sel.length;
+};
+window.pbPickAll=function(on){ const ev=getEvent(currentEventId), st=phState(ev.id), pb=pbState(st); pb.sel=on?st.photos.map(p=>p.id):[]; pbPickDraw(); };
+window.pbClosePicker=function(){ const m=$('pbPickModal'); if(m) m.classList.remove('open'); const ev=getEvent(currentEventId); if(ev){ const st=phState(ev.id), pb=pbState(st); pb.count=Math.max(1,pb.sel.length||pb.count); } pbUpdateUI(); };
+function pbBlobToData(b){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(r.error); r.readAsDataURL(b); }); }
+async function pbPrep(url,edge){
+  const blob=await fetchBlob(url); let bmp;
+  try{ bmp=await createImageBitmap(blob,{imageOrientation:'from-image'}); }catch(e){ bmp=await new Promise((res,rej)=>{ const u=URL.createObjectURL(blob), im=new Image(); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('image')); }; im.src=u; }); }
+  const bw=bmp.naturalWidth||bmp.width, bh=bmp.naturalHeight||bmp.height, k=Math.min(1,edge/Math.max(bw,bh)), w=Math.max(1,Math.round(bw*k)), h=Math.max(1,Math.round(bh*k));
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.drawImage(bmp,0,0,w,h); if(bmp.close) bmp.close();
+  return {data:c.toDataURL('image/jpeg',0.8),w,h};
+}
+window.createPhotobook = async function(){
+  const ev=getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
+  const st=phState(ev.id), pb=pbState(st), sel=pbSelect(st);
+  if(!sel.length) return toast('Choose at least one photo.');
+  if(window.__offlineMode||!navigator.onLine) return toast('Creating the photobook needs an internet connection.');
+  const btn=$('pbBtn'), status=()=>$('pbStatus'); st.pbBusy=true; if(btn){ btn.disabled=true; btn.dataset.old=btn.innerHTML; btn.textContent='Preparing…'; }
+  const say=t=>{ const e=status(); if(e) e.textContent=t; };
+  try{
+    const per=PB_PER[pb.per]?pb.per:2, edge=PB_PER[per].edge;
+    const JsPDF=await ctEnsurePdfLib(); const doc=new JsPDF({unit:'pt',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=36;
+    const fix=t=>pdfTxt(String(t==null?'':t).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/…/g,'...').replace(/[\u{1F000}-\u{1FFFF}☀-➿]/gu,''));
+    const title=(pb.title||ev.name||'').trim()||ev.name;
+    /* prepare images (4 at a time) */
+    const imgs=new Array(sel.length); let done=0, idx=0, fails=0;
+    const worker=async()=>{ while(idx<sel.length){ const i=idx++; try{ imgs[i]=await pbPrep(sel[i].url,edge); }catch(e){ imgs[i]=null; fails++; } done++; say(`Preparing photos ${done}/${sel.length}…`); } };
+    await Promise.all([worker(),worker(),worker(),worker()]);
+    const ok=imgs.filter(Boolean); if(!ok.length) throw new Error('No photo could be loaded.');
+    const fit=(w,h,bw,bh)=>{ const k=Math.min(bw/w,bh/h); return {w:w*k,h:h*k}; };
+    /* cover */
+    doc.setFillColor(31,63,174); doc.rect(0,0,W,H,'F');
+    doc.setFillColor(255,201,51); doc.rect(0,0,W,6,'F');
+    const cv=ok[0], cw=W-2*70, ch=H*0.42, cf=fit(cv.w,cv.h,cw,ch), cx=(W-cf.w)/2, cy=70;
+    doc.setFillColor(255,255,255); doc.roundedRect(cx-8,cy-8,cf.w+16,cf.h+16,6,6,'F'); doc.addImage(cv.data,'JPEG',cx,cy,cf.w,cf.h);
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','normal'); doc.setFontSize(12);
+    const ty=cy+cf.h+64; doc.text(fix(window.tr?window.tr('Memory book'):'Memory book'),W/2,ty,{align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(28); const tl=doc.splitTextToSize(fix(title),W-2*60); doc.text(tl,W/2,ty+34,{align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(12.5);
+    const sub=[ev.date?fmtDate(ev.date,true):'',ev.venue||''].filter(Boolean).join('  |  '); if(sub) doc.text(fix(sub),W/2,ty+34+tl.length*32+8,{align:'center'});
+    doc.setFontSize(9); doc.setTextColor(200,212,247); doc.text('SHEREHE HUB',W/2,H-34,{align:'center'});
+    /* photo pages */
+    const cols=per===1?1:2, rows=per===1?1:per===2?2:per===4?2:3, gap=14, top=M+10, bottom=H-M-14;
+    const cellW=(W-2*M-gap*(cols-1))/cols, cellH=(bottom-top-gap*(rows-1))/rows;
+    for(let i=0;i<ok.length;i+=per){
+      doc.addPage(); doc.setFillColor(255,255,255);
+      ok.slice(i,i+per).forEach((im,j)=>{
+        const c=j%cols, r=Math.floor(j/cols), x0=M+c*(cellW+gap), y0=top+r*(cellH+gap), f=fit(im.w,im.h,cellW-12,cellH-12), x=x0+(cellW-f.w)/2, y=y0+(cellH-f.h)/2;
+        doc.setDrawColor(226,231,243); doc.setFillColor(250,251,254); doc.roundedRect(x0,y0,cellW,cellH,4,4,'FD');
+        doc.addImage(im.data,'JPEG',x,y,f.w,f.h);
+      });
+    }
+    /* guest messages */
+    let msgN=0;
+    if(pb.msgs){
+      say('Adding guest messages…');
+      try{
+        const r=await supabaseClient.from('guest_wishes').select('guest_name,message,hidden,created_at').eq('event_id',ev.id).order('created_at',{ascending:true}).limit(500);
+        const items=(r.data||[]).filter(x=>!x.hidden); msgN=items.length;
+        if(items.length){
+          doc.addPage(); let y=M+10;
+          const head=()=>{ doc.setTextColor(31,63,174); doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(fix(window.tr?window.tr('Messages from guests'):'Messages from guests'),M,M+4); doc.setDrawColor(220,226,240); doc.line(M,M+12,W-M,M+12); y=M+24; };
+          head();
+          items.forEach(w=>{
+            doc.setFont('helvetica','normal'); doc.setFontSize(11.5);
+            const lines=doc.splitTextToSize(fix(w.message),W-2*M-28), hbox=lines.length*15+46;
+            if(y+hbox>H-M-20){ doc.addPage(); head(); }
+            doc.setFillColor(247,249,253); doc.setDrawColor(222,228,242); doc.roundedRect(M,y,W-2*M,hbox,8,8,'FD');
+            doc.setTextColor(20,30,60); doc.setFont('helvetica','normal'); doc.setFontSize(11.5); doc.text(lines,M+14,y+22);
+            doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(31,63,174); doc.text(fix('- '+w.guest_name),M+14,y+hbox-12);
+            y+=hbox+10;
+          });
+        }
+      }catch(e){ console.warn('photobook messages',e); }
+    }
+    const pages=doc.getNumberOfPages();
+    for(let i=2;i<=pages;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(130,140,160); doc.text(fix('SHEREHE HUB  |  '+title+'  |  '+(i-1)+' / '+(pages-1)),W/2,H-20,{align:'center'}); }
+    say('Saving…');
+    doc.save((ev.name||'event').replace(/[^\w.-]+/g,'_')+'-photobook.pdf');
+    say('');
+    toast(fails?`Photobook downloaded, but ${fails} photos could not be loaded.`:`Photobook downloaded (${ok.length} photos).`);
+  }catch(e){ console.warn('photobook',e); say(''); toast('Could not create the photobook: '+(e.message||'check your internet connection and try again.')); }
+  finally{ st.pbBusy=false; const b=$('pbBtn'); if(b){ b.disabled=false; if(b.dataset.old) b.innerHTML=b.dataset.old; } pbUpdateUI(); }
 };
 
 /* ----- guest side: public gallery ----- */
@@ -6284,7 +6732,53 @@ window.resetForm=function(){ if(_reset) _reset.apply(this,arguments); PM.has=fal
 <script>
 /* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
 window.SW_EXACT = {
-"(Single or Double).":"(Single au Double).",
+"Other (type your own)…":"Nyingine (andika jina lako)…",
+"People allowed on this card":"Watu wanaoruhusiwa kwenye kadi hii",
+"Card type name":"Jina la aina ya kadi",
+"e.g. Neighbours":"mf. Majirani",
+"By card type":"Kwa aina ya kadi",
+"Type the name of the card type.":"Andika jina la aina ya kadi.",
+"This card type needs a database update. Run the card types SQL file in Supabase (SHEREHE_HUB_CARDTYPES_V73.sql).":"Aina hii ya kadi inahitaji sasisho la hifadhidata. Endesha faili ya SQL ya card types kwenye Supabase (SHEREHE_HUB_CARDTYPES_V73.sql).",
+"Download all (ZIP)":"Pakua zote (ZIP)",
+"Special":"Maalum",
+"Colleagues":"Wafanyakazi wenzangu",
+"Church":"Kanisa",
+"Neighbours":"Majirani",
+"Committee":"Kamati",
+"Wakwe":"Wakwe",
+"Photobook":"Photobook (kitabu cha picha)",
+"Turn the event photos into a memory book (PDF) to print or share.":"Geuza picha za tukio kuwa kitabu cha kumbukumbu (PDF) cha kuchapisha au kushiriki.",
+"Turn the event photos into a memory book (PDF) to print or share. Choose how many photos to include.":"Geuza picha za tukio kuwa kitabu cha kumbukumbu (PDF) cha kuchapisha au kushiriki. Chagua idadi ya picha unazotaka.",
+"Upload some photos first, then you can create the photobook here.":"Pakia picha kwanza, kisha utaweza kutengeneza photobook hapa.",
+"Book title":"Kichwa cha kitabu",
+"Which photos":"Picha zipi",
+"Spread across all photos":"Zilizotawanyika kwenye picha zote",
+"The first ones":"Za mwanzo",
+"The latest ones":"Za hivi karibuni",
+"I will choose them":"Nitazichagua mwenyewe",
+"Photos per page":"Picha kwa ukurasa",
+"Number of photos":"Idadi ya picha",
+"Add guest messages at the end":"Ongeza salamu za wageni mwishoni",
+"If guests left any":"Kama wageni waliacha",
+"Create photobook (PDF)":"Tengeneza photobook (PDF)",
+"Preparing…":"Inatayarisha…",
+"Saving…":"Inahifadhi…",
+"Adding guest messages…":"Inaongeza salamu za wageni…",
+"Choose photos for the book":"Chagua picha za kitabu",
+"Select all":"Chagua zote",
+"Clear":"Futa uchaguzi",
+"Messages from guests":"Salamu kutoka kwa wageni",
+"Choose at least one photo.":"Chagua angalau picha moja.",
+"Creating the photobook needs an internet connection.":"Kutengeneza photobook kunahitaji mtandao.",
+"Photos":"Picha",
+"Ended":"Imeisha",
+"Tomorrow":"Kesho",
+"Today":"Leo",
+"Latest event":"Tukio la hivi karibuni",
+"is the big day":"ni siku kuu",
+"day to go":"siku imebaki",
+"days ago":"siku zilizopita",
+"(Single, Double, VIP, Family, Wakwe…). Optional: Table, Group, People.":"(Single, Double, VIP, Family, Wakwe…). Hiari: Table, Group, People.",
 ", choose the channel and the audience, then send.":", chagua njia na wapokeaji, kisha tuma.",
 ", open the Poster section. Choose":", fungua sehemu ya Poster. Chagua",
 ", press":", bonyeza",
@@ -6480,7 +6974,7 @@ window.SW_EXACT = {
 "Guests can see the gallery":"Wageni wanaweza kuona albamu",
 "Guests not yet invited":"Wageni ambao hawajaalikwa bado",
 "Guests open one link to view and download the photos. No account needed.":"Wageni wanafungua kiungo kimoja kutazama na kupakua picha. Hakuna akaunti inayohitajika.",
-"Guests open their invitation link to answer Yes or No. A Double card lets them confirm one or two people.":"Wageni wanafungua kiungo cha mwaliko kujibu Ndiyo au Hapana. Kadi ya Double inawawezesha kuthibitisha mtu mmoja au wawili.",
+"Guests open their invitation link to answer Yes or No. A card for several people lets them confirm how many are coming.":"Wageni wanafungua kiungo cha mwaliko kujibu Ndiyo au Hapana. Kadi ya watu wengi inawawezesha kuthibitisha watakaokuja.",
 "Guests reply from their phones":"Wageni wanajibu kwa simu zao",
 "Guests reply to RSVP from their phone, no account needed":"Wageni wanajibu RSVP kwa simu zao, hakuna akaunti inayohitajika",
 "Guests see “Please reply before…” on their card.":"Wageni wataona “Tafadhali jibu kabla ya…” kwenye kadi yao.",
@@ -6845,7 +7339,7 @@ window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears
 "<b>Check-in</b>: on the day, scan the QR codes at the door.":"<b>Check-in</b>: siku ya tukio, skani QR code mlangoni.",
 "<b>Contributions</b> records who pledged and who paid. Add payments as they arrive; balances update automatically.":"<b>Michango</b> inarekodi nani aliahidi na nani amelipa. Ongeza malipo yanapofika; salio linajisasisha lenyewe.",
 "<b>Create Event</b>: name, date, venue, and a poster (upload your own or let SHEREHE HUB make one).":"<b>Tengeneza tukio</b>: jina, tarehe, ukumbi, na poster (pakia yako au iache SHEREHE HUB iitengeneze).",
-"<b>Guests</b>: add them one by one or import an Excel file. Choose Single (1 person) or Double (2 people).":"<b>Wageni</b>: waongeze mmoja mmoja au ingiza faili ya Excel. Chagua Single (mtu 1) au Double (watu 2).",
+"<b>Guests</b>: add them one by one or import an Excel file. Choose the card type (Single, Double, VIP, Family, Wakwe…) and how many people it admits.":"<b>Wageni</b>: waongeze mmoja mmoja au ingiza faili ya Excel. Chagua aina ya kadi (Single, Double, VIP, Family, Wakwe…) na idadi ya watu inaoruhusu.",
 "<b>Messaging</b>: send the invitations by WhatsApp or SMS.":"<b>Ujumbe</b>: tuma mialiko kwa WhatsApp au SMS.",
 "<b>No photos yet</b>Upload the first photos from the event.":"<b>Bado hakuna picha</b>Pakia picha za kwanza za tukio.",
 "<b>No scans yet</b>Scan a guest's QR code to verify them.":"<b>Bado hakuna skani</b>Skani QR code ya mgeni kumthibitisha.",
@@ -6867,8 +7361,15 @@ window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears
 };
 
 /* patterns: {0},{1} are captured pieces (numbers/names), kept as-is */
-window.SW_PAT = [["{#0} messages","Salamu {0}"],["{#0} message","Salamu {0}"],
-["{#0} single, {#1} double","Single {0}, Double {1}"],["{#0} never replied","{0} hawakujibu"],
+window.SW_PAT = [["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
+["{#0} photo","Picha {0}"],["{#0} pages","Kurasa {0}"],["about {0} MB","takriban MB {0}"],
+["of {#0} selected. They appear in the book in this order.","kati ya {0} zimechaguliwa. Zinaonekana kwenye kitabu kwa mpangilio huu."],
+["Preparing photos {#0}/{#1}…","Inatayarisha picha {0}/{1}…"],
+["Photobook downloaded ({#0} photos).","Photobook imepakuliwa (picha {0})."],
+["Photobook downloaded, but {#0} photos could not be loaded.","Photobook imepakuliwa, lakini picha {0} hazikuweza kupakiwa."],
+["Could not create the photobook: {0}","Photobook haikutengenezwa: {0}"],
+["In {#0} days","Baada ya siku {0}"],["{#0} messages","Salamu {0}"],["{#0} message","Salamu {0}"],
+["{#0} single, {#1} double","Single {0}, Double {1}"],["{0} cards only ({#1})","Kadi za {0} tu ({1})"],["{#0} never replied","{0} hawakujibu"],
 ["{#0} of {#1} invitations were sent | {#2} people arrived in total (including double-card partners)","Mialiko {0} kati ya {1} ilitumwa | watu {2} walifika kwa jumla (pamoja na wenza wa kadi za Double)"],
 ["{#0} of {#1} invitations were sent | {#2} person arrived in total (including double-card partners)","Mialiko {0} kati ya {1} ilitumwa | mtu {2} alifika kwa jumla (pamoja na wenza wa kadi za Double)"],
 ["{#0} contributors | {#1} fully paid | {#2} still owing | {#3}% of pledges collected","Wachangiaji {0} | {1} wamekamilisha | {2} wanadaiwa | {3}% ya ahadi imekusanywa"],
