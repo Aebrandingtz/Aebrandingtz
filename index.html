@@ -1197,6 +1197,9 @@ body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.d
 .pick-top .ct-extra{flex:1 0 100%}
 @media (max-width:520px){.ct-extra-row{grid-template-columns:1fr}}
 
+/* V74 photographer role: sees only the Photos page */
+body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photographer-mode .app-sidebar .side-label,body.photographer-mode #staffPanel,body.photographer-mode .side-foot,body.photographer-mode #adminNavGroup,body.photographer-mode .no-photog{display:none!important}
+
 </style>
 </head>
 <body>
@@ -1558,8 +1561,8 @@ body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.d
     <div id="rsvpTable"></div>
   </div>
   <div class="panel" id="staffPanel">
-    <div class="panel-heading"><div><h2>Team access</h2><p>Give a colleague access to the selected event. They create an account with the email below. A <b>door staff</b> member only sees the Check-in page. A <b>treasurer</b> only sees Contributions (can add and edit payments and expenses, but cannot delete or see guests). A <b>co-host</b> (the event's host) can manage everything for this one event — guests, cards, messaging, check-in, contributions — but cannot delete the event, delete payment records or add team members. A co-host must register with a <u>new email</u> that does not already own events.</p></div></div>
-    <div class="toolbar"><input id="staffEmail" type="email" placeholder="staff@example.com" style="max-width:300px" onkeydown="if(event.key==='Enter')addStaff()"><select id="staffRoleSel" aria-label="Role" style="max-width:190px"><option value="checkin">Door staff (check-in)</option><option value="treasurer">Treasurer (contributions)</option><option value="cohost">Co-host (full control of this event)</option></select><button class="primary" onclick="addStaff()"><svg class="i"><use href="#i-plus"/></svg>Add member</button></div>
+    <div class="panel-heading"><div><h2>Team access</h2><p>Give a colleague access to the selected event. They create an account with the email below. A <b>door staff</b> member only sees the Check-in page. A <b>treasurer</b> only sees Contributions (can add and edit payments and expenses, but cannot delete or see guests). A <b>photographer</b> only sees the Photos page: he can upload and delete photos and copy the gallery link to send to clients (the host decides when the gallery is visible). A <b>co-host</b> (the event's host) can manage everything for this one event — guests, cards, messaging, check-in, contributions — but cannot delete the event, delete payment records or add team members. A co-host or photographer must register with a <u>new email</u> that does not already own events.</p></div></div>
+    <div class="toolbar"><input id="staffEmail" type="email" placeholder="staff@example.com" style="max-width:300px" onkeydown="if(event.key==='Enter')addStaff()"><select id="staffRoleSel" aria-label="Role" style="max-width:190px"><option value="checkin">Door staff (check-in)</option><option value="treasurer">Treasurer (contributions)</option><option value="cohost">Co-host (full control of this event)</option><option value="photographer">Photographer (photos)</option></select><button class="primary" onclick="addStaff()"><svg class="i"><use href="#i-plus"/></svg>Add member</button></div>
     <div id="staffList"></div>
   </div>
 </section>
@@ -3477,7 +3480,7 @@ function renderUserChip(){
   const name = PROFILE.name || (currentSupabaseUser?.email||'').split('@')[0] || 'User';
   $('userName').textContent=name;
   $('userAvatar').textContent=initials(name);
-  $('roleLabel').textContent = isAdmin ? 'Administrator' : (window.__staffMode ? (staffRole()==='treasurer'?'Treasurer':(staffRole()==='cohost'?'Co-host':'Door staff')) : 'Event organiser');
+  $('roleLabel').textContent = isAdmin ? 'Administrator' : (window.__staffMode ? (staffRole()==='treasurer'?'Treasurer':(staffRole()==='cohost'?'Co-host':(staffRole()==='photographer'?'Photographer':'Door staff'))) : 'Event organiser');
   const g=$('dashGreeting'); if(g) g.textContent='Welcome, '+name.split(' ')[0];
 }
 window.loadAdminFlag = async function(){
@@ -3518,7 +3521,7 @@ const VIEW_META = {
   contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], wishes:['Guest messages','Messages from your guests'], admin:['Admin Console','Customers and system usage']
 };
 window.showView = function(id,btn){
-  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin') id='dashboard'; } else { const want=r==='treasurer'?'contributions':'rsvp'; if(id!==want) id=want; } }
+  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?'photos':'rsvp'); if(id!==want) id=want; } }
   if(!$(id)) return;
   if(id==='admin' && !isAdmin){ toast('You do not have access to the Admin Console.'); return; }
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
@@ -5407,11 +5410,11 @@ window.onAudienceChange = function(){
 window.evOwner = id => ((db.events||[]).find(e=>e.id===id)||{}).owner_id || currentSupabaseUser.id;
 window.staffRole = () => !window.__staffMode ? null : ((window.__staffRoles||{})[currentEventId]||'checkin');
 window.applyStaffMode = function(){
-  const role=staffRole(), door=role==='checkin', tre=role==='treasurer', host=role==='cohost', b=document.body;
-  if(b.classList.contains('staff-mode')!==door || b.classList.contains('treasurer-mode')!==tre || b.classList.contains('cohost-mode')!==host){
-    b.classList.toggle('staff-mode',door); b.classList.toggle('treasurer-mode',tre); b.classList.toggle('cohost-mode',host);
+  const role=staffRole(), door=role==='checkin', tre=role==='treasurer', host=role==='cohost', pho=role==='photographer', b=document.body;
+  if(b.classList.contains('staff-mode')!==door || b.classList.contains('treasurer-mode')!==tre || b.classList.contains('cohost-mode')!==host || b.classList.contains('photographer-mode')!==pho){
+    b.classList.toggle('staff-mode',door); b.classList.toggle('treasurer-mode',tre); b.classList.toggle('cohost-mode',host); b.classList.toggle('photographer-mode',pho);
     renderUserChip();
-    if(role) setTimeout(()=>showView(host?'dashboard':(tre?'contributions':'rsvp')),0);
+    if(role) setTimeout(()=>showView(host?'dashboard':(tre?'contributions':(pho?'photos':'rsvp'))),0);
   }
 };
 window.renderStaff = async function(){
@@ -5420,7 +5423,7 @@ window.renderStaff = async function(){
   try{
     const {data,error}=await supabaseClient.from('event_staff').select('id,email,role,created_at').eq('event_id',ev.id).order('created_at');
     if(error) throw error;
-    box.innerHTML=(data||[]).length?`<div class="queue">${data.map(r=>`<div class="queue-item"><div class="who"><b>${E(r.email)}</b><span>${r.role==='treasurer'?'Treasurer · can record contributions and expenses':(r.role==='cohost'?'Co-host · full control of this event (cannot delete it or add team members)':'Door staff · can check in guests')} for ${E(ev.name)}</span></div><button class="icon del" title="Remove" aria-label="Remove" onclick="removeStaff('${r.id}',${jq(r.email)})">${ic('trash')}</button></div>`).join('')}</div>`:'<div class="help" style="margin-top:10px">No door staff added for this event yet.</div>';
+    box.innerHTML=(data||[]).length?`<div class="queue">${data.map(r=>`<div class="queue-item"><div class="who"><b>${E(r.email)}</b><span>${r.role==='treasurer'?'Treasurer · can record contributions and expenses':(r.role==='cohost'?'Co-host · full control of this event (cannot delete it or add team members)':(r.role==='photographer'?'Photographer · can upload and manage photos':'Door staff · can check in guests'))} for ${E(ev.name)}</span></div><button class="gray icon" title="Send invitation on WhatsApp" aria-label="Send invitation on WhatsApp" onclick="inviteStaff(${jq(r.email)},${jq(r.role)},'wa')">${ic('whatsapp')}</button><button class="gray icon" title="Copy invitation message" aria-label="Copy invitation message" onclick="inviteStaff(${jq(r.email)},${jq(r.role)},'copy')">${ic('copy')}</button><button class="icon del" title="Remove" aria-label="Remove" onclick="removeStaff('${r.id}',${jq(r.email)})">${ic('trash')}</button></div>`).join('')}</div>`:'<div class="help" style="margin-top:10px">No door staff added for this event yet.</div>';
   }catch(e){ box.innerHTML=`<div class="help">Door staff could not be loaded: ${E(e.message||e)}</div>`; }
 };
 window.addStaff = async function(){
@@ -5431,7 +5434,15 @@ window.addStaff = async function(){
   const role=($('staffRoleSel')&&$('staffRoleSel').value)||'checkin';
   const {error}=await supabaseClient.from('event_staff').insert({event_id:ev.id,email,role});
   if(error) return toast(/duplicate|unique/i.test(error.message)?'This person already has access to this event. Remove them first to change the role.':'Could not add staff: '+error.message);
-  $('staffEmail').value=''; toast((role==='treasurer'?'Treasurer':(role==='cohost'?'Co-host':'Door staff'))+' added. They can now sign in with '+email+'.'); renderStaff();
+  $('staffEmail').value=''; toast((role==='treasurer'?'Treasurer':(role==='cohost'?'Co-host':(role==='photographer'?'Photographer':'Door staff')))+' added. Press the WhatsApp button next to their name to send the invitation (they must register with '+email+').'); renderStaff();
+};
+window.inviteStaff = async function(email,role,how){
+  const ev=getEvent(currentEventId); if(!ev) return;
+  const rl={checkin:'mlinzi wa mlango (check-in)',treasurer:'mhazini (michango)',cohost:'mwenyeji msaidizi',photographer:'mpiga picha'}[role]||'msaidizi';
+  const url=location.href.split('#')[0];
+  const msg=`Habari! Nimekuongeza kama ${rl} kwenye tukio "${ev.name}" kwenye SHEREHE HUB.\n\n1) Fungua: ${url}\n2) Bonyeza "Create account" na ujisajili kwa email hii hii: ${email}\n3) Thibitisha email yako (angalia kisanduku cha barua, pia Spam), kisha ingia.\n\nUtaona sehemu yako ya kazi moja kwa moja.`;
+  if(how==='wa'){ window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener'); return; }
+  try{ await navigator.clipboard.writeText(msg); toast('Invitation message copied. Paste it to WhatsApp or SMS.'); }catch(e){ window.prompt('Copy this message:',msg); }
 };
 window.removeStaff = async function(id,email){
   const ok=await confirmDialog({title:'Remove this team member?',text:`<b>${E(email)}</b> will no longer have access to this event.`,ok:'Remove'});
@@ -5853,7 +5864,7 @@ window.addEventListener('load',()=>{
 /* =========================================================================
    v50 — event photos (host) and public gallery (guests)
    ========================================================================= */
-const PHOTOS_BUCKET = 'event-photos', PHOTO_MAX = 250, PHOTO_EDGE = 1600;
+const PHOTOS_BUCKET = 'event-photos', PHOTO_MAX = 500, PHOTO_EDGE = 1600;
 const PH = {};
 function galleryUrl(ev){ return location.href.split('#')[0]+'#gallery='+encodeURIComponent(ev.id); }
 window.galleryUrl = galleryUrl;
@@ -5891,11 +5902,11 @@ window.renderPhotos = function(){
       <div class="upl-bar" style="display:${st.busy?'block':'none'}"><i style="width:${pctDone}%"></i></div>
       <div class="upl-status" id="photoStatus">${st.busy?`Uploading ${st.done} of ${st.total}…`:''}</div></div>
     <div class="panel"><div class="panel-heading"><div><h2>Share with guests</h2><p>Guests open one link to view and download the photos. No account needed.</p></div></div>
-      <div class="share-row"><div><b>Guests can see the gallery</b><span>${open?'On — anyone with the link can view it.':'Off — turn on when you are ready.'}</span></div>
-        <label class="sw"><input type="checkbox" id="galleryToggle" ${open?'checked':''} onchange="toggleGallery(this.checked)" aria-label="Share gallery with guests"><i></i></label></div>
+      <div class="share-row"><div><b>Guests can see the gallery</b><span>${open?'On — anyone with the link can view it.':(window.__staffMode&&staffRole()==='photographer'?'Off — the host turns this on when the photos are ready.':'Off — turn on when you are ready.')}</span></div>
+        ${window.__staffMode&&staffRole()==='photographer'?'':`<label class="sw"><input type="checkbox" id="galleryToggle" ${open?'checked':''} onchange="toggleGallery(this.checked)" aria-label="Share gallery with guests"><i></i></label>`}</div>
       <div class="link-box"><input readonly id="galleryLink" value="${E(url)}" onclick="this.select()" aria-label="Gallery link"><button class="gray" onclick="copyGalleryLink()">Copy</button><button class="gray" onclick="window.open(galleryUrl(getEvent(currentEventId)),'_blank','noopener')">Open</button></div>
-      <div class="toolbar" style="margin-top:12px"><button class="primary" onclick="goThanks()">${ic('send')}Send thank-you to guests</button></div>
-      <div class="help" style="margin-top:8px">The thank-you message includes the gallery link when sharing is on.</div></div>
+      <div class="toolbar no-photog" style="margin-top:12px"><button class="primary" onclick="goThanks()">${ic('send')}Send thank-you to guests</button></div>
+      <div class="help no-photog" style="margin-top:8px">The thank-you message includes the gallery link when sharing is on.</div></div>
   </div>
   ${pbPanelHtml(st,ev)}
   <div class="panel"><div class="panel-heading"><div><h2>Photos${st.loaded?` (${st.photos.length})`:''}</h2><p>${E(ev.name)}</p></div>
@@ -6732,6 +6743,9 @@ window.resetForm=function(){ if(_reset) _reset.apply(this,arguments); PM.has=fal
 <script>
 /* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
 window.SW_EXACT = {
+"Photographer (photos)":"Mpiga picha (picha)","Photographer":"Mpiga picha",
+"Off — the host turns this on when the photos are ready.":"Imezimwa — mwenyeji huiwasha picha zikiwa tayari.",
+"Send invitation on WhatsApp":"Mtumie mwaliko kwa WhatsApp","Copy invitation message":"Nakili ujumbe wa mwaliko","Invitation message copied. Paste it to WhatsApp or SMS.":"Ujumbe wa mwaliko umenakiliwa. Ubandike WhatsApp au SMS.",
 "Other (type your own)…":"Nyingine (andika jina lako)…",
 "People allowed on this card":"Watu wanaoruhusiwa kwenye kadi hii",
 "Card type name":"Jina la aina ya kadi",
@@ -7061,7 +7075,7 @@ window.SW_EXACT = {
 "Phone *":"Simu *",
 "Photos":"Picha",
 "Photos (0)":"Picha (0)",
-"Photos are resized automatically to save space. Up to 250 per event.":"Picha zinapunguzwa ukubwa kiotomatiki kuokoa nafasi. Hadi 250 kwa kila tukio.",
+"Photos are resized automatically to save space. Up to 500 per event.":"Picha zinapunguzwa ukubwa kiotomatiki kuokoa nafasi. Hadi 500 kwa kila tukio.",
 "Placeholders filled in automatically:":"Maneno yanayojazwa kiotomatiki:",
 "Plan":"Panga",
 "Plan. Invite. Celebrate.":"Panga. Alika. Sherehekea.",
@@ -7346,7 +7360,7 @@ window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears
 "<b>SHEREHE HUB</b><br>Workflow: Event → Guests → Cards → Invitations → Check-in":"<b>SHEREHE HUB</b><br>Hatua: Tukio → Wageni → Kadi → Mialiko → Check-in",
 "<b>Still need help?</b>Message us on WhatsApp and we will help you.":"<b>Bado unahitaji msaada?</b>Tuandikie WhatsApp tutakusaidia.",
 "Add <b>expenses</b> to see the cash in hand.":"Ongeza <b>matumizi</b> kuona pesa mkononi.",
-"Give a colleague access to the selected event. They create an account with the email below. A <b>door staff</b> member only sees the Check-in page. A <b>treasurer</b> only sees Contributions (can add and edit payments and expenses, but cannot delete or see guests). A <b>co-host</b> (the event's host) can manage everything for this one event — guests, cards, messaging, check-in, contributions — but cannot delete the event, delete payment records or add team members. A co-host must register with a <u>new email</u> that does not already own events.":"Mpe mwenzako ufikiaji wa tukio ulilochagua. Anafungua akaunti kwa barua pepe iliyo hapa chini. <b>Mlinzi wa mlango</b> anaona ukurasa wa Check-in tu. <b>Mhazini</b> anaona Michango tu (anaweza kuongeza na kuhariri malipo na matumizi, lakini hawezi kufuta wala kuona wageni). <b>Mwenyeji</b> (mwenye sherehe) anaweza kusimamia kila kitu cha tukio hili moja — wageni, kadi, ujumbe, check-in, michango — lakini hawezi kufuta tukio, kufuta rekodi za malipo wala kuongeza watu kwenye timu. Mwenyeji lazima ajisajili kwa <u>barua pepe mpya</u> isiyomiliki matukio.",
+"Give a colleague access to the selected event. They create an account with the email below. A <b>door staff</b> member only sees the Check-in page. A <b>treasurer</b> only sees Contributions (can add and edit payments and expenses, but cannot delete or see guests). A <b>photographer</b> only sees the Photos page: he can upload and delete photos and copy the gallery link to send to clients (the host decides when the gallery is visible). A <b>co-host</b> (the event's host) can manage everything for this one event — guests, cards, messaging, check-in, contributions — but cannot delete the event, delete payment records or add team members. A co-host or photographer must register with a <u>new email</u> that does not already own events.":"Mpe mwenzako ufikiaji wa tukio ulilochagua. Anafungua akaunti kwa barua pepe iliyo hapa chini. <b>Mlinzi wa mlango</b> anaona ukurasa wa Check-in tu. <b>Mhazini</b> anaona Michango tu (anaweza kuongeza na kuhariri malipo na matumizi, lakini hawezi kufuta wala kuona wageni). <b>Mpiga picha</b> anaona ukurasa wa Picha tu: anaweza kupakia na kufuta picha na kunakili link ya albamu kuwatumia wateja (mwenyeji ndiye anayeamua albamu ianze kuonekana lini). <b>Mwenyeji</b> (mwenye sherehe) anaweza kusimamia kila kitu cha tukio hili moja — wageni, kadi, ujumbe, check-in, michango — lakini hawezi kufuta tukio, kufuta rekodi za malipo wala kuongeza watu kwenye timu. Mwenyeji au mpiga picha lazima ajisajili kwa <u>barua pepe mpya</u> isiyomiliki matukio.",
 "Go to <b>Messaging</b>, choose the channel and the audience, then send.":"Nenda <b>Ujumbe</b>, chagua njia na wapokeaji, kisha tuma.",
 "Imetumwa kupitia SHEREHE HUB · <a href=\"#privacy\" class=\"legal-link\" onclick=\"openLegal('privacy');return false\">Faragha</a> · <a href=\"#terms\" class=\"legal-link\" onclick=\"openLegal('terms');return false\">Masharti</a>":null,
 "On <b>Create Event</b>, open the Poster section. Choose <b>Upload poster</b> to use your own design, or <b>Make one for me</b> to pick from 20 modern styles and 4 colours each. The poster uses your event name, date, venue and message, so fill those in first. You can download the poster before saving.":"Kwenye <b>Tengeneza tukio</b>, fungua sehemu ya Poster. Chagua <b>Pakia poster</b> kutumia muundo wako mwenyewe, au <b>Nitengenezee</b> kuchagua kati ya mitindo 20 ya kisasa yenye rangi 4 kila mmoja. Poster inatumia jina la tukio, tarehe, ukumbi na ujumbe wako, kwa hiyo jaza hivyo kwanza. Unaweza kupakua poster kabla ya kuhifadhi.",
@@ -7399,12 +7413,14 @@ window.SW_PAT = [["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zot
 ["Photos ({#0})","Picha ({0})"],["Total ({#0})","Jumla ({0})"],["Total expenses ({#0})","Jumla ya matumizi ({0})"],
 ["Welcome, {0}","Karibu, {0}"],
 ["Poster for {0}","Poster ya {0}"],
+["Photographer · can upload and manage photos for {0}","Mpiga picha · anaweza kupakia na kusimamia picha za {0}"],
+["Photographer added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Mpiga picha ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kumtumia mwaliko (lazima ajisajili kwa {0})."],
 ["Door staff · can check in guests for {0}","Mlinzi wa mlango · anaweza kufanya check-in ya wageni wa {0}"],
 ["Treasurer · can record contributions and expenses for {0}","Mhazini · anaweza kurekodi michango na matumizi ya {0}"],
 ["Co-host · full control of this event (cannot delete it or add team members) for {0}","Mwenyeji · udhibiti kamili wa tukio hili (hawezi kulifuta wala kuongeza watu kwenye timu) kwa {0}"],
-["Co-host added. They can now sign in with {0}.","Mwenyeji ameongezwa. Sasa anaweza kuingia kwa {0}."],
-["Treasurer added. They can now sign in with {0}.","Mhazini ameongezwa. Sasa anaweza kuingia kwa {0}."],
-["Door staff added. They can now sign in with {0}.","Mlinzi wa mlango ameongezwa. Sasa anaweza kuingia kwa {0}."],
+["Co-host added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Mwenyeji ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kumtumia mwaliko (lazima ajisajili kwa {0})."],
+["Treasurer added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Mhazini ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kumtumia mwaliko (lazima ajisajili kwa {0})."],
+["Door staff added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Mlinzi wa mlango ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kumtumia mwaliko (lazima ajisajili kwa {0})."],
 ["{0} · in guest list","{0} · yupo kwenye orodha ya wageni"],
 ["Guests ({0})","Wageni ({0})"],
 ["{#0} photos","Picha {0}"],["{#0} photo","Picha {0}"],
