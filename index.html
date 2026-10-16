@@ -1251,6 +1251,15 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
 .sl-time{font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
 .sl-t .sl-m,.sl-head .sl-m{display:flex;flex-wrap:wrap;gap:0 6px}.sl-m i{font-style:normal}.sl-m i+i::before{content:"·";margin-right:6px}
 
+/* V85 install app */
+#installBanner{position:fixed;left:12px;right:12px;bottom:12px;max-width:520px;margin:0 auto;z-index:9500;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 10px 34px rgba(20,30,80,.22)}
+#installBanner[hidden]{display:none}
+#installBanner img{border-radius:10px;flex:none}
+#installBanner .ib-t{flex:1 1 180px;min-width:0}#installBanner .ib-t b{display:block;font-size:14.5px}#installBanner .ib-t span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+#installBanner .ib-a{display:flex;gap:8px}
+.inst-sec{margin:10px 0}.inst-sec h3{margin:0 0 4px;font-size:14.5px}.inst-sec ol{margin:4px 0 0 20px;padding:0}.inst-sec li{margin:4px 0;font-size:13.5px}
+.inst-sec code{font:inherit;font-weight:700;background:none;padding:0;color:inherit}
+
 </style>
 </head>
 <body>
@@ -1376,6 +1385,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
     <button class="gray header-logout" type="button" onclick="logout()" title="Logout"><svg class="i"><use href="#i-logout"/></svg><span>Logout</span></button>
   </div>
 </header>
+<div id="installBanner" role="dialog" aria-label="Install app" hidden><img src="/icon-192.png" alt="" width="44" height="44"><div class="ib-t"><b>Install SHEREHE HUB on your phone</b><span>Opens faster and works like a normal app.</span></div><div class="ib-a"><button class="primary sm" type="button" onclick="installApp()">Install</button><button class="gray sm" type="button" onclick="installDismiss()">Not now</button></div></div>
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" onclick="toggleMobileNav(false)"></div>
 
 <div class="layout">
@@ -1412,8 +1422,9 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
 
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
+  <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V84</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V85</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -6804,6 +6815,38 @@ function naRender(ev, fromFetch){
   box.innerHTML = `<div class="panel na-panel"><div class="panel-heading"><div><h2>Next steps</h2><p>${E(ev.name)}</p></div>${days}</div><div class="na-list">${list}</div></div>`;
 }
 
+/* ===== V85: install as an app (PWA) ===== */
+let deferredInstall = null;
+const isStandalone = () => { try{ return matchMedia('(display-mode: standalone)').matches || navigator.standalone===true; }catch(e){ return false; } };
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+const INST_KEY = 'sherehe_inst_dismiss';
+function installDismissed(){ try{ const t=+localStorage.getItem(INST_KEY)||0; return Date.now()-t < 7*86400000; }catch(e){ return false; } }
+function installUi(){
+  const nav=$('installNavBtn'), ban=$('installBanner'), done=isStandalone();
+  if(nav) nav.style.display = done ? 'none' : '';
+  if(ban){ const can = !done && !installDismissed() && (deferredInstall || isIOS() || /android/i.test(navigator.userAgent));
+    ban.hidden = !can; }
+}
+window.installDismiss = function(){ try{ localStorage.setItem(INST_KEY,String(Date.now())); }catch(e){} const b=$('installBanner'); if(b) b.hidden=true; };
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; installUi(); });
+window.addEventListener('appinstalled', () => { deferredInstall = null; installUi(); try{ toast('SHEREHE HUB is installed. Find it on your home screen.'); }catch(e){} });
+window.installApp = async function(){
+  if(deferredInstall){
+    try{ deferredInstall.prompt(); await deferredInstall.userChoice; }catch(e){}
+    deferredInstall = null; installUi(); return;
+  }
+  const ios = isIOS();
+  const android = `<div class="inst-sec"><h3>Android (Chrome)</h3><ol><li>Open <b>www.sherehehubtz.com</b> in <b>Chrome</b>, not inside WhatsApp or Facebook.</li><li>Tap the <b>three dots</b> at the top right.</li><li>Tap <code>Install app</code> (or <code>Add to Home screen</code>).</li><li>Tap <code>Install</code>. The app appears on your home screen.</li></ol></div>`;
+  const apple = `<div class="inst-sec"><h3>iPhone (Safari)</h3><ol><li>Open <b>www.sherehehubtz.com</b> in <b>Safari</b>, not inside WhatsApp or Facebook.</li><li>Tap the <code>Share</code> button (the square with an arrow).</li><li>Scroll and tap <code>Add to Home Screen</code>.</li><li>Tap <code>Add</code>. The app appears on your home screen.</li></ol></div>`;
+  const m=$('contribModalBox'); if(!m) return;
+  m.innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('plus')}</div><div><h2>Install SHEREHE HUB</h2><p>Add it to your home screen like a normal app.</p></div></div>
+    ${ios?apple+android:android+apple}
+    <div class="guest-form-actions"><button class="primary" onclick="closeContributor()">OK</button></div>`;
+  $('contribModal').classList.add('open');
+};
+setTimeout(installUi, 1500); window.addEventListener('load', () => setTimeout(installUi, 2500));
+
 })();
 
 </script>
@@ -7927,7 +7970,7 @@ window.SW_EXACT = {
 };
 
 /* element-level translations (innerHTML with inline tags) */
-window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>":"<ul><li>Mgeni akishajibu mwaliko wake, kisanduku kinatokea ambapo anaweza kukuachia <b>salamu</b>.</li><li>Fungua <b>Salamu za wageni</b> kuzisoma. Tumia <b>Ficha</b> kwa salamu usiyotaka ionekane.</li><li>Bonyeza <b>Skrini kubwa</b> siku ya tukio kuonyesha salamu moja moja kwenye TV au projekta.</li><li>Bonyeza <b>Kitabu cha kumbukumbu (PDF)</b> kuhifadhi salamu zote kama kumbukumbu.</li></ul>",
+window.SW_HTML = {"Open <b>www.sherehehubtz.com</b> in <b>Chrome</b>, not inside WhatsApp or Facebook.":"Fungua <b>www.sherehehubtz.com</b> kwenye <b>Chrome</b>, si ndani ya WhatsApp au Facebook.","Tap the <b>three dots</b> at the top right.":"Bonyeza <b>nukta tatu</b> juu kulia.","Tap <code>Install app</code> (or <code>Add to Home screen</code>).":"Bonyeza <code>Install app</code> (au <code>Add to Home screen</code>).","Tap <code>Install</code>. The app appears on your home screen.":"Bonyeza <code>Install</code>. App itaonekana kwenye skrini yako ya mwanzo.","Open <b>www.sherehehubtz.com</b> in <b>Safari</b>, not inside WhatsApp or Facebook.":"Fungua <b>www.sherehehubtz.com</b> kwenye <b>Safari</b>, si ndani ya WhatsApp au Facebook.","Tap the <code>Share</code> button (the square with an arrow).":"Bonyeza kitufe cha <code>Share</code> (mraba wenye mshale).","Scroll and tap <code>Add to Home Screen</code>.":"Sogeza chini na ubonyeze <code>Add to Home Screen</code>.","Tap <code>Add</code>. The app appears on your home screen.":"Bonyeza <code>Add</code>. App itaonekana kwenye skrini yako ya mwanzo.","<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>":"<ul><li>Mgeni akishajibu mwaliko wake, kisanduku kinatokea ambapo anaweza kukuachia <b>salamu</b>.</li><li>Fungua <b>Salamu za wageni</b> kuzisoma. Tumia <b>Ficha</b> kwa salamu usiyotaka ionekane.</li><li>Bonyeza <b>Skrini kubwa</b> siku ya tukio kuonyesha salamu moja moja kwenye TV au projekta.</li><li>Bonyeza <b>Kitabu cha kumbukumbu (PDF)</b> kuhifadhi salamu zote kama kumbukumbu.</li></ul>",
 
 "<b>Cards &amp; QR</b>: generate each guest’s personal invitation card with their QR code.":"<b>Kadi na QR</b>: tengeneza kadi ya mwaliko binafsi ya kila mgeni yenye QR code yake.",
 "<b>Check-in</b>: on the day, scan the QR codes at the door.":"<b>Check-in</b>: siku ya tukio, skani QR code mlangoni.",
@@ -8205,6 +8248,17 @@ window.SW_MSG = {
 "Only the event owner can do this.":"Mwenye tukio pekee ndiye anaweza kufanya hili.",
 "Only the event owner can delete guests.":"Mwenye tukio pekee ndiye anaweza kufuta wageni.",
 "Nobody assigned ·":"Hakuna aliyepewa ·",
+"Install app":"Weka kama app",
+"Install SHEREHE HUB on your phone":"Weka SHEREHE HUB kwenye simu yako",
+"Opens faster and works like a normal app.":"Inafunguka haraka na inafanya kazi kama app ya kawaida.",
+"Install":"Weka",
+"Not now":"Sio sasa",
+"Install SHEREHE HUB":"Weka SHEREHE HUB",
+"Add it to your home screen like a normal app.":"Iweke kwenye skrini ya mwanzo kama app ya kawaida.",
+"Android (Chrome)":"Android (Chrome)",
+"iPhone (Safari)":"iPhone (Safari)",
+"SHEREHE HUB is installed. Find it on your home screen.":"SHEREHE HUB imewekwa. Ipate kwenye skrini yako ya mwanzo.",
+"OK":"Sawa",
 "Scanned at the door":"Waliopitiwa mlangoni",
 "Nobody has been scanned yet. Guests appear here as soon as they are checked in.":"Bado hakuna aliyepitiwa. Wageni wataonekana hapa mara tu wanapoingizwa.",
 "Syncing…":"Inatuma…",
