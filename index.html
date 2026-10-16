@@ -1241,6 +1241,16 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
 .na-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.na-chip{font-size:12px;padding:3px 9px;border-radius:999px;background:#fff0ee;color:#b3261e;border:1px solid #e8a29b}
 .tpl-more summary{cursor:pointer;font-weight:700;font-size:15px}
 
+/* V84 door scan log */
+#scanLog{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.sl-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}.sl-head b{font-size:14.5px}.sl-head span{font-size:12.5px;color:var(--muted);font-weight:600}
+.sl-list{max-height:380px;overflow:auto;display:flex;flex-direction:column}
+.sl-row{display:flex;gap:10px;align-items:center;padding:9px 2px;border-top:1px solid var(--line)}.sl-row:first-child{border-top:0}
+.sl-ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;background:#c9efd9;color:#0d7a45}.sl-ic svg{width:16px;height:16px}
+.sl-t{flex:1;min-width:0}.sl-t b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sl-t span{display:block;font-size:12.5px;color:var(--muted)}
+.sl-time{font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.sl-t .sl-m,.sl-head .sl-m{display:flex;flex-wrap:wrap;gap:0 6px}.sl-m i{font-style:normal}.sl-m i+i::before{content:"·";margin-right:6px}
+
 </style>
 </head>
 <body>
@@ -1403,7 +1413,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V83</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V84</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -1594,6 +1604,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
     <div class="panel">
       <div class="panel-heading"><div><h2>Verification</h2><p>Scan results appear here.</p></div></div>
       <div id="scanResult"><div class="empty"><b>No scans yet</b>Scan a guest's QR code to verify them.</div></div>
+      <div id="scanLog"></div>
     </div>
   </div>
   <div class="panel">
@@ -4104,6 +4115,17 @@ window.checkin = async function(eid,gid){
   }
 };
 
+/* people already scanned at the door: stays in the Verification panel and updates after every scan, on every device */
+function renderScanLog(ev){
+  const box=$('scanLog'); if(!box) return;
+  if(!ev){ box.innerHTML=''; return; }
+  const ins=ev.guests.filter(g=>g.checkedIn).sort((a,b)=>String(b.arrivedAt||'').localeCompare(String(a.arrivedAt||'')));
+  const people=ins.reduce((n,g)=>n+cardParty(g),0);
+  box.innerHTML=`<div class="sl-head"><b>Scanned at the door</b><span class="sl-m"><i>${ins.length} arrived</i>${ins.length?`<i>${people} ${people===1?'person':'people'}</i>`:''}</span></div>`+
+    (ins.length?`<div class="sl-list">${ins.slice(0,60).map(g=>{ const p=cardParty(g), seat=[g.table,g.group].filter(Boolean).join(' · ');
+      return `<div class="sl-row"><span class="sl-ic">${ic('check')}</span><div class="sl-t"><b>${E(g.name)}</b><span class="sl-m"><i>${E(cardLabel(g))}</i>${p>1?`<i>${p} people</i>`:''}${seat?`<i>${E(seat)}</i>`:''}</span></div><span class="sl-time">${g.pending?'Syncing…':(g.arrivedAt?E(arrTime(g.arrivedAt)):'')}</span></div>`; }).join('')}</div>`
+      :`<div class="help" style="margin-top:6px">Nobody has been scanned yet. Guests appear here as soon as they are checked in.</div>`);
+}
 const arrTime = iso => { try{ return new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } };
 /* live arrivals: the owner / co-host / door staff all see who has arrived, within a few seconds, on any device */
 window.syncArrivals = async function(){
@@ -4138,6 +4160,7 @@ window.renderRsvp = function(){ sortGuests();
   const ev=getEvent(currentEventId);
   if(!ev){ box.innerHTML=NEED_EVENT; if(stats) stats.innerHTML=''; return; }
   renderStaff();
+  renderScanLog(ev);
   const st=reportStats(ev);
   stats.innerHTML=`<div class="stat"><span>Invited</span><b>${st.total}</b></div><div class="stat stat-blue"><span>Expected (RSVP yes)</span><b>${st.att}</b></div><div class="stat stat-green"><span>Arrived</span><b>${st.checked}</b></div>`;
   const q=($('checkinSearch').value||'').trim().toLowerCase(), f=$('checkinFilter').value;
@@ -7932,7 +7955,7 @@ window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears
 };
 
 /* patterns: {0},{1} are captured pieces (numbers/names), kept as-is */
-window.SW_PAT = [["{#0} tasks are overdue", "Kazi {0} zimechelewa"], ["{#0} categories are over budget", "Vipengele {0} vimezidi bajeti"], ["{#0} guests have not replied", "Wageni {0} hawajajibu"], ["{#0} guests have no invitation yet", "Wageni {0} bado hawajapewa mwaliko"], ["{#0} tasks are due in the next 3 days", "Kazi {0} zinaisha ndani ya siku 3 zijazo"], ["{#0} days left", "Siku {0} zimebaki"], ["{#0} tasks added.", "Kazi {0} zimeongezwa."],["{#0} selected","{0} zimechaguliwa"],["Delete {#0} photos?","Futa picha {0}?"],["Delete {#0} photo?","Futa picha {0}?"],["{#0} photos deleted.","Picha {0} zimefutwa."],["{#0} photo deleted.","Picha {0} imefutwa."],["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
+window.SW_PAT = [["{#0} arrived","{0} wamefika"],["{#0} people","Watu {0}"],["{#0} tasks are overdue", "Kazi {0} zimechelewa"], ["{#0} categories are over budget", "Vipengele {0} vimezidi bajeti"], ["{#0} guests have not replied", "Wageni {0} hawajajibu"], ["{#0} guests have no invitation yet", "Wageni {0} bado hawajapewa mwaliko"], ["{#0} tasks are due in the next 3 days", "Kazi {0} zinaisha ndani ya siku 3 zijazo"], ["{#0} days left", "Siku {0} zimebaki"], ["{#0} tasks added.", "Kazi {0} zimeongezwa."],["{#0} selected","{0} zimechaguliwa"],["Delete {#0} photos?","Futa picha {0}?"],["Delete {#0} photo?","Futa picha {0}?"],["{#0} photos deleted.","Picha {0} zimefutwa."],["{#0} photo deleted.","Picha {0} imefutwa."],["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
 ["{#0} photo","Picha {0}"],["{#0} pages","Kurasa {0}"],["about {0} MB","takriban MB {0}"],
 ["of {#0} selected. They appear in the book in this order.","kati ya {0} zimechaguliwa. Zinaonekana kwenye kitabu kwa mpangilio huu."],
 ["Preparing photos {#0}/{#1}…","Inatayarisha picha {0}/{1}…"],
@@ -8182,6 +8205,9 @@ window.SW_MSG = {
 "Only the event owner can do this.":"Mwenye tukio pekee ndiye anaweza kufanya hili.",
 "Only the event owner can delete guests.":"Mwenye tukio pekee ndiye anaweza kufuta wageni.",
 "Nobody assigned ·":"Hakuna aliyepewa ·",
+"Scanned at the door":"Waliopitiwa mlangoni",
+"Nobody has been scanned yet. Guests appear here as soon as they are checked in.":"Bado hakuna aliyepitiwa. Wageni wataonekana hapa mara tu wanapoingizwa.",
+"Syncing…":"Inatuma…",
 "Next steps":"Hatua zinazofuata",
 "1 task is overdue":"Kazi 1 imechelewa",
 "1 category is over budget":"Kipengele 1 kimezidi bajeti",
