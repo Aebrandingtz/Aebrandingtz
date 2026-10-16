@@ -1361,7 +1361,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V77</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V78</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3182,7 +3182,7 @@ document.addEventListener('keydown',e=>{
         supabaseClient.from('check_ins').select('*').in('event_id',ids).order('checked_in_at',{ascending:false}),
         supabaseClient.from('message_logs').select('*').in('event_id',ids).order('created_at',{ascending:false})
       ]);
-      (rsvps||[]).forEach(r=>{const e=getEvent(r.event_id),g=e?.guests.find(x=>String(x.id)===String(r.guest_id));if(g){g.rsvp=r.status||'Pending';g.rsvpAttendees=Number(r.attendees||1)}});
+      (rsvps||[]).forEach(r=>{const e=getEvent(r.event_id),g=e?.guests.find(x=>String(x.id)===String(r.guest_id));if(g){g.rsvp=r.status||'Pending';g.rsvpAuto=false;g.rsvpAttendees=Number(r.attendees||1)}});
       (checks||[]).forEach(c=>{const e=getEvent(c.event_id),g=e?.guests.find(x=>String(x.id)===String(c.guest_id));if(g){g.checkedIn=true;if(!g.arrivedAt)g.arrivedAt=c.checked_in_at}});
       (logs||[]).forEach(l=>{const e=getEvent(l.event_id),g=e?.guests.find(x=>String(x.id)===String(l.guest_id));if(g&&l.channel)g.sent=true});
       persistState();refreshAll();
@@ -3584,8 +3584,15 @@ window.populateEventSelects = function(){
 
 /* ---------- alphabetical order for every list of names ---------- */
 const nameCmp=(a,b)=>String(a||'').trim().localeCompare(String(b||'').trim(),'en',{sensitivity:'base',numeric:true});
-function sortGuests(){ try{ db.events.forEach(e=>{ if(e.guests&&e.guests.length>1) e.guests.sort((a,b)=>nameCmp(a.name,b.name)); }); }catch(e){} }
+/* a guest who has arrived is obviously attending: show "Attending" even if they never pressed Yes (display only, nothing is changed in the database) */
+function applyArrivedRsvp(){ try{ db.events.forEach(e=>(e.guests||[]).forEach(g=>{
+  if(g.checkedIn && (!g.rsvp||g.rsvp==='Pending')){ g.rsvp='Yes'; g.rsvpAuto=true; if(!g.rsvpAttendees) g.rsvpAttendees=Math.max(1,cardParty(g)); }
+  else if(!g.checkedIn && g.rsvpAuto){ if(g.rsvp==='Yes') g.rsvp='Pending'; g.rsvpAuto=false; }
+})); }catch(e){} }
+window.applyArrivedRsvp=applyArrivedRsvp;
+function sortGuests(){ applyArrivedRsvp(); try{ db.events.forEach(e=>{ if(e.guests&&e.guests.length>1) e.guests.sort((a,b)=>nameCmp(a.name,b.name)); }); }catch(e){} }
 window.sortGuests=sortGuests; window.nameCmp=nameCmp;
+if(typeof window.reportStats==='function'&&!window.__rsWrapped){ const _rs=window.reportStats; window.reportStats=function(ev){ applyArrivedRsvp(); return _rs(ev); }; window.__rsWrapped=true; }
 function wrapSorted(){ ['exportGuestsExcel','exportEventReportExcel','printEventReport','downloadAllZip','generateAllCards','uploadAllGeneratedCards'].forEach(n=>{ const f=window[n]; if(typeof f==='function'&&!f.__sorted){ const w=function(){ sortGuests(); return f.apply(this,arguments); }; w.__sorted=true; window[n]=w; } }); }
 wrapSorted(); window.addEventListener('load',()=>{ wrapSorted(); setTimeout(wrapSorted,1500); });
 
@@ -3748,7 +3755,7 @@ window.deleteEvent = async function(eid){
 /* ---------- guests ---------- */
 window.guestSearch=''; window.guestFilter='All';
 function rsvpBadge(g){
-  if(g.rsvp==='Yes') return `<span class="status ok">Attending${cardParty(g)>1&&g.rsvpAttendees?` · ${g.rsvpAttendees}`:''}</span>`;
+  if(g.rsvp==='Yes') return `<span class="status ok"${g.rsvpAuto?' title="Marked as attending because the guest has arrived"':''}>Attending${cardParty(g)>1&&g.rsvpAttendees?` · ${g.rsvpAttendees}`:''}</span>`;
   if(g.rsvp==='No') return `<span class="status no">Declined</span>`;
   return `<span class="status idle">Awaiting</span>`;
 }
@@ -5207,7 +5214,7 @@ window.loadRemoteGuestState = async function(){
   if(!supabaseClient||!currentSupabaseUser||!db.events.length) return;
   try{
     const rs=await fetchAll(()=>supabaseClient.from('rsvps').select('guest_id,event_id,status,attendees').in('event_id',db.events.map(e=>e.id)).order('id'));
-    rs.forEach(r=>{ const e=getEvent(r.event_id), g=e?.guests.find(x=>String(x.id)===String(r.guest_id)); if(g){ g.rsvp=r.status||g.rsvp; g.rsvpAttendees=Number(r.attendees||1); } });
+    rs.forEach(r=>{ const e=getEvent(r.event_id), g=e?.guests.find(x=>String(x.id)===String(r.guest_id)); if(g){ g.rsvp=r.status||g.rsvp; g.rsvpAuto=false; g.rsvpAttendees=Number(r.attendees||1); } });
     doRefresh();
   }catch(e){ console.warn('rsvps:',e?.message||e); }
 };
