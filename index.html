@@ -1230,6 +1230,17 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
 .ph-check{position:absolute;top:7px;left:7px;width:26px;height:26px;border-radius:50%;border:2px solid #fff;background:rgba(15,25,50,.45);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
 .photo-tile.sel .ph-check{background:#1d3a8a}
 
+/* V83 next steps + templates */
+.na-panel{margin-bottom:18px}
+.na-days{font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--blue-soft,#e8eefc);color:var(--blue,#2f48b8);white-space:nowrap;align-self:center}
+.na-list>.na-item{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.na-list>.na-item:first-child{border-top:0;padding-top:4px}
+.na-ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--blue-soft,#e8eefc);color:var(--blue,#2f48b8)}
+.na-item.late .na-ic{background:#fcd5d0;color:#b3261e}.na-item.warn .na-ic{background:#fbe9b0;color:#8a6200}.na-item.ok .na-ic{background:#c9efd9;color:#0d7a45}
+.na-t{flex:1 1 220px;min-width:0}.na-t b{display:block;font-size:14.5px}.na-t>span{display:block;color:var(--muted);font-size:13px;margin-top:2px;overflow-wrap:anywhere}
+.na-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.na-chip{font-size:12px;padding:3px 9px;border-radius:999px;background:#fff0ee;color:#b3261e;border:1px solid #e8a29b}
+.tpl-more summary{cursor:pointer;font-weight:700;font-size:15px}
+
 </style>
 </head>
 <body>
@@ -1392,7 +1403,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V82</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V83</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -1410,6 +1421,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
     <div class="stat stat-green"><div class="stat-top"><span>Checked in</span><i class="stat-ic"><svg class="i"><use href="#i-scan"/></svg></i></div><b id="sRsvp">0</b><small>Arrived at the venue</small><div class="stat-bar"><i id="sbRsvp"></i></div></div>
   </div>
   <div id="rsvpNudge"></div>
+  <div id="nextActions"></div>
   <div class="dash-grid">
     <div class="next-event" id="nextEvent"></div>
     <div class="panel readiness" id="readiness"></div>
@@ -1457,6 +1469,8 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
           <div class="field"><label for="fDate">Date &amp; time</label><input id="fDate" type="datetime-local"></div>
           <div class="field"><label for="fVenue">Venue</label><input id="fVenue" placeholder="Hall or location"></div>
           <div class="field"><label for="fDeadline">RSVP deadline <span class="optional">Optional</span></label><input id="fDeadline" type="date"><div class="help" style="margin-top:6px">Guests see “Please reply before…” on their card.</div></div>
+          <div class="field full no-cohost"><label for="fTemplate">Start from a template <span class="optional">Optional</span></label><select id="fTemplate"><option value="">No template</option><option value="wedding">Wedding</option><option value="sendoff">Send Off</option><option value="kitchen">Kitchen Party</option><option value="birthday">Birthday</option><option value="fundraising">Fundraising</option></select><div class="help" style="margin-top:6px">Adds ready committee tasks and a suggested budget plan. You can change everything later.</div></div>
+          <div class="field no-cohost"><label for="fTplBudget">Total budget (TZS) <span class="optional">Optional</span></label><input id="fTplBudget" inputmode="numeric" placeholder="e.g. 10,000,000"><div class="help" style="margin-top:6px">Spreads the budget over the categories.</div></div>
           <div class="field full"><label for="fMaps">Google Maps link <span class="optional">Optional</span></label><input id="fMaps" placeholder="Paste the Google Maps link"></div>
           <div class="field full"><label for="fMessage">Message to guests <span class="optional">Optional</span></label><textarea id="fMessage" rows="3" placeholder="e.g. We would love to celebrate with you. Dress code: blue."></textarea></div>
         </div>
@@ -1749,6 +1763,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
     </div>
     <div class="toolbar" style="margin-top:16px"><button class="primary" onclick="addTask()"><svg class="i"><use href="#i-check"/></svg>Add task</button></div>
   </div>
+  <div id="tplBox"></div>
   <div class="panel"><div id="taskListBox"></div></div>
 </section>
 
@@ -2077,7 +2092,7 @@ function toggleDoublePoster(checked){
   if(!checked){ posterData.double=null; const c2=document.getElementById('posterCanvas2'); if(c2)c2.innerHTML='<div class="empty">Choose the Double card poster.</div>'; const fn2=document.getElementById('posterFileName2'); if(fn2)fn2.textContent='No poster selected.'; const f2=document.getElementById('fPoster2'); if(f2)f2.value=''; }
 }
 function resetForm(){
-  ["fEventName","fVenue","fMaps","fMessage","fDeadline"].forEach(id=>document.getElementById(id).value="");
+  ["fEventName","fVenue","fMaps","fMessage","fDeadline","fTemplate","fTplBudget"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
   document.getElementById("fPoster").value=""; posterData.main=null;
   document.getElementById("posterCanvas").innerHTML='<div class="empty">Choose a poster to see the preview here.</div>';
   document.getElementById("posterFileName").textContent="No poster selected.";
@@ -2357,6 +2372,7 @@ async function saveEvent(){
       throw posterUpdateError;
     }
 
+    try{ const tk=(document.getElementById("fTemplate")||{}).value; if(tk && window.applyEventTemplate) await window.applyEventTemplate(eventId,tk,(document.getElementById("fTplBudget")||{}).value,eventDate); }catch(e){ console.warn("template not applied:",e); }
     currentEventId = eventId;
     await loadEventsFromSupabase();
     toast("Event saved.");
@@ -3697,7 +3713,7 @@ window.renderDashboard = function(){
   if(b2) b2.style.width=pct(arrived,guests)+'%';
 
   const box=$('nextEvent'), rd=$('readiness');
-  if(!evs.length){ const nb0=$('rsvpNudge'); if(nb0) nb0.innerHTML='';
+  if(!evs.length){ const nb0=$('rsvpNudge'); if(nb0) nb0.innerHTML=''; const na0=$('nextActions'); if(na0) na0.innerHTML='';
     box.innerHTML=`<div class="ne-empty"><div class="ne-kicker">Get started</div><div class="ne-title">Create your first event</div><p>Add the details, poster and guests. The system will generate QR cards and help you send invitations.</p><button class="primary" onclick="showView('create')">${ic('plus')}Create event</button></div>`;
     const first=[['calendar','Create an event','Name, date, venue and poster'],['users','Add guests','One by one or from Excel'],['send','Send invitations','WhatsApp or SMS'],['message','Receive RSVPs','Guests reply from their phones'],['scan','Check-in','Scan QR codes on the day']];
     rd.innerHTML=`<div class="rd-head"><div><h2>Getting started</h2><p class="muted">The system guides you step by step.</p></div></div><ol class="steps tl">${first.map(([i,t,d],k)=>`<li class="${k===0?'now':'todo'}"><span class="dot">${ic(i)}</span><div><b>${t}</b><span>${d}</span></div></li>`).join('')}</ol>`;
@@ -3734,7 +3750,7 @@ window.renderDashboard = function(){
     {i:'scan', done:st.checked>0, t:'Event-day check-in', d:st.checked?`${st.checked} arrived`:'Starts on the event day', a:st.checked?null:['Open','rsvp']}
   ];
   const nDone=steps.filter(s=>s.done).length, cur=steps.findIndex(s=>!s.done);
-  renderRsvpNudge(ev);
+  renderRsvpNudge(ev); naRender(ev);
   rd.innerHTML=`<div class="rd-head"><div><h2>Event readiness</h2><p class="muted">${E(ev.name)}</p></div><div class="rd-ring" style="--p:${Math.round(nDone/steps.length*100)}"><b>${nDone}/${steps.length}</b></div></div>
     <ol class="steps tl">${steps.map((s,k)=>`<li class="${s.done?'done':k===cur?'now':'todo'}"><span class="dot">${ic(s.done?'check':s.i)}</span><div><b>${s.t}</b><span>${s.d}</span></div>${s.a&&!s.done?`<button class="${k===cur?'primary':'gray'} sm" onclick="openEventHub('${ev.id}','${s.a[1]}')">${s.a[0]}</button>`:''}</li>`).join('')}</ol>`;
 };
@@ -6527,13 +6543,14 @@ window.renderTasks = function(){
   const today = new Date().toISOString().slice(0,10);
   const done = TK.list.filter(t=>t.done).length, late = TK.list.filter(t=>!t.done&&t.due_on&&t.due_on<today).length;
   if(stats) stats.innerHTML = `<div class="report-stat"><span>Tasks</span><b>${TK.list.length}</b></div><div class="report-stat"><span>Done</span><b>${done}</b><small>${TK.list.length?Math.round(done/TK.list.length*100):0}%</small></div><div class="report-stat"><span>Still open</span><b>${TK.list.length-done}</b></div><div class="report-stat"><span>Late</span><b ${late?'class="tk-late"':''}>${late}</b></div>`;
+  renderTplBox(ev);
   const people = tkPeople();
   if(TK.filter && TK.filter!=='__none' && !people.includes(TK.filter)) TK.filter='';
   const list = tkFiltered();
   const bar = TK.list.length ? `<div class="tk-bar"><div class="field" style="margin:0"><label for="tkFilter">Show tasks for</label><select id="tkFilter" onchange="tkSetFilter(this.value)"><option value="">Everyone</option>${people.map(p=>`<option value="${E(p)}" ${TK.filter===p?'selected':''}>${E(p)}</option>`).join('')}${TK.list.some(t=>!t.assignee)?`<option value="__none" ${TK.filter==='__none'?'selected':''}>Nobody assigned</option>`:''}</select></div><button class="gray" onclick="tkPrint()">${ic('sheet')}Print tasks</button></div>` : '';
   const row = t => { const isLate=!t.done&&t.due_on&&t.due_on<today;
     if(TK.edit===t.id) return `<div class="tk-row tk-editing"><div class="tk-edit-grid"><input id="tkEdTitle" value="${E(t.title)}" maxlength="200" aria-label="Task" onkeydown="if(event.key==='Enter')tkEditSave('${t.id}')"><input id="tkEdWho" value="${E(t.assignee||'')}" maxlength="80" placeholder="Who is responsible?" aria-label="Who is responsible?" list="tkPeopleList"><input id="tkEdDue" type="date" value="${E(t.due_on||'')}" aria-label="Deadline"></div><div class="tk-edit-btns"><button class="primary" onclick="tkEditSave('${t.id}')">${ic('check')}Save</button><button class="gray" onclick="tkEditCancel()">Cancel</button></div></div>`;
-    return `<div class="tk-row ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Done" onchange="toggleTask('${t.id}',this.checked)"><div class="tk-main"><b>${E(t.title)}</b><span>${t.assignee?E(t.assignee):'Nobody assigned'}${t.due_on?` · <span class="${isLate?'tk-late':''}">${isLate?'Overdue · ':'Due '}${E(fmtDay(t.due_on))}</span>`:''}</span></div><button class="icon gray" title="Edit" aria-label="Edit" onclick="tkEdit('${t.id}')">${ic('edit')}</button><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteTask('${t.id}')">${ic('trash')}</button></div>`; };
+    return `<div class="tk-row ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Done" onchange="toggleTask('${t.id}',this.checked)"><div class="tk-main"><b>${E(t.title)}</b><span>${t.assignee?E(t.assignee):'Nobody assigned'}${t.due_on?` · <span class="${isLate?'tk-late':''}">${isLate?'Overdue · ':'Due '}${E(fmtDay(t.due_on))}</span>`:''}</span></div>${t.done?'':`<button class="icon gray" title="Remind on WhatsApp" aria-label="Remind on WhatsApp" onclick="tkRemind('${t.id}')">${ic('chat')}</button>`}<button class="icon gray" title="Edit" aria-label="Edit" onclick="tkEdit('${t.id}')">${ic('edit')}</button><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteTask('${t.id}')">${ic('trash')}</button></div>`; };
   box.innerHTML = bar + `<datalist id="tkPeopleList">${people.map(p=>`<option value="${E(p)}">`).join('')}</datalist>` + (list.length ? list.map(row).join('') : (TK.list.length ? emptyState('No tasks here','Nothing is assigned to this person.') : emptyState('No tasks yet','Add the first task above and give it a person and a deadline.')));
 };
 function tkPeople(){ return [...new Set(TK.list.map(t=>(t.assignee||'').trim()).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'en',{sensitivity:'base'})); }
@@ -6592,6 +6609,177 @@ window.deleteTask = async function(id){
   if(r.error) return toast('Failed: '+r.error.message);
   TK.list = TK.list.filter(x=>x.id!==id); renderTasks();
 };
+
+/* ===== V83: next steps panel, event templates, WhatsApp task reminders ===== */
+const isSwLang = () => { try{ return localStorage.getItem('sherehe_lang')==='sw'; }catch(e){ return false; } };
+const ymd = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const SW_MON = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ago','Sep','Okt','Nov','Des'];
+const fmtDaySw = s => { if(!s) return ''; const d=new Date(s+'T00:00:00'); return d.getDate()+' '+SW_MON[d.getMonth()]+' '+d.getFullYear(); };
+
+/* ----- event templates ----- */
+/* tasks: [days before the event, English, Swahili] · budget: category -> % of the total */
+const TPL = {
+  wedding:{label:'Wedding', tasks:[
+    [90,'Choose and book the venue','Chagua na ulipie ukumbi'],[60,'Book the MC and DJ','Mpate MC na DJ'],[60,'Book the photographer and video','Mpate mpiga picha na video'],
+    [45,'Start collecting contributions','Anza kukusanya michango'],[30,'Send the invitations','Tuma mialiko'],[30,'Order the cake','Agiza keki'],[30,'Order decoration and flowers','Agiza mapambo na maua'],
+    [30,'Wedding attire and makeup','Mavazi ya harusi na make-up'],[21,'Book tents, chairs and sound','Kodi mahema, viti na sound'],[14,'Confirm food and drinks with the caterer','Thibitisha chakula na vinywaji na mpishi'],
+    [10,'Follow up the RSVP replies','Fuatilia majibu ya wageni (RSVP)'],[7,'Arrange transport','Panga usafiri'],[3,'Assign ushers and security','Wapange wapokeaji wageni na ulinzi'],[1,'Final rehearsal and venue check','Mazoezi ya mwisho na kukagua ukumbi']],
+    budget:{'Venue':15,'Food & drinks':30,'Cake':4,'Decoration':10,'Flowers':3,'Photo & Video':8,'Music / MC':6,'Tents & chairs':5,'Attire & makeup':8,'Transport':4,'Printing':2,'Gifts & souvenirs':2,'Security & ushers':1,'Other':2}},
+  sendoff:{label:'Send Off', tasks:[
+    [75,'Choose and book the venue','Chagua na ulipie ukumbi'],[60,'Book the MC and DJ','Mpate MC na DJ'],[45,'Book the photographer and video','Mpate mpiga picha na video'],[40,'Start collecting contributions','Anza kukusanya michango'],
+    [30,'Send the invitations','Tuma mialiko'],[30,'Order the cake','Agiza keki'],[25,'Order decoration and flowers','Agiza mapambo na maua'],[21,'Outfits and makeup','Mavazi na make-up'],
+    [14,'Book tents, chairs and sound','Kodi mahema, viti na sound'],[10,'Confirm food and drinks with the caterer','Thibitisha chakula na vinywaji na mpishi'],[7,'Follow up the RSVP replies','Fuatilia majibu ya wageni (RSVP)'],[3,'Assign ushers and security','Wapange wapokeaji wageni na ulinzi'],[1,'Final venue check','Kagua ukumbi mara ya mwisho']],
+    budget:{'Venue':15,'Food & drinks':32,'Cake':4,'Decoration':10,'Flowers':3,'Photo & Video':8,'Music / MC':7,'Tents & chairs':6,'Attire & makeup':7,'Transport':4,'Printing':2,'Security & ushers':1,'Other':1}},
+  kitchen:{label:'Kitchen Party', tasks:[
+    [45,'Choose and book the venue','Chagua na ulipie ukumbi'],[30,'Send the invitations','Tuma mialiko'],[30,'Book the MC','Mpate MC'],[21,'Plan the decoration','Panga mapambo'],
+    [21,'Prepare the gifts for the bride','Andaa zawadi za bibi harusi'],[14,'Order the cake and food','Agiza keki na chakula'],[14,'Plan the games and programme','Panga michezo na ratiba'],[7,'Follow up the RSVP replies','Fuatilia majibu ya wageni (RSVP)'],[2,'Confirm everything with the venue','Thibitisha kila kitu na ukumbi']],
+    budget:{'Venue':12,'Food & drinks':35,'Cake':5,'Decoration':12,'Photo & Video':6,'Music / MC':8,'Gifts & souvenirs':12,'Attire & makeup':4,'Transport':3,'Printing':1,'Other':2}},
+  birthday:{label:'Birthday', tasks:[
+    [30,'Choose the venue','Chagua ukumbi'],[21,'Send the invitations','Tuma mialiko'],[14,'Order the cake','Agiza keki'],[14,'Plan the food and drinks','Panga chakula na vinywaji'],
+    [10,'Plan the decoration','Panga mapambo'],[7,'Book the MC or DJ','Mpate MC au DJ'],[7,'Follow up the RSVP replies','Fuatilia majibu ya wageni (RSVP)'],[1,'Final venue check','Kagua ukumbi mara ya mwisho']],
+    budget:{'Venue':15,'Food & drinks':35,'Cake':10,'Decoration':12,'Photo & Video':8,'Music / MC':8,'Gifts & souvenirs':5,'Transport':3,'Printing':2,'Other':2}},
+  fundraising:{label:'Fundraising', tasks:[
+    [60,'Choose the venue and date','Chagua ukumbi na tarehe'],[45,'Form the contributions team','Unda timu ya michango'],[30,'Send the invitations and pledge cards','Tuma mialiko na kadi za ahadi'],[21,'Book tents, chairs and sound','Kodi mahema, viti na sound'],
+    [14,'Confirm the MC and speakers','Thibitisha MC na wazungumzaji'],[14,'Plan the food and drinks','Panga chakula na vinywaji'],[7,'Follow up the pledges','Fuatilia ahadi za michango'],[3,'Assign ushers and security','Wapange wapokeaji wageni na ulinzi'],[1,'Final venue check','Kagua ukumbi mara ya mwisho']],
+    budget:{'Venue':15,'Food & drinks':30,'Decoration':8,'Music / MC':8,'Tents & chairs':10,'Printing':6,'Security & ushers':5,'Photo & Video':5,'Transport':5,'Church / offering':3,'Other':5}}
+};
+const TPL_FOR_TYPE = {'Wedding':'wedding','Send Off':'sendoff','Kitchen Party':'kitchen','Birthday':'birthday','Fundraising':'fundraising','Harambee':'fundraising','Church Fundraising':'fundraising'};
+window.tplOptionsHtml = function(sel){ return Object.keys(TPL).map(k=>`<option value="${k}" ${sel===k?'selected':''}>${TPL[k].label}</option>`).join(''); };
+window.applyEventTemplate = async function(eid,key,total,dateIso){
+  const T = TPL[key], res = {tasks:0,budget:0};
+  if(!T || !supabaseClient || window.__offlineMode) return res;
+  const sw = isSwLang(), today = ctToday();
+  const evDate = dateIso ? new Date(dateIso) : null, hasDate = evDate && !isNaN(evDate), es = hasDate ? ymd(evDate) : '';
+  /* deadlines count back from the event date; when the event is closer than the template assumes, the schedule is squeezed to fit instead of piling everything on today */
+  const maxN = Math.max.apply(null,T.tasks.map(x=>x[0])), left = hasDate ? Math.floor((new Date(es+'T00:00:00')-new Date(today+'T00:00:00'))/86400000) : 0, scale = Math.min(1,left/maxN);
+  const dueFor = n => { if(!hasDate || es<today) return null; const d=new Date(evDate); d.setDate(d.getDate()-Math.round(n*scale)); let s=ymd(d); if(s<today) s=today; if(s>es) s=es; return s; };
+  try{
+    const ex = await supabaseClient.from('event_tasks').select('title').eq('event_id',eid);
+    if(!ex.error){
+      const have = new Set((ex.data||[]).map(x=>String(x.title||'').trim().toLowerCase()));
+      const rows = T.tasks.map(([n,en,swt])=>({event_id:eid,title:(sw?swt:en),due_on:dueFor(n)})).filter(r=>!have.has(r.title.trim().toLowerCase()));
+      if(rows.length){ const r = await supabaseClient.from('event_tasks').insert(rows); if(!r.error) res.tasks = rows.length; }
+    }
+  }catch(e){ console.warn('template tasks',e); }
+  const tot = Math.max(0, parseInt(String(total||'').replace(/[^\d]/g,''),10)||0);
+  if(tot>0 && !window.__staffMode){
+    try{
+      const rows = Object.keys(T.budget).map(k=>({event_id:eid,category:k,planned:Math.round(tot*T.budget[k]/100/1000)*1000})).filter(r=>r.planned>0);
+      if(rows.length){ const r = await supabaseClient.from('event_budget').upsert(rows,{onConflict:'event_id,category',ignoreDuplicates:true}); if(!r.error) res.budget = rows.length; }
+    }catch(e){ console.warn('template budget',e); }
+  }
+  return res;
+};
+window.tkApplyTpl = async function(){
+  const ev = getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
+  const key = ($('tplPick')||{}).value; if(!key) return;
+  const btn = $('tplGo'); if(btn) btn.disabled = true;
+  const r = await applyEventTemplate(ev.id,key,($('tplTotal')||{}).value,ev.date);
+  if(btn) btn.disabled = false;
+  TK.eventId = null; BUD.eventId = null; NA.at = 0;
+  const box = $('tplBox'); if(box) box.dataset.k = '';
+  toast(r.tasks||r.budget ? `${r.tasks} tasks added.` : 'Nothing new to add.');
+  loadTasks();
+};
+function renderTplBox(ev){
+  const box = $('tplBox'); if(!box) return;
+  if(!ev || !TK.ok || window.__offlineMode){ box.innerHTML=''; box.dataset.k=''; return; }
+  const canBud = !window.__staffMode, empty = !TK.list.length, k = ev.id+'|'+(empty?1:0)+'|'+(canBud?1:0);
+  if(box.dataset.k===k) return; box.dataset.k = k;
+  const sel = TPL_FOR_TYPE[ev.type||ev.eventType||''] || 'wedding';
+  box.innerHTML = `<div class="panel"><details class="tpl-more" ${empty?'open':''}><summary>Start from a template</summary>
+    <p class="muted" style="margin:8px 0 14px">Adds a ready list of committee tasks, with deadlines counted back from the event date. Tasks you already have are not duplicated.</p>
+    <div class="pay-grid"><div class="field"><label for="tplPick">Template</label><select id="tplPick">${tplOptionsHtml(sel)}</select></div>${canBud?`<div class="field"><label for="tplTotal">Total budget (TZS) <span class="optional">Optional</span></label><input id="tplTotal" inputmode="numeric" placeholder="e.g. 10,000,000"></div>`:''}</div>
+    <div class="toolbar" style="margin-top:14px"><button class="primary" id="tplGo" onclick="tkApplyTpl()">${ic('check')}Add tasks</button></div></details></div>`;
+}
+
+/* ----- WhatsApp reminder for a task ----- */
+function waNum(p){ let d=String(p||'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('255')&&d.length>=12) return d; if(d.startsWith('0')&&d.length===10) return '255'+d.slice(1); if(d.length===9) return '255'+d; return d.length>=11?d:''; }
+function phoneForName(ev,name){
+  const n = String(name||'').trim().toLowerCase(); if(!n) return '';
+  const g = (ev.guests||[]).find(x=>String(x.name||'').trim().toLowerCase()===n && waNum(x.phone));
+  if(g) return waNum(g.phone);
+  if(CT.loaded && CT.eventId===ev.id && !window.__staffMode){ const c=(CT.contributors||[]).find(x=>String(x.name||'').trim().toLowerCase()===n && waNum(x.phone)); if(c) return waNum(c.phone); }
+  return '';
+}
+window.tkRemind = function(id){
+  const t = TK.list.find(x=>x.id===id), ev = getEvent(currentEventId); if(!t||!ev) return;
+  const sw = isSwLang(), who = (t.assignee||'').trim(), first = who.split(/\s+/)[0]||'';
+  const due = t.due_on ? (sw?fmtDaySw(t.due_on):fmtDay(t.due_on)) : '';
+  const msg = sw
+    ? `Habari${first?' '+first:''}, huu ni ukumbusho wa kazi yako kwenye kamati ya "${ev.name}":\n\n• ${t.title}\n${due?`Mwisho: ${due}\n`:''}\nTafadhali tujulishe ikikamilika au ukihitaji msaada. Asante!`
+    : `Hello${first?' '+first:''}, this is a reminder about your task on the "${ev.name}" committee:\n\n• ${t.title}\n${due?`Deadline: ${due}\n`:''}\nPlease let us know when it is done or if you need help. Thank you!`;
+  const num = phoneForName(ev,who);
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank','noopener');
+};
+
+/* ----- dashboard: next steps ----- */
+const NA = {eid:null, at:0, loading:false, tasks:null, bud:null, spent:null};
+function naFetch(ev){
+  if(NA.loading || window.__offlineMode || !supabaseClient) return;
+  if(NA.eid===ev.id && Date.now()-NA.at<45000) return;
+  NA.loading = true;
+  (async()=>{
+    try{
+      const money_ok = !window.__staffMode && !isCoHost();
+      const q = [supabaseClient.from('event_tasks').select('title,assignee,due_on,done').eq('event_id',ev.id)];
+      if(money_ok){ q.push(supabaseClient.from('event_budget').select('category,planned').eq('event_id',ev.id)); q.push(supabaseClient.from('expenses').select('category,amount').eq('event_id',ev.id)); }
+      const r = await Promise.all(q);
+      NA.tasks = r[0].error ? null : (r[0].data||[]);
+      NA.bud = null; NA.spent = null;
+      if(money_ok && r[1] && !r[1].error && r[2] && !r[2].error){
+        NA.bud = {}; (r[1].data||[]).forEach(x=>NA.bud[x.category]=Number(x.planned)||0);
+        NA.spent = {}; (r[2].data||[]).forEach(x=>{ const k=x.category||'Other'; NA.spent[k]=(NA.spent[k]||0)+Number(x.amount||0); });
+      }
+      NA.eid = ev.id; NA.at = Date.now();
+    }catch(e){ NA.eid = ev.id; NA.at = Date.now(); NA.tasks = null; }
+    NA.loading = false; naRender(ev, true);
+  })();
+}
+const naPl = (n,one,many) => n===1 ? one : many.replace('{n}',n);
+function naRender(ev, fromFetch){
+  const box = $('nextActions'); if(!box) return;
+  if(!ev || (window.__staffMode && !isCoHost())){ box.innerHTML=''; return; }
+  if(!fromFetch) naFetch(ev);
+  const money_ok = !window.__staffMode && !isCoHost(), over = eventIsOver(ev), today = ctToday();
+  const tasks = (TK.eventId===ev.id && TK.ok) ? TK.list : (NA.eid===ev.id ? NA.tasks : null);
+  let bud = null, spent = null;
+  if(money_ok){
+    if(BUD.eventId===ev.id && BUD.ok && CT.loaded && CT.eventId===ev.id && CT.expensesOk!==false){ bud = BUD.rows; spent = {}; (CT.expenses||[]).forEach(x=>{ const k=x.category||'Other'; spent[k]=(spent[k]||0)+Number(x.amount||0); }); }
+    else if(NA.eid===ev.id && NA.bud){ bud = NA.bud; spent = NA.spent; }
+  }
+  const id = E(ev.id), items = [];
+  if(tasks){
+    const late = tasks.filter(t=>!t.done && t.due_on && t.due_on<today);
+    if(late.length) items.push({tone:'late',ic:'alert',t:naPl(late.length,'1 task is overdue','{n} tasks are overdue'),s:late.slice(0,2).map(x=>x.title).join(' · ')+(late.length>2?' …':''),b:['Open tasks',`openEventHub('${id}','tasks')`]});
+  }
+  if(bud && spent){
+    const ov = Object.keys(bud).filter(k=>bud[k]>0 && (spent[k]||0)>bud[k]);
+    if(ov.length) items.push({tone:'late',ic:'alert',t:naPl(ov.length,'1 category is over budget','{n} categories are over budget'),chips:ov,b:['Open budget',`openEventHub('${id}','contributions')`]});
+  }
+  const total = ev.guests.length;
+  if(!over && total){
+    const waiting = rsvpWaiting(ev), dl = ev.rsvpDeadline ? new Date(ev.rsvpDeadline) : null;
+    if(waiting){ const hot = dl && !isNaN(dl) && dl.getTime()-Date.now() < 3*86400000;
+      items.push({tone:hot?'warn':'info',ic:'clock',t:naPl(waiting,'1 guest has not replied','{n} guests have not replied'),s:'Send them a friendly reminder.',b:['Remind them',`remindPending('${id}')`]}); }
+    const notInv = ev.guests.filter(g=>!g.sent).length;
+    if(notInv) items.push({tone:'info',ic:'send',t:naPl(notInv,'1 guest has no invitation yet','{n} guests have no invitation yet'),s:'Send the cards by WhatsApp or SMS.',b:['Send',`openEventHub('${id}','messaging')`]});
+  }
+  if(!over && tasks){
+    const in3 = ymd(new Date(Date.now()+3*86400000));
+    const soon = tasks.filter(t=>!t.done && t.due_on && t.due_on>=today && t.due_on<=in3);
+    if(soon.length) items.push({tone:'warn',ic:'calendar',t:naPl(soon.length,'1 task is due in the next 3 days','{n} tasks are due in the next 3 days'),s:soon.slice(0,2).map(x=>x.title).join(' · ')+(soon.length>2?' …':''),b:['Open tasks',`openEventHub('${id}','tasks')`]});
+    if(!tasks.length) items.push({tone:'info',ic:'sheet',t:'No committee tasks yet',s:'Add tasks, or start from a template.',b:['Open tasks',`openEventHub('${id}','tasks')`]});
+  }
+  if(!total && !over) items.push({tone:'info',ic:'users',t:'No guests added yet',s:'Add guests one by one or import an Excel file.',b:['Add guests',`openEventHub('${id}','guests')`]});
+  const shown = items.slice(0,5);
+  const d = ev.date ? daysUntil(ev.date) : null;
+  const days = (d!==null && d>=0 && !over) ? `<span class="na-days">${d===0?'Event is today':d===1?'1 day left':d+' days left'}</span>` : '';
+  if(!shown.length && !days && (!tasks && !bud)){ box.innerHTML=''; return; }
+  const list = shown.length ? shown.map(x=>`<div class="na-item ${x.tone}"><span class="na-ic">${ic(x.ic)}</span><div class="na-t"><b>${E(x.t)}</b>${x.s?`<span>${E(x.s)}</span>`:''}${x.chips?`<div class="na-chips">${x.chips.map(c=>`<span class="na-chip">${E(c)}</span>`).join('')}</div>`:''}</div><button class="${x.tone==='late'?'primary':'gray'} sm" onclick="${x.b[1]}">${x.b[0]}</button></div>`).join('')
+    : `<div class="na-item ok"><span class="na-ic">${ic('check')}</span><div class="na-t"><b>You are all caught up</b><span>Nothing needs your attention right now.</span></div></div>`;
+  box.innerHTML = `<div class="panel na-panel"><div class="panel-heading"><div><h2>Next steps</h2><p>${E(ev.name)}</p></div>${days}</div><div class="na-list">${list}</div></div>`;
+}
 
 })();
 
@@ -7744,7 +7932,7 @@ window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears
 };
 
 /* patterns: {0},{1} are captured pieces (numbers/names), kept as-is */
-window.SW_PAT = [["{#0} selected","{0} zimechaguliwa"],["Delete {#0} photos?","Futa picha {0}?"],["Delete {#0} photo?","Futa picha {0}?"],["{#0} photos deleted.","Picha {0} zimefutwa."],["{#0} photo deleted.","Picha {0} imefutwa."],["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
+window.SW_PAT = [["{#0} tasks are overdue", "Kazi {0} zimechelewa"], ["{#0} categories are over budget", "Vipengele {0} vimezidi bajeti"], ["{#0} guests have not replied", "Wageni {0} hawajajibu"], ["{#0} guests have no invitation yet", "Wageni {0} bado hawajapewa mwaliko"], ["{#0} tasks are due in the next 3 days", "Kazi {0} zinaisha ndani ya siku 3 zijazo"], ["{#0} days left", "Siku {0} zimebaki"], ["{#0} tasks added.", "Kazi {0} zimeongezwa."],["{#0} selected","{0} zimechaguliwa"],["Delete {#0} photos?","Futa picha {0}?"],["Delete {#0} photo?","Futa picha {0}?"],["{#0} photos deleted.","Picha {0} zimefutwa."],["{#0} photo deleted.","Picha {0} imefutwa."],["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
 ["{#0} photo","Picha {0}"],["{#0} pages","Kurasa {0}"],["about {0} MB","takriban MB {0}"],
 ["of {#0} selected. They appear in the book in this order.","kati ya {0} zimechaguliwa. Zinaonekana kwenye kitabu kwa mpangilio huu."],
 ["Preparing photos {#0}/{#1}…","Inatayarisha picha {0}/{1}…"],
@@ -7992,7 +8180,37 @@ window.SW_MSG = {
 "Deleted guests, undone check-ins, exports and team changes will appear here.":"Wageni waliofutwa, check-in zilizotenduliwa, upakuaji na mabadiliko ya timu vitaonekana hapa.",
 "Said Yes, not arrived yet (event-day reminder)":"Waliojibu Ndiyo, bado hawajafika (kikumbusho cha siku ya tukio)",
 "Only the event owner can do this.":"Mwenye tukio pekee ndiye anaweza kufanya hili.",
-"Only the event owner can delete guests.":"Mwenye tukio pekee ndiye anaweza kufuta wageni."
+"Only the event owner can delete guests.":"Mwenye tukio pekee ndiye anaweza kufuta wageni.",
+"Nobody assigned ·":"Hakuna aliyepewa ·",
+"Next steps":"Hatua zinazofuata",
+"1 task is overdue":"Kazi 1 imechelewa",
+"1 category is over budget":"Kipengele 1 kimezidi bajeti",
+"1 guest has not replied":"Mgeni 1 hajajibu",
+"1 guest has no invitation yet":"Mgeni 1 bado hajapewa mwaliko",
+"1 task is due in the next 3 days":"Kazi 1 inaisha ndani ya siku 3 zijazo",
+"Send them a friendly reminder.":"Wakumbushe kwa upole.",
+"Send the cards by WhatsApp or SMS.":"Tuma kadi kwa WhatsApp au SMS.",
+"Open tasks":"Fungua kazi",
+"Open budget":"Fungua bajeti",
+"No committee tasks yet":"Bado hakuna kazi za kamati",
+"Add tasks, or start from a template.":"Ongeza kazi, au anza na kiolezo (template).",
+"No guests added yet":"Bado hakuna wageni walioongezwa",
+"Add guests one by one or import an Excel file.":"Ongeza wageni mmoja mmoja au leta faili la Excel.",
+"You are all caught up":"Umemaliza yote",
+"Nothing needs your attention right now.":"Hakuna kinachohitaji umakini wako sasa hivi.",
+"Event is today":"Tukio ni leo",
+"1 day left":"Siku 1 imebaki",
+"Start from a template":"Anza na kiolezo (template)",
+"Optional: ":"Si lazima: ",
+"Adds ready committee tasks and a suggested budget plan. You can change everything later.":"Huongeza kazi za kamati na mpango wa bajeti uliopendekezwa. Unaweza kubadilisha kila kitu baadaye.",
+"Total budget (TZS)":"Bajeti yote (TZS)",
+"Spreads the budget over the categories.":"Hugawanya bajeti kwenye vipengele.",
+"No template":"Bila kiolezo",
+"Adds a ready list of committee tasks, with deadlines counted back from the event date. Tasks you already have are not duplicated.":"Huongeza orodha tayari ya kazi za kamati, na tarehe za mwisho zikihesabiwa kurudi nyuma kutoka siku ya tukio. Kazi ulizonazo hazirudiwi.",
+"Template":"Kiolezo (template)",
+"Add tasks":"Ongeza kazi",
+"Nothing new to add.":"Hakuna kipya cha kuongeza.",
+"Remind on WhatsApp":"Kumbusha kwa WhatsApp"
 };
 
 /* ===== Language switch (English / Kiswahili) =====
