@@ -1,5 +1,5 @@
 /* SHEREHE HUB service worker: lets the app open and run check-in with no internet. */
-const VERSION = 'sherehe-v76';
+const VERSION = 'sherehe-v77';
 const CDN = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
@@ -18,17 +18,18 @@ self.addEventListener('fetch', e => {
   if (req.mode === 'navigate' && url.origin === location.origin) {
     e.respondWith((async () => {
       const cache = await caches.open(VERSION);
+      // start the network request once; whatever happens, a good answer is always stored for the next visit
+      const net = fetch(req).then(res => { if (res && res.ok) cache.put('/', res.clone()); return res; });
       try {
-        const fresh = await Promise.race([
-          fetch(req),
+        return await Promise.race([
+          net,
           new Promise((_, rej) => setTimeout(() => rej(new Error('slow')), 4000))
         ]);
-        if (fresh && fresh.ok) cache.put('/', fresh.clone());
-        return fresh;
       } catch (err) {
+        net.catch(() => {});
         const cached = await cache.match('/');
         if (cached) return cached;
-        return fetch(req);
+        return net;
       }
     })());
     return;

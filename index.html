@@ -1361,7 +1361,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V77</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -5909,7 +5909,16 @@ window.addEventListener('load',()=>{
   setTimeout(()=>{ OFFLINE.tryOfflineBoot(); },2200);
   setTimeout(()=>{ OFFLINE.tryOfflineBoot(); },6000);
   OFFLINE.render();
-  if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){ navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
+  if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){ {
+    const hadCtl=!!navigator.serviceWorker.controller; let reloaded=false;
+    navigator.serviceWorker.register('/sw.js').then(reg=>{ const chk=()=>{ try{ reg.update(); }catch(e){} }; chk(); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) chk(); }); setInterval(chk,600000); }).catch(()=>{});
+    /* a newer version took over: load it right away (never while scanning or on a guest invitation page) */
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      if(!hadCtl||reloaded) return;
+      const go=()=>{ if(reloaded) return; if(qrScanner||document.body.classList.contains('invite-mode')){ setTimeout(go,5000); return; } reloaded=true; try{ toast('New version found. Reloading…'); }catch(e){} setTimeout(()=>location.reload(),1200); };
+      go();
+    });
+  } }
 });
 
 
@@ -7573,7 +7582,7 @@ window.SW_MSG = {
 "Browser imezuia popup. Ruhusu popups.":"Browser imezuia popup. Ruhusu popups.",
 "CSV file downloaded.":"Faili ya CSV imepakuliwa.",
 "Check-in removed.":"Check-in imeondolewa.",
-"Check-in saved.":"Check-in imehifadhiwa.","Valid QR code — checking in…":"QR halali — inamwingiza…","Valid QR code — confirm entry.":"QR halali — thibitisha kuingia.","Confirm check-in":"Thibitisha kuingia","Already checked in":"Tayari ameingia","Scan next guest":"Skani mgeni anayefuata","Check-in was not saved":"Check-in haikuhifadhiwa","Try again":"Jaribu tena","Ready for the next guest":"Tayari kwa mgeni anayefuata","Point the camera at their QR code.":"Elekeza kamera kwenye QR yake.",
+"Check-in saved.":"Check-in imehifadhiwa.","New version found. Reloading…":"Toleo jipya limepatikana. Linajipakia…","Valid QR code — checking in…":"QR halali — inamwingiza…","Valid QR code — confirm entry.":"QR halali — thibitisha kuingia.","Confirm check-in":"Thibitisha kuingia","Already checked in":"Tayari ameingia","Scan next guest":"Skani mgeni anayefuata","Check-in was not saved":"Check-in haikuhifadhiwa","Try again":"Jaribu tena","Ready for the next guest":"Tayari kwa mgeni anayefuata","Point the camera at their QR code.":"Elekeza kamera kwenye QR yake.",
 "Choose an event.":"Chagua tukio.",
 "Contribution messages need an internet connection.":"Ujumbe wa michango unahitaji mtandao.",
 "Contributions could not be loaded. Please try again.":"Michango haikuweza kupakiwa. Tafadhali jaribu tena.",
