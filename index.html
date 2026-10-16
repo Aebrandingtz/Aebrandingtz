@@ -1214,6 +1214,22 @@ body.cohost-mode [data-view="contributions"],body.cohost-mode [data-view="messag
 /* V74 photographer role: sees only the Photos page */
 body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photographer-mode .app-sidebar .side-label,body.photographer-mode #staffPanel,body.photographer-mode .side-foot,body.photographer-mode #adminNavGroup,body.photographer-mode .no-photog{display:none!important}
 
+/* V82 tasks edit/print + photo multi-select */
+.tk-bar{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
+.tk-bar select{min-width:220px}
+.tk-editing{flex-wrap:wrap;background:#f7f9fc;border-radius:12px;padding:12px}
+.tk-edit-grid{display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:8px;flex:1;min-width:260px}
+.tk-edit-btns{display:flex;gap:8px}
+@media(max-width:700px){.tk-edit-grid{grid-template-columns:1fr}}
+.ph-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 12px;padding:10px 12px;background:#eef2fb;border:1px solid #cfd9f3;border-radius:12px;position:sticky;top:0;z-index:5}
+.ph-bar .ph-n{margin-right:auto;font-size:14px}
+.photo-tile.selectable{cursor:pointer}
+.photo-tile.selectable img{transition:transform .12s,opacity .12s}
+.photo-tile.sel{outline:3px solid #1d3a8a;outline-offset:-3px}
+.photo-tile.sel img{opacity:.78}
+.ph-check{position:absolute;top:7px;left:7px;width:26px;height:26px;border-radius:50%;border:2px solid #fff;background:rgba(15,25,50,.45);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
+.photo-tile.sel .ph-check{background:#1d3a8a}
+
 </style>
 </head>
 <body>
@@ -1376,7 +1392,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V81</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V82</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -6001,7 +6017,7 @@ function photogPanel(){
 const PH = {};
 function galleryUrl(ev){ return location.href.split('#')[0]+'#gallery='+encodeURIComponent(ev.id); }
 window.galleryUrl = galleryUrl;
-function phState(id){ return PH[id] || (PH[id]={photos:[],loaded:false,busy:false,err:'',done:0,total:0}); }
+function phState(id){ return PH[id] || (PH[id]={photos:[],loaded:false,busy:false,err:'',done:0,total:0,sel:new Set(),selMode:false}); }
 async function fetchBlob(url){ const r=await fetch(url); if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); }
 async function zipPhotos(photos,name,onProgress){
   if(!window.JSZip) throw new Error('ZIP library did not load. Refresh and try again.');
@@ -6044,9 +6060,10 @@ window.renderPhotos = function(){
   </div>
   ${pbPanelHtml(st,ev)}
   <div class="panel"><div class="panel-heading"><div><h2>Photos${st.loaded?` (${st.photos.length})`:''}</h2><p>${E(ev.name)}</p></div>
-    ${st.photos.length?`<button class="gray" id="zipBtn" onclick="downloadAllHost()">${ic('download')}Download all (ZIP)</button>`:''}</div>
+    ${st.photos.length?`<div class="toolbar" style="margin:0">${st.selMode?'':`<button class="gray" onclick="phSelMode(true)">${ic('check')}Select photos</button>`}<button class="gray" id="zipBtn" onclick="downloadAllHost()">${ic('download')}Download all (ZIP)</button></div>`:''}</div>
+    ${st.selMode&&st.photos.length?`<div class="ph-bar"><b class="ph-n" id="phSelN">${st.sel.size} selected</b><button class="gray" onclick="phSelectAll()">Select all</button><button class="gray" onclick="phClear()">Clear</button><button class="gray" id="phZipSel" onclick="phDownloadSel()" ${st.sel.size?'':'disabled'}>${ic('download')}Download selected (ZIP)</button><button class="danger" onclick="phDeleteSel()" ${st.sel.size?'':'disabled'}>${ic('trash')}Delete selected</button><button class="primary" onclick="phSelMode(false)">Finish</button></div>`:''}
     ${st.err?`<div class="hint-box">${ic('alert')}<span>Photos could not be loaded: ${E(st.err)}. If this keeps happening, run the photos SQL file in Supabase.</span></div>`:''}
-    ${st.photos.length?`<div class="photo-grid">${st.photos.map(p=>`<div class="photo-tile"><img loading="lazy" src="${E(safeUrl(p.url))}" alt="Event photo"><button class="x" title="Delete photo" aria-label="Delete photo" onclick="deletePhoto('${p.id}')">${ic('trash')}</button></div>`).join('')}</div>`
+    ${st.photos.length?`<div class="photo-grid">${st.photos.map(p=>st.selMode?`<div class="photo-tile selectable ${st.sel.has(p.id)?'sel':''}" onclick="phToggle('${p.id}')" role="checkbox" aria-checked="${st.sel.has(p.id)}" tabindex="0" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();phToggle('${p.id}')}"><img loading="lazy" src="${E(safeUrl(p.url))}" alt="Event photo"><span class="ph-check">${st.sel.has(p.id)?'✓':''}</span></div>`:`<div class="photo-tile"><img loading="lazy" src="${E(safeUrl(p.url))}" alt="Event photo"><button class="x" title="Delete photo" aria-label="Delete photo" onclick="deletePhoto('${p.id}')">${ic('trash')}</button></div>`).join('')}</div>`
       : (st.loaded&&!st.err? emptyState('No photos yet','Upload the first photos from the event.'):'')}
   </div>`;
   pbUpdateUI();
@@ -6108,6 +6125,32 @@ window.deletePhoto = async function(pid){
     try{ await supabaseClient.storage.from(PHOTOS_BUCKET).remove([p.path]); }catch(e){ console.warn('photo file cleanup:',e); }
     st.photos=st.photos.filter(x=>x.id!==pid); renderPhotos(); toast('Photo deleted.'); auditLog('photo_deleted','');
   }catch(e){ toast('Not deleted: '+(e.message||e)); }
+};
+
+/* ----- select many photos (delete / download together) ----- */
+window.phSelMode = function(on){ const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id); st.selMode=!!on; if(!on) st.sel.clear(); renderPhotos(); };
+window.phToggle = function(id){ const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id); if(st.sel.has(id)) st.sel.delete(id); else st.sel.add(id); renderPhotos(); };
+window.phSelectAll = function(){ const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id); st.photos.forEach(p=>st.sel.add(p.id)); renderPhotos(); };
+window.phClear = function(){ const ev=getEvent(currentEventId); if(!ev) return; phState(ev.id).sel.clear(); renderPhotos(); };
+window.phDownloadSel = async function(){
+  const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id); const pick=st.photos.filter(p=>st.sel.has(p.id)); if(!pick.length) return;
+  const btn=$('phZipSel'); const old=btn?btn.innerHTML:'';
+  try{ if(btn) btn.disabled=true; await zipPhotos(pick,(ev.name||'photos').replace(/[^\w.-]+/g,'_')+'-selected-photos.zip',(d,n)=>{ if(btn) btn.textContent=`Preparing ${d}/${n}…`; }); }
+  catch(e){ toast('Download failed: '+(e.message||e)); }
+  finally{ if(btn){ btn.disabled=false; btn.innerHTML=old; } }
+};
+window.phDeleteSel = async function(){
+  const ev=getEvent(currentEventId); if(!ev) return; const st=phState(ev.id); const ids=[...st.sel]; if(!ids.length) return;
+  if(window.__offlineMode||!navigator.onLine) return toast('Deleting photos needs an internet connection.');
+  const ok=await confirmDialog({title:`Delete ${ids.length} photo${ids.length===1?'':'s'}?`,text:'The selected photos will be removed from the gallery for everyone. This cannot be undone.',ok:'Delete photos'});
+  if(!ok) return;
+  const paths=st.photos.filter(p=>st.sel.has(p.id)).map(p=>p.path);
+  try{
+    for(let i=0;i<ids.length;i+=100){ const r=await supabaseClient.from('event_photos').delete().in('id',ids.slice(i,i+100)).eq('event_id',ev.id); if(r.error) throw r.error; }
+    try{ await supabaseClient.storage.from(PHOTOS_BUCKET).remove(paths); }catch(e){ console.warn('photo file cleanup:',e); }
+    st.photos=st.photos.filter(p=>!st.sel.has(p.id)); st.sel.clear(); if(!st.photos.length) st.selMode=false;
+    renderPhotos(); toast(`${ids.length} photo${ids.length===1?'':'s'} deleted.`); auditLog('photo_deleted',ids.length+' photos');
+  }catch(e){ toast('Not deleted: '+(e.message||e)); loadPhotos(); }
 };
 window.toggleGallery = async function(on){
   const ev=getEvent(currentEventId); if(!ev) return;
@@ -6464,7 +6507,7 @@ window.budSave = async function(cat, input){
 (function(){ const f = window.renderContributions; window.renderContributions = function(){ const o = f.apply(this, arguments); renderBudget(); return o; }; })();
 
 /* ----- committee tasks ----- */
-const TK = {eventId:null, list:[], ok:true, loading:false};
+const TK = {eventId:null, list:[], ok:true, loading:false, edit:null, filter:''};
 window.loadTasks = async function(){
   const ev = getEvent(currentEventId); if(!ev){ renderTasks(); return; }
   if(window.__offlineMode || !supabaseClient){ renderTasks(); return; }
@@ -6484,9 +6527,48 @@ window.renderTasks = function(){
   const today = new Date().toISOString().slice(0,10);
   const done = TK.list.filter(t=>t.done).length, late = TK.list.filter(t=>!t.done&&t.due_on&&t.due_on<today).length;
   if(stats) stats.innerHTML = `<div class="report-stat"><span>Tasks</span><b>${TK.list.length}</b></div><div class="report-stat"><span>Done</span><b>${done}</b><small>${TK.list.length?Math.round(done/TK.list.length*100):0}%</small></div><div class="report-stat"><span>Still open</span><b>${TK.list.length-done}</b></div><div class="report-stat"><span>Late</span><b ${late?'class="tk-late"':''}>${late}</b></div>`;
-  box.innerHTML = TK.list.length ? TK.list.map(t=>{ const isLate=!t.done&&t.due_on&&t.due_on<today;
-    return `<div class="tk-row ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Done" onchange="toggleTask('${t.id}',this.checked)"><div class="tk-main"><b>${E(t.title)}</b><span>${t.assignee?E(t.assignee):'Nobody assigned'}${t.due_on?` · <span class="${isLate?'tk-late':''}">${isLate?'Overdue · ':'Due '}${E(fmtDay(t.due_on))}</span>`:''}</span></div><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteTask('${t.id}')">${ic('trash')}</button></div>`; }).join('')
-    : emptyState('No tasks yet','Add the first task above and give it a person and a deadline.');
+  const people = tkPeople();
+  if(TK.filter && TK.filter!=='__none' && !people.includes(TK.filter)) TK.filter='';
+  const list = tkFiltered();
+  const bar = TK.list.length ? `<div class="tk-bar"><div class="field" style="margin:0"><label for="tkFilter">Show tasks for</label><select id="tkFilter" onchange="tkSetFilter(this.value)"><option value="">Everyone</option>${people.map(p=>`<option value="${E(p)}" ${TK.filter===p?'selected':''}>${E(p)}</option>`).join('')}${TK.list.some(t=>!t.assignee)?`<option value="__none" ${TK.filter==='__none'?'selected':''}>Nobody assigned</option>`:''}</select></div><button class="gray" onclick="tkPrint()">${ic('sheet')}Print tasks</button></div>` : '';
+  const row = t => { const isLate=!t.done&&t.due_on&&t.due_on<today;
+    if(TK.edit===t.id) return `<div class="tk-row tk-editing"><div class="tk-edit-grid"><input id="tkEdTitle" value="${E(t.title)}" maxlength="200" aria-label="Task" onkeydown="if(event.key==='Enter')tkEditSave('${t.id}')"><input id="tkEdWho" value="${E(t.assignee||'')}" maxlength="80" placeholder="Who is responsible?" aria-label="Who is responsible?" list="tkPeopleList"><input id="tkEdDue" type="date" value="${E(t.due_on||'')}" aria-label="Deadline"></div><div class="tk-edit-btns"><button class="primary" onclick="tkEditSave('${t.id}')">${ic('check')}Save</button><button class="gray" onclick="tkEditCancel()">Cancel</button></div></div>`;
+    return `<div class="tk-row ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Done" onchange="toggleTask('${t.id}',this.checked)"><div class="tk-main"><b>${E(t.title)}</b><span>${t.assignee?E(t.assignee):'Nobody assigned'}${t.due_on?` · <span class="${isLate?'tk-late':''}">${isLate?'Overdue · ':'Due '}${E(fmtDay(t.due_on))}</span>`:''}</span></div><button class="icon gray" title="Edit" aria-label="Edit" onclick="tkEdit('${t.id}')">${ic('edit')}</button><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteTask('${t.id}')">${ic('trash')}</button></div>`; };
+  box.innerHTML = bar + `<datalist id="tkPeopleList">${people.map(p=>`<option value="${E(p)}">`).join('')}</datalist>` + (list.length ? list.map(row).join('') : (TK.list.length ? emptyState('No tasks here','Nothing is assigned to this person.') : emptyState('No tasks yet','Add the first task above and give it a person and a deadline.')));
+};
+function tkPeople(){ return [...new Set(TK.list.map(t=>(t.assignee||'').trim()).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'en',{sensitivity:'base'})); }
+function tkFiltered(){ return TK.list.filter(t=>!TK.filter || (TK.filter==='__none'?!t.assignee:(t.assignee||'').trim()===TK.filter)); }
+window.tkSetFilter = function(v){ TK.filter=v; TK.edit=null; renderTasks(); };
+window.tkEdit = function(id){ TK.edit=id; renderTasks(); setTimeout(()=>{ const i=$('tkEdTitle'); if(i){ i.focus(); i.select(); } },30); };
+window.tkEditCancel = function(){ TK.edit=null; renderTasks(); };
+window.tkEditSave = async function(id){
+  const t = TK.list.find(x=>x.id===id); if(!t) return;
+  const title = ($('tkEdTitle').value||'').trim(); if(!title) return toast('Please write the task first.');
+  const patch = {title:title.slice(0,200), assignee:($('tkEdWho').value||'').trim().slice(0,80)||null, due_on:$('tkEdDue').value||null};
+  const r = await supabaseClient.from('event_tasks').update(patch).eq('id',id);
+  if(r.error) return toast('Failed: '+r.error.message);
+  Object.assign(t,patch); TK.edit=null;
+  TK.list.sort((a,b)=>(a.done-b.done)||String(a.due_on||'9999').localeCompare(String(b.due_on||'9999')));
+  renderTasks(); toast('Task updated.');
+};
+window.tkPrint = function(){
+  const ev = getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
+  const list = tkFiltered(); if(!list.length) return toast('There are no tasks to print yet.');
+  ensurePrintUi();
+  const sw = (()=>{ try{ return localStorage.getItem('sherehe_lang')==='sw'; }catch(e){ return false; } })();
+  const L = sw ? {title:'Kazi za kamati',who:'Mhusika',none:'Hakuna aliyepewa',task:'Kazi',due:'Mwisho',st:'Hali',done:'Imekamilika',open:'Bado',late:'Imechelewa',tasks:'kazi',open_:'zilizo wazi',printed:'imechapishwa'}
+                   : {title:'Committee tasks',who:'Responsible',none:'Nobody assigned',task:'Task',due:'Deadline',st:'Status',done:'Done',open:'Open',late:'Overdue',tasks:'tasks',open_:'open',printed:'printed'};
+  const today = new Date().toISOString().slice(0,10);
+  const groups = new Map(); list.forEach(t=>{ const k=(t.assignee||'').trim(); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(t); });
+  const keys = [...groups.keys()].sort((a,b)=>a===''?1:b===''?-1:String(a).localeCompare(String(b),'en',{sensitivity:'base'}));
+  const stat = t => t.done?L.done:(t.due_on&&t.due_on<today?L.late:L.open);
+  const body = keys.map(k=>{ const arr=groups.get(k), op=arr.filter(t=>!t.done).length;
+    return `<h2>${E(k||L.none)} — ${arr.length} ${L.tasks} (${op} ${L.open_})</h2><table><thead><tr><th style="width:22px"></th><th>${L.task}</th><th style="width:110px">${L.due}</th><th style="width:90px">${L.st}</th></tr></thead><tbody>${arr.map(t=>`<tr><td><span class="bx"></span></td><td>${E(t.title)}</td><td>${t.due_on?E(fmtDay(t.due_on)):'—'}</td><td>${stat(t)}</td></tr>`).join('')}</tbody></table>`; }).join('');
+  $('printSheet').innerHTML = `<h1>${E(ev.name)} — ${L.title}</h1><div class="ps-sub">${ev.date?E(fmtDate(ev.date))+' · ':''}${E(ev.venue||'')} · ${L.printed} ${E(new Date().toLocaleString('en-GB'))}</div>${body}`;
+  document.body.classList.add('printing-list');
+  const clean=()=>{ document.body.classList.remove('printing-list'); window.removeEventListener('afterprint',clean); };
+  window.addEventListener('afterprint',clean);
+  setTimeout(()=>{ try{ window.print(); }catch(e){ clean(); } },60);
 };
 window.addTask = async function(){
   const ev = getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
@@ -7662,7 +7744,7 @@ window.SW_HTML = {"<ul><li>After a guest answers their invitation, a box appears
 };
 
 /* patterns: {0},{1} are captured pieces (numbers/names), kept as-is */
-window.SW_PAT = [["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
+window.SW_PAT = [["{#0} selected","{0} zimechaguliwa"],["Delete {#0} photos?","Futa picha {0}?"],["Delete {#0} photo?","Futa picha {0}?"],["{#0} photos deleted.","Picha {0} zimefutwa."],["{#0} photo deleted.","Picha {0} imefutwa."],["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
 ["{#0} photo","Picha {0}"],["{#0} pages","Kurasa {0}"],["about {0} MB","takriban MB {0}"],
 ["of {#0} selected. They appear in the book in this order.","kati ya {0} zimechaguliwa. Zinaonekana kwenye kitabu kwa mpangilio huu."],
 ["Preparing photos {#0}/{#1}…","Inatayarisha picha {0}/{1}…"],
@@ -7873,7 +7955,7 @@ window.SW_MSG = {
 "You do not have access to the Admin Console.":"Huna ufikiaji wa Dashibodi ya Msimamizi.",
 "Your account is ready. You are signed in.":"Akaunti yako iko tayari. Umeingia.",
 "ZIP library unavailable; cards were downloaded one by one.":"Maktaba ya ZIP haipatikani; kadi zimepakuliwa moja moja.",
-"Tasks":"Kazi","Cake":"Keki","Flowers":"Maua","Photo & Video":"Picha na Video","Tents & chairs":"Mahema na viti","Attire & makeup":"Mavazi na mapambo","Gifts & souvenirs":"Zawadi na kumbukumbu","Security & ushers":"Ulinzi na wapokeaji wageni","Accommodation":"Malazi","Music / MC":"Muziki / MC","Still open":"Bado hazijakamilika","Late":"Zilizochelewa",
+"Tasks":"Kazi","Select photos":"Chagua picha","Finish":"Maliza","Download selected (ZIP)":"Pakua zilizochaguliwa (ZIP)","Delete selected":"Futa zilizochaguliwa","Delete photos":"Futa picha","Show tasks for":"Onyesha kazi za","Print tasks":"Chapisha kazi","Task updated.":"Kazi imehifadhiwa.","There are no tasks to print yet.":"Bado hakuna kazi za kuchapisha.","No tasks here":"Hakuna kazi hapa","Nothing is assigned to this person.":"Hakuna kazi aliyopewa mtu huyu.","Deleting photos needs an internet connection.":"Kufuta picha kunahitaji mtandao.","Cake":"Keki","Flowers":"Maua","Photo & Video":"Picha na Video","Tents & chairs":"Mahema na viti","Attire & makeup":"Mavazi na mapambo","Gifts & souvenirs":"Zawadi na kumbukumbu","Security & ushers":"Ulinzi na wapokeaji wageni","Accommodation":"Malazi","Music / MC":"Muziki / MC","Still open":"Bado hazijakamilika","Late":"Zilizochelewa",
 "Committee tasks":"Kazi za kamati",
 "Who does what, and by when.":"Nani anafanya nini, na lini.",
 "Add a task":"Ongeza kazi",
