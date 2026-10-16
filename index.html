@@ -1361,7 +1361,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V78</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V79</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -4052,7 +4052,9 @@ window.syncArrivals = async function(){
 };
 if(!window.__arrTimer){ window.__arrTimer=setInterval(()=>{ if(isActive('rsvp')||isActive('guests')||isActive('dashboard')||isActive('reports')) syncArrivals(); },7000);
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden) syncArrivals(); }); }
+const isDoorStaff = () => !!(window.__staffMode && staffRole()==='checkin');
 window.undoCheckin = async function(eid,gid){
+  if(isDoorStaff()){ toast('Only the organiser or co-host can undo a check-in.'); return; }
   const e=getEvent(eid), g=e?.guests.find(x=>x.id===gid); if(!e||!g) return;
   if(window.__offlineMode||!navigator.onLine||g.pending){ toast('Undo needs an internet connection.'); return; }
   const ok=await confirmDialog({title:'Undo check-in?',text:`${E(g.name)} will be moved back to the not-arrived list.`,ok:'Undo check-in',tone:'primary'});
@@ -4071,7 +4073,7 @@ window.renderRsvp = function(){ sortGuests();
   const q=($('checkinSearch').value||'').trim().toLowerCase(), f=$('checkinFilter').value;
   const list=ev.guests.filter(g=>(!q||g.name.toLowerCase().includes(q)||String(g.phone||'').includes(q)) && (f==='all'||(f==='in'&&g.checkedIn)||(f==='waiting'&&!g.checkedIn)));
   if(!list.length){ box.innerHTML=emptyState(ev.guests.length?'No matches':'No guests yet',ev.guests.length?'Change the search or filter.':'Add guests first.'); return; }
-  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Card</th><th>RSVP</th><th>Status</th><th class="actions">Action</th></tr></thead><tbody>${list.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?(g.pending?'<span class="status pending">Arrived · syncing</span>':'<span class="status ok">Arrived</span>'+(g.arrivedAt?' <span class="muted" style="font-size:12px">'+arrTime(g.arrivedAt)+'</span>':'')):'<span class="status pending">Waiting</span>'}</td><td class="actions"><div class="row-actions">${g.checkedIn?`<button class="gray sm" onclick="undoCheckin('${ev.id}','${g.id}')">Undo</button>`:`<button class="green sm" onclick="checkin('${ev.id}','${g.id}')">${ic('check')}Check in</button>`}</div></td></tr>`).join('')}</tbody></table></div>`;
+  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Card</th><th>RSVP</th><th>Status</th><th class="actions">Action</th></tr></thead><tbody>${list.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?(g.pending?'<span class="status pending">Arrived · syncing</span>':'<span class="status ok">Arrived</span>'+(g.arrivedAt?' <span class="muted" style="font-size:12px">'+arrTime(g.arrivedAt)+'</span>':'')):'<span class="status pending">Waiting</span>'}</td><td class="actions"><div class="row-actions">${g.checkedIn?(isDoorStaff()?'':`<button class="gray sm" onclick="undoCheckin('${ev.id}','${g.id}')">Undo</button>`):`<button class="green sm" onclick="checkin('${ev.id}','${g.id}')">${ic('check')}Check in</button>`}</div></td></tr>`).join('')}</tbody></table></div>`;
 };
 
 /* ---------- messaging ---------- */
@@ -7589,7 +7591,7 @@ window.SW_MSG = {
 "Browser imezuia popup. Ruhusu popups.":"Browser imezuia popup. Ruhusu popups.",
 "CSV file downloaded.":"Faili ya CSV imepakuliwa.",
 "Check-in removed.":"Check-in imeondolewa.",
-"Check-in saved.":"Check-in imehifadhiwa.","New version found. Reloading…":"Toleo jipya limepatikana. Linajipakia…","Valid QR code — checking in…":"QR halali — inamwingiza…","Valid QR code — confirm entry.":"QR halali — thibitisha kuingia.","Confirm check-in":"Thibitisha kuingia","Already checked in":"Tayari ameingia","Scan next guest":"Skani mgeni anayefuata","Check-in was not saved":"Check-in haikuhifadhiwa","Try again":"Jaribu tena","Ready for the next guest":"Tayari kwa mgeni anayefuata","Point the camera at their QR code.":"Elekeza kamera kwenye QR yake.",
+"Check-in saved.":"Check-in imehifadhiwa.","Only the organiser or co-host can undo a check-in.":"Mwenye sherehe au mwenyeji mwenza tu ndiye anaweza kutendua check-in.","New version found. Reloading…":"Toleo jipya limepatikana. Linajipakia…","Valid QR code — checking in…":"QR halali — inamwingiza…","Valid QR code — confirm entry.":"QR halali — thibitisha kuingia.","Confirm check-in":"Thibitisha kuingia","Already checked in":"Tayari ameingia","Scan next guest":"Skani mgeni anayefuata","Check-in was not saved":"Check-in haikuhifadhiwa","Try again":"Jaribu tena","Ready for the next guest":"Tayari kwa mgeni anayefuata","Point the camera at their QR code.":"Elekeza kamera kwenye QR yake.",
 "Choose an event.":"Chagua tukio.",
 "Contribution messages need an internet connection.":"Ujumbe wa michango unahitaji mtandao.",
 "Contributions could not be loaded. Please try again.":"Michango haikuweza kupakiwa. Tafadhali jaribu tena.",
