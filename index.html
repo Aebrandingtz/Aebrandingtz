@@ -1376,7 +1376,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
   <div class="side-label">Support</div>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V80</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V81</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -1692,7 +1692,7 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
     <div class="panel-heading"><div><h2>Budget &amp; expenses</h2><p>Record what was spent. It is subtracted from the money collected, and appears in the report.</p></div></div>
     <div class="pay-grid">
       <div class="field"><label for="exDesc">What was it for?</label><input id="exDesc" placeholder="e.g. Hall booking" autocomplete="off"></div>
-      <div class="field"><label for="exCat">Category</label><select id="exCat"><option>Venue</option><option>Food &amp; drinks</option><option>Decoration</option><option>Transport</option><option>Music / MC</option><option>Printing</option><option>Church / offering</option><option>Other</option></select></div>
+      <div class="field"><label for="exCat">Category</label><select id="exCat"><option>Venue</option><option>Food &amp; drinks</option><option>Cake</option><option>Decoration</option><option>Flowers</option><option>Photo &amp; Video</option><option>Music / MC</option><option>Tents &amp; chairs</option><option>Attire &amp; makeup</option><option>Transport</option><option>Printing</option><option>Gifts &amp; souvenirs</option><option>Security &amp; ushers</option><option>Accommodation</option><option>Church / offering</option><option>Other</option></select></div>
       <div class="field"><label for="exAmount">Amount (TZS)</label><input id="exAmount" inputmode="numeric" placeholder="e.g. 150,000"></div>
       <div class="field"><label for="exDate">Date</label><input id="exDate" type="date"></div>
     </div>
@@ -6423,7 +6423,7 @@ async function renderAudit(){
 
 /* ----- planned budget (inside the Contributions page) ----- */
 const BUD = {eventId:null, rows:{}, ok:true, loading:false};
-const BUD_CATS = ['Venue','Food & drinks','Decoration','Transport','Music / MC','Printing','Church / offering','Other'];
+const BUD_CATS = ['Venue', 'Food & drinks', 'Cake', 'Decoration', 'Flowers', 'Photo & Video', 'Music / MC', 'Tents & chairs', 'Attire & makeup', 'Transport', 'Printing', 'Gifts & souvenirs', 'Security & ushers', 'Accommodation', 'Church / offering', 'Other'];
 async function budLoad(eid){
   if(BUD.loading) return; BUD.loading = true;
   try{
@@ -7873,7 +7873,7 @@ window.SW_MSG = {
 "You do not have access to the Admin Console.":"Huna ufikiaji wa Dashibodi ya Msimamizi.",
 "Your account is ready. You are signed in.":"Akaunti yako iko tayari. Umeingia.",
 "ZIP library unavailable; cards were downloaded one by one.":"Maktaba ya ZIP haipatikani; kadi zimepakuliwa moja moja.",
-"Tasks":"Kazi","Music / MC":"Muziki / MC","Still open":"Bado hazijakamilika","Late":"Zilizochelewa",
+"Tasks":"Kazi","Cake":"Keki","Flowers":"Maua","Photo & Video":"Picha na Video","Tents & chairs":"Mahema na viti","Attire & makeup":"Mavazi na mapambo","Gifts & souvenirs":"Zawadi na kumbukumbu","Security & ushers":"Ulinzi na wapokeaji wageni","Accommodation":"Malazi","Music / MC":"Muziki / MC","Still open":"Bado hazijakamilika","Late":"Zilizochelewa",
 "Committee tasks":"Kazi za kamati",
 "Who does what, and by when.":"Nani anafanya nini, na lini.",
 "Add a task":"Ongeza kazi",
