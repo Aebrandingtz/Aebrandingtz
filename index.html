@@ -3183,7 +3183,7 @@ document.addEventListener('keydown',e=>{
         supabaseClient.from('message_logs').select('*').in('event_id',ids).order('created_at',{ascending:false})
       ]);
       (rsvps||[]).forEach(r=>{const e=getEvent(r.event_id),g=e?.guests.find(x=>String(x.id)===String(r.guest_id));if(g){g.rsvp=r.status||'Pending';g.rsvpAttendees=Number(r.attendees||1)}});
-      (checks||[]).forEach(c=>{const e=getEvent(c.event_id),g=e?.guests.find(x=>String(x.id)===String(c.guest_id));if(g)g.checkedIn=true});
+      (checks||[]).forEach(c=>{const e=getEvent(c.event_id),g=e?.guests.find(x=>String(x.id)===String(c.guest_id));if(g){g.checkedIn=true;if(!g.arrivedAt)g.arrivedAt=c.checked_in_at}});
       (logs||[]).forEach(l=>{const e=getEvent(l.event_id),g=e?.guests.find(x=>String(x.id)===String(l.guest_id));if(g&&l.channel)g.sent=true});
       persistState();refreshAll();
     }catch(e){console.warn('remote state load:',e?.message||e)}
@@ -3990,8 +3990,12 @@ window.verifyScannedQr = async function(text){
   if(!ev||!g){ out.innerHTML=scanBox('bad','Guest not found','This QR code does not belong to any event in your account.')+`<button class="primary" onclick="scanNext()">Scan again</button>`; return; }
   if(type && String(g.type).toLowerCase()!==type.toLowerCase()){ out.innerHTML=scanBox('bad','Card type mismatch','This card was altered or is not valid.')+`<button class="primary" onclick="scanNext()">Scan again</button>`; return; }
   scannedGuest={eventId,guestId};
+  if(!g.checkedIn && ev.id===currentEventId && !g.checking){
+    out.innerHTML=scanBox('ok',g.name,'Valid QR code — checking in…');
+    await checkin(eventId,guestId); return;
+  }
   const other = ev.id!==currentEventId ? scanBox('warn','Guest of another event',ev.name) : '';
-  const head = g.checkedIn ? scanBox('warn','Already checked in',g.name+' has already checked in.') : scanBox('ok',g.name,'Valid QR code — confirm entry.');
+  const head = g.checkedIn ? scanBox('warn','Already checked in',g.name+' has already checked in.'+(g.arrivedAt?' ('+arrTime(g.arrivedAt)+')':'')) : scanBox('ok',g.name,'Valid QR code — confirm entry.');
   const seat=(g.table||g.group)?`<div class="seat-callout">${g.table?`<b>${E(g.table)}</b>`:''}${g.group?`<span>${E(g.group)}</span>`:''}</div>`:'';
   out.innerHTML=other+head+seat+`<div class="guest-detail-grid"><div class="detail-item"><span>Event</span><b>${E(ev.name)}</b></div><div class="detail-item"><span>Guest</span><b>${E(g.name)}</b></div><div class="detail-item"><span>Card</span><b>${E(cardLabel(g))} card${cardParty(g)>1?' · '+cardParty(g)+' people':''}</b></div><div class="detail-item"><span>RSVP</span><b>${g.rsvp==='Yes'?'Attending':g.rsvp==='No'?'Declined':'Awaiting'}</b></div></div>
     <div class="guest-detail-actions">${g.checkedIn?'':`<button class="green" onclick="checkin('${eventId}','${guestId}')">${ic('check')}Confirm check-in</button>`}<button class="gray" onclick="scanNext()">Scan next</button></div>`;
@@ -3999,11 +4003,13 @@ window.verifyScannedQr = async function(text){
 window.checkin = async function(eid,gid){
   const e=getEvent(eid), g=e?.guests.find(x=>x.id===gid); if(!e||!g) return;
   if(g.checkedIn){ toast('This guest has already checked in.'); return; }
+  if(g.checking) return; g.checking=true;
   const done=(saved)=>{
+    setTimeout(()=>{ try{ if(scannedGuest&&scannedGuest.guestId===gid&&!qrScanner&&isActive('rsvp')) scanNext(); }catch(e){} },4500);
     if(scannedGuest&&scannedGuest.guestId===gid) $('scanResult').innerHTML=scanBox('ok',g.name+' welcomed',(saved||'Check-in saved.')+((g.table||g.group)?' Seat: '+[g.table,g.group].filter(Boolean).join(' · '):''))+`<div class="guest-detail-actions"><button class="primary" onclick="scanNext()">Scan next guest</button></div>`;
   };
   const offlineSave=()=>{
-    OFFLINE.enqueue(eid,gid); g.checkedIn=true; g.pending=true; OFFLINE.snapshot(); doRefresh();
+    OFFLINE.enqueue(eid,gid); g.checkedIn=true; g.pending=true; g.checking=false; g.arrivedAt=new Date().toISOString(); OFFLINE.snapshot(); doRefresh();
     done('Saved on this phone. It will upload when the internet is back.'); toast(g.name+' checked in (offline).');
   };
   if(window.__offlineMode || !navigator.onLine){ offlineSave(); return; }
@@ -4012,13 +4018,33 @@ window.checkin = async function(eid,gid){
     const now=new Date().toISOString();
     const {error}=await supabaseClient.from('check_ins').insert({event_id:eid,guest_id:gid,checked_in_at:now,scanned_at:now,checked_in_by:user?.id||null,scanned_by:user?.id||null});
     if(error) throw error;
-    g.checkedIn=true; OFFLINE.snapshot(); doRefresh();
+    g.checkedIn=true; g.checking=false; g.arrivedAt=now; OFFLINE.snapshot(); doRefresh(); if(isActive('rsvp')) renderRsvp();
     done(); toast(g.name+' has checked in.');
   }catch(err){
     if(OFFLINE.isNetworkError(err)){ offlineSave(); return; }
-    console.error(err); toast('Check-in was not saved: '+(err.message||err));
+    g.checking=false; console.error(err); toast('Check-in was not saved: '+(err.message||err));
+    if(scannedGuest&&scannedGuest.guestId===gid) $('scanResult').innerHTML=scanBox('bad','Check-in was not saved',String(err.message||err))+`<div class="guest-detail-actions"><button class="green" onclick="checkin('${eid}','${gid}')">${ic('check')}Try again</button><button class="gray" onclick="scanNext()">Scan next</button></div>`;
   }
 };
+
+const arrTime = iso => { try{ return new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } };
+/* live arrivals: the owner / co-host / door staff all see who has arrived, within a few seconds, on any device */
+window.syncArrivals = async function(){
+  try{
+    if(!supabaseClient||!currentSupabaseUser||window.__offlineMode||!navigator.onLine||document.hidden) return;
+    const ev=getEvent(currentEventId); if(!ev) return;
+    const rows=await fetchAll(()=>supabaseClient.from('check_ins').select('guest_id,checked_in_at').eq('event_id',ev.id).order('guest_id'));
+    const m=new Map((rows||[]).map(r=>[String(r.guest_id),r.checked_in_at])); let changed=false;
+    ev.guests.forEach(g=>{
+      const at=m.get(String(g.id));
+      if(at){ if(!g.checkedIn){ g.checkedIn=true; changed=true; } if(g.arrivedAt!==at){ g.arrivedAt=at; changed=true; } }
+      else if(g.checkedIn && !g.pending && !g.checking){ g.checkedIn=false; g.arrivedAt=null; changed=true; }
+    });
+    if(changed){ OFFLINE.snapshot(); doRefresh(); if(isActive('rsvp')) renderRsvp(); }
+  }catch(e){ console.warn('syncArrivals',e&&e.message||e); }
+};
+if(!window.__arrTimer){ window.__arrTimer=setInterval(()=>{ if(isActive('rsvp')||isActive('guests')||isActive('dashboard')||isActive('reports')) syncArrivals(); },7000);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) syncArrivals(); }); }
 window.undoCheckin = async function(eid,gid){
   const e=getEvent(eid), g=e?.guests.find(x=>x.id===gid); if(!e||!g) return;
   if(window.__offlineMode||!navigator.onLine||g.pending){ toast('Undo needs an internet connection.'); return; }
@@ -4038,7 +4064,7 @@ window.renderRsvp = function(){ sortGuests();
   const q=($('checkinSearch').value||'').trim().toLowerCase(), f=$('checkinFilter').value;
   const list=ev.guests.filter(g=>(!q||g.name.toLowerCase().includes(q)||String(g.phone||'').includes(q)) && (f==='all'||(f==='in'&&g.checkedIn)||(f==='waiting'&&!g.checkedIn)));
   if(!list.length){ box.innerHTML=emptyState(ev.guests.length?'No matches':'No guests yet',ev.guests.length?'Change the search or filter.':'Add guests first.'); return; }
-  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Card</th><th>RSVP</th><th>Status</th><th class="actions">Action</th></tr></thead><tbody>${list.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?(g.pending?'<span class="status pending">Arrived · syncing</span>':'<span class="status ok">Arrived</span>'):'<span class="status pending">Waiting</span>'}</td><td class="actions"><div class="row-actions">${g.checkedIn?`<button class="gray sm" onclick="undoCheckin('${ev.id}','${g.id}')">Undo</button>`:`<button class="green sm" onclick="checkin('${ev.id}','${g.id}')">${ic('check')}Check in</button>`}</div></td></tr>`).join('')}</tbody></table></div>`;
+  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Card</th><th>RSVP</th><th>Status</th><th class="actions">Action</th></tr></thead><tbody>${list.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?(g.pending?'<span class="status pending">Arrived · syncing</span>':'<span class="status ok">Arrived</span>'+(g.arrivedAt?' <span class="muted" style="font-size:12px">'+arrTime(g.arrivedAt)+'</span>':'')):'<span class="status pending">Waiting</span>'}</td><td class="actions"><div class="row-actions">${g.checkedIn?`<button class="gray sm" onclick="undoCheckin('${ev.id}','${g.id}')">Undo</button>`:`<button class="green sm" onclick="checkin('${ev.id}','${g.id}')">${ic('check')}Check in</button>`}</div></td></tr>`).join('')}</tbody></table></div>`;
 };
 
 /* ---------- messaging ---------- */
@@ -7465,7 +7491,7 @@ window.SW_PAT = [["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zot
 ["{#0} arrived","{0} wamefika"],
 ["Attending {#0}","Watahudhuria {0}"],["Declined {#0}","Wamekataa {0}"],["Awaiting {#0}","Wanasubiriwa {0}"],
 ["Photos ({#0})","Picha ({0})"],["Total ({#0})","Jumla ({0})"],["Total expenses ({#0})","Jumla ya matumizi ({0})"],
-["Welcome, {0}","Karibu, {0}"],
+["Welcome, {0}","Karibu, {0}"],["{0} welcomed","{0} amekaribishwa"],["Check-in saved. Seat: {0}","Check-in imehifadhiwa. Kiti: {0}"],["{0} has already checked in. ({1})","{0} tayari amefanya check-in. ({1})"],["{0} has checked in.","{0} amefanya check-in."],["{0} has already checked in.","{0} tayari amefanya check-in."],["{0} has already checked in. ({1})","{0} tayari amefanya check-in. ({1})"],["Check-in was not saved: {0}","Check-in haikuhifadhiwa: {0}"],["Seat: {0}","Kiti: {0}"],["{0} checked in (offline).","{0} amefanya check-in (nje ya mtandao)."],["{0} has checked in.","{0} amefanya check-in."],
 ["Poster for {0}","Poster ya {0}"],
 ["Photographer · can upload and manage photos for {0}","Mpiga picha · anaweza kupakia na kusimamia picha za {0}"],
 ["Photographer added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Mpiga picha ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kumtumia mwaliko (lazima ajisajili kwa {0})."],
@@ -7547,7 +7573,7 @@ window.SW_MSG = {
 "Browser imezuia popup. Ruhusu popups.":"Browser imezuia popup. Ruhusu popups.",
 "CSV file downloaded.":"Faili ya CSV imepakuliwa.",
 "Check-in removed.":"Check-in imeondolewa.",
-"Check-in saved.":"Check-in imehifadhiwa.",
+"Check-in saved.":"Check-in imehifadhiwa.","Valid QR code — checking in…":"QR halali — inamwingiza…","Valid QR code — confirm entry.":"QR halali — thibitisha kuingia.","Confirm check-in":"Thibitisha kuingia","Already checked in":"Tayari ameingia","Scan next guest":"Skani mgeni anayefuata","Check-in was not saved":"Check-in haikuhifadhiwa","Try again":"Jaribu tena","Ready for the next guest":"Tayari kwa mgeni anayefuata","Point the camera at their QR code.":"Elekeza kamera kwenye QR yake.",
 "Choose an event.":"Chagua tukio.",
 "Contribution messages need an internet connection.":"Ujumbe wa michango unahitaji mtandao.",
 "Contributions could not be loaded. Please try again.":"Michango haikuweza kupakiwa. Tafadhali jaribu tena.",
