@@ -1412,6 +1412,71 @@ main table tbody tr:hover td{background:#fbfaf6}
 .hint-box svg.i{flex:0 0 auto;width:17px;height:17px;color:var(--gold-d);margin:0}
 @media(max-width:700px){.toolbar>button:last-child:nth-child(odd),.guest-bar>button:last-child:nth-child(even){grid-column:1/-1}}
 
+/* =========================================================================
+   V96 · Navy & Gold (luxury) — deep navy frame, gold accents, ivory canvas
+   ========================================================================= */
+:root{--lux:#0f1a4d;--lux-2:#16236b;--gold-g:linear-gradient(135deg,#f6e2a2 0,#e3b84a 55%,#c99a2e 100%);--canvas:#f4f1e8}
+body{background:var(--canvas)}
+main{background:transparent}
+
+/* header: deep navy with gold hairline */
+.app-header{background:linear-gradient(90deg,#0f1a4d,#16236b);color:#fff;border-bottom:1px solid rgba(227,184,74,.7);box-shadow:0 8px 22px -14px rgba(15,26,77,.7)}
+.app-header .brand{color:#fff}.app-header .brand-word b{color:#e3b84a}
+.page-title b{color:#fff}.page-title span{color:#aeb9e0}
+.mobile-menu-btn{color:#f1d58a}
+.user-chip{background:rgba(255,255,255,.07);border-color:rgba(227,184,74,.55)}
+.user-chip .who b{color:#fff}.user-chip .who small{color:#aeb9e0}
+.avatar{background:var(--gold-g);color:#0f1a4d;box-shadow:none}
+.app-header button.gray,.app-header .header-logout,#langToggle{background:transparent;border-color:rgba(227,184,74,.6);color:#f1d58a}
+.app-header button.gray svg.i{color:#e3b84a}
+.app-header button.gray:hover:not(:disabled){background:rgba(227,184,74,.14);border-color:#e3b84a}
+
+/* side menu: navy, gold active */
+.app-sidebar{background:linear-gradient(180deg,#101c55 0,#0f1a4d 60%,#0b1440 100%);border-right:1px solid rgba(227,184,74,.45)}
+.side-label{color:#e3b84a}
+.app-sidebar .nav{color:#cdd6f3}
+.app-sidebar .nav svg{color:#8e9bd0}
+.app-sidebar .nav:hover:not(:disabled){background:rgba(227,184,74,.1);color:#fff}
+.app-sidebar .nav.active{background:var(--gold-g);color:#0f1a4d;box-shadow:0 6px 14px -8px rgba(227,184,74,.8)}
+.app-sidebar .nav.active svg{color:#0f1a4d}
+.app-sidebar .nav.active:before{display:none}
+.app-sidebar .nav .count{background:rgba(255,255,255,.12)}
+.app-sidebar .nav.active .count{background:#0f1a4d;color:#f1d58a}
+.side-foot{color:#8e9bd0;border-top-color:rgba(227,184,74,.3)}.side-foot b{color:#f1d58a}
+
+/* titles on the ivory canvas */
+.topline h1,.page-h1{color:#0f1a4d}
+.topline h1:after,.page-h1:after{background:var(--gold-g);width:56px;height:3px;border-radius:2px}
+.panel h2,.panel>h3:first-child,.modal-box h2,.stat b,.report-stat b,.dash-stats .stat b{color:#0f1a4d}
+
+/* cards */
+.panel,.card-item,.event-card,.stat,.report-stat{border-color:#e3ddc9;box-shadow:0 1px 2px rgba(15,26,77,.06),0 10px 24px -20px rgba(15,26,77,.5)}
+.panel{border-top:3px solid #d9ad3c}
+.dash-stats .stat:before{background:var(--gold-g);height:3px}
+.dash-stats .stat-ic{background:var(--gold-g);color:#0f1a4d;border:0;box-shadow:0 6px 14px -8px rgba(201,154,46,.9)}
+.event-card:hover,.card-item:hover{border-color:#d9ad3c}
+.next-event{background:linear-gradient(135deg,#16236b 0,#0f1a4d 70%);box-shadow:0 18px 36px -22px rgba(15,26,77,.9)}
+.next-event:after{border-color:rgba(227,184,74,.55)}
+.ne-count b,.ne-title{color:#f1d58a}
+.hint-box{background:#fbf7e9;border-color:#ecdfb2;border-left:3px solid #d9ad3c}
+.modal-box{border-top:3px solid #d9ad3c}
+
+/* buttons: gold primary, outlined secondary */
+button.primary{background:var(--gold-g);color:#0f1a4d;border-color:#c99a2e;box-shadow:0 6px 14px -8px rgba(201,154,46,.95),inset 0 1px 0 rgba(255,255,255,.55)}
+button.primary:hover:not(:disabled){background:linear-gradient(135deg,#fbeab5,#ecc255 55%,#d3a336)}
+button.primary svg.i{color:#0f1a4d}
+button.gray,button.light{background:#fff;border-color:#d9c58a;color:#0f1a4d}
+button.gray svg.i,button.light svg.i{color:#9a7416}
+button.gray:hover:not(:disabled),button.light:hover:not(:disabled){background:#fbf7e9;border-color:#d9ad3c}
+.next-event button.primary{background:var(--gold-g)}
+
+/* tables: navy header, gold text */
+main table thead th{background:#0f1a4d;color:#f1d58a;border-bottom:2px solid #d9ad3c}
+main table tbody tr:hover td{background:#fbf8ee}
+.tag{background:#eef0fa;color:#16236b}
+.avatar{}
+input:focus,select:focus,textarea:focus{border-color:#d9ad3c;box-shadow:0 0 0 3px rgba(217,173,60,.3)}
+
 /* ===================== DESIGN STUDIO (V86) ===================== */
 body.st-open{overflow:hidden}
 .stI{width:18px;height:18px;flex:none;vertical-align:middle}
@@ -1931,7 +1996,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V95</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V96</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
