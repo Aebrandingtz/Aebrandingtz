@@ -1508,6 +1508,7 @@ body.st-open{overflow:hidden}
 .cpk-b{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .cpk-load{padding:18px;text-align:center;color:#64748b;font-size:13px}
 .cpk-f{display:flex;justify-content:flex-end;margin-top:12px}
+#confirmModal{z-index:9600}
 
 /* ===== V91 Collections ===== */
 .seg{display:inline-flex;background:var(--line-2,#eef0f6);border-radius:999px;padding:3px;gap:2px}
@@ -1837,7 +1838,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V93</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V94</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2009,6 +2010,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
       <button class="gray" onclick="uploadAllGeneratedCards()"><svg class="i"><use href="#i-upload"/></svg>Save to cloud</button>
       <button class="gray" onclick="studioPickForCards(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Use a saved design</button>
       <button class="gray" onclick="studioOpenForEvent(currentEventId)"><svg class="i"><use href="#i-sparkle"/></svg>Design the card</button>
+      <button class="danger" onclick="cardsRemoveOpen(currentEventId)"><svg class="i"><use href="#i-trash"/></svg>Remove card</button>
     </div>
     <div class="hint-box"><svg class="i"><use href="#i-info"/></svg><span>This is a preview of each card. Click <b>PNG</b> to download a guest's full card, or <b>Download ZIP</b> to get them all at once.</span></div>
     <div id="cardsGrid" class="grid3"></div>
@@ -4409,7 +4411,8 @@ window.renderCards = function(){ sortGuests();
   if(!ev){ box.innerHTML=`<div style="grid-column:1/-1">${NEED_EVENT}</div>`; return; }
   if(!ev.guests.length){ box.innerHTML=`<div style="grid-column:1/-1">${emptyState('No guests yet','Add guests so their cards can be generated.',`<button class="primary" onclick="showView('guests')">Go to guests</button>`)}</div>`; return; }
   const shown=ev.guests.slice(0,window.cardsLimit);
-  box.innerHTML=shown.map(g=>{
+  const noCard=!ev.poster?`<div class="hint-box" style="grid-column:1/-1">${ic('info')}<span>No card design is set for this event. Use a saved design, or design a new card.</span></div>`:'';
+  box.innerHTML=noCard+shown.map(g=>{
     const pf=posterFor(ev,g), f=pf.pos.font||'Arial', script=SCRIPT_FONTS.includes(f);
     const fs=(Number(pf.pos.size)/Number(pf.pos.basis||480)*100).toFixed(3);
     const state=g.generatedUrl?['sent','Saved']:g.generatedDataUrl?['valid','Generated']:['idle','Preview'];
@@ -4421,7 +4424,7 @@ window.renderCards = function(){ sortGuests();
       </div>
       <h3>${E(g.name)}</h3>
       <div class="meta-row">${cardTag(g)}<span class="status ${state[0]}" id="gen-status-${g.id}">${state[1]}</span></div>
-      <div class="event-actions"><button class="primary" onclick="downloadCard('${g.id}')">${ic('download')}PNG</button><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray icon" title="Save to cloud" aria-label="Save to cloud" onclick="saveGeneratedCard('${g.id}')">${ic('upload')}</button><button class="gray icon" title="Open invitation" aria-label="Open invitation" onclick="openInvite('${g.id}')">${ic('external')}</button></div>
+      <div class="event-actions"><button class="primary" onclick="downloadCard('${g.id}')">${ic('download')}PNG</button><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray icon" title="Save to cloud" aria-label="Save to cloud" onclick="saveGeneratedCard('${g.id}')">${ic('upload')}</button><button class="gray icon" title="Open invitation" aria-label="Open invitation" onclick="openInvite('${g.id}')">${ic('external')}</button><button class="gray icon" title="Delete saved card" aria-label="Delete saved card" onclick="cardDeleteSaved('${g.id}')">${ic('trash')}</button></div>
     </div>`;
   }).join('') + (ev.guests.length>shown.length?`<div style="grid-column:1/-1;text-align:center"><button class="gray" onclick="cardsLimit+=60;renderCards()">Show more (${ev.guests.length-shown.length} zaidi)</button></div>`:'');
   shown.forEach(g=>{ const el=$('qr-'+g.id); if(el){ try{ new QRCode(el,{text:qrUrl(ev,g),width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} } });
@@ -10941,6 +10944,81 @@ window.studioPickForCards=async function(eid){
   const E2=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   list.innerHTML=rows.map(r=>`<div class="cpk-it"><div class="cpk-th">${r.thumb_url?`<img alt="" src="${E2(r.thumb_url)}">`:''}</div><div class="cpk-m"><b>${E2(r.name||tr('Muundo bila jina','Untitled design'))}</b><span>${r.width}×${r.height}</span><div class="cpk-b"><button type="button" class="primary" data-use="single" data-id="${E2(r.id)}">${tr('Kadi ya Single','Single card')}</button><button type="button" class="gray" data-use="double" data-id="${E2(r.id)}">${tr('Kadi ya Double','Double card')}</button></div></div></div>`).join('');
 };
+
+/* ---------- Cards & QR: remove a card design / delete saved cards ---------- */
+const CRM_E=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const crmPath=(url,bucket)=>{ const p=String(url||'').split('/object/public/'+bucket+'/')[1]; return p?decodeURIComponent(p.split('?')[0]):null; };
+async function crmListSaved(eid,prefix){
+  const out=[]; for(let off=0;off<5000;off+=1000){
+    const r=await supabaseClient.storage.from(GENERATED_CARDS_BUCKET).list(eid,{limit:1000,offset:off}); if(r.error) throw r.error;
+    const rows=r.data||[]; rows.forEach(o=>{ if(o.name&&o.id!==null&&(!prefix||o.name.startsWith(prefix))) out.push(eid+'/'+o.name); }); if(rows.length<1000) break; }
+  return out;
+}
+async function crmRemoveSaved(eid,prefix){
+  const paths=await crmListSaved(eid,prefix); let n=0;
+  for(let i=0;i<paths.length;i+=100){ const part=paths.slice(i,i+100); const r=await supabaseClient.storage.from(GENERATED_CARDS_BUCKET).remove(part); if(r.error) throw r.error; n+=(r.data||[]).length; }
+  if(n<paths.length) throw new Error(tr('Huna ruhusa ya kufuta kadi hizi.','You do not have permission to delete these cards.'));
+  return n;
+}
+async function crmReload(){ if(typeof loadEventsFromSupabase==='function') await loadEventsFromSupabase(); if(typeof renderCards==='function') renderCards(); }
+const crmErr=e=>{ console.error('cards remove',e); const m=String(e&&e.message||e); toast(/permission|policy|row-level|denied|owner|ruhusa/i.test(m)?tr('Huna ruhusa ya kufanya hivi kwenye tukio hili.','You do not have permission to do this on this event.'):(m.length<140?m:tr('Imeshindikana. Jaribu tena.','Could not do it. Try again.'))); };
+async function crmRemoveDesign(eid,which){
+  const ev=getEvent(eid); if(!ev) return false;
+  if(ev.owner_id&&currentSupabaseUser&&ev.owner_id!==currentSupabaseUser.id){ toast(tr('Ni mmiliki wa tukio pekee anayeweza kuondoa kadi.','Only the event owner can remove the card.')); return false; }
+  const dbl=which==='double';
+  const ok=await confirmDialog({title:dbl?tr('Ondoa kadi ya Double?','Remove the Double card?'):tr('Ondoa kadi ya Single?','Remove the Single card?'),
+    text:dbl?tr('Wageni wa Double wataanza kutumia kadi ya Single. Unaweza kuweka kadi mpya baadaye.','Double guests will use the Single card instead. You can set a new card later.')
+      :tr('Kadi za wageni zitabaki bila muundo hadi uchague muundo mpya. Mialiko iliyokwisha tumwa itaonyesha bila bango.','Guest cards will have no design until you choose a new one. Invitations already sent will show without the poster.'),
+    ok:tr('Ondoa kadi','Remove card')}); if(!ok) return false;
+  try{
+    const old=dbl?ev.posterDouble:ev.poster, col=dbl?'poster_url_double':'poster_url';
+    const r=await supabaseClient.from('events').update({[col]:null}).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
+    if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kuondoa kadi.','Only the event owner can remove the card.'));
+    const p=crmPath(old,EVENT_POSTERS_BUCKET); if(p){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p]); }catch(_){} }
+    await crmReload(); toast(tr('Kadi imeondolewa.','Card removed.')); return true;
+  }catch(e){ crmErr(e); return false; }
+}
+async function crmDeleteAllSaved(eid){
+  const ok=await confirmDialog({title:tr('Futa kadi zote zilizohifadhiwa?','Delete all saved cards?'),text:tr('Kadi za wageni zilizohifadhiwa kwenye cloud zitafutwa kabisa. Muundo wa kadi na orodha ya wageni vinabaki.','The guest cards saved in the cloud will be deleted for good. The card design and the guest list stay.'),ok:tr('Futa zote','Delete all')}); if(!ok) return false;
+  try{ const n=await crmRemoveSaved(eid); const ev=getEvent(eid); if(ev) ev.guests.forEach(g=>{ g.generatedUrl=null; }); await crmReload(); toast(tr(n+' kadi zimefutwa.',n+' cards deleted.')); return true; }
+  catch(e){ crmErr(e); return false; }
+}
+window.cardDeleteSaved=async function(gid){
+  const ev=getEvent(currentEventId), g=ev&&ev.guests.find(x=>String(x.id)===String(gid)); if(!g) return;
+  const ok=await confirmDialog({title:tr('Futa kadi iliyohifadhiwa?','Delete the saved card?'),text:'<b>'+CRM_E(g.name)+'</b><br>'+tr('Kadi ya mgeni huyu iliyohifadhiwa kwenye cloud itafutwa. Unaweza kuitengeneza tena wakati wowote.','This guest\'s card saved in the cloud will be deleted. You can make it again at any time.'),ok:tr('Futa','Delete')}); if(!ok) return;
+  try{ const n=await crmRemoveSaved(ev.id,String(g.id)+'-'); g.generatedUrl=null; renderCards(); toast(n?tr('Kadi imefutwa.','Card deleted.'):tr('Hakuna kadi iliyohifadhiwa kwa mgeni huyu.','No saved card for this guest.')); }
+  catch(e){ crmErr(e); }
+};
+window.cardsRemoveOpen=async function(eid){
+  eid=eid||currentEventId; const ev=getEvent(eid);
+  if(!ev){ toast(tr('Chagua tukio kwanza.','Choose an event first.')); return; }
+  if(!sbOK()){ toast(tr('Inahitaji mtandao.','Needs an internet connection.')); return; }
+  const old=document.getElementById('crmOverlay'); if(old) old.remove();
+  const ov=document.createElement('div'); ov.id='crmOverlay'; ov.className='cpk-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  const draw=async()=>{
+    const e2=getEvent(eid)||ev;
+    const row=(url,title,sub,act)=>`<div class="cpk-it"><div class="cpk-th">${url?`<img alt="" src="${CRM_E(url)}">`:''}</div><div class="cpk-m"><b>${title}</b><span>${sub}</span><div class="cpk-b">${act}</div></div></div>`;
+    const btn=(a,label,dis)=>`<button type="button" class="danger" data-act="${a}"${dis?' disabled':''}>${label}</button>`;
+    ov.innerHTML=`<div class="cpk-box"><div class="cpk-h"><b>${tr('Ondoa kadi','Remove cards')}</b><button type="button" class="cpk-x" aria-label="${tr('Funga','Close')}">×</button></div><p class="cpk-note">${tr('Chagua unachotaka kuondoa. Orodha ya wageni haibadiliki.','Choose what to remove. The guest list is not changed.')}</p><div class="cpk-list">`
+      +row(e2.poster,tr('Kadi ya Single','Single card'),e2.poster?tr('Inatumika kwa wageni wote wa Single','Used by every Single guest'):tr('Haijawekwa','Not set'),btn('single',tr('Ondoa kadi ya Single','Remove Single card'),!e2.poster))
+      +row(e2.posterDouble,tr('Kadi ya Double','Double card'),e2.posterDouble?tr('Inatumika kwa wageni wa Double','Used by Double guests'):tr('Haijawekwa, Double wanatumia Single','Not set, Double guests use the Single card'),btn('double',tr('Ondoa kadi ya Double','Remove Double card'),!e2.posterDouble))
+      +`<div class="cpk-it"><div class="cpk-m"><b>${tr('Kadi zilizohifadhiwa kwenye cloud','Cards saved in the cloud')}</b><span id="crmCount">${tr('Inahesabu…','Counting…')}</span><div class="cpk-b">${btn('saved',tr('Futa zote zilizohifadhiwa','Delete all saved cards'),true)}</div></div></div>`
+      +`</div></div>`;
+    try{ const n=(await crmListSaved(eid)).length; const c=ov.querySelector('#crmCount'); if(c) c.textContent=n?tr(n+' zimehifadhiwa',n+' saved'):tr('Hakuna kadi iliyohifadhiwa','No saved cards'); const b=ov.querySelector('[data-act="saved"]'); if(b) b.disabled=!n; }
+    catch(_){ const c=ov.querySelector('#crmCount'); if(c) c.textContent=tr('Haikuhesabika','Could not count'); }
+  };
+  ov.addEventListener('click',async e=>{
+    if(e.target===ov||e.target.closest('.cpk-x')){ close(); return; }
+    const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
+    const box=ov.querySelector('.cpk-box'); box.classList.add('busy');
+    const a=b.dataset.act; let did=false;
+    if(a==='single') did=await crmRemoveDesign(eid,'single'); else if(a==='double') did=await crmRemoveDesign(eid,'double'); else did=await crmDeleteAllSaved(eid);
+    if(ov.isConnected){ box.classList.remove('busy'); if(did) await draw(); }
+  });
+  document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'&&!document.querySelector('#confirmModal.open')){ close(); document.removeEventListener('keydown',esc); } });
+  await draw();
+};
 async function usePoster(){
   const ev=EDS.ev; if(!ev){ toast(tr('Tukio halikupatikana.','Event not found.')); return; } if(!sbOK()){ toast(tr('Inahitaji mtandao.','Needs an internet connection.')); return; }
   const which=await new Promise(res=>{ const m=$q('#stModal'); const box=document.createElement('div'); box.className='st-mini'; box.innerHTML=`<div class="st-mb"><div class="st-mh"><b>${tr('Tumia kama poster ya tukio','Use as event poster')}</b></div><p class="st-note">${tr('Muundo huu utakuwa picha ya kadi ya mwaliko wa tukio. Jina la kila mgeni litaandikwa kwenye "Eneo la jina la mgeni" (ukiliweka).','This design becomes the event invitation image. Each guest\'s name is printed in the "guest name area" (if you added one).')}</p><div class="st-chips"><button class="st-b st-prim" data-w="single">${tr('Kadi ya Single','Single card')}</button><button class="st-b" data-w="double">${tr('Kadi ya Double','Double card')}</button><button class="st-b" data-w="">${tr('Ghairi','Cancel')}</button></div></div>`; m.appendChild(box); box.addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(!b) return; box.remove(); res(b.dataset.w); }); });
@@ -12160,6 +12238,7 @@ Object.assign(window.SW_EXACT,{
 "Door check-in":"Kuingiza wageni mlangoni","Scan QR codes at the door with your team, even offline":"Changanua QR code mlangoni na timu yako, hata bila mtandao",
 "Reports and photos":"Ripoti na picha","Live reports, photo albums and a guest book PDF":"Ripoti za moja kwa moja, albamu za picha na PDF ya kitabu cha wageni"
 });
+Object.assign(window.SW_EXACT,{"Remove card":"Ondoa kadi","Delete saved card":"Futa kadi iliyohifadhiwa","No card design is set for this event. Use a saved design, or design a new card.":"Hakuna muundo wa kadi kwa tukio hili. Tumia muundo uliohifadhiwa, au buni kadi mpya."});
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
