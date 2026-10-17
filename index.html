@@ -1599,7 +1599,7 @@ body.st-open{overflow:hidden}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V86</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V87</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -7578,6 +7578,8 @@ const PALS = {
   sky:        {n:'Anga-laini',            bg:'#EAF4FB',bg2:'#D5E8F6',ink:'#27425A',mute:'#6A8AA6',accent:'#6FA8D6',accent2:'#F3C98B',on:'#FFFFFF'},
   sunset:     {n:'Machweo',               bg:'#FFF3E0',bg2:'#FFD9A8',ink:'#2B1B3D',mute:'#6D5A80',accent:'#F0492F',accent2:'#FFB000',on:'#FFFFFF'},
   violet:     {n:'Zambarau & Dhahabu',    bg:'#2C1A4D',bg2:'#1E1038',ink:'#FFF4E0',mute:'#C9B8E6',accent:'#FFB94A',accent2:'#FF6FA5',on:'#2C1A4D'},
+  mocha:      {n:'Mocha & Dhahabu',         bg:'#E6DFD6',bg2:'#D5C9BB',ink:'#3B1D10',mute:'#6E5648',accent:'#6B2A14',accent2:'#C9A24B',on:'#F6ECDD'},
+  wine:       {n:'Mvinyo & Kijivu',          bg:'#FBF6F5',bg2:'#EBD9D8',ink:'#5C5857',mute:'#8D8583',accent:'#A3262B',accent2:'#D07A7C',on:'#FFFFFF'},
   mono:       {n:'Nyeusi & Nyeupe',       bg:'#FFFFFF',bg2:'#EFEFEF',ink:'#111111',mute:'#666666',accent:'#111111',accent2:'#9A9A9A',on:'#FFFFFF'}
 };
 ST.PALS=PALS;
@@ -7733,6 +7735,7 @@ function pathShape(ctx,kind,w,h,r){
 }
 function rr(ctx,x,y,w,h,r){ r=Math.min(r,w/2,h/2); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function gradFill(ctx,g,w,h,pal){
+  if(g.rad){ const gr=ctx.createRadialGradient(w*(g.cx==null?.5:g.cx),h*(g.cy==null?.5:g.cy),0,w*(g.cx==null?.5:g.cx),h*(g.cy==null?.5:g.cy),Math.max(w,h)*.5*(g.rad===true?1:g.rad)); g.s.forEach(s=>gr.addColorStop(clamp(s[1],0,1),col(s[0],pal))); return gr; }
   const a=rad(g.a==null?90:g.a), dx=Math.cos(a), dy=Math.sin(a), half=(Math.abs(w*dx)+Math.abs(h*dy))/2, cx=w/2, cy=h/2;
   const gr=ctx.createLinearGradient(cx-dx*half,cy-dy*half,cx+dx*half,cy+dy*half);
   g.s.forEach(s=>gr.addColorStop(clamp(s[1],0,1),col(s[0],pal)));
@@ -7874,6 +7877,75 @@ function diamondRow(ctx,w,h,c){
   const x0=(w-(n-1)*s*1.5)/2; for(let i=0;i<n;i++){ const x=x0+i*s*1.5; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x+s/2,h/2); ctx.lineTo(x,h); ctx.lineTo(x-s/2,h/2); ctx.closePath(); ctx.fill(); }
   ctx.restore();
 }
+
+/* ---------- richer ornaments (V87): rose, gold rings, icons, blossom field, gold leaves ---------- */
+function rose(ctx,w,h,c,c2){
+  const R=Math.min(w,h)/2; ctx.save(); ctx.translate(w/2,h/2); ctx.lineJoin='round';
+  const rings=[{n:9,r:.60,s:.46,o:0},{n:8,r:.45,s:.40,o:.35},{n:7,r:.31,s:.33,o:.1},{n:5,r:.19,s:.26,o:.5},{n:4,r:.09,s:.18,o:.2}];
+  rings.forEach((rg,ri)=>{
+    for(let i=0;i<rg.n;i++){
+      const a=i*Math.PI*2/rg.n+rg.o+ri*.4, d=R*rg.r, px=Math.cos(a)*d, py=Math.sin(a)*d;
+      ctx.save(); ctx.translate(px,py); ctx.rotate(a);
+      const rx=R*rg.s*.82, ry=R*rg.s*1.02;
+      const g=ctx.createRadialGradient(-rx*.35,0,0,0,0,ry*1.05); g.addColorStop(0,c); g.addColorStop(.62,c); g.addColorStop(1,c2);
+      ctx.beginPath(); ctx.moveTo(-rx*.9,0); ctx.bezierCurveTo(-rx*.9,-ry*.95,rx*.5,-ry*1.05,rx*1.05,-ry*.15); ctx.bezierCurveTo(rx*1.15,ry*.7,-rx*.2,ry*1.05,-rx*.9,0); ctx.closePath();
+      ctx.fillStyle=g; ctx.fill(); ctx.strokeStyle=c2; ctx.globalAlpha*=.55; ctx.lineWidth=Math.max(.8,R*.012); ctx.stroke(); ctx.globalAlpha/=.55;
+      ctx.restore();
+    }
+  });
+  ctx.strokeStyle=c2; ctx.lineWidth=Math.max(.8,R*.016); ctx.lineCap='round';
+  [.13,.085,.045].forEach((f,i)=>{ ctx.beginPath(); ctx.arc(0,0,R*f,i*1.7,i*1.7+Math.PI*1.4); ctx.stroke(); });
+  ctx.restore();
+}
+function ring3d(ctx,w,h,c,c2){
+  ctx.save(); const cx=w/2,cy=h/2,rx=w/2,ry=h/2,t=Math.min(w,h)*.2;
+  const g=ctx.createLinearGradient(0,0,w,h); g.addColorStop(0,c); g.addColorStop(.3,c2); g.addColorStop(.52,c); g.addColorStop(.78,c2); g.addColorStop(1,c);
+  ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2); ctx.ellipse(cx+t*.3,cy+t*.12,Math.max(2,rx-t*1.1),Math.max(2,ry-t*1.0),0,0,Math.PI*2,true);
+  ctx.fillStyle=g; ctx.fill('evenodd');
+  ctx.strokeStyle='rgba(255,247,220,.75)'; ctx.lineWidth=t*.16; ctx.lineCap='round';
+  ctx.beginPath(); ctx.ellipse(cx,cy,rx-t*.28,ry-t*.28,0,Math.PI*1.08,Math.PI*1.6); ctx.stroke();
+  ctx.strokeStyle='rgba(90,55,10,.35)'; ctx.lineWidth=t*.14;
+  ctx.beginPath(); ctx.ellipse(cx+t*.3,cy+t*.12,Math.max(2,rx-t*1.1),Math.max(2,ry-t*1.0),0,Math.PI*.05,Math.PI*.7); ctx.stroke();
+  ctx.restore();
+}
+function icon(ctx,k,w,h,c,sw){
+  const U=Math.min(w,h); ctx.save(); ctx.translate((w-U)/2,(h-U)/2); ctx.fillStyle=c; ctx.strokeStyle=c; ctx.lineWidth=sw||U*.07; ctx.lineJoin='round'; ctx.lineCap='round';
+  if(k==='calendar'){
+    ctx.beginPath(); rr(ctx,U*.08,U*.16,U*.84,U*.76,U*.12); ctx.fill();
+    ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); rr(ctx,U*.17,U*.38,U*.66,U*.46,U*.05); ctx.fill(); ctx.restore();
+    ctx.fillStyle=c; for(let r=0;r<2;r++) for(let q=0;q<4;q++){ ctx.beginPath(); rr(ctx,U*(.22+q*.15),U*(.45+r*.17),U*.1,U*.1,U*.02); ctx.fill(); }
+    ctx.lineWidth=U*.07; [.3,.7].forEach(x=>{ ctx.beginPath(); ctx.moveTo(U*x,U*.04); ctx.lineTo(U*x,U*.26); ctx.stroke(); });
+  } else if(k==='pin'){
+    ctx.beginPath(); ctx.moveTo(U*.5,U*.96); ctx.bezierCurveTo(U*.12,U*.56,U*.14,U*.08,U*.5,U*.08); ctx.bezierCurveTo(U*.86,U*.08,U*.88,U*.56,U*.5,U*.96); ctx.closePath(); ctx.fill();
+    ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(U*.5,U*.4,U*.15,0,Math.PI*2); ctx.fill(); ctx.restore();
+  } else if(k==='clock'){
+    ctx.beginPath(); ctx.arc(U*.5,U*.5,U*.4,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(U*.5,U*.26); ctx.lineTo(U*.5,U*.5); ctx.lineTo(U*.68,U*.6); ctx.stroke();
+  } else if(k==='phone'){
+    ctx.beginPath(); rr(ctx,U*.27,U*.06,U*.46,U*.88,U*.09); ctx.stroke(); ctx.beginPath(); ctx.moveTo(U*.43,U*.8); ctx.lineTo(U*.57,U*.8); ctx.stroke();
+  } else if(k==='heart'){
+    ctx.beginPath(); ctx.moveTo(U*.5,U*.88); ctx.bezierCurveTo(U*.02,U*.55,U*.1,U*.1,U*.36,U*.16); ctx.bezierCurveTo(U*.44,U*.18,U*.5,U*.26,U*.5,U*.3); ctx.bezierCurveTo(U*.5,U*.26,U*.56,U*.18,U*.64,U*.16); ctx.bezierCurveTo(U*.9,U*.1,U*.98,U*.55,U*.5,U*.88); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+function petalPath(ctx,rx,ry){ ctx.beginPath(); ctx.moveTo(-rx*.9,0); ctx.bezierCurveTo(-rx*.9,-ry*.95,rx*.5,-ry*1.05,rx*1.05,-ry*.15); ctx.bezierCurveTo(rx*1.15,ry*.7,-rx*.2,ry*1.05,-rx*.9,0); ctx.closePath(); }
+function peony(ctx,R){
+  const rings=[{n:8,r:.62,s:.42,o:0},{n:7,r:.42,s:.36,o:.3},{n:6,r:.25,s:.28,o:.1},{n:4,r:.1,s:.18,o:.4}];
+  rings.forEach((rg,ri)=>{ for(let i=0;i<rg.n;i++){ const ang=i*Math.PI*2/rg.n+rg.o+ri*.4, d=R*rg.r; ctx.save(); ctx.translate(Math.cos(ang)*d,Math.sin(ang)*d); ctx.rotate(ang); petalPath(ctx,R*rg.s*.82,R*rg.s*1.02); ctx.stroke(); ctx.restore(); } });
+  ctx.beginPath(); ctx.arc(0,0,R*.06,0,Math.PI*2); ctx.stroke();
+}
+function blossoms(ctx,w,h,c,o){
+  let s=o.seed||7; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
+  ctx.save(); if(o.clip){ ctx.beginPath(); ctx.ellipse(w/2,h/2,w/2,h/2,0,0,Math.PI*2); ctx.clip(); }
+  ctx.strokeStyle=c; ctx.fillStyle=c; ctx.lineWidth=o.sw||2; ctx.lineCap='round'; ctx.lineJoin='round';
+  const n=o.n||14, U=Math.min(w,h), pts=[];
+  const cols=Math.max(1,Math.round(Math.sqrt(n*w/h))), rows=Math.max(1,Math.ceil(n/cols)), cw=w/cols, ch=h/rows;
+  for(let r=0;r<rows;r++) for(let q=0;q<cols;q++){ const off=(r%2)*cw*.5; pts.push([q*cw+cw*.5+off+(rnd()-.5)*cw*.3,r*ch+ch*.5+(rnd()-.5)*ch*.3,Math.min(cw,ch)*(.3+rnd()*.08),rnd()*6.28]); }
+  pts.forEach(p=>{ // leaves first, so flowers sit on top
+    for(let k=0;k<4;k++){ const a=p[3]+k*1.57+rnd()*.7, len=p[2]*(1.1+rnd()*.5); ctx.save(); ctx.translate(p[0],p[1]); ctx.rotate(a); ctx.translate(p[2]*.5,0); leaf(ctx,len,len*.26); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(len*.85,0); ctx.stroke(); ctx.restore(); }
+  });
+  pts.forEach(p=>{ ctx.save(); ctx.translate(p[0],p[1]); ctx.rotate(p[3]); peony(ctx,p[2]*1.25); ctx.restore(); });
+  ctx.restore();
+}
 function drawOrn(ctx,l,pal,S){
   const w=l.w,h=l.h,c=col(l.color,pal),c2=col(l.color2||'@accent2',pal),sw=l.sw||2;
   switch(l.kind){
@@ -7893,17 +7965,24 @@ function drawOrn(ctx,l,pal,S){
     case 'dotgrid': dotgrid(ctx,w,h,c,l.sp); break;
     case 'stripes': stripes(ctx,w,h,c,l.sp||24,sw); break;
     case 'diamonds': diamondRow(ctx,w,h,c); break;
-  }
+    case 'rose': rose(ctx,w,h,c,c2); break;
+    case 'ring3d': ring3d(ctx,w,h,c,c2); break;
+    case 'blossoms': blossoms(ctx,w,h,c,{seed:l.seed,n:l.n,sw,clip:l.clip}); break;
+    case 'goldsprig': { const g=ctx.createLinearGradient(0,h,w,0); g.addColorStop(0,c2); g.addColorStop(.5,c); g.addColorStop(1,c2); sprig(ctx,w,h,g,{n:l.n,style:'fill',sw}); break; }
+    default: if(/^ic-/.test(l.kind)) icon(ctx,l.kind.slice(3),w,h,c,l.sw); }
 }
 ST.ORN_KINDS=[
   ['divider','Mstari wa mapambo','Divider'],['sprig','Tawi la majani','Leaf sprig'],['floral','Tawi la maua (line-art)','Floral line-art'],['wreath','Shada la majani','Leaf wreath'],
   ['frame','Fremu mbili','Double frame'],['bracket','Kona (bracket)','Corner bracket'],['cornerDeco','Kona ya Art-Deco','Art-deco corner'],['sunburst','Miale (sunburst)','Sunburst'],
   ['archOutline','Matao (arch)','Arch outline'],['rings','Pete mbili','Wedding rings'],['kente','Bendi ya kijiometri (Kiafrika)','African geometric band'],['diamonds','Almasi','Diamond row'],
-  ['dotgrid','Nukta (dot grid)','Dot grid'],['stripes','Mistari ya mshazari','Diagonal stripes'],['cloud','Wingu','Cloud'],['cross','Msalaba','Cross']
+  ['dotgrid','Nukta (dot grid)','Dot grid'],['stripes','Mistari ya mshazari','Diagonal stripes'],['cloud','Wingu','Cloud'],['cross','Msalaba','Cross'],
+  ['rose','Waridi','Rose'],['ring3d','Pete ya dhahabu','Gold ring'],['goldsprig','Majani ya dhahabu','Gold leaves'],['blossoms','Maua (line-art)','Blossom pattern'],
+  ['ic-calendar','Aikoni: tarehe','Icon: date'],['ic-pin','Aikoni: mahali','Icon: place'],['ic-clock','Aikoni: saa','Icon: time'],['ic-phone','Aikoni: simu','Icon: phone'],['ic-heart','Aikoni: moyo','Icon: heart']
 ];
 
 /* ---------- the renderer ---------- */
 /* opts: {S: pixel scale, ui: draw editor-only helpers, skip: Set of ids, only: fn, bleed: px, editing: id, before: id} */
+function EDS_EDIT(opts,l){ return opts.editing===l.id||opts.before===l.id; }
 function drawLayer(ctx,l,doc,pal,S,opts){
   const w=l.w, h=l.type==='text'?textH(l):l.h;
   ctx.save();
@@ -7916,6 +7995,7 @@ function drawLayer(ctx,l,doc,pal,S,opts){
   else { ctx.translate(cx,cy); if(l.rot) ctx.rotate(rad(l.rot)); if(l.flipX||l.flipY) ctx.scale(l.flipX?-1:1,l.flipY?-1:1); ctx.translate(-w/2,-h/2); }
   ctx.globalAlpha*=l.op==null?1:l.op;
   const W=lw,H=lh2;
+  if(l.blur&&l.type!=='photo'&&'filter' in ctx) ctx.filter='blur('+(l.blur*(S||1))+'px)';
   switch(l.type){
     case 'shape': {
       pathShape(ctx,l.kind==='line'?'rect':l.kind,W,H,l.radius);
@@ -7944,7 +8024,26 @@ function drawLayer(ctx,l,doc,pal,S,opts){
         }
       });
       clearShadow(ctx); break; }
-    case 'photo': drawPhoto(ctx,l,pal,S,opts,W,H,doc); break;
+    case 'photo': {
+      const hasFx=(l.fade||l.tone||l.blur)&&!(opts.ui&&EDS_EDIT(opts,l));
+      if(hasFx&&typeof document!=='undefined'){
+        const sc=Math.max(.05,S||1), oc=document.createElement('canvas'); oc.width=Math.max(1,Math.ceil(W*sc)); oc.height=Math.max(1,Math.ceil(H*sc));
+        const o2=oc.getContext('2d'); o2.scale(oc.width/W,oc.height/H);
+        drawPhoto(o2,l,pal,sc,Object.assign({},opts,{ui:opts.ui}),W,H,doc);
+        if(l.fade){
+          const f=l.fade; o2.globalCompositeOperation='destination-out'; o2.setTransform(1,0,0,1,0,0);
+          let gr;
+          if(f.rad){ o2.setTransform(oc.width/2,0,0,oc.height/2,oc.width/2,oc.height/2); gr=o2.createRadialGradient(0,0,0,0,0,f.rad===true?1:f.rad); f.s.forEach(s=>gr.addColorStop(clamp(s[0],0,1),'rgba(0,0,0,'+s[1]+')')); o2.fillStyle=gr; o2.fillRect(-1,-1,2,2); o2.setTransform(1,0,0,1,0,0); o2.globalCompositeOperation='source-over'; gr=null; }
+          else { const a=rad(f.a==null?90:f.a), dx=Math.cos(a), dy=Math.sin(a), half=(Math.abs(oc.width*dx)+Math.abs(oc.height*dy))/2, cx=oc.width/2, cy=oc.height/2; gr=o2.createLinearGradient(cx-dx*half,cy-dy*half,cx+dx*half,cy+dy*half); }
+          if(gr){ f.s.forEach(s=>gr.addColorStop(clamp(s[0],0,1),'rgba(0,0,0,'+s[1]+')')); o2.fillStyle=gr; o2.fillRect(0,0,oc.width,oc.height); }
+          o2.globalCompositeOperation='source-over';
+        }
+        const fl=[]; if(l.tone){ if(l.tone.sepia) fl.push('sepia('+l.tone.sepia+')'); if(l.tone.gray) fl.push('grayscale('+l.tone.gray+')'); if(l.tone.c) fl.push('contrast('+l.tone.c+')'); if(l.tone.b) fl.push('brightness('+l.tone.b+')'); }
+        if(l.blur) fl.push('blur('+(l.blur*sc)+'px)');
+        if(fl.length&&'filter' in ctx) ctx.filter=fl.join(' ');
+        ctx.drawImage(oc,0,0,W,H); ctx.filter='none';
+      } else drawPhoto(ctx,l,pal,S,opts,W,H,doc);
+      break; }
     case 'qr': {
       const pad=W*.07; ctx.fillStyle=col(l.plate||'#FFFFFF',pal); ctx.beginPath(); rr(ctx,0,0,W,H,W*.06); ctx.fill();
       const q=qrCanvas(l.value||'https://sherehehubtz.com',col(l.fg||'#111111',pal)); if(q){ ctx.imageSmoothingEnabled=false; ctx.drawImage(q,pad,pad,W-pad*2,H-pad*2); ctx.imageSmoothingEnabled=true; }
@@ -8000,7 +8099,7 @@ function drawPhoto(ctx,l,pal,S,opts,W,H,doc){
     ctx.drawImage(img,-m.dw/2,-m.dh/2,m.dw,m.dh);
     if('filter' in ctx) ctx.filter='none';
   } else {
-    ctx.fillStyle=col(l.ph||'@bg2',pal); ctx.fillRect(0,0,W,H);
+    if(!l.opt||opts.ui){ ctx.fillStyle=col(l.opt?'@bg2/0.45':(l.ph||'@bg2'),pal); ctx.fillRect(0,0,W,H); }
     if(opts.ui){
       silhouette(ctx,W,H,col('@accent/0.35',pal));
       ctx.fillStyle=col('@mute',pal); ctx.font=`600 ${Math.max(14,Math.min(W,H)*.075)}px Poppins, Arial, sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -8112,13 +8211,15 @@ ST.FIELD_DEFS=[ /* key, label sw, label en, multiline */
 ];
 function deriveFields(F){
   const parts=String(F.names||'').split(/\s*(?:&|\+|\band\b|\bna\b)\s*/i).map(s=>s.trim()).filter(Boolean);
-  return Object.assign({},F,{name1:parts[0]||F.names||'',name2:parts.length>1?parts.slice(1).join(' & '):'',amp:parts.length>1?'&':''});
+  const dm=String(F.date||'').match(/^(\d{1,2})\s+(.+)$/), dn=dm?+dm[1]:0, suf=LANG()==='en'?(dn%100>=11&&dn%100<=13?'th':['th','st','nd','rd'][dn%10<4?dn%10:0]):'';
+  const ini=s=>String(s||'').trim().charAt(0).toUpperCase();
+  return Object.assign({},F,{name1:parts[0]||F.names||'',name2:parts.length>1?parts.slice(1).join(' & '):'',amp:parts.length>1?'&':'',dnum:dm?dm[1]+suf:'',dmon:dm?dm[2]:'',mono:parts.length>1?ini(parts[0])+'&'+ini(parts[1]):ini(parts[0])});
 }
 function fieldText(doc,l,D){
   const sh=doc.show||{};
   const ok=f=>sh[f]!==false&&D[f];
   if(l.fields){ return l.fields.filter(ok).map(f=>D[f]).join(l.sep==null?'\n':l.sep); }
-  if(l.field){ const base=l.field==='name1'||l.field==='name2'||l.field==='amp'?'names':l.field; if(sh[base]===false||!D[l.field]) return ''; return (l.tpl||'{v}').replace('{v}',D[l.field]); }
+  if(l.field){ const base=l.field==='name1'||l.field==='name2'||l.field==='amp'||l.field==='mono'?'names':(l.field==='dnum'||l.field==='dmon'?'date':l.field); if(sh[base]===false||!D[l.field]) return ''; return (l.tpl||'{v}').replace('{v}',D[l.field]); }
   return null;
 }
 const SCRIPTF=/Great Vibes|Dancing Script|Pinyon|Allura|Parisienne|Sacramento|Alex Brush|Tangerine|Italianno|Satisfy|Playball|Cookie|Yellowtail/i;
@@ -8137,6 +8238,7 @@ ST.applyFields=applyFields; ST.deriveFields=deriveFields;
 /* ---------- the template library ---------- */
 const TPLS=[];
 function reg(o){ TPLS.push(o); }
+function reg2(o){ TPLS.splice(NEWFIRST++,0,o); } let NEWFIRST=0;
 const tt=(f,y,size,o)=>T(f,Object.assign({y,size},o));
 const lbl=(txt,x,y,w,o)=>T(null,Object.assign({text:txt,x,y,w,size:17,font:'Jost',weight:500,ls:5,upper:true,color:'@accent',align:'left'},o));
 
@@ -8472,6 +8574,65 @@ build:()=>[BG(1080,1080),
  tt('rsvp',980,19,{name:'RSVP',font:'Jost',ls:5,upper:true,color:'@accent'})]});
 
 ST.TPLS=TPLS;
+
+/* V87 — inspired by contemporary East-African invitation posters (original artwork, drawn in code) */
+reg2({key:'rose-rings',name:'Rose & Rings',cats:['wedding','engagement','church','anniversary'],st:['elegant','luxury','floral','poster'],pal:['mocha','champagne','ivory','burgundy'],w:1080,h:1514,photos:2,
+build:()=>[BG(1080,1514),
+ P(0,0,1080,660,{name:'Picha ya juu (mikono / wanandoa)',opt:true,fade:{a:90,s:[[0,0],[.5,0],[1,1]]},tone:{sepia:.4,gray:.45},role:'photo'}),
+ P(110,330,860,700,{name:'Picha ya nyuma iliyofifishwa',opt:true,op:.3,fade:{rad:1,s:[[0,0],[.45,.15],[1,1]]},tone:{sepia:.55,gray:.6},role:'photo'}),
+ O('ring3d',-120,410,340,250,{name:'Pete ya kushoto',color:'#F6DE9B',color2:'#B3832A',rot:-22,blur:7}),
+ O('ring3d',770,690,440,330,{name:'Pete ya kulia',color:'#F6DE9B',color2:'#B3832A',rot:20,blur:12}),
+ O('goldsprig',660,60,300,240,{name:'Majani juu',color:'#E4BE5C',color2:'#9C6D22',n:7,flipY:true}),
+ O('rose',730,-90,400,400,{name:'Waridi juu',color:'@on',color2:'#D4B77C'}),
+ O('goldsprig',130,1450,230,120,{name:'Majani chini',color:'#E4BE5C',color2:'#9C6D22',n:6}),
+ O('rose',-175,1405,340,340,{name:'Waridi chini',color:'@on',color2:'#D4B77C'}),
+ T(null,{text:tr('Harusi','Wedding'),name:'Neno la maandishi ya mkono',x:240,w:600,y:236,size:128,font:'Allura',color:'@accent'}),
+ T(null,{text:tr('Mwaliko','Invitation'),name:'Mwaliko',x:60,w:960,y:352,size:160,font:'Bodoni Moda',weight:700,color:'@ink',ls:-5,fit:true}),
+ tt('intro',566,30,{name:'Utangulizi',x:170,w:740,font:'Hanken Grotesk',weight:500,color:'@ink',lh:1.3}),
+ T('name1',{name:'Jina la kwanza',y:662,size:78,font:'DM Serif Display',color:'@accent',x:90,w:900,fit:true}),
+ T('amp',{name:'&',y:742,size:64,font:'DM Serif Display',color:'@accent',follow:'names'}),
+ T('name2',{name:'Jina la pili',y:798,size:78,font:'DM Serif Display',color:'@accent',x:90,w:900,fit:true,follow:'names'}),
+ S('rect',0,986,1080,246,{name:'Mkanda',fill:'@accent'}),
+ O('dotgrid',0,986,1080,246,{name:'Umbile la mkanda',color:'@on/0.10',sp:22}),
+ tt('title',1000,132,{name:'Kichwa cha tukio',x:40,w:1000,font:'DM Serif Display',color:'@on',fit:true}),
+ tt('sub',1148,34,{name:'Maelezo mafupi',x:140,w:800,font:'DM Serif Display',color:'@on',ls:1,follow:'sub'}),
+ O('ic-calendar',92,1276,50,50,{name:'Aikoni ya tarehe',color:'@ink'}),
+ T(null,{fields:['day','date'],sep:', ',name:'Siku na tarehe',x:160,w:380,y:1268,size:36,font:'Hanken Grotesk',weight:700,align:'left',color:'@ink',lh:1.15}),
+ tt('time',1380,32,{name:'Muda',x:160,w:380,font:'Hanken Grotesk',weight:700,align:'left',color:'@ink'}),
+ O('ic-pin',600,1276,50,50,{name:'Aikoni ya mahali',color:'@ink'}),
+ tt('venue',1268,36,{name:'Ukumbi',x:668,w:360,font:'Hanken Grotesk',weight:700,align:'left',color:'@ink',lh:1.15}),
+ tt('location',1384,28,{name:'Eneo',x:668,w:360,font:'Hanken Grotesk',weight:400,align:'left',color:'@mute'}),
+ tt('rsvp',1470,24,{name:'RSVP',x:300,w:480,font:'Hanken Grotesk',weight:700,ls:3,upper:true,color:'@accent'})]});
+
+reg2({key:'fatiha-circle',name:'Circle Invitation',cats:['wedding','engagement','anniversary','church'],st:['modern','elegant','floral','bold','poster'],pal:['wine','rose','blush','royal'],w:1080,h:1514,photos:0,
+build:()=>[BG(1080,1514),
+ S('circle',380,-170,760,600,{name:'Wingu la waridi 1',fill:'@accent2/0.22',blur:48}),
+ S('circle',-160,40,560,440,{name:'Wingu la waridi 2',fill:'@accent2/0.15',blur:52}),
+ O('blossoms',360,-70,780,560,{name:'Maua hafifu',color:'@accent2/0.26',sw:2,n:6,seed:11,blur:1}),
+ S('circle',-290,-260,660,660,{name:'Duara kijivu',fill:'@mute/0.5'}),
+ S('circle',-215,-320,600,600,{name:'Duara la kufunika',fill:'@bg'}),
+ O('wreath',430,86,220,220,{name:'Shada la nembo',color:'@accent',n:12}),
+ T('mono',{name:'Herufi za nembo',x:440,w:200,y:156,size:70,font:'Cinzel',weight:700,color:'@mute'}),
+ tt('intro',350,30,{name:'Utangulizi',x:150,w:780,font:'Hanken Grotesk',weight:600,color:'@ink',lh:1.3}),
+ S('rect',380,434,320,4,{name:'Mstari',fill:'@accent'}),
+ tt('title',470,230,{name:'Kichwa cha tukio',x:40,w:1000,font:'Italiana',color:'@mute',ls:-3,fit:true}),
+ T(null,{text:tr('Mwaliko','Invitation'),name:'Mwaliko',x:40,w:1000,y:684,size:186,font:'Bodoni Moda',weight:700,color:'@accent',ls:-4,fit:true}),
+ T('name1',{name:'Jina la kwanza',x:100,w:880,y:880,size:68,font:'Bodoni Moda',weight:700,align:'left',color:'@ink',fit:true}),
+ S('rounded',100,962,140,58,{name:'Kidonge',fill:'@accent',radius:14,follow:'names'}),
+ T(null,{text:tr('na','weds'),name:'Neno kidongeni',x:100,w:140,y:972,size:36,font:'Hanken Grotesk',weight:700,color:'@on',follow:'names'}),
+ T('name2',{name:'Jina la pili',x:256,w:720,y:962,size:68,font:'Bodoni Moda',weight:700,align:'left',color:'@ink',fit:true,follow:'names'}),
+ S('circle',470,1000,780,780,{name:'Duara kubwa',fill:'@accent'}),
+ O('blossoms',470,1000,780,780,{name:'Maua kwenye duara',color:'@on/0.16',sw:2.4,n:9,seed:5,clip:true}),
+ S('circle',724,1190,290,290,{name:'Duara jeupe',fill:'@on',shadow:{b:18,y:6,c:'#00000040'}}),
+ O('wreath',738,1204,262,262,{name:'Shada ndogo',color:'@accent',n:12}),
+ T('mono',{name:'Herufi za nembo 2',x:744,w:250,y:1296,size:74,font:'Cinzel',weight:700,color:'@mute'}),
+ T('dnum',{name:'Siku (namba)',x:100,w:300,y:1086,size:112,font:'Bodoni Moda',weight:700,align:'left',color:'@accent',lh:1}),
+ T('dmon',{name:'Mwezi na mwaka',x:100,w:360,y:1210,size:38,font:'Hanken Grotesk',weight:500,align:'left',color:'@ink'}),
+ S('rect',100,1272,340,4,{name:'Mstari 2',fill:'@accent'}),
+ tt('time',1318,64,{name:'Muda',x:100,w:360,font:'Bodoni Moda',weight:700,align:'left',color:'@mute'}),
+ tt('venue',1388,28,{name:'Ukumbi',x:100,w:350,font:'Hanken Grotesk',weight:700,align:'left',color:'@ink',lh:1.2}),
+ tt('rsvp',1470,24,{name:'RSVP',x:100,w:350,font:'Hanken Grotesk',weight:700,ls:2,align:'left',upper:true,color:'@accent'})]});
+
 const TPL_BY={}; TPLS.forEach(t=>TPL_BY[t.key]=t);
 ST.TPL_BY=TPL_BY;
 ST.STYLE_NAMES={elegant:['Maridadi','Elegant'],floral:['Maua','Floral'],luxury:['Anasa','Luxury'],minimal:['Rahisi','Minimal'],'black-gold':['Nyeusi & dhahabu','Black & gold'],modern:['Kisasa','Modern'],editorial:['Editorial','Editorial'],botanical:['Majani','Botanical'],traditional:['Jadi','Traditional'],classic:['Kikale','Classic'],african:['Kiafrika','African'],bold:['Ujasiri','Bold'],poster:['Poster','Poster'],portrait:['Picha kubwa','Portrait'],feminine:['Kike','Feminine'],warm:['Joto','Warm'],colorful:['Rangi','Colourful'],playful:['Furaha','Playful'],formal:['Rasmi','Formal'],academic:['Kitaaluma','Academic'],religious:['Kidini','Religious'],respectful:['Heshima','Respectful'],corporate:['Biashara','Corporate'],structured:['Mpangilio','Structured'],soft:['Laini','Soft'],dark:['Giza','Dark'],romantic:['Mapenzi','Romantic'],script:['Maandishi ya mkono','Script'],story:['Story/Status','Story'],typographic:['Maandishi','Typographic']};
@@ -8951,7 +9112,7 @@ async function runChecks(){
   /* photos */
   d.layers.filter(l=>l.type==='photo'&&vis(l)&&!l.bg).forEach(l=>{
     const nm=l.name||'Photo';
-    if(!l.asset){ if(l.role!=='logo') out.push({sev:'warn',id:l.id,msg:tr(`Fremu "${nm}" haina picha — weka picha au ifute.`,`Photo frame "${nm}" is empty — add a photo or delete it.`)}); return; }
+    if(!l.asset){ if(l.role!=='logo'&&!l.opt) out.push({sev:'warn',id:l.id,msg:tr(`Fremu "${nm}" haina picha — weka picha au ifute.`,`Photo frame "${nm}" is empty — add a photo or delete it.`)}); return; }
     const img=getImg(d.assets[l.asset]); if(!img) return;
     const m=photoMetrics(l,img), dens=m.iw/m.dw;
     if(dens<0.7) out.push({sev:'err',id:l.id,msg:tr(`Picha "${nm}" ina ubora mdogo (${m.iw}px) kwa ukubwa huu — itaonekana na ukungu. Tumia picha kubwa zaidi.`,`Photo "${nm}" is low resolution (${m.iw}px) for this size — it will look soft. Use a larger photo.`)});
