@@ -4424,7 +4424,7 @@ window.renderCards = function(){ sortGuests();
       </div>
       <h3>${E(g.name)}</h3>
       <div class="meta-row">${cardTag(g)}<span class="status ${state[0]}" id="gen-status-${g.id}">${state[1]}</span></div>
-      <div class="event-actions"><button class="primary" onclick="downloadCard('${g.id}')">${ic('download')}PNG</button><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray icon" title="Save to cloud" aria-label="Save to cloud" onclick="saveGeneratedCard('${g.id}')">${ic('upload')}</button><button class="gray icon" title="Open invitation" aria-label="Open invitation" onclick="openInvite('${g.id}')">${ic('external')}</button><button class="gray icon" title="Delete saved card" aria-label="Delete saved card" onclick="cardDeleteSaved('${g.id}')">${ic('trash')}</button></div>
+      <div class="event-actions"><button class="primary" onclick="downloadCard('${g.id}')">${ic('download')}PNG</button><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray icon" title="Save to cloud" aria-label="Save to cloud" onclick="saveGeneratedCard('${g.id}')">${ic('upload')}</button><button class="gray icon" title="Open invitation" aria-label="Open invitation" onclick="openInvite('${g.id}')">${ic('external')}</button><button class="gray icon" title="Delete card" aria-label="Delete card" onclick="cardDeleteSaved('${g.id}')">${ic('trash')}</button></div>
     </div>`;
   }).join('') + (ev.guests.length>shown.length?`<div style="grid-column:1/-1;text-align:center"><button class="gray" onclick="cardsLimit+=60;renderCards()">Show more (${ev.guests.length-shown.length} zaidi)</button></div>`:'');
   shown.forEach(g=>{ const el=$('qr-'+g.id); if(el){ try{ new QRCode(el,{text:qrUrl(ev,g),width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} } });
@@ -10985,9 +10985,11 @@ async function crmDeleteAllSaved(eid){
 }
 window.cardDeleteSaved=async function(gid){
   const ev=getEvent(currentEventId), g=ev&&ev.guests.find(x=>String(x.id)===String(gid)); if(!g) return;
-  const ok=await confirmDialog({title:tr('Futa kadi iliyohifadhiwa?','Delete the saved card?'),text:'<b>'+CRM_E(g.name)+'</b><br>'+tr('Kadi ya mgeni huyu iliyohifadhiwa kwenye cloud itafutwa. Unaweza kuitengeneza tena wakati wowote.','This guest\'s card saved in the cloud will be deleted. You can make it again at any time.'),ok:tr('Futa','Delete')}); if(!ok) return;
-  try{ const n=await crmRemoveSaved(ev.id,String(g.id)+'-'); g.generatedUrl=null; renderCards(); toast(n?tr('Kadi imefutwa.','Card deleted.'):tr('Hakuna kadi iliyohifadhiwa kwa mgeni huyu.','No saved card for this guest.')); }
-  catch(e){ crmErr(e); }
+  if(typeof isCoHost==='function'&&isCoHost()){ toast(tr('Ni mmiliki wa tukio pekee anayeweza kufuta kadi ya mgeni.','Only the event owner can delete a guest card.')); return; }
+  const ok=await confirmDialog({title:tr('Futa kadi ya mgeni huyu?','Delete this guest\'s card?'),text:'<b>'+CRM_E(g.name)+'</b><br>'+tr('Kadi yake itafutwa pamoja na mgeni kwenye orodha ya wageni. Link yake ya mwaliko na QR code yake vitaacha kufanya kazi. Hatua hii haiwezi kurudishwa.','Their card is deleted together with the guest on the guest list. Their invitation link and QR code stop working. This cannot be undone.'),ok:tr('Futa kadi','Delete card')}); if(!ok) return;
+  try{ if(sbOK()){ try{ await crmRemoveSaved(ev.id,String(g.id)+'-'); }catch(_){} } }catch(_){}
+  pendingDeleteGuestId=String(gid);
+  await window.confirmDeleteGuest();
 };
 window.cardsRemoveOpen=async function(eid){
   eid=eid||currentEventId; const ev=getEvent(eid);
@@ -12238,7 +12240,7 @@ Object.assign(window.SW_EXACT,{
 "Door check-in":"Kuingiza wageni mlangoni","Scan QR codes at the door with your team, even offline":"Changanua QR code mlangoni na timu yako, hata bila mtandao",
 "Reports and photos":"Ripoti na picha","Live reports, photo albums and a guest book PDF":"Ripoti za moja kwa moja, albamu za picha na PDF ya kitabu cha wageni"
 });
-Object.assign(window.SW_EXACT,{"Remove card":"Ondoa kadi","Delete saved card":"Futa kadi iliyohifadhiwa","No card design is set for this event. Use a saved design, or design a new card.":"Hakuna muundo wa kadi kwa tukio hili. Tumia muundo uliohifadhiwa, au buni kadi mpya."});
+Object.assign(window.SW_EXACT,{"Remove card":"Ondoa kadi","Delete card":"Futa kadi","No card design is set for this event. Use a saved design, or design a new card.":"Hakuna muundo wa kadi kwa tukio hili. Tumia muundo uliohifadhiwa, au buni kadi mpya."});
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
