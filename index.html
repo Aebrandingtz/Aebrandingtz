@@ -1260,6 +1260,19 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photogra
 .inst-sec{margin:10px 0}.inst-sec h3{margin:0 0 4px;font-size:14.5px}.inst-sec ol{margin:4px 0 0 20px;padding:0}.inst-sec li{margin:4px 0;font-size:13.5px}
 .inst-sec code{font:inherit;font-weight:700;background:none;padding:0;color:inherit}
 
+/* V88 meal choice + event page */
+.inv-meal{margin:0 0 14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.inv-meal-h{font-weight:700;margin-bottom:8px;color:var(--ink)}
+.inv-meal-opts{display:grid;gap:8px}
+.inv-meal-o{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;margin:0;font-weight:600}
+.inv-meal-o input{width:18px;height:18px;margin:0;accent-color:var(--ok)}
+.inv-meal-o:has(input:checked){border-color:var(--ok);background:var(--ok-soft)}
+.inv-meal small{display:block;margin-top:8px;color:var(--ink-2)}
+.meal-sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.evp-wrap{max-width:560px}
+.evp-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.evp-note{margin-top:16px;padding:12px;border-radius:12px;background:var(--line-2);color:var(--ink-2);font-size:13.5px}
+
 /* ===================== DESIGN STUDIO (V86) ===================== */
 body.st-open{overflow:hidden}
 .stI{width:18px;height:18px;flex:none;vertical-align:middle}
@@ -1599,7 +1612,7 @@ body.st-open{overflow:hidden}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V87</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V88</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -1739,6 +1752,8 @@ body.st-open{overflow:hidden}
         <option value="All">All guests</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option>
       </select>
       <span class="spacer"></span>
+      <button class="gray no-cohost" onclick="openMeals()"><svg class="i"><use href="#i-gift"/></svg>Meal choices</button>
+      <button class="gray no-cohost" onclick="openEventPage()"><svg class="i"><use href="#i-eye"/></svg>Event page</button>
       <button class="gray no-cohost" onclick="exportGuestsExcel()"><svg class="i"><use href="#i-download"/></svg>Export</button>
       <button class="gray no-cohost" onclick="openContribPicker()"><svg class="i"><use href="#i-wallet"/></svg>From contributors</button>
       <button class="gray" onclick="openPrintList()"><svg class="i"><use href="#i-sheet"/></svg>Print list</button>
@@ -2643,6 +2658,8 @@ async function loadEventsFromSupabase(){
     galleryOpen: !!e.gallery_open,
     showTable: e.show_table!==false,
     rsvpDeadline: e.rsvp_deadline || null,
+    mealOptions: Array.isArray(e.meal_options) ? e.meal_options.filter(Boolean) : [],
+    publicPage: !!e.public_page,
     poster: safeUrl(e.poster_url || ""),
     posterDouble: safeUrl(e.poster_url_double || ""),
     namePos: {
@@ -3230,7 +3247,7 @@ function renderEventCards(containerId){let box=document.getElementById(container
 function reportEvent(){const sel=document.getElementById('reportEventSelect');const id=sel?.value||currentEventId;return getEvent(id)}
 function reportStats(ev){const gs=ev?.guests||[];const total=gs.length,att=gs.filter(g=>g.rsvp==='Yes').length,no=gs.filter(g=>g.rsvp==='No').length,pending=total-att-no,checked=gs.filter(g=>g.checkedIn).length,single=gs.filter(g=>String(g.type).toLowerCase()==='single').length,double=gs.filter(g=>String(g.type).toLowerCase()==='double').length,sent=gs.filter(g=>g.sent).length;const people=gs.reduce((n,g)=>n+(g.rsvp==='Yes'?(Number(g.rsvpAttendees)||1):0),0);return {total,att,no,pending,checked,single,double,sent,people,checkRate:total?Math.round(checked/total*100):0,rsvpRate:total?Math.round(att/total*100):0}}
 function renderReports(){const ev=reportEvent(),box=document.getElementById('reportContent'),meta=document.getElementById('reportEventMeta');if(!box)return;if(!ev){if(meta)meta.textContent='';box.innerHTML='<div class="panel report-empty">No events to report yet.</div>';return}const st=reportStats(ev);if(meta)meta.textContent=`${ev.type||'Event'} • ${ev.venue||'Venue TBA'}${ev.eventDate?' • '+new Date(ev.eventDate).toLocaleString():''}`;const pct=(n,d)=>d?Math.round(n/d*100):0;box.innerHTML=`<div class="report-grid"><div class="report-stat"><span>Total Guests</span><b>${st.total}</b></div><div class="report-stat"><span>RSVP Attending</span><b>${st.att}</b><small>${pct(st.att,st.total)}% of guests</small></div><div class="report-stat"><span>Checked-in</span><b>${st.checked}</b><small>${st.checkRate}% checked in</small></div><div class="report-stat"><span>Invitations Sent</span><b>${st.sent}</b><small>${pct(st.sent,st.total)}% sent</small></div></div><div class="report-layout"><div class="panel"><div class="panel-heading"><div><h2>Attendance Overview</h2><p>RSVP and check-in for this event.</p></div></div><div class="bar-row"><span>Attending</span><div class="bar-track"><div class="bar-fill" style="width:${pct(st.att,st.total)}%"></div></div><b>${st.att}</b></div><div class="bar-row"><span>Pending</span><div class="bar-track"><div class="bar-fill" style="width:${pct(st.pending,st.total)}%"></div></div><b>${st.pending}</b></div><div class="bar-row"><span>Not Attending</span><div class="bar-track"><div class="bar-fill" style="width:${pct(st.no,st.total)}%"></div></div><b>${st.no}</b></div><div class="bar-row"><span>Checked-in</span><div class="bar-track"><div class="bar-fill" style="width:${st.checkRate}%"></div></div><b>${st.checked}</b></div></div><div class="panel"><div class="panel-heading"><div><h2>Card Breakdown</h2><p>Guest distribution.</p></div></div><div class="report-stat" style="margin-bottom:10px"><span>Single Cards</span><b>${st.single}</b></div><div class="report-stat"><span>Double Cards</span><b>${st.double}</b></div><div style="margin-top:14px;padding:14px;border-radius:13px;background:#f7f9fc"><b style="color:var(--navy)">${st.people}</b><span class="muted"> confirmed attendees</span></div></div></div><div class="panel" style="margin-top:18px"><div class="panel-heading"><div><h2>Guest Report</h2><p>Data for this event only.</p></div></div><div style="overflow:auto"><table class="report-table"><thead><tr><th>Guest</th><th>Phone</th><th>Card</th><th>Invitation</th><th>RSVP</th><th>Check-in</th></tr></thead><tbody>${st.total?ev.guests.map(g=>`<tr><td><b>${escapeHtml(g.name)}</b></td><td>${escapeHtml(g.phone||'')}</td><td>${escapeHtml(g.type||'')}</td><td>${g.sent?'Sent':'Pending'}</td><td>${escapeHtml(g.rsvp||'Pending')}</td><td>${g.checkedIn?'Checked-in':'Not yet'}</td></tr>`).join(''):'<tr><td colspan="6" class="report-empty">No guests.</td></tr>'}</tbody></table></div></div>`}
-function exportEventReportExcel(){const ev=reportEvent();if(!ev)return alert('Please choose an event first.');const st=reportStats(ev);const rows=[['SHEREHE HUB — EVENT REPORT'],['Event',ev.name],['Type',ev.type],['Venue',ev.venue||''],['Total Guests',st.total],['Attending',st.att],['Not Attending',st.no],['Pending',st.pending],['Checked-in',st.checked],['Single',st.single],['Double',st.double],['Invitations Sent',st.sent],['Confirmed Attendees',st.people],[],['Guest','Phone','Card Type','Invitation','RSVP','RSVP People','Check-in']];ev.guests.forEach(g=>rows.push([g.name,g.phone,g.type,g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.checkedIn?'Checked-in':'Not yet']));const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:25},{wch:18},{wch:14},{wch:15},{wch:15},{wch:13},{wch:15}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Event Report');XLSX.writeFile(wb,`${(ev.name||'event').replace(/[^a-z0-9]+/gi,'-')}-report.xlsx`);toast('Event report downloaded.')}function printEventReport(){const ev=reportEvent();if(!ev)return alert('Please choose an event first.');const st=reportStats(ev);const w=window.open('','_blank','width=1100,height=800');if(!w)return alert('Browser imezuia popup. Ruhusu popups.');w.document.write(`<!doctype html><html><head><title>${escapeHtml(ev.name)} — SHEREHE HUB Report</title><style>body{font-family:Arial,sans-serif;color:#10213f;padding:30px}h1{margin:0 0 5px}.meta{color:#64748b;margin-bottom:25px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{border:1px solid #ddd;border-radius:10px;padding:15px}.card b{display:block;font-size:25px;margin-top:5px}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:9px;border:1px solid #ddd;text-align:left;font-size:12px}th{background:#f3f6fa}@media print{button{display:none}}</style></head><body><h1>SHEREHE HUB — ${escapeHtml(ev.name)}</h1><div class="meta">${escapeHtml(ev.type||'')} • ${escapeHtml(ev.venue||'')} • Generated ${new Date().toLocaleString()}</div><div class="grid"><div class="card">Total Guests<b>${st.total}</b></div><div class="card">Attending<b>${st.att}</b></div><div class="card">Checked-in<b>${st.checked}</b></div><div class="card">Invitations Sent<b>${st.sent}</b></div></div><table><tr><th>Guest</th><th>Phone</th><th>Card</th><th>RSVP</th><th>Check-in</th></tr>${ev.guests.map(g=>`<tr><td>${escapeHtml(g.name)}</td><td>${escapeHtml(g.phone||'')}</td><td>${escapeHtml(g.type||'')}</td><td>${escapeHtml(g.rsvp||'Pending')}</td><td>${g.checkedIn?'Checked-in':'Not yet'}</td></tr>`).join('')}</table></body></html>`);w.document.close();w.onload=()=>w.print();}
+function exportEventReportExcel(){const ev=reportEvent();if(!ev)return alert('Please choose an event first.');const st=reportStats(ev);const rows=[['SHEREHE HUB — EVENT REPORT'],['Event',ev.name],['Type',ev.type],['Venue',ev.venue||''],['Total Guests',st.total],['Attending',st.att],['Not Attending',st.no],['Pending',st.pending],['Checked-in',st.checked],['Single',st.single],['Double',st.double],['Invitations Sent',st.sent],['Confirmed Attendees',st.people]];try{const mc=window.mealCounts?window.mealCounts(ev):null;if(mc&&mc.rows.length){rows.push([]);rows.push(['MEAL CHOICES (one per card, attending guests)']);mc.rows.forEach(r=>rows.push([r[0],r[1]]));rows.push(['No choice yet',mc.none])}}catch(e){}rows.push([],['Guest','Phone','Card Type','Invitation','RSVP','RSVP People','Meal','Check-in']);ev.guests.forEach(g=>rows.push([g.name,g.phone,g.type,g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.meal||'',g.checkedIn?'Checked-in':'Not yet']));const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:25},{wch:18},{wch:14},{wch:15},{wch:15},{wch:13},{wch:20},{wch:15}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Event Report');XLSX.writeFile(wb,`${(ev.name||'event').replace(/[^a-z0-9]+/gi,'-')}-report.xlsx`);toast('Event report downloaded.')}function printEventReport(){const ev=reportEvent();if(!ev)return alert('Please choose an event first.');const st=reportStats(ev);const w=window.open('','_blank','width=1100,height=800');if(!w)return alert('Browser imezuia popup. Ruhusu popups.');w.document.write(`<!doctype html><html><head><title>${escapeHtml(ev.name)} — SHEREHE HUB Report</title><style>body{font-family:Arial,sans-serif;color:#10213f;padding:30px}h1{margin:0 0 5px}.meta{color:#64748b;margin-bottom:25px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{border:1px solid #ddd;border-radius:10px;padding:15px}.card b{display:block;font-size:25px;margin-top:5px}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:9px;border:1px solid #ddd;text-align:left;font-size:12px}th{background:#f3f6fa}@media print{button{display:none}}</style></head><body><h1>SHEREHE HUB — ${escapeHtml(ev.name)}</h1><div class="meta">${escapeHtml(ev.type||'')} • ${escapeHtml(ev.venue||'')} • Generated ${new Date().toLocaleString()}</div><div class="grid"><div class="card">Total Guests<b>${st.total}</b></div><div class="card">Attending<b>${st.att}</b></div><div class="card">Checked-in<b>${st.checked}</b></div><div class="card">Invitations Sent<b>${st.sent}</b></div></div><table><tr><th>Guest</th><th>Phone</th><th>Card</th><th>RSVP</th><th>Check-in</th></tr>${ev.guests.map(g=>`<tr><td>${escapeHtml(g.name)}</td><td>${escapeHtml(g.phone||'')}</td><td>${escapeHtml(g.type||'')}</td><td>${escapeHtml(g.rsvp||'Pending')}</td><td>${g.checkedIn?'Checked-in':'Not yet'}</td></tr>`).join('')}</table></body></html>`);w.document.close();w.onload=()=>w.print();}
 </script>
 <script>
 (function(){
@@ -3419,11 +3436,11 @@ document.addEventListener('keydown',e=>{
 
   window.exportGuestsExcel=function(){
     const ev=getEvent(currentEventId); if(!ev){alert('Please choose an event first.');return;}
-    const rows=[['Event','Event ID','Name','Phone','Card Type','People','Table','Group','Invitation','RSVP','RSVP People','Check-in','Invitation URL']];
-    ev.guests.forEach(g=>rows.push([ev.name||'',ev.id,g.name||'',g.phone||'',cardLabel(g),cardParty(g),g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
+    const rows=[['Event','Event ID','Name','Phone','Card Type','People','Table','Group','Invitation','RSVP','RSVP People','Meal','Check-in','Invitation URL']];
+    ev.guests.forEach(g=>rows.push([ev.name||'',ev.id,g.name||'',g.phone||'',cardLabel(g),cardParty(g),g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.meal||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
     try{
       if(window.XLSX?.utils?.aoa_to_sheet && XLSX.writeFile){
-        const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:28},{wch:38},{wch:28},{wch:20},{wch:14},{wch:9},{wch:12},{wch:14},{wch:14},{wch:14},{wch:13},{wch:15},{wch:60}];
+        const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:28},{wch:38},{wch:28},{wch:20},{wch:14},{wch:9},{wch:12},{wch:14},{wch:14},{wch:14},{wch:13},{wch:20},{wch:15},{wch:60}];
         const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Guests');
         XLSX.writeFile(wb,(ev.name||'event').replace(/[^a-z0-9]+/gi,'-')+'-guests.xlsx'); toast('Guest list downloaded as Excel.'); return;
       }
@@ -3538,8 +3555,8 @@ document.addEventListener('keydown',e=>{
   // CSV fallback is always available, even if CDN libraries fail.
   window.downloadGuestsCsv=function(){
     const ev=getEvent(currentEventId); if(!ev)return alert('Please choose an event first.');
-    const rows=[['Event','Event ID','Name','Phone','Card Type','People','Table','Group','Invitation','RSVP','RSVP People','Check-in','Invitation URL']];
-    ev.guests.forEach(g=>rows.push([ev.name,ev.id,g.name,g.phone,cardLabel(g),cardParty(g),g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
+    const rows=[['Event','Event ID','Name','Phone','Card Type','People','Table','Group','Invitation','RSVP','RSVP People','Meal','Check-in','Invitation URL']];
+    ev.guests.forEach(g=>rows.push([ev.name,ev.id,g.name,g.phone,cardLabel(g),cardParty(g),g.table||'',g.group||'',g.sent?'Sent':'Pending',g.rsvp||'Pending',g.rsvpAttendees||'',g.meal||'',g.checkedIn?'Checked-in':'Not yet',guestInviteUrl(ev,g)]));
     const csv='\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n');
     downloadBlobFile(new Blob([csv],{type:'text/csv;charset=utf-8'}),(ev.name||'event').replace(/[^a-z0-9]+/gi,'-')+'-guests.csv');
   };
@@ -3689,7 +3706,7 @@ function hideSplash(){
   const s=$('bootSplash'); if(!s) return;
   s.classList.add('gone'); setTimeout(()=>{ if(s.parentNode) s.parentNode.removeChild(s); },400);
 }
-const isInviteLink = () => /(invite|gallery)=/.test(location.hash);
+const isInviteLink = () => /(invite|gallery)=|^#event=/.test(location.hash);
 if(isInviteLink()) document.body.classList.add('invite-mode');
 setTimeout(()=>{
   if($('bootSplash')){
@@ -4079,7 +4096,7 @@ window.openGuestDetails = function(gid){
   if(!ev||!g){ toast('Guest not found.'); return; }
   $('guestDetailTitle').textContent=g.name;
   $('guestDetailSubtitle').textContent=ev.name+' · '+ev.type;
-  const items=[['Phone',g.phone||'—'],['Card type',cardLabel(g)+' card'+(cardParty(g)>1?' · '+cardParty(g)+' people':'')],['Invitation',g.sent?('Sent'+(g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'')):'Not sent'],['RSVP',g.rsvp==='Yes'?'Attending'+(g.rsvpAttendees?` (${g.rsvpAttendees})`:''):g.rsvp==='No'?'Declined':'Awaiting'],['Check-in',g.checkedIn?'Arrived':'Not yet'],['Invitation link',guestInviteUrl(ev,g)]];
+  const items=[['Phone',g.phone||'—'],['Card type',cardLabel(g)+' card'+(cardParty(g)>1?' · '+cardParty(g)+' people':'')],['Invitation',g.sent?('Sent'+(g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'')):'Not sent'],['RSVP',g.rsvp==='Yes'?'Attending'+(g.rsvpAttendees?` (${g.rsvpAttendees})`:''):g.rsvp==='No'?'Declined':'Awaiting'],['Check-in',g.checkedIn?'Arrived':'Not yet'],...(g.meal?[['Meal',g.meal]]:[]),['Invitation link',guestInviteUrl(ev,g)]];
   $('guestDetailBody').innerHTML=`<div class="guest-detail-grid">${items.map(([k,v])=>`<div class="detail-item" ${k==='Invitation link'?'style="grid-column:1/-1"':''}><span>${k}</span><b ${k==='Invitation link'?'style="font-size:12.5px;font-weight:500"':''}>${E(v)}</b></div>`).join('')}</div>
     <div class="guest-detail-actions"><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray" onclick="openEditGuest('${g.id}')">${ic('edit')}Edit</button><button class="primary" onclick="openInvite('${g.id}')">${ic('external')}Open invitation</button></div>`;
   $('guestDetailModal').classList.add('open');
@@ -5291,6 +5308,72 @@ window.saveDeadline = async function(eid,clear){
   ev.rsvpDeadline=iso; OFFLINE.snapshot(); closeContributor(); doRefresh(); toast(iso?'RSVP deadline saved.':'RSVP deadline removed.');
 };
 
+/* ---------- V88: meal choices + public event page (host side) ---------- */
+window.mealCounts = function(ev){
+  const opts=(ev.mealOptions||[]).slice(), cnt={}; let none=0;
+  opts.forEach(o=>cnt[o]=0);
+  (ev.guests||[]).forEach(g=>{ if(g.rsvp!=='Yes') return; if(g.meal){ if(!(g.meal in cnt)){ cnt[g.meal]=0; opts.push(g.meal); } cnt[g.meal]++; } else none++; });
+  return {rows:opts.map(o=>[o,cnt[o]]), none};
+};
+function mealPanelHtml(ev){
+  const mc=mealCounts(ev); if(!mc.rows.length) return '';
+  const tot=Math.max(1,mc.rows.reduce((n,r)=>n+r[1],0)+mc.none);
+  const bar=(l,n)=>`<div class="bar-row"><span>${E(l)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/tot*100)}%"></div></div><b>${n}</b></div>`;
+  return `<div class="panel"><div class="panel-heading"><div><h2>Meal choices</h2><p>One choice per card, from guests who said Yes.</p></div></div>${mc.rows.map(r=>bar(r[0],r[1])).join('')}${bar('No choice yet',mc.none)}</div>`;
+}
+const MEAL_SUGGEST=['Pilau','Wali na nyama','Wali na maharage','Chips kuku','Biriani','Samaki','Mboga mboga'];
+window.openMeals = function(eid){
+  eid=eid||currentEventId; const ev=getEvent(eid); if(!ev) return toast('Choose an event first.');
+  const m=$('contribModalBox'); m.innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('gift')}</div><div><h2>Meal choices</h2><p>${E(ev.name)}</p></div></div>
+    <div class="guest-form-grid"><div class="field full"><label for="mealList">Meals guests can choose (one per line, up to 8)</label><textarea id="mealList" rows="6" maxlength="700" placeholder="Pilau&#10;Wali na nyama&#10;Chips kuku">${E((ev.mealOptions||[]).join('\\n'))}</textarea>
+    <div class="meal-sug">${MEAL_SUGGEST.map(s=>`<button type="button" class="gray sm" onclick="mealAdd(this.textContent)">${E(s)}</button>`).join('')}</div>
+    <div class="help" style="margin-top:6px">Guests pick one when they answer Yes on their invitation. You see the choices in the guest list, the report and the Excel export. Leave empty to switch this off.</div></div></div>
+    <div class="guest-form-actions"><button class="gray" onclick="closeContributor()">Cancel</button><button class="primary" onclick="saveMeals('${E(eid)}')">Save</button></div>`;
+  $('contribModal').classList.add('open');
+};
+window.mealAdd = function(t){
+  const ta=$('mealList'); if(!ta) return; const lines=ta.value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(lines.some(x=>x.toLowerCase()===t.toLowerCase())) return; if(lines.length>=8) return toast('Up to 8 meals.');
+  lines.push(t); ta.value=lines.join('\n');
+};
+window.saveMeals = async function(eid){
+  const ev=getEvent(eid); if(!ev) return;
+  if(window.__offlineMode||!navigator.onLine) return toast('This needs an internet connection.');
+  const seen=new Set(), arr=[];
+  ($('mealList').value||'').split('\n').forEach(x=>{ x=x.trim().replace(/\s+/g,' '); if(x&&!seen.has(x.toLowerCase())){ seen.add(x.toLowerCase()); arr.push(x); } });
+  if(arr.length>8) return toast('Up to 8 meals. Please remove some.');
+  if(arr.some(x=>x.length>60)) return toast('Each meal must be 60 characters or fewer.');
+  const r=await supabaseClient.from('events').update({meal_options:arr.length?arr:null}).eq('id',eid).eq('owner_id',evOwner(eid));
+  if(r.error) return toast('Could not save: '+(/meal_options/.test(r.error.message)?'run the V88 SQL file in Supabase first.':r.error.message));
+  ev.mealOptions=arr; OFFLINE.snapshot(); closeContributor(); doRefresh(); toast(arr.length?'Meal choices saved.':'Meal choices turned off.');
+};
+function eventPageUrl(ev){ return location.href.split('#')[0]+'#event='+encodeURIComponent(ev.id); }
+window.eventPageUrl = eventPageUrl;
+window.openEventPage = function(eid){
+  eid=eid||currentEventId; const ev=getEvent(eid); if(!ev) return toast('Choose an event first.');
+  const on=!!ev.publicPage, url=eventPageUrl(ev);
+  const m=$('contribModalBox'); m.innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('eye')}</div><div><h2>Event page</h2><p>${E(ev.name)}</p></div></div>
+    <div class="share-row"><div><b>Public event page</b><span id="epState">${on?'On — anyone with the link can view it.':'Off — only you can see it.'}</span></div><label class="sw"><input type="checkbox" id="epToggle" ${on?'checked':''} onchange="toggleEventPage('${E(eid)}',this.checked)" aria-label="Public event page"><i></i></label></div>
+    <div class="link-box"><input readonly id="epLink" value="${E(url)}" onclick="this.select()" aria-label="Event page link"><button class="gray" onclick="copyEventPageLink('${E(eid)}')">Copy</button><button class="gray" onclick="window.open(eventPageUrl(getEvent('${E(eid)}')),'_blank','noopener')">Open</button></div>
+    <div class="help" style="margin-top:10px">Shows the poster, date, venue, map and your message, with an add-to-calendar button. Guests cannot reply on this page: to collect RSVPs, send each guest their own invitation link.</div>
+    <div class="guest-form-actions"><button class="gray" onclick="closeContributor()">Close</button></div>`;
+  $('contribModal').classList.add('open');
+};
+window.toggleEventPage = async function(eid,on){
+  const ev=getEvent(eid); if(!ev) return; const cb=$('epToggle');
+  if(window.__offlineMode||!navigator.onLine){ if(cb) cb.checked=!on; return toast('This needs an internet connection.'); }
+  const r=await supabaseClient.from('events').update({public_page:!!on}).eq('id',eid).eq('owner_id',evOwner(eid));
+  if(r.error){ if(cb) cb.checked=!on; return toast('Could not change: '+(/public_page/.test(r.error.message)?'run the V88 SQL file in Supabase first.':r.error.message)); }
+  ev.publicPage=!!on; OFFLINE.snapshot(); const s=$('epState'); if(s) s.textContent=on?'On — anyone with the link can view it.':'Off — only you can see it.';
+  toast(on?'Event page is now public.':'Event page is hidden.');
+};
+window.copyEventPageLink = async function(eid){
+  const ev=getEvent(eid); if(!ev) return; const u=eventPageUrl(ev);
+  try{ await navigator.clipboard.writeText(u); toast('Event page link copied.'); }catch(e){ window.prompt('Copy this link:',u); }
+};
+
 /* ---------- help & guide ---------- */
 const SUPPORT_WA = '255764009731'; /* support WhatsApp number in international format without +, e.g. 255712345678 */
 const HELP_TOPICS = [
@@ -5432,7 +5515,7 @@ window.downloadWishBook = async function(){
 window.renderReports = function(){ sortGuests();
   const ev=reportEvent(), box=$('reportContent'), meta=$('reportEventMeta'); if(!box) return;
   if(!ev){ if(meta) meta.textContent='Summary of guests, RSVPs, invitations and check-ins.'; box.innerHTML=NEED_EVENT; return; }
-  const st=reportStats(ev);
+  const st=reportStats(ev), hasMeal=(ev.mealOptions||[]).length>0||ev.guests.some(g=>g.meal);
   if(meta) meta.textContent=[ev.type,ev.venue||'Venue not set',ev.date?fmtDate(ev.date):''].filter(Boolean).join(' · ');
   const bar=(label,n,p)=>`<div class="bar-row"><span>${label}</span><div class="bar-track"><div class="bar-fill" style="width:${p}%"></div></div><b>${n}</b></div>`;
   box.innerHTML=`<div class="report-grid">
@@ -5444,8 +5527,9 @@ window.renderReports = function(){ sortGuests();
       ${bar('Attending',st.att,pct(st.att,st.total))}${bar('Awaiting',st.pending,pct(st.pending,st.total))}${bar('Declined',st.no,pct(st.no,st.total))}${bar('Checked in',st.checked,st.checkRate)}</div>
     <div class="panel"><div class="panel-heading"><div><h2>Summary</h2><p>Current status.</p></div></div>
       <div class="stack"><div class="detail-item"><span>People confirmed</span><b>${st.people}</b></div><div class="detail-item"><span>Not replied yet</span><b>${st.pending}</b></div><div class="detail-item"><span>Not yet arrived (of those attending)</span><b>${Math.max(0,ev.guests.filter(g=>g.rsvp==='Yes'&&!g.checkedIn).length)}</b></div></div></div></div>
+    ${mealPanelHtml(ev)}
     <div class="panel"><div class="panel-heading"><div><h2>Guest report</h2><p>All guests of this event.</p></div></div>
-      ${st.total?`<div class="table-wrap"><table class="report-table"><thead><tr><th>Guest</th><th>Card</th><th>Invitation</th><th>RSVP</th><th>Check-in</th></tr></thead><tbody>${ev.guests.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${inviteBadge(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?'<span class="status ok">Arrived</span>':'<span class="status idle">—</span>'}</td></tr>`).join('')}</tbody></table></div>`:emptyState('No guests yet','Add guests to populate this report.')}</div>`;
+      ${st.total?`<div class="table-wrap"><table class="report-table"><thead><tr><th>Guest</th><th>Card</th><th>Invitation</th><th>RSVP</th>${hasMeal?'<th>Meal</th>':''}<th>Check-in</th></tr></thead><tbody>${ev.guests.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${inviteBadge(g)}</td><td>${rsvpBadge(g)}</td>${hasMeal?`<td>${g.meal?E(g.meal):'<span class="status idle">—</span>'}</td>`:''}<td>${g.checkedIn?'<span class="status ok">Arrived</span>':'<span class="status idle">—</span>'}</td></tr>`).join('')}</tbody></table></div>`:emptyState('No guests yet','Add guests to populate this report.')}</div>`;
 };
 
 /* ---------- admin ---------- */
@@ -5502,8 +5586,11 @@ window.photogSubAdd = function(){ photogSubSet(($('subEmail')||{}).value, +(($('
 window.loadRemoteGuestState = async function(){
   if(!supabaseClient||!currentSupabaseUser||!db.events.length) return;
   try{
-    const rs=await fetchAll(()=>supabaseClient.from('rsvps').select('guest_id,event_id,status,attendees').in('event_id',db.events.map(e=>e.id)).order('id'));
-    rs.forEach(r=>{ const e=getEvent(r.event_id), g=e?.guests.find(x=>String(x.id)===String(r.guest_id)); if(g){ g.rsvp=r.status||g.rsvp; g.rsvpAuto=false; g.rsvpAttendees=Number(r.attendees||1); } });
+    const ids=db.events.map(e=>e.id);
+    let rs;
+    try{ rs=await fetchAll(()=>supabaseClient.from('rsvps').select('guest_id,event_id,status,attendees,meal').in('event_id',ids).order('id')); }
+    catch(e1){ rs=await fetchAll(()=>supabaseClient.from('rsvps').select('guest_id,event_id,status,attendees').in('event_id',ids).order('id')); }
+    rs.forEach(r=>{ const e=getEvent(r.event_id), g=e?.guests.find(x=>String(x.id)===String(r.guest_id)); if(g){ g.rsvp=r.status||g.rsvp; g.rsvpAuto=false; g.rsvpAttendees=Number(r.attendees||1); g.meal=r.meal||''; } });
     doRefresh();
   }catch(e){ console.warn('rsvps:',e?.message||e); }
 };
@@ -5520,13 +5607,13 @@ window.downloadInviteIcs = icsDownload;
 const INV_I18N={
   sw:{top:'Mwaliko',loading:'Inapakia mwaliko…',nf_h:'Mwaliko haupatikani',nf_p:'Link hii si sahihi au event imeondolewa. Wasiliana na mwandaaji wa sherehe.',err_h:'Mwaliko haujafunguka',retry:'Jaribu tena',
     hello:'Habari',cal:'Ongeza kwenye kalenda',maps:'Fungua kwenye Google Maps →',ask:'Utahudhuria?',dbl:'Double card · watu wawili',sgl:'Single card · mtu mmoja',
-    howmany:'Idadi ya watakaokuja',two:'Wawili (2)',one:'Mmoja (1)',yes:'Ndiyo, nitahudhuria',no:'Sitaweza kuhudhuria',
+    howmany:'Idadi ya watakaokuja',meal:'Chagua chakula chako',meal_h:'Chagua kimoja kabla ya kujibu “Ndiyo”.',meal_req:'Tafadhali chagua chakula kwanza.',two:'Wawili (2)',one:'Mmoja (1)',yes:'Ndiyo, nitahudhuria',no:'Sitaweza kuhudhuria',
     d_yes:'✓ Umeshajibu: utahudhuria. Unaweza kubadilisha jibu hapo juu.',d_no:'Umeshajibu: hutahudhuria. Unaweza kubadilisha jibu hapo juu.',saving:'Inahifadhi jibu lako…',
     ok_yes:'✓ Asante! Tumepokea jibu lako — tunakusubiri kwa hamu.',ok_no:'✓ Asante kwa kutujulisha. Tumepokea jibu lako.',fail:'Jibu halijahifadhiwa: ',
     dl:'Tafadhali jibu kabla ya',dl_soon:'Muda wa kujibu unaisha karibuni:',dl_past:'Muda wa kujibu ulipita tarehe',dl_pastn:'Bado unaweza kujibu hapa chini.',tbl:'Meza yako',tblh:'Utakaa hapa — wahudumu watakuelekeza.',foot:'Imetumwa kupitia SHEREHE HUB',privacy:'Faragha',terms:'Masharti',back:'← Dashboard',alt:'Mwaliko',locale:'sw-TZ',wish_h:'Acha salamu kwa wenyeji',wish_p:'Andika ujumbe mfupi wa pongezi au baraka. Wenyeji pekee ndio watakaousoma.',wish_ph:'Andika salamu yako hapa…',wish_btn:'Tuma salamu',wish_edit:'Sasisha salamu',wish_ok:'✓ Asante! Salamu yako imewafikia wenyeji.',wish_fail:'Salamu haijatumwa: ',wish_empty:'Tafadhali andika salamu kwanza.',cd_label:'Zimebaki',cd_d:'siku',cd_h:'saa',cd_m:'dakika',cd_s:'sekunde',cd_today:'Siku ni leo! Tunakusubiri.',env_for:'Mwaliko maalum kwa'},
   en:{top:'Invitation',loading:'Loading your invitation…',nf_h:'Invitation not found',nf_p:'This link is not valid or the event has been removed. Please contact the host.',err_h:'The invitation could not be opened',retry:'Try again',
     hello:'Hello',cal:'Add to calendar',maps:'Open in Google Maps →',ask:'Will you attend?',dbl:'Double card · for two people',sgl:'Single card · for one person',
-    howmany:'Number attending',two:'Two (2)',one:'One (1)',yes:'Yes, I will attend',no:'Sorry, I cannot attend',
+    howmany:'Number attending',meal:'Choose your meal',meal_h:'Pick one before you answer “Yes”.',meal_req:'Please choose a meal first.',two:'Two (2)',one:'One (1)',yes:'Yes, I will attend',no:'Sorry, I cannot attend',
     d_yes:'✓ You have replied: you will attend. You can change your reply above.',d_no:'You have replied: you will not attend. You can change your reply above.',saving:'Saving your reply…',
     ok_yes:'✓ Thank you! We have received your reply — we look forward to seeing you.',ok_no:'✓ Thank you for letting us know. We have received your reply.',fail:'Your reply was not saved: ',
     dl:'Please reply before',dl_soon:'The reply deadline is close:',dl_past:'The reply deadline passed on',dl_pastn:'You can still reply below.',tbl:'Your table',tblh:'You will be seated here — the ushers will guide you.',foot:'Sent through SHEREHE HUB',privacy:'Privacy',terms:'Terms',back:'← Dashboard',alt:'Invitation',locale:'en-GB',wish_h:'Leave a message for the hosts',wish_p:'Write a short note of congratulations or blessings. Only the hosts will read it.',wish_ph:'Write your message here…',wish_btn:'Send message',wish_edit:'Update message',wish_ok:'✓ Thank you! Your message has reached the hosts.',wish_fail:'Your message was not sent: ',wish_empty:'Please write a message first.',cd_label:'Time left',cd_d:'days',cd_h:'hours',cd_m:'min',cd_s:'sec',cd_today:'The day is here! We are waiting for you.',env_for:'A special invitation for'}
@@ -5550,6 +5637,7 @@ window.setInviteLang = function(l){
   window.__invLang=l; try{ localStorage.setItem('sherehe_lang',l); }catch(e){}
   document.documentElement.lang=l;
   if(!window.__langSync&&window.setLang&&window.currentLang&&window.currentLang()!==l){ window.__langSync=true; try{ window.setLang(l); }finally{ window.__langSync=false; } }
+  if(window.__evpMode){ renderEventPage(); return; }
   renderInvite(); if(window.renderGallery && $('galleryPage').style.display!=='none') renderGallery();
 };
 window.leaveInvite = function(){ history.replaceState(null,'',location.pathname+location.search); document.body.classList.remove('invite-mode'); $('publicRsvp').style.display='none'; doRefresh(); };
@@ -5565,6 +5653,7 @@ function invStatusHtml(T){
   if(s.startsWith('fail:')) return `<div id="publicRsvpStatus" class="inv-done bad">${E(T.fail+s.slice(5))}</div>`;
   if(s==='d_yes') return `<div id="publicRsvpStatus" class="inv-done ok">${T.d_yes}</div>`;
   if(s==='d_no') return `<div id="publicRsvpStatus" class="inv-done wait">${T.d_no}</div>`;
+  if(s==='need_meal') return `<div id="publicRsvpStatus" class="inv-done bad">${T.meal_req}</div>`;
   return `<div id="publicRsvpStatus"></div>`;
 }
 
@@ -5637,6 +5726,8 @@ function renderInvite(){
   const peopleOpt=n=>n===1?T.one:n===2?T.two:`${L==='sw'?'Watu':'People'} (${n})`;
   const eventId=ev.id, guestId=g.id||window.__invGuestId;
   const prevAtt=$('publicAttendees')?.value;
+  const mealOpts=Array.isArray(ev.meal_options)?ev.meal_options.filter(Boolean):[], prevMeal=document.querySelector('input[name="invMeal"]:checked')?.value||window.__invMeal||g.meal||'';
+  const mealHtml=mealOpts.length?`<div class="inv-meal"><div class="inv-meal-h">${T.meal}</div><div class="inv-meal-opts">${mealOpts.map(x=>`<label class="inv-meal-o"><input type="radio" name="invMeal" value="${E(x)}" ${x===prevMeal?'checked':''}><span>${E(x)}</span></label>`).join('')}</div><small>${T.meal_h}</small></div>`:'';
   const rows=[];
   if(ev.date) rows.push(`<div>${ic('calendar')}<div><b>${E(invDate(ev.date,L))}</b><button class="text-button inv-cal" onclick="downloadInviteIcs()">${T.cal}</button></div></div>`);
   if(ev.venue) rows.push(`<div>${ic('pin')}<div><b>${E(ev.venue)}</b><br><a href="${E(ev.maps||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue)))}" target="_blank" rel="noopener">${T.maps}</a></div></div>`);
@@ -5653,6 +5744,7 @@ function renderInvite(){
     ${ev.message?`<div class="inv-msg">${E(ev.message)}</div>`:''}
     <div class="inv-ask">${T.ask}</div>
     ${dbl?`<div class="inv-attend"><label for="publicAttendees">${T.howmany}</label><select id="publicAttendees">${Array.from({length:party},(_,i)=>party-i).map(n=>`<option value="${n}">${peopleOpt(n)}</option>`).join('')}</select></div>`:''}
+    ${mealHtml}
     <div class="inv-btns"><button class="yes" onclick="submitPublicRsvp('${eventId}','${guestId}','Yes','${dbl?'Double':'Single'}',this)">${T.yes}</button><button class="no" onclick="submitPublicRsvp('${eventId}','${guestId}','No','${dbl?'Double':'Single'}',this)">${T.no}</button></div>
     ${invStatusHtml(T)}<div id="inviteWish">${wishHtml(T)}</div></div><div class="inv-foot">${T.foot} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${T.privacy}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${T.terms}</a></div>`);
   if(prevAtt && $('publicAttendees')) $('publicAttendees').value=prevAtt;
@@ -5664,12 +5756,15 @@ window.loadPublicInvitationFromSupabase = async function(){
   document.body.classList.add('invite-mode');
   const wrap=$('publicRsvp'), body=$('publicRsvpBody'); wrap.style.display='block'; $('authScreen').style.display='none';
   const key=eventId+'|'+guestId; if(window.__invKey===key && body.querySelector('.inv-btns')) return true; window.__invKey=key;
-  window.__invStatus=''; window.__invGuestId=guestId; document.documentElement.lang=invLang();
+  window.__invStatus=''; window.__invMeal=''; window.__invGuestId=guestId; document.documentElement.lang=invLang();
   const T=INV_I18N[invLang()];
   invShell(`<div class="inv-error"><p>${T.loading}</p></div>`);
   if(!supabaseClient){ try{ initSupabaseAuth(); }catch(e){} }
   try{
-    const {data,error}=await supabaseClient.rpc('get_public_invitation',{p_event_id:eventId,p_guest_id:guestId,p_card_type:type});
+    const args={p_event_id:eventId,p_guest_id:guestId,p_card_type:type};
+    let res=await supabaseClient.rpc('get_public_invitation_v2',args);
+    if(res.error) res=await supabaseClient.rpc('get_public_invitation',args);
+    const {data,error}=res;
     if(error) throw error;
     const T2=INV_I18N[invLang()];
     if(!data){ window.__invData=null; invShell(`<div class="inv-error"><h2>${T2.nf_h}</h2><p>${T2.nf_p}</p></div>`); return true; }
@@ -5690,12 +5785,21 @@ window.loadPublicInvitationFromSupabase = async function(){
 window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
   const dbl=String(cardType).toLowerCase()==='double', sel=$('publicAttendees');
   const attendees = status==='No' ? 1 : (dbl&&sel ? Number(sel.value) : 1);
+  const mopts=(window.__invData&&window.__invData.event&&window.__invData.event.meal_options)||[], useMeal=Array.isArray(mopts)&&mopts.length>0;
+  let meal=null;
+  if(useMeal&&status==='Yes'){
+    const pick=document.querySelector('input[name="invMeal"]:checked'); meal=pick?pick.value:null;
+    if(!meal){ window.__invStatus='need_meal'; const b0=$('publicRsvpStatus'); if(b0) b0.outerHTML=invStatusHtml(INV_I18N[invLang()]); const f=document.querySelector('.inv-meal'); if(f) f.scrollIntoView({block:'center',behavior:'smooth'}); return; }
+    window.__invMeal=meal;
+  }
   window.__invStatus='saving';
   let box=$('publicRsvpStatus'); box.className='inv-done wait'; box.textContent=INV_I18N[invLang()].saving;
   document.querySelectorAll('.inv-btns button').forEach(b=>b.disabled=true);
   try{
-    const {error}=await supabaseClient.rpc('submit_public_rsvp',{p_event_id:eventId,p_guest_id:guestId,p_status:status,p_attendees:attendees,p_card_type:cardType});
+    const {error}= useMeal ? await supabaseClient.rpc('submit_public_rsvp_meal',{p_event_id:eventId,p_guest_id:guestId,p_status:status,p_attendees:attendees,p_card_type:cardType,p_meal:meal})
+                           : await supabaseClient.rpc('submit_public_rsvp',{p_event_id:eventId,p_guest_id:guestId,p_status:status,p_attendees:attendees,p_card_type:cardType});
     if(error) throw error;
+    if(window.__invData&&window.__invData.guest) window.__invData.guest.meal=meal;
     window.__invStatus = status==='Yes' ? 'ok_yes' : 'ok_no';
   }catch(err){ window.__invStatus='fail:'+(err.message||err); }
   finally{
@@ -5705,8 +5809,9 @@ window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
     document.querySelectorAll('.inv-btns button').forEach(b=>b.disabled=false);
   }
 };
-window.addEventListener('hashchange',()=>{ if(isInviteLink()) loadPublicInvitationFromSupabase(); if(/^#gallery=/.test(location.hash) && window.loadPublicGallery) loadPublicGallery(); });
-document.addEventListener('DOMContentLoaded',()=>{ if(isInviteLink()) loadPublicInvitationFromSupabase(); if(/^#gallery=/.test(location.hash) && window.loadPublicGallery) loadPublicGallery(); });
+const routePublic=()=>{ if(/^#event=/.test(location.hash)){ if(window.loadPublicEvent) loadPublicEvent(); return; } if(isInviteLink()&&/invite=/.test(location.hash)) loadPublicInvitationFromSupabase(); if(/^#gallery=/.test(location.hash) && window.loadPublicGallery) loadPublicGallery(); };
+window.addEventListener('hashchange',routePublic);
+document.addEventListener('DOMContentLoaded',routePublic);
 
 /* ---------- decorative sample QR on the login screen ---------- */
 (function(){
@@ -6059,8 +6164,8 @@ const OFFLINE = (function(){
   }
   function snapshot(){
     if(!currentSupabaseUser || currentSupabaseUser.offline) return;
-    const events=db.events.map(e=>({id:e.id,owner_id:e.owner_id,name:e.name,type:e.type,date:e.date,venue:e.venue,maps:e.maps,message:e.message,galleryOpen:!!e.galleryOpen,showTable:e.showTable!==false,rsvpDeadline:e.rsvpDeadline||null,poster:e.poster,posterDouble:e.posterDouble,namePos:e.namePos,namePosDouble:e.namePosDouble,
-      guests:e.guests.map(g=>({id:g.id,name:g.name,phone:g.phone,type:g.type,label:g.label||'',party:g.party||0,table:g.table,group:g.group,rsvp:g.rsvp,rsvpAttendees:g.rsvpAttendees,checkedIn:!!g.checkedIn,pending:!!g.pending,sent:!!g.sent,sent_whatsapp:!!g.sent_whatsapp,sent_sms:!!g.sent_sms}))}));
+    const events=db.events.map(e=>({id:e.id,owner_id:e.owner_id,name:e.name,type:e.type,date:e.date,venue:e.venue,maps:e.maps,message:e.message,galleryOpen:!!e.galleryOpen,showTable:e.showTable!==false,rsvpDeadline:e.rsvpDeadline||null,mealOptions:e.mealOptions||[],publicPage:!!e.publicPage,poster:e.poster,posterDouble:e.posterDouble,namePos:e.namePos,namePosDouble:e.namePosDouble,
+      guests:e.guests.map(g=>({id:g.id,name:g.name,phone:g.phone,type:g.type,label:g.label||'',party:g.party||0,table:g.table,group:g.group,rsvp:g.rsvp,rsvpAttendees:g.rsvpAttendees,meal:g.meal||'',checkedIn:!!g.checkedIn,pending:!!g.pending,sent:!!g.sent,sent_whatsapp:!!g.sent_whatsapp,sent_sms:!!g.sent_sms}))}));
     wr(SNAP,{v:1,at:Date.now(),user:{id:currentSupabaseUser.id,email:currentSupabaseUser.email||''},staff:!!window.__staffMode,roles:window.__staffRoles||{},events});
   }
   function applyQueue(){
@@ -6582,7 +6687,7 @@ window.loadPublicGallery = async function(){
   const eventId=decodeURIComponent(m[1]);
   document.body.classList.add('invite-mode'); $('authScreen').style.display='none'; $('publicRsvp').style.display='none';
   $('galleryPage').style.display='block'; hideSplash();
-  window.__galData=null; window.__galState='loading'; renderGallery();
+  window.__evpMode=false; window.__galData=null; window.__galState='loading'; renderGallery();
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId)){ window.__galState='missing'; renderGallery(); return true; }
   if(!supabaseClient){ try{ initSupabaseAuth(); }catch(e){} }
   try{
@@ -6611,6 +6716,48 @@ window.renderGallery = function(){
       <div class="gal-grid">${ph.map((p,i)=>`<button type="button" onclick="openLightbox(${i})" aria-label="Photo ${i+1}"><img loading="lazy" src="${E(safeUrl(p.url))}" alt="Photo ${i+1}"${p.width&&p.height?` width="${p.width}" height="${p.height}"`:''}></button>`).join('')}</div>`;
   }
   pg.innerHTML=`<div class="gal-wrap">${top}${hero}${body}<div class="inv-foot" style="margin-top:22px;border:0">${T.foot} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${T.privacy}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${T.terms}</a></div></div>`;
+};
+/* ----- guest side: public event page (V88) ----- */
+const EVP_I18N={
+  sw:{loading:'Inapakia taarifa za tukio…',nf_h:'Ukurasa haupatikani',nf_p:'Mwandaaji hajafungua ukurasa huu, au link si sahihi.',err_h:'Ukurasa haukufunguka',retry:'Jaribu tena',cal:'Ongeza kwenye kalenda',maps:'Fungua kwenye Google Maps →',note:'Una kadi ya mwaliko? Tumia link uliyotumiwa binafsi kujibu kama utahudhuria.',foot:'Imetumwa kupitia SHEREHE HUB',privacy:'Faragha',terms:'Masharti',back:'← Dashboard',alt:'Poster ya tukio',locale:'sw-TZ'},
+  en:{loading:'Loading event details…',nf_h:'Page not found',nf_p:'The host has not opened this page, or the link is not valid.',err_h:'The page could not be opened',retry:'Try again',cal:'Add to calendar',maps:'Open in Google Maps →',note:'Have an invitation card? Use the personal link you were sent to reply.',foot:'Sent through SHEREHE HUB',privacy:'Privacy',terms:'Terms',back:'← Dashboard',alt:'Event poster',locale:'en-GB'}
+};
+window.loadPublicEvent = async function(){
+  const m=location.hash.match(/^#event=([^&]+)/); if(!m) return false;
+  const eventId=decodeURIComponent(m[1]);
+  document.body.classList.add('invite-mode'); $('authScreen').style.display='none'; $('publicRsvp').style.display='none';
+  $('galleryPage').style.display='block'; hideSplash(); document.documentElement.lang=invLang();
+  window.__evpMode=true; window.__evpData=null; window.__evpState='loading'; renderEventPage();
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId)){ window.__evpState='missing'; renderEventPage(); return true; }
+  if(!supabaseClient){ try{ initSupabaseAuth(); }catch(e){} }
+  try{
+    const {data,error}=await supabaseClient.rpc('get_public_event',{p_event_id:eventId});
+    if(error) throw error;
+    if(!data) window.__evpState='missing';
+    else { data.maps=normalizeUrl(data.maps); data.poster_url=safeUrl(data.poster_url); window.__evpData=data; window.__evpState='ready'; window.__inv={id:data.id,name:data.name||'',date:data.date,venue:data.venue}; }
+  }catch(err){ window.__evpState='error'; window.__evpErr=err.message||String(err); }
+  renderEventPage(); return true;
+};
+window.renderEventPage = function(){
+  const pg=$('galleryPage'); if(!pg) return;
+  const L=invLang(), T=EVP_I18N[L], st=window.__evpState||'loading', ev=window.__evpData;
+  const top=`<div class="gal-top"><span class="brand"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span><span class="brand-word">SHEREHE <b>HUB</b></span></span><div class="lang-switch" role="group" aria-label="Language"><button type="button" class="${L==='sw'?'on':''}" onclick="setInviteLang('sw')">SW</button><button type="button" class="${L==='en'?'on':''}" onclick="setInviteLang('en')">EN</button></div>${currentSupabaseUser&&!currentSupabaseUser.offline?`<button class="back gray sm" onclick="leaveGallery()">${T.back}</button>`:''}</div>`;
+  let body='';
+  if(st==='loading') body=`<div class="gal-msg"><p>${T.loading}</p></div>`;
+  else if(st==='missing') body=`<div class="gal-msg"><h2>${T.nf_h}</h2><p>${T.nf_p}</p></div>`;
+  else if(st==='error') body=`<div class="gal-msg"><h2>${T.err_h}</h2><p>${E(window.__evpErr||'')}</p><p style="margin-top:10px"><button class="gray" onclick="loadPublicEvent()">${T.retry}</button></p></div>`;
+  else {
+    const rows=[];
+    if(ev.date) rows.push(`<div>${ic('calendar')}<div><b>${E(invDate(ev.date,L))}</b><button class="text-button inv-cal" onclick="downloadInviteIcs()">${T.cal}</button></div></div>`);
+    if(ev.venue) rows.push(`<div>${ic('pin')}<div><b>${E(ev.venue)}</b><br><a href="${E(ev.maps||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue)))}" target="_blank" rel="noopener">${T.maps}</a></div></div>`);
+    body=`<div class="evp-card">${ev.poster_url?`<img class="inv-poster" src="${E(ev.poster_url)}" alt="${T.alt}">`:''}
+      <div class="inv-body"><div class="inv-who"><span class="tag blue">${E(ev.type||'Event')}</span></div>
+      <h1 class="inv-title">${E(ev.name||'Event')}</h1>
+      ${rows.length?`<div class="inv-list">${rows.join('')}</div>`:''}
+      ${ev.message?`<div class="inv-msg">${E(ev.message)}</div>`:''}
+      <div class="evp-note">${T.note}</div></div></div>`;
+  }
+  pg.innerHTML=`<div class="gal-wrap evp-wrap">${top}${body}<div class="inv-foot" style="margin-top:22px;border:0">${T.foot} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${T.privacy}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${T.terms}</a></div></div>`;
 };
 window.downloadAllPublic = async function(){
   const L=invLang(), T=GAL_I18N[L], btn=$('galZip'), old=btn?btn.innerHTML:'', ph=window.__galPhotos||[];
@@ -10986,7 +11133,17 @@ window.SW_MSG = {
 "Template":"Kiolezo (template)",
 "Add tasks":"Ongeza kazi",
 "Nothing new to add.":"Hakuna kipya cha kuongeza.",
-"Remind on WhatsApp":"Kumbusha kwa WhatsApp"
+"Remind on WhatsApp":"Kumbusha kwa WhatsApp",
+"Meal choices":"Chaguo la chakula","Event page":"Ukurasa wa tukio","Meal":"Chakula","Choose an event first.":"Chagua tukio kwanza.",
+"Meals guests can choose (one per line, up to 8)":"Vyakula wageni wanavyoweza kuchagua (kimoja kila mstari, hadi 8)",
+"Guests pick one when they answer Yes on their invitation. You see the choices in the guest list, the report and the Excel export. Leave empty to switch this off.":"Mgeni huchagua kimoja anapojibu Ndiyo kwenye mwaliko wake. Utaona chaguo kwenye orodha ya wageni, ripoti na Excel. Acha tupu ukitaka kuzima.",
+"Up to 8 meals.":"Hadi vyakula 8.","Up to 8 meals. Please remove some.":"Hadi vyakula 8. Tafadhali ondoa vingine.","Each meal must be 60 characters or fewer.":"Kila chakula kiwe na herufi 60 au pungufu.",
+"Meal choices saved.":"Chaguo la chakula limehifadhiwa.","Meal choices turned off.":"Chaguo la chakula limezimwa.",
+"Public event page":"Ukurasa wa umma wa tukio","On — anyone with the link can view it.":"Imewashwa — yeyote mwenye link anaweza kuuona.","Off — only you can see it.":"Imezimwa — wewe pekee ndiye unayeuona.",
+"Shows the poster, date, venue, map and your message, with an add-to-calendar button. Guests cannot reply on this page: to collect RSVPs, send each guest their own invitation link.":"Unaonyesha poster, tarehe, ukumbi, ramani na ujumbe wako, pamoja na kitufe cha kuongeza kwenye kalenda. Wageni hawawezi kujibu kwenye ukurasa huu: ili kupata majibu (RSVP), mtumie kila mgeni link yake ya mwaliko.",
+"Event page link copied.":"Link ya ukurasa wa tukio imenakiliwa.","Event page is now public.":"Ukurasa wa tukio sasa uko wazi kwa umma.","Event page is hidden.":"Ukurasa wa tukio umefichwa.",
+"One choice per card, from guests who said Yes.":"Chaguo moja kwa kila kadi, kutoka kwa wageni waliojibu Ndiyo.","No choice yet":"Hajachagua bado",
+"This needs an internet connection.":"Hii inahitaji intaneti."
 };
 
 /* ===== Language switch (English / Kiswahili) =====
