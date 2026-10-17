@@ -1212,7 +1212,7 @@ body.cohost-mode [data-view="contributions"],body.cohost-mode [data-view="messag
 @media (max-width:520px){.ct-extra-row{grid-template-columns:1fr}}
 
 /* V74 photographer role: sees only the Photos page */
-body.photographer-mode .app-sidebar .nav:not([data-view="photos"]),body.photographer-mode .app-sidebar .side-label,body.photographer-mode #staffPanel,body.photographer-mode .side-foot,body.photographer-mode #adminNavGroup,body.photographer-mode .no-photog{display:none!important}
+body.photographer-mode .app-sidebar .nav:not([data-view="photos"]):not([data-view="collections"]),body.photographer-mode .app-sidebar .side-label,body.photographer-mode #staffPanel,body.photographer-mode .side-foot,body.photographer-mode #adminNavGroup,body.photographer-mode .no-photog{display:none!important}
 
 /* V82 tasks edit/print + photo multi-select */
 .tk-bar{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
@@ -1452,6 +1452,159 @@ body.st-open{overflow:hidden}
 }
 @media (max-width:520px){ .st-tgrid{grid-template-columns:repeat(2,1fr)} .st-lh{padding-top:14px} }
 
+/* ===== V91 Collections ===== */
+.seg{display:inline-flex;background:var(--line-2,#eef0f6);border-radius:999px;padding:3px;gap:2px}
+.seg button{background:transparent;color:var(--muted);padding:6px 14px;border-radius:999px;font-weight:600;font-size:13px;box-shadow:none}
+.seg button.on{background:#fff;color:var(--blue);box-shadow:0 1px 4px rgba(20,32,90,.15)}
+.co-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.co-card{display:flex;flex-direction:column;text-align:left;background:var(--surface,#fff);border:1px solid var(--line);border-radius:16px;padding:0;overflow:hidden;cursor:pointer;box-shadow:0 1px 2px rgba(20,32,90,.05),0 8px 24px -16px rgba(20,32,90,.25);transition:transform .15s,box-shadow .15s}
+.co-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px -14px rgba(20,32,90,.35)}
+.co-thumb{position:relative;display:block;aspect-ratio:4/3;background:var(--blue-soft,#e8edfc);overflow:hidden}
+.co-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.co-noimg{position:absolute;inset:0;display:grid;place-items:center;color:var(--blue)}
+.co-noimg svg{width:34px;height:34px;opacity:.55}
+.co-pill{position:absolute;left:10px;top:10px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;background:rgba(255,255,255,.94);color:#6b7088;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.co-pill.on{background:#17714a;color:#fff}
+.co-meta{display:flex;flex-direction:column;gap:3px;padding:12px 14px 14px}
+.co-meta b{font-size:15px;line-height:1.25;color:var(--ink,#1b1d28)}
+.co-meta span{font-size:12.5px;color:var(--muted)}
+.co-meta .co-ev{display:flex;align-items:center;gap:5px;color:var(--blue);font-weight:600}
+.co-meta .co-ev svg{width:13px;height:13px}
+.co-head{margin-bottom:4px}
+.co-pub{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13.5px}
+.co-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:6px 0 16px;overflow-x:auto}
+.co-tabs button{background:transparent;color:var(--muted);border-radius:0;padding:10px 16px;font-weight:600;border-bottom:3px solid transparent;box-shadow:none;white-space:nowrap}
+.co-tabs button.on{color:var(--blue);border-bottom-color:var(--blue)}
+.co-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.co-ph{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--bg)}
+.co-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.co-ph .co-star,.co-ph .co-del{position:absolute;top:8px;width:32px;height:32px;padding:0;border-radius:50%;background:rgba(255,255,255,.94);color:#444;display:grid;place-items:center;font-size:17px;line-height:1;opacity:0;transition:opacity .15s;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.co-ph .co-star{left:8px}.co-ph .co-del{right:8px}.co-ph .co-del svg{width:15px;height:15px}
+.co-ph:hover .co-star,.co-ph:hover .co-del,.co-ph:focus-within .co-star,.co-ph:focus-within .co-del{opacity:1}
+@media(hover:none){.co-ph .co-star,.co-ph .co-del{opacity:1}}
+.co-ph.cov{outline:3px solid var(--gold-l,#ffc933);outline-offset:-3px}
+.co-ph.cov .co-star{color:#c98f00;opacity:1}
+.co-cov{position:absolute;left:8px;bottom:8px;background:var(--gold-l,#ffc933);color:#4a3600;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px}
+.co-ph.sel{outline:3px solid var(--blue);outline-offset:-3px}
+.co-design{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:900px){.co-design{grid-template-columns:1fr}}
+.co-prevbox{container-type:inline-size;position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.co-prevbox .cp-cover{height:100%;min-height:0}
+.co-ctl h4{margin:16px 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.co-opts{display:flex;flex-wrap:wrap;gap:8px}
+.co-opt{background:var(--bg);color:var(--ink,#1b1d28);border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font-weight:600;font-size:13.5px;box-shadow:none}
+.co-opt.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+.co-sw{display:flex;flex-wrap:wrap;gap:10px}
+.co-swatch{width:44px;height:44px;border-radius:50%;border:2px solid var(--line);padding:0;position:relative;display:grid;place-items:center;box-shadow:none}
+.co-swatch i{width:16px;height:16px;border-radius:50%;display:block}
+.co-swatch.on{outline:3px solid var(--blue);outline-offset:2px}
+.co-form label{display:block;margin:12px 0 4px;font-weight:600;font-size:13.5px}
+.co-form input[type=text],.co-form input:not([type]),.co-form input[type=date],.co-form textarea{width:100%}
+.co-qr{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.co-qr #coQr{background:#fff;padding:8px;border-radius:10px;border:1px solid var(--line)}
+.co-banner{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.co-banner span{flex:1}
+
+/* ----- public collection page ----- */
+.co-public{position:fixed;inset:0;z-index:270;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#fff}
+body.cp-lock{overflow:hidden}
+.cp{--bg:#fff;--fg:#1b1d28;--mu:#6b7088;--ac:#1b1d28;--line:rgba(0,0,0,.1);--ff:"Playfair Display",Georgia,serif;--tt:none;--ls:0;--fw:500;--gap:8px;--rh:250px;min-height:100%;background:var(--bg);color:var(--fg);font-family:"Poppins",system-ui,sans-serif}
+.cp *{box-sizing:border-box}
+.cp-lang{position:absolute;right:14px;top:14px;z-index:6;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);border-radius:999px;padding:3px}
+.cp-lang button{color:#fff;background:transparent;padding:5px 11px;font-size:12px;border-radius:999px}
+.cp-lang button.on{background:#fff;color:#14205a}
+.cp-prev-bar{position:sticky;top:0;z-index:8;display:flex;align-items:center;gap:12px;justify-content:space-between;background:#14205a;color:#fff;padding:10px 16px;font-size:13px}
+.cp-prev-bar button{background:#fff;color:#14205a;padding:6px 14px;border-radius:999px;font-weight:700;font-size:12.5px}
+.cp-msg{display:grid;place-items:center;padding:30px;text-align:center;position:relative}
+.cp-box{max-width:420px}.cp-box h2{font-family:var(--ff);margin:0 0 8px}.cp-box p{color:var(--mu)}
+/* cover */
+.cp-cover{container-type:inline-size;position:relative;min-height:100vh;min-height:100svh;display:grid;color:#fff;overflow:hidden;background:#222}
+.cp-cimg{position:absolute;inset:0;background-size:cover;background-position:50% 50%;background-color:#2a2f45}
+.cp-cover.no-img .cp-cimg{background:linear-gradient(160deg,var(--ac),#14205a)}
+.cp-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.05) 40%,rgba(0,0,0,.5));pointer-events:none}
+.cp-ctext{position:relative;z-index:2;align-self:center;justify-self:center;text-align:center;padding:24px;max-width:900px}
+.cp-ctext h1{font-family:var(--ff);text-transform:var(--tt);letter-spacing:var(--ls);font-weight:var(--fw);font-size:clamp(30px,7.2cqw,84px);line-height:1.08;margin:0 0 10px;text-shadow:0 2px 22px rgba(0,0,0,.35)}
+.cp-cdate{margin:0 0 12px;font-size:clamp(11px,1.5cqw,15px);letter-spacing:.18em;text-transform:uppercase;opacity:.92}
+.cp-csub{margin:0 0 18px;opacity:.9;font-size:clamp(12px,1.8cqw,17px)}
+.cp-btn{display:inline-block;border:1.5px solid currentColor;color:inherit;background:transparent;padding:11px 26px;border-radius:2px;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(10px,1.4cqw,13px);font-weight:600;cursor:pointer}
+.cp-btn:hover{background:rgba(255,255,255,.16)}
+.cp-btn.dark{color:var(--fg);border-color:var(--fg)}.cp-btn.dark:hover{background:var(--fg);color:var(--bg)}
+.cv-left .cp-ctext{justify-self:start;align-self:end;text-align:left;padding:6cqw 6cqw 8cqw;max-width:760px}
+.cv-stripe{grid-template-columns:minmax(260px,34%) 1fr;color:var(--fg);background:var(--bg)}
+.cv-stripe::after{display:none}
+.cv-stripe .cp-cimg{position:relative;grid-column:2;grid-row:1}
+.cv-stripe .cp-ctext{grid-column:1;grid-row:1;align-self:center;background:var(--bg);width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:none}
+.cv-stripe .cp-ctext h1{text-shadow:none;font-size:clamp(22px,4.6cqw,56px)}
+.cv-stripe .cp-btn:hover{background:var(--fg);color:var(--bg)}
+.cv-frame{color:var(--fg);background:var(--bg);grid-template-rows:1fr auto;padding:clamp(14px,3cqw,40px);gap:clamp(12px,2cqw,26px)}
+.cv-frame::after{display:none}
+.cv-frame .cp-cimg{position:relative;grid-row:1;border:1px solid var(--line);outline:1px solid var(--line);outline-offset:clamp(5px,1cqw,12px);min-height:40vh}
+.cv-frame .cp-ctext{grid-row:2;padding:4px 0 8px}
+.cv-frame .cp-ctext h1{text-shadow:none;font-size:clamp(24px,5cqw,60px)}
+.cv-frame .cp-btn:hover{background:var(--fg);color:var(--bg)}
+.cv-novel{color:var(--fg);background:var(--bg);grid-template-rows:68% 1fr}
+.cv-novel::after{display:none}
+.cv-novel .cp-cimg{position:relative}
+.cv-novel .cp-ctext{align-self:center;padding:clamp(14px,3cqw,30px)}
+.cv-novel .cp-ctext h1{text-shadow:none;font-size:clamp(24px,5cqw,60px)}
+.cv-novel .cp-btn:hover{background:var(--fg);color:var(--bg)}
+.is-prev.cv-stripe{grid-template-columns:34% 1fr}
+.is-prev .cp-btn{cursor:default}
+.cp-focus{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.4),inset 0 0 0 4px rgba(0,0,0,.25);pointer-events:none;z-index:3}
+.co-prevbox .cp-cimg{cursor:crosshair}
+@media(max-width:700px){.cv-stripe{grid-template-columns:1fr;grid-template-rows:52vh auto}.cv-stripe .cp-cimg{grid-column:1;grid-row:1}.cv-stripe .cp-ctext{grid-column:1;grid-row:2;padding:28px 20px}.cv-left .cp-ctext{padding:28px 22px 40px}}
+/* bar + grid */
+.cp-main{max-width:1500px;margin:0 auto;padding:0 clamp(10px,2vw,28px) 40px}
+.cp-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 4px;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:var(--gap)}
+.cp-prev-bar + .cp .cp-bar{top:44px}
+.cp-bt{display:flex;flex-direction:column;min-width:0}.cp-bt b{font-family:var(--ff);text-transform:var(--tt);letter-spacing:var(--ls);font-weight:var(--fw);font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}.cp-bt span{font-size:12px;color:var(--mu)}
+.cp-actions{display:flex;gap:6px;flex-wrap:wrap}
+.cp-ab{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;box-shadow:none}
+.cp-ab svg{width:14px;height:14px}.cp-ab:hover{border-color:var(--fg)}.cp-ab.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.cp-desc{max-width:720px;margin:16px auto;text-align:center;color:var(--mu);line-height:1.6}
+.cp-evnote{display:flex;align-items:center;gap:6px;justify-content:center;color:var(--mu);font-size:13px;margin:10px 0}.cp-evnote svg{width:14px;height:14px}
+.cp-sendfav{text-align:center;margin:10px 0 14px}
+.cp-empty{text-align:center;color:var(--mu);padding:50px 10px}
+.cp-it{position:relative;display:block;overflow:hidden;background:rgba(127,127,127,.12)}
+.cp-it img{display:block;width:100%;height:auto;cursor:zoom-in;animation:cpfade .5s ease both}
+@keyframes cpfade{from{opacity:0}to{opacity:1}}
+.cp-heart{position:absolute;right:8px;top:8px;width:34px;height:34px;padding:0;border-radius:50%;background:rgba(255,255,255,.9);color:#333;font-size:18px;line-height:1;display:grid;place-items:center;opacity:0;transition:opacity .15s;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.cp-heart.on{opacity:1;color:#e0245e}
+.cp-it:hover .cp-heart,.cp-heart:focus-visible{opacity:1}
+@media(hover:none){.cp-heart{opacity:1}}
+.cp-grid.g-v{column-gap:var(--gap);column-count:4}
+.cp-grid.g-v .cp-it{margin:0 0 var(--gap);break-inside:avoid}
+.cp-grid.g-v.s-l{column-count:3}
+@media(max-width:1100px){.cp-grid.g-v{column-count:3}.cp-grid.g-v.s-l{column-count:2}}
+@media(max-width:760px){.cp-grid.g-v{column-count:2}.cp-grid.g-v.s-l{column-count:1}}
+.cp-grid.g-h{display:flex;flex-wrap:wrap;gap:var(--gap)}
+.cp-grid.g-h .cp-it{flex:var(--ar) 1 calc(var(--ar) * var(--rh))}
+.cp-grid.g-h::after{content:"";flex-grow:1000000}
+@media(max-width:760px){.cp-grid.g-h{--rh:170px}.cp-grid.g-h.s-l{--rh:260px}}
+.cp-foot{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:36px 10px 10px;color:var(--mu);font-size:13px}
+.cp-foot b{font-family:var(--ff);font-size:18px;color:var(--fg);text-transform:var(--tt);letter-spacing:var(--ls)}
+.cp-foot a{color:var(--fg);font-weight:600;display:inline-flex;align-items:center;gap:6px;text-decoration:none}.cp-foot a svg{width:15px;height:15px}
+.cp-pw{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:12px}
+.cp-pw .brand-mark{width:22px!important;height:22px!important;border-radius:6px!important}
+.cp-pw a{font-weight:500;text-decoration:underline}
+/* lightbox */
+.cp-lb{position:fixed;inset:0;z-index:20;background:rgba(8,10,16,.96);align-items:center;justify-content:center}
+.cp-lb img{max-width:100vw;max-height:100vh;max-height:100dvh;object-fit:contain;animation:cpfade .25s ease both}
+.cp-lb-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:#fff;font-size:13px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}
+.cp-lb-top div{display:flex;gap:6px}
+.cp-lb-top button{width:40px;height:40px;padding:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;font-size:17px;box-shadow:none}
+.cp-lb-top button.on{color:#ff5b8a}.cp-lb-top svg{width:18px;height:18px}
+.cp-lb-prev,.cp-lb-next{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:64px;padding:0;background:rgba(255,255,255,.1);color:#fff;font-size:34px;line-height:1;border-radius:10px;box-shadow:none}
+.cp-lb-prev{left:10px}.cp-lb-next{right:10px}
+@media(max-width:700px){.cp-lb-prev,.cp-lb-next{width:36px;height:52px;font-size:28px;background:rgba(255,255,255,.07)}}
+/* event gallery: photographer collections */
+.gal-colls{margin:26px 0 6px}.gal-colls h3{margin:0 0 10px;font-size:16px}
+.gal-colls-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
+.gal-coll{flex:0 0 190px;display:flex;flex-direction:column;gap:3px;text-decoration:none;color:inherit}
+.gal-coll img{width:190px;height:130px;object-fit:cover;border-radius:12px;background:var(--blue-soft)}
+.gal-coll b{font-size:14px}.gal-coll span{font-size:12px;color:var(--muted)}
+body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!important}
+
 </style>
 </head>
 <body>
@@ -1604,6 +1757,11 @@ body.st-open{overflow:hidden}
   <button class="nav" data-view="photos" onclick="showView('photos',this)"><svg class="i"><use href="#i-image"/></svg>Photos</button>
   <button class="nav" data-view="wishes" onclick="showView('wishes',this)"><svg class="i"><use href="#i-heart"/></svg>Guest messages</button>
 
+  <div id="collNavGroup" style="display:none">
+    <div class="side-label">Photographers</div>
+    <button class="nav" data-view="collections" onclick="showView('collections',this)"><svg class="i"><use href="#i-camera"/></svg>Collections</button>
+  </div>
+
   <div class="side-label">Insights</div>
   <button class="nav" data-view="reports" onclick="showView('reports',this)"><svg class="i"><use href="#i-chart"/></svg>Reports</button>
   <button class="nav" data-view="contributions" onclick="showView('contributions',this)"><svg class="i"><use href="#i-wallet"/></svg>Contributions</button>
@@ -1617,7 +1775,7 @@ body.st-open{overflow:hidden}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V90</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V91</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -1634,6 +1792,7 @@ body.st-open{overflow:hidden}
     <div class="stat stat-gold"><div class="stat-top"><span>Invitations sent</span><i class="stat-ic"><svg class="i"><use href="#i-send"/></svg></i></div><b id="sCards">0</b><small id="sCardsSub">Guests who received an invitation</small><div class="stat-bar"><i id="sbCards"></i></div></div>
     <div class="stat stat-green"><div class="stat-top"><span>Checked in</span><i class="stat-ic"><svg class="i"><use href="#i-scan"/></svg></i></div><b id="sRsvp">0</b><small>Arrived at the venue</small><div class="stat-bar"><i id="sbRsvp"></i></div></div>
   </div>
+  <div id="coReqBanner"></div>
   <div id="rsvpNudge"></div>
   <div id="nextActions"></div>
   <div class="dash-grid">
@@ -1889,6 +2048,9 @@ body.st-open{overflow:hidden}
   <div id="photoContent"></div>
 </section>
 
+<!-- ============ COLLECTIONS ============ -->
+<section id="collections" class="view"><div id="collBox"></div></section>
+
 <!-- ============ GUEST MESSAGES ============ -->
 <section id="wishes" class="view">
   <div class="topline">
@@ -2039,6 +2201,7 @@ body.st-open{overflow:hidden}
 </div></div>
 <div id="galleryPage" class="gallery-page" style="display:none" aria-label="Photos"></div>
 <div id="lightbox" class="lightbox" style="display:none" role="dialog" aria-modal="true" aria-label="Photo"></div>
+<div id="collModal" class="modal"><div class="modal-box" id="collModalBox" style="max-width:460px"></div></div>
 <div id="helpModal" class="modal"><div class="modal-box" id="helpBox" style="max-width:640px"></div></div>
 <div id="contribModal" class="modal"><div class="modal-box" id="contribModalBox" style="max-width:560px"></div></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -3711,7 +3874,7 @@ function hideSplash(){
   const s=$('bootSplash'); if(!s) return;
   s.classList.add('gone'); setTimeout(()=>{ if(s.parentNode) s.parentNode.removeChild(s); },400);
 }
-const isInviteLink = () => /(invite|gallery)=|^#event=/.test(location.hash);
+const isInviteLink = () => /(invite|gallery|collection)=|^#event=/.test(location.hash);
 if(isInviteLink()) document.body.classList.add('invite-mode');
 setTimeout(()=>{
   if($('bootSplash')){
@@ -3815,10 +3978,10 @@ const VIEW_META = {
   create:['Create Event','New event'], guests:['Guests','Guest list'],
   cards:['Cards & QR','Guest cards'], messaging:['Messaging','Send invitations'],
   rsvp:['Check-in','Event day'], reports:['Reports','Event statistics'],
-  contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], wishes:['Guest messages','Messages from your guests'], tasks:['Tasks','Committee to-do list'], studio:['Design Studio','Design invitations, posters and graphics'], admin:['Admin Console','Customers and system usage']
+  contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], collections:['Collections','Your photo galleries'], wishes:['Guest messages','Messages from your guests'], tasks:['Tasks','Committee to-do list'], studio:['Design Studio','Design invitations, posters and graphics'], admin:['Admin Console','Customers and system usage']
 };
 window.showView = function(id,btn){
-  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?'photos':'rsvp'); if(id!==want) id=want; } }
+  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?'photos':'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
   if(!$(id)) return;
   if(id==='admin' && !isAdmin){ toast('You do not have access to the Admin Console.'); return; }
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
@@ -3829,6 +3992,7 @@ window.showView = function(id,btn){
   if(id==='contributions') loadContributions();
   if(id==='seating') renderSeating();
   if(id==='photos') loadPhotos();
+  if(id==='collections' && window.loadCollections) loadCollections();
   if(id==='wishes') loadWishes();
   if(id==='tasks' && window.loadTasks) loadTasks();
   if(id==='studio' && window.studioShow) window.studioShow();
@@ -5391,6 +5555,7 @@ const HELP_TOPICS = [
   ['Design Studio: posters and cards', '<ul><li>Open <b>Design Studio</b> in the menu, or press <b>Design</b> on an event. Pick a template, then change the text, photos, colours and fonts.</li><li>Use <b>Use as event poster</b> to put the design on your event. Guests’ names are placed on it automatically.</li><li>For a premium look you can also design in Photoshop or Canva and upload it as the poster. Design Studio is best for quick jobs.</li></ul>'],
   ['Meal choices on RSVP', '<ul><li>On the <b>Guests</b> page press <b>Meal choices</b> and list the meals (up to 8), for example Pilau or Wali na nyama.</li><li>Guests pick one meal when they answer <b>Yes</b> on their invitation.</li><li>You see the choice in the guest details, the <b>Reports</b> page and the Excel export. It is one choice per card.</li><li>Leave the list empty to switch it off.</li></ul>'],
   ['Public event page', '<ul><li>On the <b>Guests</b> page press <b>Event page</b> and switch it on. Copy the link and share it anywhere, for example in a WhatsApp group.</li><li>The page shows the poster, date, venue, map and your message, with an add-to-calendar button.</li><li>Guests cannot reply on this page. To collect replies, send each guest their own invitation link.</li><li>Switch it off and the link stops working.</li></ul>'],
+  ['Photographer collections', '<ul><li>Photographers and the admin see <b>Collections</b> in the menu. Create a collection, upload photos and design the cover (style, colour, typography, grid).</li><li>Publish it and share the link or QR code with your client. Clients can view, favourite and download the photos.</li><li>You do not need an event link. To show a collection on a SHEREHE HUB event, paste the event link in <b>Settings</b>; the event owner must approve it first.</li></ul>'],
   ['After the event', '<ul><li>On the dashboard, use <b>Thank guests who came</b> and <b>Message those who missed</b>.</li><li>Open <b>Photos</b> to share a gallery link with your guests.</li><li>On <b>Reports</b>, press <b>Full report (PDF)</b> for attendance, contributions and expenses in one document.</li></ul>'],
   ['Privacy and your guests’ data', '<p>Your guest lists, phone numbers and contributions are visible only to you and to people you give access. Guests can only see their own invitation.</p>']
 ];
@@ -5817,7 +5982,7 @@ window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
     document.querySelectorAll('.inv-btns button').forEach(b=>b.disabled=false);
   }
 };
-const routePublic=()=>{ if(/^#event=/.test(location.hash)){ if(window.loadPublicEvent) loadPublicEvent(); return; } if(isInviteLink()&&/invite=/.test(location.hash)) loadPublicInvitationFromSupabase(); if(/^#gallery=/.test(location.hash) && window.loadPublicGallery) loadPublicGallery(); };
+const routePublic=()=>{ if(!/^#collection=/.test(location.hash) && window.coHidePublic) coHidePublic(); if(/^#collection=/.test(location.hash)){ if(window.loadPublicCollection) loadPublicCollection(); return; } if(/^#event=/.test(location.hash)){ if(window.loadPublicEvent) loadPublicEvent(); return; } if(isInviteLink()&&/invite=/.test(location.hash)) loadPublicInvitationFromSupabase(); if(/^#gallery=/.test(location.hash) && window.loadPublicGallery) loadPublicGallery(); };
 window.addEventListener('hashchange',routePublic);
 document.addEventListener('DOMContentLoaded',routePublic);
 
@@ -7183,6 +7348,584 @@ window.installApp = async function(){
   $('contribModal').classList.add('open');
 };
 setTimeout(installUi, 1500); window.addEventListener('load', () => setTimeout(installUi, 2500));
+
+
+/* =========================================================================
+   V91 — Collections: Pixieset-style online galleries for photographers and the admin.
+   A collection belongs to its photographer. It does not need a SHEREHE HUB event.
+   To attach one to an existing event, the event owner must approve (request flow below).
+   ========================================================================= */
+const CO_BUCKET='collection-photos', CO_MAX=600, CO_EDGE=2000, CO_THUMB=640;
+const CO_UUID=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const CO_THEMES={
+  light:{n:'Light',bg:'#ffffff',fg:'#1b1d28',mu:'#6b7088',ac:'#1b1d28',line:'rgba(0,0,0,.1)'},
+  ivory:{n:'Ivory',bg:'#f6f1e8',fg:'#2b2620',mu:'#7d7364',ac:'#2b2620',line:'rgba(0,0,0,.1)'},
+  rose:{n:'Rose',bg:'#f7eceb',fg:'#3a2527',mu:'#8a6b6e',ac:'#a8444f',line:'rgba(0,0,0,.09)'},
+  sage:{n:'Sage',bg:'#e9eee6',fg:'#26312a',mu:'#667366',ac:'#3f6b4a',line:'rgba(0,0,0,.09)'},
+  pewter:{n:'Pewter',bg:'#e5e7ec',fg:'#1f2430',mu:'#646b7c',ac:'#1f2430',line:'rgba(0,0,0,.09)'},
+  blue:{n:'Blue',bg:'#e8edfc',fg:'#14205a',mu:'#5a6590',ac:'#2a45b4',line:'rgba(0,0,0,.08)'},
+  gold:{n:'Gold',bg:'#fbf3dc',fg:'#3a2f10',mu:'#8a7a4a',ac:'#9a6b00',line:'rgba(0,0,0,.09)'},
+  night:{n:'Night',bg:'#101319',fg:'#f2f2f4',mu:'#9a9fae',ac:'#f2f2f4',line:'rgba(255,255,255,.14)'}
+};
+const CO_FONTS={
+  serif:{n:'Serif',f:'"Playfair Display",Georgia,serif',t:'none',ls:'0',w:500,s:'normal'},
+  sans:{n:'Sans',f:'"Poppins",system-ui,sans-serif',t:'none',ls:'0',w:600,s:'normal'},
+  modern:{n:'Modern',f:'"Montserrat","Poppins",sans-serif',t:'uppercase',ls:'.16em',w:500,s:'normal'},
+  script:{n:'Script',f:'"Dancing Script","Playfair Display",cursive',t:'none',ls:'0',w:700,s:'normal'}
+};
+const CO_COVERS={center:'Center',left:'Split',stripe:'Stripe',frame:'Frame',novel:'Novel'};
+const CO_DEF={cover:'center',theme:'light',font:'serif',grid:'vertical',size:'regular',gap:'regular',fx:50,fy:50};
+const CO=window.CO={list:null,scope:'mine',cur:null,tab:'photos',photos:{},loaded:{},busy:false,done:0,total:0,err:'',sel:new Set(),selMode:false,reqIn:[],reqOut:{},sub:null,owners:{}};
+const coDesign=c=>Object.assign({},CO_DEF,(c&&c.design)||{});
+const coUrl=id=>location.href.split('#')[0]+'#collection='+encodeURIComponent(id);
+const coMe=()=>currentSupabaseUser&&currentSupabaseUser.id;
+const coGet=id=>(CO.list||[]).find(c=>c.id===id);
+
+/* ---------- who can use Collections ---------- */
+window.refreshCanCollect=async function(){
+  let ok=!!isAdmin;
+  try{
+    if(!ok && window.__staffRoles && Object.values(window.__staffRoles).includes('photographer')) ok=true;
+    if(!ok && supabaseClient && currentSupabaseUser){
+      const r=await supabaseClient.from('photographer_subscriptions').select('active_until').eq('email',String(currentSupabaseUser.email||'').toLowerCase()).maybeSingle();
+      if(!r.error && r.data){ ok=true; CO.sub={until:r.data.active_until}; }
+    }
+  }catch(e){}
+  window.__canCollect=ok;
+  const g=$('collNavGroup'); if(g) g.style.display=ok?'':'none';
+  if(!ok && isActive && isActive('collections')) showView('dashboard');
+  coLoadRequests();
+};
+const coCanUpload=()=>!!isAdmin || !!(CO.sub&&CO.sub.until&&new Date(CO.sub.until)>new Date());
+function coSubPanel(){
+  if(isAdmin) return '';
+  if(coCanUpload()){
+    const left=(new Date(CO.sub.until)-Date.now())/86400000, d=new Date(CO.sub.until).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return left<=5?`<div class="hint-box">${ic('alert')}<span>Your subscription ends on ${E(d)}. Renew to keep uploading.</span></div>`:'';
+  }
+  const wa='https://wa.me/'+PHOTOG_WA+'?text='+encodeURIComponent('Habari, nataka kulipia usajili wa mpiga picha SHEREHE HUB. Email yangu: '+String(currentSupabaseUser?.email||''));
+  return `<div class="panel"><div class="panel-heading"><div><h2>Subscription required</h2><p>To upload photos you need an active monthly subscription.</p></div></div>
+    <div class="help"><b>Price:</b> ${E(PHOTOG_PRICE)}</div><div class="help"><b>Pay to:</b> ${E(PHOTOG_PAY)}</div>
+    <div class="help">After paying, send the payment confirmation on WhatsApp and we will activate your account.</div>
+    <div class="toolbar" style="margin-top:10px"><button class="primary" type="button" onclick="window.open(${jq(wa)},'_blank','noopener')">${ic('whatsapp')}Contact us on WhatsApp</button></div></div>`;
+}
+
+/* ---------- list ---------- */
+window.loadCollections=async function(){
+  if(!supabaseClient||!currentSupabaseUser) return;
+  CO.err='';
+  try{
+    let q=supabaseClient.from('photo_collections').select('id,owner_id,title,shoot_date,description,studio_name,contact_phone,cover_photo_id,event_id,published,allow_download,design,created_at,collection_photos(count)').order('created_at',{ascending:false});
+    if(!(isAdmin&&CO.scope==='all')) q=q.eq('owner_id',coMe());
+    const r=await q; if(r.error) throw r.error;
+    CO.list=(r.data||[]).map(c=>Object.assign(c,{n:(c.collection_photos&&c.collection_photos[0]&&c.collection_photos[0].count)||0}));
+    if(isAdmin&&CO.scope==='all'){
+      const ids=[...new Set(CO.list.map(c=>c.owner_id))];
+      try{ const p=await supabaseClient.from('profiles').select('id,full_name,email').in('id',ids); (p.data||[]).forEach(x=>{ CO.owners[x.id]=x.full_name||x.email||''; }); }catch(e){}
+    }
+  }catch(e){ CO.err=(window.__offlineMode||!navigator.onLine)?'Collections need an internet connection.':(e.message||String(e)); CO.list=CO.list||[]; }
+  renderCollections();
+};
+window.renderCollections=function(){
+  const box=$('collBox'); if(!box) return;
+  if(CO.cur && coGet(CO.cur)){ renderCollEditor(); return; }
+  CO.cur=null;
+  const list=CO.list;
+  const scope=isAdmin?`<div class="seg" role="group" aria-label="Show"><button type="button" class="${CO.scope==='mine'?'on':''}" onclick="coScope('mine')">Mine</button><button type="button" class="${CO.scope==='all'?'on':''}" onclick="coScope('all')">Everyone</button></div>`:'';
+  box.innerHTML=`<div class="topline"><div><h1>Collections</h1><p class="muted">Beautiful online galleries for your work. Share one link with your client — no account needed.</p></div>
+    <div class="topline-actions">${scope}<button class="primary" onclick="coNew()">${ic('plus')}New collection</button></div></div>
+    ${coSubPanel()}
+    ${CO.err?`<div class="hint-box">${ic('alert')}<span>Collections could not be loaded: ${E(CO.err)}. If this keeps happening, run the Collections SQL file in Supabase.</span></div>`:''}
+    ${list===null?`<div class="help">Loading…</div>`:(list.length?`<div class="co-grid">${list.map(coCard).join('')}</div>`:emptyState('No collections yet','Create your first collection, upload photos and share the link with your client.',`<button class="primary" onclick="coNew()">${ic('plus')}New collection</button>`))}`;
+};
+function coCard(c){
+  const d=coDesign(c), th=safeUrl(d.cover_thumb||d.cover_url||'');
+  const dt=c.shoot_date?fmtDate(c.shoot_date):'';
+  return `<button type="button" class="co-card" onclick="coOpen(${jq(c.id)})" aria-label="${E(c.title)}">
+    <span class="co-thumb">${th?`<img loading="lazy" src="${E(th)}" alt="">`:`<span class="co-noimg">${ic('image')}</span>`}
+      <span class="co-pill ${c.published?'on':''}">${c.published?'Published':'Draft'}</span></span>
+    <span class="co-meta"><b>${E(c.title)}</b><span>${dt?E(dt)+' · ':''}<span>${c.n} ${c.n===1?'photo':'photos'}</span></span>
+      ${c.event_id?`<span class="co-ev">${ic('calendar')}Linked to an event</span>`:''}
+      ${isAdmin&&CO.scope==='all'&&CO.owners[c.owner_id]?`<span class="co-ev">${ic('user')}${E(CO.owners[c.owner_id])}</span>`:''}</span></button>`;
+}
+window.coScope=function(s){ CO.scope=s; CO.list=null; renderCollections(); loadCollections(); };
+
+/* ---------- create ---------- */
+window.coNew=function(){
+  const m=$('collModal'); if(!m) return;
+  const today=new Date().toISOString().slice(0,10);
+  $('collModalBox').innerHTML=`<button class="modal-close" onclick="coCloseNew()" aria-label="Close">×</button>
+    <h2 style="margin:0 0 4px">New collection</h2><p class="muted" style="margin:0 0 14px">Give it a name. You can change everything later.</p>
+    <label for="coNewTitle">Name</label><input id="coNewTitle" maxlength="120" placeholder="e.g. Yohana &amp; Beatrice — Wedding" onkeydown="if(event.key==='Enter')coCreate()">
+    <label for="coNewDate" style="margin-top:10px;display:block">Date of the shoot</label><input id="coNewDate" type="date" value="${today}">
+    <div class="row" style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px"><button class="gray" onclick="coCloseNew()">Cancel</button><button class="primary" id="coCreateBtn" onclick="coCreate()">Create collection</button></div>`;
+  m.classList.add('open'); setTimeout(()=>$('coNewTitle').focus(),40);
+};
+window.coCloseNew=function(){ const m=$('collModal'); if(m) m.classList.remove('open'); };
+window.coCreate=async function(){
+  const title=($('coNewTitle').value||'').trim(), date=$('coNewDate').value||null;
+  if(!title) return toast('Please type a name for the collection.');
+  const b=$('coCreateBtn'); b.disabled=true;
+  try{
+    const studio=(PROFILE&&PROFILE.name)||'';
+    const r=await supabaseClient.from('photo_collections').insert({title,shoot_date:date,studio_name:studio.slice(0,60)||null,design:Object.assign({},CO_DEF)}).select('id,owner_id,title,shoot_date,description,studio_name,contact_phone,cover_photo_id,event_id,published,allow_download,design,created_at').single();
+    if(r.error) throw r.error;
+    r.data.n=0; CO.list=[r.data].concat(CO.list||[]); coCloseNew(); toast('Collection created. Now upload the photos.'); coOpen(r.data.id);
+  }catch(e){ toast('Could not create: '+(e.message||e)); }
+  finally{ b.disabled=false; }
+};
+
+/* ---------- editor ---------- */
+window.coOpen=async function(id){ CO.cur=id; CO.tab='photos'; CO.sel=new Set(); CO.selMode=false; renderCollEditor(); await coLoadPhotos(id); coLoadOutReq(id); };
+window.coBack=function(){ CO.cur=null; renderCollections(); };
+window.coTab=function(t){ CO.tab=t; renderCollEditor(); if(t==='share') setTimeout(coQr,30); };
+async function coLoadPhotos(id){
+  try{
+    const r=await supabaseClient.from('collection_photos').select('id,path,url,thumb_url,width,height,bytes,created_at').eq('collection_id',id).order('created_at',{ascending:true}).limit(1000);
+    if(r.error) throw r.error; CO.photos[id]=r.data||[]; CO.loaded[id]=true; CO.err='';
+  }catch(e){ CO.err=e.message||String(e); }
+  if(CO.cur===id) renderCollEditor();
+}
+async function coLoadOutReq(id){
+  try{ const r=await supabaseClient.from('collection_event_requests').select('id,event_id,status,event_name,created_at').eq('collection_id',id).order('created_at',{ascending:false}); if(!r.error){ CO.reqOut[id]=r.data||[]; if(CO.cur===id&&CO.tab==='settings') renderCollEditor(); } }catch(e){}
+}
+function renderCollEditor(){
+  const c=coGet(CO.cur), box=$('collBox'); if(!box||!c) return;
+  const tabs=[['photos','Photos'],['design','Design'],['settings','Settings'],['share','Share link']];
+  const ph=CO.photos[c.id]||[];
+  box.innerHTML=`<div class="co-head"><button class="text-button" onclick="coBack()">← All collections</button></div>
+    <div class="topline"><div><h1 id="coTitleH">${E(c.title)}</h1><p class="muted">${c.shoot_date?E(fmtDate(c.shoot_date))+' · ':''}<span>${ph.length} ${ph.length===1?'photo':'photos'}</span></p></div>
+    <div class="topline-actions"><button class="gray" onclick="coPreview()">${ic('eye')}Preview</button>
+      <label class="co-pub"><span>${c.published?'Published':'Draft'}</span><span class="sw"><input type="checkbox" ${c.published?'checked':''} onchange="coPublish(this.checked)" aria-label="Publish collection"><i></i></span></label></div></div>
+    <div class="co-tabs" role="tablist">${tabs.map(([k,n])=>`<button type="button" role="tab" class="${CO.tab===k?'on':''}" onclick="coTab('${k}')">${n}</button>`).join('')}</div>
+    <div id="coTabBody">${CO.tab==='photos'?coTabPhotos(c,ph):CO.tab==='design'?coTabDesign(c,ph):CO.tab==='settings'?coTabSettings(c):coTabShare(c)}</div>`;
+  if(CO.tab==='share') setTimeout(coQr,30);
+}
+window.coPublish=async function(on){
+  const c=coGet(CO.cur); if(!c) return;
+  if(on && !(CO.photos[c.id]||[]).length){ toast('Upload at least one photo before publishing.'); renderCollEditor(); return; }
+  const r=await supabaseClient.from('photo_collections').update({published:on,updated_at:new Date().toISOString()}).eq('id',c.id);
+  if(r.error){ toast('Could not save: '+r.error.message); renderCollEditor(); return; }
+  c.published=on; toast(on?'Published. Anyone with the link can view it.':'Unpublished. The link no longer works.'); renderCollEditor();
+};
+async function coPatch(c,patch){
+  const r=await supabaseClient.from('photo_collections').update(Object.assign({},patch,{updated_at:new Date().toISOString()})).eq('id',c.id);
+  if(r.error){ toast('Could not save: '+r.error.message); return false; }
+  Object.assign(c,patch); return true;
+}
+
+/* ----- photos tab ----- */
+function coTabPhotos(c,ph){
+  const pct=CO.total?Math.round(CO.done/CO.total*100):0, cov=c.cover_photo_id;
+  const up=coCanUpload()?`<div class="panel"><div class="panel-heading"><div><h2>Upload photos</h2><p>Photos are resized automatically (and a small preview is made for fast loading). Up to ${CO_MAX} per collection.</p></div></div>
+      <label class="drop" for="coFile" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="event.preventDefault();this.classList.remove('over');coUpload(event.dataTransfer.files)">${ic('upload')}<b>Choose photos</b><span>or drop them here</span></label>
+      <input hidden id="coFile" type="file" accept="image/*" multiple onchange="coUpload(this.files);this.value=''">
+      <div class="upl-bar" style="display:${CO.busy?'block':'none'}"><i style="width:${pct}%"></i></div>
+      <div class="upl-status">${CO.busy?`Uploading ${CO.done} of ${CO.total}…`:''}</div></div>`:coSubPanel();
+  const tools=ph.length?`<div class="toolbar" style="margin:0">${CO.selMode?'':`<button class="gray" onclick="coSelMode(true)">${ic('check')}Select photos</button>`}</div>`:'';
+  const bar=CO.selMode?`<div class="ph-bar"><b class="ph-n">${CO.sel.size} selected</b><button class="gray" onclick="coSelAll()">Select all</button><button class="gray" onclick="coSelMode(false)">Done</button><button class="danger" ${CO.sel.size?'':'disabled'} onclick="coDeleteSel()">${ic('trash')}Delete</button></div>`:'';
+  return `${up}<div class="panel"><div class="panel-heading"><div><h2>Photos${CO.loaded[c.id]?` (${ph.length})`:''}</h2><p>Tap the star on a photo to use it as the cover.</p></div>${tools}</div>${bar}
+    ${CO.err?`<div class="hint-box">${ic('alert')}<span>${E(CO.err)}</span></div>`:''}
+    ${ph.length?`<div class="co-photos">${ph.map(p=>`<div class="co-ph ${CO.sel.has(p.id)?'sel':''} ${cov===p.id?'cov':''}" ${CO.selMode?`onclick="coToggle('${p.id}')" role="checkbox" aria-checked="${CO.sel.has(p.id)}"`:''}><img loading="lazy" src="${E(safeUrl(p.thumb_url||p.url))}" alt="">
+      ${CO.selMode?`<i class="ph-ck">${ic('check')}</i>`:`<button type="button" class="co-star" title="Use as cover" aria-label="Use as cover" onclick="coSetCover('${p.id}')">★</button><button type="button" class="co-del" title="Delete" aria-label="Delete photo" onclick="coDeleteOne('${p.id}')">${ic('trash')}</button>`}
+      ${cov===p.id?'<span class="co-cov">Cover</span>':''}</div>`).join('')}</div>`:(CO.loaded[c.id]&&!CO.err?emptyState('No photos yet','Upload the first photos of this collection.'):'<div class="help">Loading…</div>')}</div>`;
+}
+window.coSelMode=function(on){ CO.selMode=on; CO.sel=new Set(); renderCollEditor(); };
+window.coToggle=function(id){ CO.sel.has(id)?CO.sel.delete(id):CO.sel.add(id); renderCollEditor(); };
+window.coSelAll=function(){ CO.sel=new Set((CO.photos[CO.cur]||[]).map(p=>p.id)); renderCollEditor(); };
+async function coShrink(file,edge,q){
+  let bmp;
+  try{ bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }
+  catch(e){ bmp=await new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('This image format is not supported by your browser. Please use JPG, PNG or WebP.')); }; im.src=u; }); }
+  const bw=bmp.naturalWidth||bmp.width, bh=bmp.naturalHeight||bmp.height, out={};
+  for(const [k,e,qq] of [['full',edge,q],['thumb',CO_THUMB,.78]]){
+    const s=Math.min(1,e/Math.max(bw,bh)), w=Math.max(1,Math.round(bw*s)), h=Math.max(1,Math.round(bh*s));
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(bmp,0,0,w,h);
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',qq)); if(!blob) throw new Error('Could not process this image.');
+    out[k]={blob,w,h};
+  }
+  if(bmp.close) bmp.close(); return out;
+}
+window.coUpload=async function(files){
+  const c=coGet(CO.cur); if(!c) return;
+  if(CO.busy) return toast('Upload in progress…');
+  if(!coCanUpload()) return toast('Your subscription is not active. Please pay to upload photos.');
+  if(window.__offlineMode||!navigator.onLine) return toast('Uploading photos needs an internet connection.');
+  let list=[...(files||[])].filter(f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|heic|heif)$/i.test(f.name));
+  if(!list.length) return toast('Please choose image files (JPG, PNG or WebP).');
+  const ph=CO.photos[c.id]||(CO.photos[c.id]=[]), room=CO_MAX-ph.length;
+  if(room<=0) return toast(`This collection already has ${CO_MAX} photos (the limit).`);
+  let cut=0; if(list.length>room){ cut=list.length-room; list=list.slice(0,room); }
+  CO.busy=true; CO.done=0; CO.total=list.length; const failed=[]; let ok=0; renderCollEditor();
+  const worker=async()=>{
+    while(list.length){
+      const f=list.shift();
+      try{
+        const {full,thumb}=await coShrink(f,CO_EDGE,.84);
+        const id=crypto.randomUUID(), path=`${c.id}/${id}.jpg`, tpath=`${c.id}/${id}_t.jpg`;
+        const a=await supabaseClient.storage.from(CO_BUCKET).upload(path,full.blob,{contentType:'image/jpeg',upsert:false}); if(a.error) throw a.error;
+        const b=await supabaseClient.storage.from(CO_BUCKET).upload(tpath,thumb.blob,{contentType:'image/jpeg',upsert:false}); if(b.error){ await supabaseClient.storage.from(CO_BUCKET).remove([path]); throw b.error; }
+        const url=supabaseClient.storage.from(CO_BUCKET).getPublicUrl(path).data.publicUrl, turl=supabaseClient.storage.from(CO_BUCKET).getPublicUrl(tpath).data.publicUrl;
+        const ins=await supabaseClient.from('collection_photos').insert({id,collection_id:c.id,path,url,thumb_url:turl,width:full.w,height:full.h,bytes:full.blob.size}).select('id,path,url,thumb_url,width,height,bytes,created_at').single();
+        if(ins.error){ await supabaseClient.storage.from(CO_BUCKET).remove([path,tpath]); throw ins.error; }
+        ph.push(ins.data); ok++;
+      }catch(e){ failed.push(f.name+': '+(e.message||e)); }
+      CO.done++; if(CO.cur===c.id) renderCollEditor();
+    }
+  };
+  await Promise.all([worker(),worker(),worker()]);
+  CO.busy=false; c.n=ph.length;
+  if(!c.cover_photo_id && ph.length){ await coMakeCover(c,ph[0]); }
+  if(CO.cur===c.id) renderCollEditor();
+  toast(`${ok} photo${ok===1?'':'s'} uploaded${failed.length?`, ${failed.length} failed`:''}${cut?`, ${cut} skipped (limit)`:''}.`);
+  if(failed.length) setTimeout(()=>alert('Some photos were not uploaded:\n'+failed.slice(0,6).join('\n')),200);
+};
+async function coMakeCover(c,p){
+  const d=Object.assign(coDesign(c),{cover_url:p.url,cover_thumb:p.thumb_url||p.url});
+  return coPatch(c,{cover_photo_id:p.id,design:d});
+}
+window.coSetCover=async function(pid){
+  const c=coGet(CO.cur), p=(CO.photos[CO.cur]||[]).find(x=>x.id===pid); if(!c||!p) return;
+  if(await coMakeCover(c,p)){ toast('Cover updated.'); renderCollEditor(); }
+};
+async function coRemovePhotos(c,ids){
+  const ph=CO.photos[c.id]||[], gone=ph.filter(p=>ids.includes(p.id)); if(!gone.length) return;
+  const paths=[]; gone.forEach(p=>{ paths.push(p.path); paths.push(p.path.replace(/\.jpg$/,'_t.jpg')); });
+  const r=await supabaseClient.from('collection_photos').delete().in('id',ids); if(r.error) throw r.error;
+  try{ await supabaseClient.storage.from(CO_BUCKET).remove(paths); }catch(e){}
+  CO.photos[c.id]=ph.filter(p=>!ids.includes(p.id)); c.n=CO.photos[c.id].length;
+  if(ids.includes(c.cover_photo_id)){ const n=CO.photos[c.id][0]; if(n) await coMakeCover(c,n); else { const d=coDesign(c); delete d.cover_url; delete d.cover_thumb; await coPatch(c,{cover_photo_id:null,design:d}); } }
+}
+window.coDeleteOne=async function(pid){
+  const c=coGet(CO.cur); if(!c) return;
+  if(!await confirmDialog({title:'Delete this photo?',text:'It will be removed from the collection for good.',ok:'Delete'})) return;
+  try{ await coRemovePhotos(c,[pid]); toast('Photo deleted.'); }catch(e){ toast('Failed: '+(e.message||e)); }
+  renderCollEditor();
+};
+window.coDeleteSel=async function(){
+  const c=coGet(CO.cur), ids=[...CO.sel]; if(!c||!ids.length) return;
+  if(!await confirmDialog({title:`Delete ${ids.length} photo${ids.length===1?'':'s'}?`,text:'They will be removed from the collection for good.',ok:'Delete'})) return;
+  try{ await coRemovePhotos(c,ids); toast('Photos deleted.'); }catch(e){ toast('Failed: '+(e.message||e)); }
+  CO.sel=new Set(); CO.selMode=false; renderCollEditor();
+};
+
+/* ----- design tab ----- */
+function coTabDesign(c,ph){
+  const d=coDesign(c), opt=(key,vals,fmt)=>vals.map(v=>`<button type="button" class="co-opt ${d[key]===v?'on':''}" onclick="coDesignSet('${key}','${v}')">${fmt?fmt(v):v}</button>`).join('');
+  const hasCover=!!(d.cover_url);
+  return `<div class="co-design"><div class="co-prev panel"><div class="panel-heading"><div><h2>Cover preview</h2><p>${hasCover?'Click the photo to choose which part stays in view.':'Upload photos to see the cover.'}</p></div></div>
+      <div class="co-prevbox" id="coPrevBox">${coCoverHtml(Object.assign({},c,{title:c.title}),{collection:c,photos:ph,event:null},d,true)}</div></div>
+    <div class="panel co-ctl"><div class="panel-heading"><div><h2>Design</h2><p>Changes save automatically.</p></div></div>
+      <h4>Cover style</h4><div class="co-opts">${opt('cover',Object.keys(CO_COVERS),v=>CO_COVERS[v])}</div>
+      <h4>Colour</h4><div class="co-sw">${Object.keys(CO_THEMES).map(k=>{ const t=CO_THEMES[k]; return `<button type="button" class="co-swatch ${d.theme===k?'on':''}" title="${t.n}" aria-label="${t.n}" style="background:${t.bg};color:${t.fg}" onclick="coDesignSet('theme','${k}')"><i style="background:${t.ac}"></i></button>`; }).join('')}</div>
+      <h4>Typography</h4><div class="co-opts">${Object.keys(CO_FONTS).map(k=>`<button type="button" class="co-opt co-font ${d.font===k?'on':''}" style="font-family:${CO_FONTS[k].f};text-transform:${CO_FONTS[k].t};letter-spacing:${CO_FONTS[k].ls}" onclick="coDesignSet('font','${k}')">${CO_FONTS[k].n}</button>`).join('')}</div>
+      <h4>Photo layout</h4><div class="co-opts">${opt('grid',['vertical','horizontal'],v=>v==='vertical'?'Vertical':'Horizontal')}</div>
+      <h4>Photo size</h4><div class="co-opts">${opt('size',['regular','large'],v=>v==='regular'?'Regular':'Large')}</div>
+      <h4>Spacing</h4><div class="co-opts">${opt('gap',['regular','large'],v=>v==='regular'?'Regular':'Large')}</div></div></div>`;
+}
+let coDesignTimer=null;
+window.coDesignSet=function(key,val){
+  const c=coGet(CO.cur); if(!c) return;
+  const d=coDesign(c); d[key]=(key==='fx'||key==='fy')?+val:val; c.design=d;
+  renderCollEditor();
+  clearTimeout(coDesignTimer); coDesignTimer=setTimeout(()=>coPatch(c,{design:c.design}),450);
+};
+window.coFocus=function(ev,el){
+  const c=coGet(CO.cur); if(!c) return; const r=el.getBoundingClientRect();
+  const d=coDesign(c); d.fx=Math.round(Math.min(100,Math.max(0,(ev.clientX-r.left)/r.width*100))); d.fy=Math.round(Math.min(100,Math.max(0,(ev.clientY-r.top)/r.height*100))); c.design=d;
+  renderCollEditor(); clearTimeout(coDesignTimer); coDesignTimer=setTimeout(()=>coPatch(c,{design:c.design}),450);
+};
+
+/* ----- settings tab ----- */
+function coTabSettings(c){
+  const reqs=CO.reqOut[c.id]||[], last=reqs[0];
+  let link='';
+  if(c.event_id){
+    const nm=(last&&last.status==='approved'&&last.event_name)||'a SHEREHE HUB event';
+    link=`<div class="help"><b>Linked to:</b> <span>${E(nm)}</span><br><span>The event page shows your collection to guests while it is published.</span></div><div class="toolbar"><button class="gray" onclick="coUnlink()">Unlink from the event</button></div>`;
+  }else if(last&&last.status==='pending'){
+    link=`<div class="hint-box">${ic('clock')}<span>Waiting for approval from the event owner:</span> <b>${E(last.event_name||'the event')}</b> <span>You will see it here as soon as they accept.</span></div><div class="toolbar"><button class="gray" onclick="coUnlink()">Cancel request</button></div>`;
+  }else{
+    link=`${last&&last.status==='denied'?`<div class="hint-box">${ic('alert')}<span>The event owner did not accept your request:</span> <b>${E(last.event_name||'the event')}</b></div>`:''}
+      <p class="muted" style="margin:0 0 8px">Did you shoot an event that is managed in SHEREHE HUB? Ask the host for the event link (the photos link) and paste it here. The host must approve before your collection is attached to their event.</p>
+      <div class="link-box"><input id="coEventLink" placeholder="Paste the event link or event ID" aria-label="Event link"><button class="primary" onclick="coRequestLink()">Request permission</button></div>`;
+  }
+  return `<div class="panel"><div class="panel-heading"><div><h2>Details</h2><p>Shown on the cover and at the bottom of your collection.</p></div></div>
+    <div class="co-form"><label for="coS_title">Title</label><input id="coS_title" maxlength="120" value="${E(c.title)}">
+    <label for="coS_date">Date</label><input id="coS_date" type="date" value="${E(c.shoot_date||'')}">
+    <label for="coS_desc">Description (optional)</label><textarea id="coS_desc" maxlength="600" rows="3" placeholder="A few words about this shoot">${E(c.description||'')}</textarea>
+    <label for="coS_studio">Your name or studio</label><input id="coS_studio" maxlength="60" value="${E(c.studio_name||'')}" placeholder="e.g. Neema Photography">
+    <label for="coS_phone">WhatsApp number (optional)</label><input id="coS_phone" maxlength="30" inputmode="tel" value="${E(c.contact_phone||'')}" placeholder="0712 345 678">
+    <div class="share-row"><div><b>Allow downloads</b><span>Clients can download single photos or all as a ZIP.</span></div><label class="sw"><input type="checkbox" id="coS_dl" ${c.allow_download?'checked':''} aria-label="Allow downloads"><i></i></label></div>
+    <div class="toolbar"><button class="primary" onclick="coSaveDetails()">Save details</button></div></div></div>
+    <div class="panel"><div class="panel-heading"><div><h2>Attach to a SHEREHE HUB event</h2><p>Optional. Needs the event owner’s permission.</p></div></div>${link}</div>
+    <div class="panel"><div class="panel-heading"><div><h2>Delete collection</h2><p>Removes the collection and all its photos for good.</p></div></div><div class="toolbar"><button class="danger" onclick="coDeleteColl()">${ic('trash')}Delete collection</button></div></div>`;
+}
+window.coSaveDetails=async function(){
+  const c=coGet(CO.cur); if(!c) return;
+  const title=($('coS_title').value||'').trim(); if(!title) return toast('The title cannot be empty.');
+  const ok=await coPatch(c,{title,shoot_date:$('coS_date').value||null,description:($('coS_desc').value||'').trim()||null,studio_name:($('coS_studio').value||'').trim()||null,contact_phone:($('coS_phone').value||'').trim()||null,allow_download:$('coS_dl').checked});
+  if(ok){ toast('Saved.'); renderCollEditor(); }
+};
+window.coRequestLink=async function(){
+  const c=coGet(CO.cur); if(!c) return;
+  const m=String($('coEventLink').value||'').match(CO_UUID); if(!m) return toast('That does not look like an event link. Ask the host to send you the photos link.');
+  try{
+    const r=await supabaseClient.rpc('request_collection_event',{p_collection:c.id,p_event:m[0].toLowerCase()}); if(r.error) throw r.error;
+    if(r.data&&r.data.status==='approved'){ c.event_id=m[0].toLowerCase(); toast('Linked to '+(r.data.event_name||'the event')+'.'); }
+    else toast('Request sent. The event owner will see it in their Photos page.');
+    await coLoadOutReq(c.id); renderCollEditor();
+  }catch(e){ toast(e.message||String(e)); }
+};
+window.coUnlink=async function(){
+  const c=coGet(CO.cur); if(!c) return;
+  try{ const r=await supabaseClient.rpc('unlink_collection_event',{p_collection:c.id}); if(r.error) throw r.error; c.event_id=null; toast('Unlinked.'); await coLoadOutReq(c.id); renderCollEditor(); }
+  catch(e){ toast(e.message||String(e)); }
+};
+window.coDeleteColl=async function(){
+  const c=coGet(CO.cur); if(!c) return;
+  if(!await confirmDialog({title:'Delete this collection?',text:`<b>${E(c.title)}</b><br>All its photos will be removed for good. The link will stop working.`,ok:'Delete'})) return;
+  try{
+    const ph=CO.photos[c.id]||[]; if(!CO.loaded[c.id]){ const r=await supabaseClient.from('collection_photos').select('path').eq('collection_id',c.id); (r.data||[]).forEach(p=>ph.push(p)); }
+    const paths=[]; ph.forEach(p=>{ paths.push(p.path); paths.push(p.path.replace(/\.jpg$/,'_t.jpg')); });
+    for(let i=0;i<paths.length;i+=100){ try{ await supabaseClient.storage.from(CO_BUCKET).remove(paths.slice(i,i+100)); }catch(e){} }
+    const r=await supabaseClient.from('photo_collections').delete().eq('id',c.id); if(r.error) throw r.error;
+    CO.list=(CO.list||[]).filter(x=>x.id!==c.id); delete CO.photos[c.id]; CO.cur=null; toast('Collection deleted.'); renderCollections();
+  }catch(e){ toast('Failed: '+(e.message||e)); }
+};
+
+/* ----- share tab ----- */
+function coTabShare(c){
+  const url=coUrl(c.id), msg=`Habari! Picha zako za "${c.title}" ziko tayari. Zitazame hapa: ${url}`;
+  return `<div class="panel"><div class="panel-heading"><div><h2>Share with your client</h2><p>${c.published?'Anyone with this link can view the collection. No account needed.':'This collection is a draft. Turn on “Published” at the top before sharing the link.'}</p></div></div>
+    <div class="link-box"><input readonly id="coLink" value="${E(url)}" onclick="this.select()" aria-label="Collection link"><button class="gray" onclick="coCopy()">Copy</button><button class="gray" onclick="window.open(${jq(url)},'_blank','noopener')">Open</button></div>
+    <div class="toolbar" style="margin-top:12px"><button class="primary" onclick="window.open('https://wa.me/?text='+encodeURIComponent(${jq(msg)}),'_blank','noopener')">${ic('whatsapp')}Send on WhatsApp</button></div>
+    <div class="co-qr"><div id="coQr"></div><span class="muted">Print or show this QR code so people can open the gallery with their phone.</span></div></div>`;
+}
+window.coCopy=async function(){ const c=coGet(CO.cur); if(!c) return; try{ await navigator.clipboard.writeText(coUrl(c.id)); toast('Link copied.'); }catch(e){ const i=$('coLink'); if(i){ i.select(); document.execCommand&&document.execCommand('copy'); toast('Link copied.'); } } };
+function coQr(){ const el=$('coQr'), c=coGet(CO.cur); if(!el||!c||!window.QRCode) return; el.innerHTML=''; try{ new QRCode(el,{text:coUrl(c.id),width:150,height:150,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} }
+
+/* ---------- event owner side: approve or refuse photographers ---------- */
+async function coLoadRequests(){
+  if(!supabaseClient||!currentSupabaseUser) return;
+  try{
+    const r=await supabaseClient.from('collection_event_requests').select('id,collection_id,event_id,requester_id,requester_email,collection_title,event_name,status,created_at').order('created_at',{ascending:false});
+    if(r.error) throw r.error; CO.reqIn=(r.data||[]).filter(x=>x.requester_id!==coMe());
+  }catch(e){ CO.reqIn=[]; }
+  coBanner(); if(isActive&&isActive('photos')&&window.renderPhotos) renderPhotos();
+}
+function coBanner(){
+  const b=$('coReqBanner'); if(!b) return;
+  const n=CO.reqIn.filter(x=>x.status==='pending').length;
+  b.innerHTML=n?`<div class="hint-box co-banner">${ic('camera')}<span>${n===1?'A photographer asked to attach photos to your event.':n+' photographers asked to attach photos to your events.'}</span><button class="primary" onclick="showView('photos')">Review</button></div>`:'';
+}
+function coRequestsPanel(ev){
+  const mine=(CO.reqIn||[]).filter(r=>r.event_id===ev.id&&r.status!=='denied'&&r.status!=='revoked'); if(!mine.length) return '';
+  const rows=mine.map(r=>`<div class="queue-item"><div class="who"><b>${E(r.collection_title||'Collection')}</b><span>by ${E(r.requester_email||'a photographer')} · ${r.status==='approved'?'Approved — guests see it on the event gallery':'Waiting for your decision'}</span></div>
+    <div class="toolbar" style="margin:0">${r.status==='pending'?`<button class="primary" onclick="coDecide('${r.id}','approved')">Approve</button><button class="gray" onclick="coDecide('${r.id}','denied')">Refuse</button>`:`<button class="gray" onclick="coDecide('${r.id}','revoked')">Remove access</button>`}</div></div>`).join('');
+  return `<div class="panel"><div class="panel-heading"><div><h2>Photographer collections</h2><p>A photographer wants to show their collection with this event. Only approve people you know.</p></div></div><div class="queue">${rows}</div></div>`;
+}
+window.coDecide=async function(id,status){
+  try{
+    const r=await supabaseClient.from('collection_event_requests').update({status,decided_at:new Date().toISOString()}).eq('id',id); if(r.error) throw r.error;
+    toast(status==='approved'?'Approved.':(status==='denied'?'Refused.':'Access removed.')); await coLoadRequests();
+  }catch(e){ toast('Failed: '+(e.message||e)); }
+};
+(function(){
+  const orig=window.renderPhotos;
+  window.renderPhotos=function(){
+    orig.apply(this,arguments);
+    const box=$('photoContent'), ev=getEvent(currentEventId);
+    if(box&&ev&&!(window.__staffMode&&staffRole()==='photographer')){ const h=coRequestsPanel(ev); if(h) box.insertAdjacentHTML('afterbegin',h); }
+  };
+})();
+(function(){
+  const orig=window.loadAdminFlag;
+  window.loadAdminFlag=async function(){ const r=await orig.apply(this,arguments); refreshCanCollect(); return r; };
+  const oe=window.loadEventsFromSupabase;
+  if(oe) window.loadEventsFromSupabase=async function(){ const r=await oe.apply(this,arguments); refreshCanCollect(); return r; };
+})();
+
+/* =========================================================================
+   Public collection page (#collection=<id>) — cover, justified or vertical grid, favourites, slideshow
+   ========================================================================= */
+const CO_I18N={
+  sw:{loading:'Inapakia picha…',nf_h:'Collection haipatikani',nf_p:'Link hii si sahihi, au mpiga picha hajaichapisha bado.',err_h:'Ukurasa haukufunguka',retry:'Jaribu tena',view:'Tazama picha',
+    count:n=>`Picha ${n}`,fav:'Vipendwa',slide:'Onyesho',dlAll:'Pakua zote',dl:'Pakua',share:'Shiriki',sendFav:'Tuma vipendwa kwa mpiga picha',all:'Zote',
+    favEmpty:'Bado hujapenda picha yoyote. Bonyeza ♡ kwenye picha unayoipenda.',empty:'Hakuna picha bado.',prep:(d,n)=>`Inatayarisha ${d}/${n}…`,close:'Funga',
+    by:'Na',foot:'Imetumwa kupitia SHEREHE HUB',privacy:'Faragha',terms:'Masharti',copied:'Link imenakiliwa.',prev_note:'Hii ni onyesho la kujaribu — wewe tu ndiye unayeliona.',exit:'Funga onyesho',
+    evnote:'Picha za tukio',contact:'Wasiliana nasi',favmsg:(t,nums,u)=>`Habari! Nimechagua picha hizi kutoka "${t}": namba ${nums}. Link: ${u}`,favnone:'Chagua picha unazozipenda kwanza (bonyeza ♡).',locale:'sw-TZ'},
+  en:{loading:'Loading photos…',nf_h:'Collection not found',nf_p:'This link is not valid, or the photographer has not published it yet.',err_h:'The page could not be opened',retry:'Try again',view:'View gallery',
+    count:n=>`${n} photo${n===1?'':'s'}`,fav:'Favorites',slide:'Slideshow',dlAll:'Download all',dl:'Download',share:'Share',sendFav:'Send favorites to the photographer',all:'All',
+    favEmpty:'You have not favorited any photo yet. Tap ♡ on a photo you like.',empty:'No photos yet.',prep:(d,n)=>`Preparing ${d}/${n}…`,close:'Close',
+    by:'By',foot:'Sent through SHEREHE HUB',privacy:'Privacy',terms:'Terms',copied:'Link copied.',prev_note:'This is a preview — only you can see it.',exit:'Close preview',
+    evnote:'Photos from the event',contact:'Contact us',favmsg:(t,nums,u)=>`Hello! I chose these photos from "${t}": numbers ${nums}. Link: ${u}`,favnone:'Pick the photos you like first (tap ♡).',locale:'en-GB'}
+};
+const CP={data:null,state:'loading',err:'',preview:false,favOnly:false,i:0,list:[],timer:null,favs:new Set()};
+const cpFavKey=()=>'sherehe_fav_'+((CP.data&&CP.data.collection&&CP.data.collection.id)||'');
+function cpLoadFavs(){ try{ CP.favs=new Set(JSON.parse(localStorage.getItem(cpFavKey())||'[]')); }catch(e){ CP.favs=new Set(); } }
+function cpSaveFavs(){ try{ localStorage.setItem(cpFavKey(),JSON.stringify([...CP.favs])); }catch(e){} }
+function coHost(){ let h=$('coPublic'); if(!h){ h=document.createElement('div'); h.id='coPublic'; h.className='co-public'; document.body.appendChild(h); } return h; }
+window.coHidePublic=function(){ const h=$('coPublic'); if(h){ h.style.display='none'; h.innerHTML=''; } clearInterval(CP.timer); CP.timer=null; };
+window.loadPublicCollection=async function(){
+  const m=location.hash.match(/^#collection=([^&]+)/); if(!m) return false;
+  const id=decodeURIComponent(m[1]);
+  document.body.classList.add('invite-mode'); $('authScreen').style.display='none'; $('publicRsvp').style.display='none'; if($('galleryPage')) $('galleryPage').style.display='none';
+  hideSplash(); document.documentElement.lang=invLang();
+  CP.preview=false; CP.data=null; CP.state='loading'; CP.favOnly=false; coRenderPublic();
+  if(!CO_UUID.test(id)||id.length!==36){ CP.state='missing'; coRenderPublic(); return true; }
+  if(!supabaseClient){ try{ initSupabaseAuth(); }catch(e){} }
+  try{
+    const r=await supabaseClient.rpc('get_public_collection',{p_id:id}); if(r.error) throw r.error;
+    if(!r.data){ CP.state='missing'; }
+    else { CP.data=r.data; CP.state='ready'; cpLoadFavs(); const t=r.data.collection.title; try{ document.title=t+' — SHEREHE HUB'; }catch(e){} }
+  }catch(e){ CP.state='error'; CP.err=e.message||String(e); }
+  coRenderPublic(); return true;
+};
+window.coPreview=function(){
+  const c=coGet(CO.cur); if(!c) return;
+  const ph=(CO.photos[c.id]||[]).map(p=>({id:p.id,url:p.url,thumb:p.thumb_url,width:p.width,height:p.height}));
+  const d=coDesign(c); let cover=d.cover_url, cthumb=d.cover_thumb; if(!cover&&ph[0]){ cover=ph[0].url; cthumb=ph[0].thumb||ph[0].url; }
+  CP.data={collection:{id:c.id,title:c.title,shoot_date:c.shoot_date,description:c.description,studio_name:c.studio_name,contact_phone:c.contact_phone,allow_download:c.allow_download,design:c.design,cover_url:cover,cover_thumb:cthumb},photos:ph,event:null};
+  CP.state='ready'; CP.preview=true; CP.favOnly=false; cpLoadFavs(); coRenderPublic();
+};
+window.coClosePreview=function(){ coHidePublic(); CP.preview=false; };
+function cpDate(iso,L){ try{ return new Date(iso+(String(iso).length<=10?'T12:00:00':'')).toLocaleDateString(CO_I18N[L].locale,{day:'numeric',month:'long',year:'numeric'}); }catch(e){ return ''; } }
+function coCoverHtml(_,data,d,isPrev){
+  const col=data.collection, L=invLang(), T=CO_I18N[L], img=safeUrl((isPrev?d.cover_url:col.cover_url)||d.cover_url||'');
+  const date=col.shoot_date?cpDate(col.shoot_date,L):'', sub=[data.event&&data.event.name].filter(Boolean).join(' · ');
+  const cv=d.cover||'center';
+  const imgEl=`<div class="cp-cimg" style="${img?`background-image:url('${E(img)}');`:''}background-position:${d.fx}% ${d.fy}%"${isPrev&&img?` onclick="coFocus(event,this)" title="Click to set the focus"`:''}>${isPrev&&img?`<i class="cp-focus" style="left:${d.fx}%;top:${d.fy}%"></i>`:''}</div>`;
+  const text=`<div class="cp-ctext">${date?`<p class="cp-cdate">${E(date)}</p>`:''}<h1>${E(col.title)}</h1>${sub?`<p class="cp-csub">${E(sub)}</p>`:''}${!isPrev?`<button type="button" class="cp-btn" onclick="cpEnter()">${T.view}</button>`:`<span class="cp-btn">${T.view}</span>`}</div>`;
+  return `<section class="cp-cover cv-${cv}${isPrev?' is-prev':''}${img?'':' no-img'}">${imgEl}${text}</section>`;
+}
+function cpVars(d){
+  const t=CO_THEMES[d.theme]||CO_THEMES.light, f=CO_FONTS[d.font]||CO_FONTS.serif;
+  return `--bg:${t.bg};--fg:${t.fg};--mu:${t.mu};--ac:${t.ac};--line:${t.line};--ff:${f.f};--tt:${f.t};--ls:${f.ls};--fw:${f.w};--gap:${d.gap==='large'?'22px':'8px'};--rh:${d.size==='large'?'380px':'250px'}`;
+}
+window.coRenderPublic=function(){
+  const host=coHost(); host.style.display='block';
+  const L=invLang(), T=CO_I18N[L], st=CP.state, data=CP.data;
+  const sw=`<div class="lang-switch cp-lang" role="group" aria-label="Language"><button type="button" class="${L==='sw'?'on':''}" onclick="cpLang('sw')">SW</button><button type="button" class="${L==='en'?'on':''}" onclick="cpLang('en')">EN</button></div>`;
+  if(st!=='ready'){
+    host.innerHTML=`<div class="cp cp-msg" style="${cpVars(CO_DEF)}">${sw}<div class="cp-box">${st==='loading'?`<p>${T.loading}</p>`:st==='missing'?`<h2>${T.nf_h}</h2><p>${T.nf_p}</p>`:`<h2>${T.err_h}</h2><p>${E(CP.err)}</p><p><button class="cp-btn dark" onclick="loadPublicCollection()">${T.retry}</button></p>`}</div></div>`;
+    return;
+  }
+  const col=data.collection, d=Object.assign({},CO_DEF,col.design||{}), ph=data.photos||[];
+  const list=ph.map((p,i)=>({p,i})).filter(x=>!CP.favOnly||CP.favs.has(x.p.id)); CP.list=list;
+  const favN=CP.favs.size;
+  const tiles=list.map(({p,i},k)=>{
+    const ar=(p.width&&p.height)?(p.width/p.height):1.5, fav=CP.favs.has(p.id);
+    return `<div class="cp-it" style="--ar:${ar.toFixed(4)}"><img loading="lazy" decoding="async" src="${E(safeUrl(p.thumb||p.url))}" alt="${E(col.title)} ${i+1}"${p.width&&p.height?` width="${p.width}" height="${p.height}"`:''} onclick="cpOpen(${k})"><button type="button" class="cp-heart ${fav?'on':''}" aria-label="${T.fav}" aria-pressed="${fav}" onclick="cpFav(${i},this)">${fav?'♥':'♡'}</button></div>`;
+  }).join('');
+  const ev=data.event;
+  host.innerHTML=`<div class="cp" style="${cpVars(d)}">
+    ${CP.preview?`<div class="cp-prev-bar"><span>${T.prev_note}</span><button type="button" onclick="coClosePreview()">${T.exit}</button></div>`:''}
+    ${CP.preview?'':sw}
+    ${coCoverHtml(null,data,d,false)}
+    <main class="cp-main" id="cpMain">
+      <div class="cp-bar"><div class="cp-bt"><b>${E(col.title)}</b><span>${T.count(ph.length)}</span></div>
+        <div class="cp-actions">
+          <button type="button" class="cp-ab ${CP.favOnly?'on':''}" onclick="cpFavOnly()" aria-pressed="${CP.favOnly}">♥ ${T.fav}${favN?` (${favN})`:''}</button>
+          <button type="button" class="cp-ab" onclick="cpSlide()">▶ ${T.slide}</button>
+          ${col.allow_download?`<button type="button" class="cp-ab" id="cpZip" onclick="cpZip()">${ic('download')}${T.dlAll}</button>`:''}
+          <button type="button" class="cp-ab" onclick="cpShare()">${ic('external')}${T.share}</button>
+        </div></div>
+      ${col.description?`<p class="cp-desc">${E(col.description)}</p>`:''}
+      ${ev?`<p class="cp-evnote">${ic('calendar')}${T.evnote}: <b>${E(ev.name||'')}</b>${ev.venue?' · '+E(ev.venue):''}</p>`:''}
+      ${CP.favOnly&&favN?`<div class="cp-sendfav"><button type="button" class="cp-btn dark" onclick="cpSendFav()">${ic('whatsapp')}${T.sendFav}</button></div>`:''}
+      ${list.length?`<div class="cp-grid g-${d.grid==='horizontal'?'h':'v'} s-${d.size==='large'?'l':'r'} gp-${d.gap==='large'?'l':'r'}" id="cpGrid">${tiles}</div>`:`<p class="cp-empty">${CP.favOnly?T.favEmpty:T.empty}</p>`}
+      <footer class="cp-foot">${col.studio_name?`<b>${E(col.studio_name)}</b>`:''}${col.contact_phone?`<a href="https://wa.me/${E(cpPhone(col.contact_phone))}" target="_blank" rel="noopener">${ic('whatsapp')}${T.contact}</a>`:''}
+        <span class="cp-pw"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span>${T.foot} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${T.privacy}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${T.terms}</a></span></footer>
+    </main>
+    <div class="cp-lb" id="cpLb" style="display:none" role="dialog" aria-modal="true"></div></div>`;
+};
+function cpPhone(p){ let n=String(p).replace(/[^\d]/g,''); if(n.startsWith('0')) n='255'+n.slice(1); return n; }
+window.cpLang=function(l){ window.setInviteLang(l); };
+const _cpSetLang=window.setInviteLang;
+window.setInviteLang=function(l){ if(l!=='sw'&&l!=='en') return; if(/^#collection=/.test(location.hash)||CP.preview){ window.__invLang=l; try{ localStorage.setItem('sherehe_lang',l); }catch(e){} document.documentElement.lang=l; if(!window.__langSync&&window.setLang&&window.currentLang&&window.currentLang()!==l){ window.__langSync=true; try{ window.setLang(l); }finally{ window.__langSync=false; } } coRenderPublic(); return; } _cpSetLang.apply(this,arguments); };
+window.__coMode=true;
+window.cpEnter=function(){ const m=$('cpMain'); if(m) m.scrollIntoView({behavior:'smooth',block:'start'}); };
+window.cpFav=function(i,btn){
+  const p=CP.data.photos[i]; if(!p) return;
+  if(CP.favs.has(p.id)) CP.favs.delete(p.id); else CP.favs.add(p.id);
+  cpSaveFavs(); const on=CP.favs.has(p.id);
+  if(CP.favOnly){ coRenderPublic(); return; }
+  if(btn){ btn.classList.toggle('on',on); btn.textContent=on?'♥':'♡'; btn.setAttribute('aria-pressed',on); }
+  const fb=document.querySelector('.cp-ab[aria-pressed]'); if(fb){ const T=CO_I18N[invLang()]; fb.textContent='♥ '+T.fav+(CP.favs.size?` (${CP.favs.size})`:''); }
+  const lb=$('cpLb'); if(lb&&lb.style.display!=='none') cpLbDraw();
+};
+window.cpFavOnly=function(){ CP.favOnly=!CP.favOnly; coRenderPublic(); const m=$('cpMain'); if(m&&m.getBoundingClientRect().top>60) cpEnter(); };
+window.cpSendFav=function(){
+  const L=invLang(), T=CO_I18N[L], d=CP.data, col=d.collection;
+  const nums=d.photos.map((p,i)=>CP.favs.has(p.id)?i+1:0).filter(Boolean).join(', ');
+  if(!nums) return toast(T.favnone);
+  const url=location.href.split('#')[0]+'#collection='+encodeURIComponent(col.id), msg=T.favmsg(col.title,nums,url);
+  if(col.contact_phone) window.open('https://wa.me/'+cpPhone(col.contact_phone)+'?text='+encodeURIComponent(msg),'_blank','noopener');
+  else window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
+};
+window.cpShare=async function(){
+  const T=CO_I18N[invLang()], col=CP.data.collection, url=location.href.split('#')[0]+'#collection='+encodeURIComponent(col.id);
+  try{ if(navigator.share){ await navigator.share({title:col.title,url}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(url); toast(T.copied); }catch(e){ window.prompt('Link:',url); }
+};
+window.cpZip=async function(){
+  const T=CO_I18N[invLang()], btn=$('cpZip'), old=btn?btn.innerHTML:'', ph=CP.data.photos||[];
+  try{ if(btn) btn.disabled=true; await zipPhotos(ph,(CP.data.collection.title||'photos').replace(/[^\w.-]+/g,'_')+'.zip',(dn,n)=>{ if(btn) btn.textContent=T.prep(dn,n); }); }
+  catch(e){ toast(String(e.message||e)); }
+  finally{ if(btn){ btn.disabled=false; btn.innerHTML=old; } }
+};
+/* lightbox + slideshow */
+window.cpOpen=function(k){ if(!CP.list.length) return; CP.i=(k+CP.list.length)%CP.list.length; const lb=$('cpLb'); lb.style.display='flex'; document.body.classList.add('cp-lock'); cpLbDraw(); };
+function cpLbDraw(){
+  const lb=$('cpLb'), T=CO_I18N[invLang()], x=CP.list[CP.i]; if(!lb||!x) return;
+  const col=CP.data.collection, fav=CP.favs.has(x.p.id), many=CP.list.length>1;
+  lb.innerHTML=`<img src="${E(safeUrl(x.p.url))}" alt="${E(col.title)} ${x.i+1}">
+    <div class="cp-lb-top"><span>${CP.i+1} / ${CP.list.length}</span><div>
+      <button type="button" class="${fav?'on':''}" onclick="cpFav(${x.i})" aria-label="${T.fav}">${fav?'♥':'♡'}</button>
+      ${col.allow_download?`<button type="button" onclick="cpDl(${x.i})" aria-label="${T.dl}">${ic('download')}</button>`:''}
+      <button type="button" id="cpPlay" onclick="cpSlide(true)" aria-label="${T.slide}">${CP.timer?'❚❚':'▶'}</button>
+      <button type="button" onclick="cpClose()" aria-label="${T.close}">${ic('x')}</button></div></div>
+    ${many?`<button type="button" class="cp-lb-prev" onclick="cpNav(-1)" aria-label="Previous">‹</button><button type="button" class="cp-lb-next" onclick="cpNav(1)" aria-label="Next">›</button>`:''}`;
+}
+window.cpNav=function(d){ if(!CP.list.length) return; CP.i=(CP.i+d+CP.list.length)%CP.list.length; cpLbDraw(); };
+window.cpClose=function(){ const lb=$('cpLb'); if(lb){ lb.style.display='none'; lb.innerHTML=''; } clearInterval(CP.timer); CP.timer=null; document.body.classList.remove('cp-lock'); };
+window.cpSlide=function(inLb){
+  if(CP.timer){ clearInterval(CP.timer); CP.timer=null; cpLbDraw(); return; }
+  if(!CP.list.length) return;
+  if(!inLb||!$('cpLb')||$('cpLb').style.display==='none') cpOpen(0);
+  CP.timer=setInterval(()=>cpNav(1),3800); cpLbDraw();
+};
+window.cpDl=async function(i){
+  const p=(CP.data.photos||[])[i]; if(!p) return;
+  try{ downloadBlobFile(await fetchBlob(p.url),'photo-'+String(i+1).padStart(3,'0')+'.jpg'); }catch(e){ window.open(safeUrl(p.url)||'about:blank','_blank','noopener'); }
+};
+document.addEventListener('keydown',e=>{
+  const lb=$('cpLb'); if(!lb||lb.style.display==='none') return;
+  if(e.key==='Escape') cpClose(); else if(e.key==='ArrowRight') cpNav(1); else if(e.key==='ArrowLeft') cpNav(-1);
+});
+(function(){ let sx=0,sy=0;
+  document.addEventListener('touchstart',e=>{ const lb=$('cpLb'); if(lb&&lb.style.display!=='none'&&e.touches[0]){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; } },{passive:true});
+  document.addEventListener('touchend',e=>{ const lb=$('cpLb'); if(!lb||lb.style.display==='none'||!e.changedTouches[0]) return; const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5) cpNav(dx<0?1:-1); },{passive:true});
+})();
+
+/* ---------- guest event gallery: show approved photographer collections ---------- */
+(function(){
+  const oL=window.loadPublicGallery, oR=window.renderGallery;
+  window.renderGallery=function(){
+    oR.apply(this,arguments);
+    const list=window.__galColl, pg=$('galleryPage'); if(!pg||!list||!list.length||window.__evpMode) return;
+    const L=invLang(), h=L==='sw'?'Picha za mpiga picha':'Photographer collections';
+    const html=`<div class="gal-colls"><h3>${h}</h3><div class="gal-colls-row">${list.map(c=>`<a class="gal-coll" href="#collection=${E(c.id)}">${c.cover?`<img loading="lazy" src="${E(safeUrl(c.cover))}" alt="">`:''}<b>${E(c.title)}</b><span>${c.studio_name?E(c.studio_name)+' · ':''}${c.count} ${L==='sw'?'picha':(c.count===1?'photo':'photos')}</span></a>`).join('')}</div></div>`;
+    const foot=pg.querySelector('.inv-foot'); if(foot) foot.insertAdjacentHTML('beforebegin',html);
+  };
+  window.loadPublicGallery=async function(){
+    window.__galColl=null; const r=await oL.apply(this,arguments);
+    const m=location.hash.match(/^#gallery=([^&]+)/);
+    if(m&&supabaseClient){ try{ const x=await supabaseClient.rpc('get_event_collections',{p_event_id:decodeURIComponent(m[1])}); if(!x.error&&Array.isArray(x.data)&&x.data.length){ window.__galColl=x.data; window.renderGallery(); } }catch(e){} }
+    return r;
+  };
+})();
 
 })();
 
@@ -10214,6 +10957,140 @@ window.addEventListener('resize',()=>{ if(EDS.open&&EDS.fit) fitZoom(); });
 <script>
 /* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
 window.SW_EXACT = {
+"Collections":"Albamu za picha",
+"Beautiful online galleries for your work. Share one link with your client — no account needed.":"Albamu nzuri za mtandaoni kwa kazi yako. Mtumie mteja link moja — hahitaji akaunti.",
+"Mine":"Zangu",
+"New collection":"Albamu mpya",
+"No collections yet":"Bado hakuna albamu",
+"Create your first collection, upload photos and share the link with your client.":"Tengeneza albamu yako ya kwanza, pakia picha na umtumie mteja link.",
+"← All collections":"← Albamu zote",
+"Draft":"Rasimu",
+"Settings":"Mipangilio",
+"Photos are resized automatically (and a small preview is made for fast loading). Up to 600 per collection.":"Picha hupunguzwa ukubwa kiotomatiki (na picha ndogo ya haraka hutengenezwa). Hadi picha 600 kwa albamu.",
+"Choose photos":"Chagua picha",
+"or drop them here":"au ziburuze hapa",
+"Tap the star on a photo to use it as the cover.":"Bonyeza nyota kwenye picha ili kuitumia kama jalada.",
+"Cover":"Jalada",
+"Use as cover":"Tumia kama jalada",
+"Publish collection":"Chapisha albamu",
+"Delete photo":"Futa picha",
+"Give it a name. You can change everything later.":"Ipe jina. Unaweza kubadilisha kila kitu baadaye.",
+"Date of the shoot":"Tarehe ya kupiga picha",
+"Create collection":"Tengeneza albamu",
+"Cover preview":"Muonekano wa jalada",
+"Click the photo to choose which part stays in view.":"Bonyeza picha kuchagua sehemu itakayobaki kuonekana.",
+"Click to set the focus":"Bonyeza kuweka sehemu ya kuonekana",
+"Changes save automatically.":"Mabadiliko huhifadhiwa kiotomatiki.",
+"Cover style":"Mtindo wa jalada",
+"Center":"Katikati",
+"Split":"Mgawanyo",
+"Stripe":"Mstari",
+"Frame":"Fremu",
+"Novel":"Kitabu",
+"Colour":"Rangi",
+"Typography":"Herufi",
+"Serif":"Serif",
+"Sans":"Sans",
+"Modern":"Kisasa",
+"Script":"Mwandiko",
+"Photo layout":"Mpangilio wa picha",
+"Vertical":"Wima",
+"Horizontal":"Mlalo",
+"Photo size":"Ukubwa wa picha",
+"Regular":"Kawaida",
+"Large":"Kubwa",
+"Spacing":"Nafasi",
+"Light":"Nyeupe",
+"Ivory":"Pembe ya ndovu",
+"Rose":"Waridi",
+"Sage":"Kijani laini",
+"Pewter":"Kijivu",
+"Blue":"Buluu",
+"Gold":"Dhahabu",
+"Night":"Usiku",
+"Shown on the cover and at the bottom of your collection.":"Huonekana kwenye jalada na chini ya albamu yako.",
+"Title":"Kichwa",
+"Description (optional)":"Maelezo (si lazima)",
+"Your name or studio":"Jina lako au studio",
+"WhatsApp number (optional)":"Namba ya WhatsApp (si lazima)",
+"Allow downloads":"Ruhusu kupakua",
+"Clients can download single photos or all as a ZIP.":"Wateja wanaweza kupakua picha moja moja au zote kama ZIP.",
+"Save details":"Hifadhi maelezo",
+"Attach to a SHEREHE HUB event":"Unganisha na tukio la SHEREHE HUB",
+"Optional. Needs the event owner’s permission.":"Si lazima. Inahitaji ruhusa ya mwenye tukio.",
+"Did you shoot an event that is managed in SHEREHE HUB? Ask the host for the event link (the photos link) and paste it here. The host must approve before your collection is attached to their event.":"Ulipiga picha kwenye tukio linaloendeshwa na SHEREHE HUB? Muombe mwenye tukio link ya tukio (link ya picha) na uibandike hapa. Mwenye tukio lazima aidhinishe kabla albamu yako haijaunganishwa na tukio lake.",
+"Request permission":"Omba ruhusa",
+"Delete collection":"Futa albamu",
+"Removes the collection and all its photos for good.":"Inafuta albamu na picha zake zote moja kwa moja.",
+"A few words about this shoot":"Maneno machache kuhusu kazi hii",
+"e.g. Neema Photography":"mf. Neema Photography",
+"Paste the event link or event ID":"Bandika link ya tukio au ID ya tukio",
+"Event link":"Link ya tukio",
+"Published":"Imechapishwa",
+"Share with your client":"Mshirikishe mteja wako",
+"Share link":"Shiriki link",
+"Anyone with this link can view the collection. No account needed.":"Yeyote mwenye link hii anaweza kuona albamu. Hahitaji akaunti.",
+"Send on WhatsApp":"Tuma kwa WhatsApp",
+"Print or show this QR code so people can open the gallery with their phone.":"Chapisha au onyesha QR code hii ili watu wafungue albamu kwa simu zao.",
+"Collection link":"Link ya albamu",
+"e.g. Yohana & Beatrice — Wedding":"mf. Yohana & Beatrice — Harusi",
+"Linked to an event":"Imeunganishwa na tukio",
+"Subscription required":"Unahitaji usajili",
+"1 photo":"Picha 1",
+"Select photos":"Chagua picha",
+"A photographer asked to attach photos to your event.":"Mpiga picha ameomba kuambatanisha picha kwenye tukio lako.",
+"Review":"Kagua",
+"A photographer wants to show their collection with this event. Only approve people you know.":"Mpiga picha anataka kuonyesha albamu yake pamoja na tukio hili. Idhinisha watu unaowajua tu.",
+"Approve":"Idhinisha",
+"Refuse":"Kataa",
+"Waiting for your decision":"Anasubiri uamuzi wako",
+"Approved — guests see it on the event gallery":"Imeidhinishwa — wageni wanaiona kwenye albamu ya tukio",
+"Unpublish":"Ondoa kwenye umma",
+"Publish":"Chapisha",
+"Linked to the event":"Imeunganishwa na tukio",
+"Unlink":"Tenganisha",
+"Collections could not be loaded":"Albamu hazikupakiwa",
+"Collections need an internet connection.":"Albamu zinahitaji intaneti.",
+"Linked to:":"Imeunganishwa na:",
+"The event page shows your collection to guests while it is published.":"Ukurasa wa tukio unaonyesha albamu yako kwa wageni ikiwa imechapishwa.",
+"Unlink from the event":"Tenganisha na tukio",
+"Cancel request":"Futa ombi",
+"Waiting for approval from the event owner:":"Inasubiri idhini ya mwenye tukio:",
+"You will see it here as soon as they accept.":"Utaliona hapa mara tu watakapokubali.",
+"The event owner did not accept your request:":"Mwenye tukio hakukubali ombi lako:",
+"All its photos will be removed for good. The link will stop working.":"Picha zake zote zitafutwa moja kwa moja. Link itaacha kufanya kazi.",
+"Delete this collection?":"Futa albamu hii?",
+"Delete this photo?":"Futa picha hii?",
+"It will be removed from the collection for good.":"Itaondolewa kwenye albamu moja kwa moja.",
+"They will be removed from the collection for good.":"Zitaondolewa kwenye albamu moja kwa moja.",
+"This collection is a draft. Turn on “Published” at the top before sharing the link.":"Albamu hii ni rasimu. Washa “Imechapishwa” juu kabla ya kushiriki link.",
+"Upload the first photos of this collection.":"Pakia picha za kwanza za albamu hii.",
+"Upload photos":"Pakia picha",
+"Photographer collections":"Albamu za wapiga picha",
+"Please type a name for the collection.":"Tafadhali andika jina la albamu.",
+"Collection created. Now upload the photos.":"Albamu imetengenezwa. Sasa pakia picha.",
+"Upload at least one photo before publishing.":"Pakia angalau picha moja kabla ya kuchapisha.",
+"Published. Anyone with the link can view it.":"Imechapishwa. Yeyote mwenye link anaweza kuiona.",
+"Unpublished. The link no longer works.":"Imeondolewa kwenye umma. Link haifanyi kazi tena.",
+"Upload in progress…":"Upakiaji unaendelea…",
+"Uploading photos needs an internet connection.":"Kupakia picha kunahitaji intaneti.",
+"Please choose image files (JPG, PNG or WebP).":"Tafadhali chagua picha (JPG, PNG au WebP).",
+"Cover updated.":"Jalada limebadilishwa.",
+"Photo deleted.":"Picha imefutwa.",
+"Photos deleted.":"Picha zimefutwa.",
+"The title cannot be empty.":"Kichwa hakiwezi kuwa tupu.",
+"Saved.":"Imehifadhiwa.",
+"That does not look like an event link. Ask the host to send you the photos link.":"Hii haionekani kuwa link ya tukio. Mwombe mwenyeji akutumie link ya picha.",
+"Request sent. The event owner will see it in their Photos page.":"Ombi limetumwa. Mwenye tukio ataliona kwenye ukurasa wake wa Picha.",
+"Unlinked.":"Imetenganishwa.",
+"Collection deleted.":"Albamu imefutwa.",
+"Link copied.":"Link imenakiliwa.",
+"Approved.":"Imeidhinishwa.",
+"Refused.":"Imekataliwa.",
+"Access removed.":"Ruhusa imeondolewa.",
+"Your subscription ends on":"Usajili wako unaisha",
+"Renew to keep uploading.":"Huisha upya ili uendelee kupakia.",
+"Photographer collections":"Albamu za mpiga picha",
 "For a premium look you can also design in Photoshop or Canva and upload it as the poster. Design Studio is best for quick jobs.":"Kwa muonekano wa hali ya juu unaweza pia kubuni kwenye Photoshop au Canva kisha ukapakia kama poster. Design Studio ni nzuri kwa kazi za haraka.",
 "Leave the list empty to switch it off.":"Acha orodha tupu ukitaka kuzima.",
 "The page shows the poster, date, venue, map and your message, with an add-to-calendar button.":"Ukurasa unaonyesha poster, tarehe, ukumbi, ramani na ujumbe wako, pamoja na kitufe cha kuongeza kwenye kalenda.",
@@ -10829,7 +11706,7 @@ window.SW_EXACT = {
 };
 
 /* element-level translations (innerHTML with inline tags) */
-window.SW_HTML = {"Open <b>Design Studio</b> in the menu, or press <b>Design</b> on an event. Pick a template, then change the text, photos, colours and fonts.":"Fungua <b>Design Studio</b> kwenye menyu, au bonyeza <b>Buni</b> kwenye tukio. Chagua kiolezo, kisha badilisha maandishi, picha, rangi na fonti.","Use <b>Use as event poster</b> to put the design on your event. Guests’ names are placed on it automatically.":"Tumia <b>Use as event poster</b> kuweka muundo huo kwenye tukio lako. Majina ya wageni yanawekwa juu yake kiotomatiki.","On the <b>Guests</b> page press <b>Meal choices</b> and list the meals (up to 8), for example Pilau or Wali na nyama.":"Kwenye ukurasa wa <b>Guests</b> bonyeza <b>Meal choices</b> kisha andika vyakula (hadi 8), mfano Pilau au Wali na nyama.","Guests pick one meal when they answer <b>Yes</b> on their invitation.":"Mgeni huchagua chakula kimoja anapojibu <b>Ndiyo</b> kwenye mwaliko wake.","You see the choice in the guest details, the <b>Reports</b> page and the Excel export. It is one choice per card.":"Unaona chaguo kwenye maelezo ya mgeni, ukurasa wa <b>Reports</b> na kwenye Excel. Ni chaguo moja kwa kila kadi.","On the <b>Guests</b> page press <b>Event page</b> and switch it on. Copy the link and share it anywhere, for example in a WhatsApp group.":"Kwenye ukurasa wa <b>Guests</b> bonyeza <b>Event page</b> kisha uuwashe. Nakili link na uishiriki popote, mfano kwenye kundi la WhatsApp.","Open <b>www.sherehehubtz.com</b> in <b>Chrome</b>, not inside WhatsApp or Facebook.":"Fungua <b>www.sherehehubtz.com</b> kwenye <b>Chrome</b>, si ndani ya WhatsApp au Facebook.","Tap the <b>three dots</b> at the top right.":"Bonyeza <b>nukta tatu</b> juu kulia.","Tap <code>Install app</code> (or <code>Add to Home screen</code>).":"Bonyeza <code>Install app</code> (au <code>Add to Home screen</code>).","Tap <code>Install</code>. The app appears on your home screen.":"Bonyeza <code>Install</code>. App itaonekana kwenye skrini yako ya mwanzo.","Open <b>www.sherehehubtz.com</b> in <b>Safari</b>, not inside WhatsApp or Facebook.":"Fungua <b>www.sherehehubtz.com</b> kwenye <b>Safari</b>, si ndani ya WhatsApp au Facebook.","Tap the <code>Share</code> button (the square with an arrow).":"Bonyeza kitufe cha <code>Share</code> (mraba wenye mshale).","Scroll and tap <code>Add to Home Screen</code>.":"Sogeza chini na ubonyeze <code>Add to Home Screen</code>.","Tap <code>Add</code>. The app appears on your home screen.":"Bonyeza <code>Add</code>. App itaonekana kwenye skrini yako ya mwanzo.","<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>":"<ul><li>Mgeni akishajibu mwaliko wake, kisanduku kinatokea ambapo anaweza kukuachia <b>salamu</b>.</li><li>Fungua <b>Salamu za wageni</b> kuzisoma. Tumia <b>Ficha</b> kwa salamu usiyotaka ionekane.</li><li>Bonyeza <b>Skrini kubwa</b> siku ya tukio kuonyesha salamu moja moja kwenye TV au projekta.</li><li>Bonyeza <b>Kitabu cha kumbukumbu (PDF)</b> kuhifadhi salamu zote kama kumbukumbu.</li></ul>",
+window.SW_HTML = {"<ul><li>Photographers and the admin see <b>Collections</b> in the menu. Create a collection, upload photos and design the cover (style, colour, typography, grid).</li><li>Publish it and share the link or QR code with your client. Clients can view, favourite and download the photos.</li><li>You do not need an event link. To show a collection on a SHEREHE HUB event, paste the event link in <b>Settings</b>; the event owner must approve it first.</li></ul>":"<ul><li>Wapiga picha na admin wanaona <b>Collections</b> kwenye menyu. Tengeneza albamu, pakia picha na ubuni jalada (mtindo, rangi, herufi, mpangilio).</li><li>Ichapishe kisha mtumie mteja link au QR code. Mteja anaweza kutazama, kuchagua vipendwa na kupakua picha.</li><li>Huhitaji link ya tukio. Ili albamu ionekane kwenye tukio la SHEREHE HUB, bandika link ya tukio kwenye <b>Settings</b>; mwenye tukio lazima aidhinishe kwanza.</li></ul>","Open <b>Design Studio</b> in the menu, or press <b>Design</b> on an event. Pick a template, then change the text, photos, colours and fonts.":"Fungua <b>Design Studio</b> kwenye menyu, au bonyeza <b>Buni</b> kwenye tukio. Chagua kiolezo, kisha badilisha maandishi, picha, rangi na fonti.","Use <b>Use as event poster</b> to put the design on your event. Guests’ names are placed on it automatically.":"Tumia <b>Use as event poster</b> kuweka muundo huo kwenye tukio lako. Majina ya wageni yanawekwa juu yake kiotomatiki.","On the <b>Guests</b> page press <b>Meal choices</b> and list the meals (up to 8), for example Pilau or Wali na nyama.":"Kwenye ukurasa wa <b>Guests</b> bonyeza <b>Meal choices</b> kisha andika vyakula (hadi 8), mfano Pilau au Wali na nyama.","Guests pick one meal when they answer <b>Yes</b> on their invitation.":"Mgeni huchagua chakula kimoja anapojibu <b>Ndiyo</b> kwenye mwaliko wake.","You see the choice in the guest details, the <b>Reports</b> page and the Excel export. It is one choice per card.":"Unaona chaguo kwenye maelezo ya mgeni, ukurasa wa <b>Reports</b> na kwenye Excel. Ni chaguo moja kwa kila kadi.","On the <b>Guests</b> page press <b>Event page</b> and switch it on. Copy the link and share it anywhere, for example in a WhatsApp group.":"Kwenye ukurasa wa <b>Guests</b> bonyeza <b>Event page</b> kisha uuwashe. Nakili link na uishiriki popote, mfano kwenye kundi la WhatsApp.","Open <b>www.sherehehubtz.com</b> in <b>Chrome</b>, not inside WhatsApp or Facebook.":"Fungua <b>www.sherehehubtz.com</b> kwenye <b>Chrome</b>, si ndani ya WhatsApp au Facebook.","Tap the <b>three dots</b> at the top right.":"Bonyeza <b>nukta tatu</b> juu kulia.","Tap <code>Install app</code> (or <code>Add to Home screen</code>).":"Bonyeza <code>Install app</code> (au <code>Add to Home screen</code>).","Tap <code>Install</code>. The app appears on your home screen.":"Bonyeza <code>Install</code>. App itaonekana kwenye skrini yako ya mwanzo.","Open <b>www.sherehehubtz.com</b> in <b>Safari</b>, not inside WhatsApp or Facebook.":"Fungua <b>www.sherehehubtz.com</b> kwenye <b>Safari</b>, si ndani ya WhatsApp au Facebook.","Tap the <code>Share</code> button (the square with an arrow).":"Bonyeza kitufe cha <code>Share</code> (mraba wenye mshale).","Scroll and tap <code>Add to Home Screen</code>.":"Sogeza chini na ubonyeze <code>Add to Home Screen</code>.","Tap <code>Add</code>. The app appears on your home screen.":"Bonyeza <code>Add</code>. App itaonekana kwenye skrini yako ya mwanzo.","<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>":"<ul><li>Mgeni akishajibu mwaliko wake, kisanduku kinatokea ambapo anaweza kukuachia <b>salamu</b>.</li><li>Fungua <b>Salamu za wageni</b> kuzisoma. Tumia <b>Ficha</b> kwa salamu usiyotaka ionekane.</li><li>Bonyeza <b>Skrini kubwa</b> siku ya tukio kuonyesha salamu moja moja kwenye TV au projekta.</li><li>Bonyeza <b>Kitabu cha kumbukumbu (PDF)</b> kuhifadhi salamu zote kama kumbukumbu.</li></ul>",
 
 "<b>Cards &amp; QR</b>: generate each guest’s personal invitation card with their QR code.":"<b>Kadi na QR</b>: tengeneza kadi ya mwaliko binafsi ya kila mgeni yenye QR code yake.",
 "<b>Check-in</b>: on the day, scan the QR codes at the door.":"<b>Check-in</b>: siku ya tukio, skani QR code mlangoni.",
@@ -10857,7 +11734,7 @@ window.SW_HTML = {"Open <b>Design Studio</b> in the menu, or press <b>Design</b>
 };
 
 /* patterns: {0},{1} are captured pieces (numbers/names), kept as-is */
-window.SW_PAT = [["{#0} arrived","{0} wamefika"],["{#0} people","Watu {0}"],["{#0} tasks are overdue", "Kazi {0} zimechelewa"], ["{#0} categories are over budget", "Vipengele {0} vimezidi bajeti"], ["{#0} guests have not replied", "Wageni {0} hawajajibu"], ["{#0} guests have no invitation yet", "Wageni {0} bado hawajapewa mwaliko"], ["{#0} tasks are due in the next 3 days", "Kazi {0} zinaisha ndani ya siku 3 zijazo"], ["{#0} days left", "Siku {0} zimebaki"], ["{#0} tasks added.", "Kazi {0} zimeongezwa."],["{#0} selected","{0} zimechaguliwa"],["Delete {#0} photos?","Futa picha {0}?"],["Delete {#0} photo?","Futa picha {0}?"],["{#0} photos deleted.","Picha {0} zimefutwa."],["{#0} photo deleted.","Picha {0} imefutwa."],["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
+window.SW_PAT = [["{#0} photos","Picha {0}"],["{#0} photo","Picha {0}"],["{#0} photographers asked to attach photos to your events.","Wapiga picha {0} wameomba kuambatanisha picha kwenye matukio yako."],["by {0} · Waiting for your decision","na {0} · Anasubiri uamuzi wako"],["by {0} · Approved — guests see it on the event gallery","na {0} · Imeidhinishwa — wageni wanaiona kwenye albamu ya tukio"],["Uploading {#0} of {#1}…","Inapakia {0} kati ya {1}…"],["{#0} photos uploaded.","Picha {0} zimepakiwa."],["{#0} photo uploaded.","Picha {0} imepakiwa."],["{#0} photos uploaded, {#1} failed.","Picha {0} zimepakiwa, {1} zimeshindikana."],["{#0} photos uploaded, {#1} skipped (limit).","Picha {0} zimepakiwa, {1} zimerukwa (kikomo)."],["This collection already has {#0} photos (the limit).","Albamu hii tayari ina picha {0} (kikomo)."],["Linked to {0}.","Imeunganishwa na {0}."],["Could not create: {0}","Imeshindikana kutengeneza: {0}"],["Could not save: {0}","Imeshindikana kuhifadhi: {0}"],["Failed: {0}","Imeshindikana: {0}"],["Your subscription ends on {0}. Renew to keep uploading.","Usajili wako unaisha {0}. Huisha upya ili uendelee kupakia."],["Collections could not be loaded: {0}. If this keeps happening, run the Collections SQL file in Supabase.","Albamu hazikupakiwa: {0}. Tatizo likiendelea, endesha faili ya SQL ya Collections kwenye Supabase."],["{#0} arrived","{0} wamefika"],["{#0} people","Watu {0}"],["{#0} tasks are overdue", "Kazi {0} zimechelewa"], ["{#0} categories are over budget", "Vipengele {0} vimezidi bajeti"], ["{#0} guests have not replied", "Wageni {0} hawajajibu"], ["{#0} guests have no invitation yet", "Wageni {0} bado hawajapewa mwaliko"], ["{#0} tasks are due in the next 3 days", "Kazi {0} zinaisha ndani ya siku 3 zijazo"], ["{#0} days left", "Siku {0} zimebaki"], ["{#0} tasks added.", "Kazi {0} zimeongezwa."],["{#0} selected","{0} zimechaguliwa"],["Delete {#0} photos?","Futa picha {0}?"],["Delete {#0} photo?","Futa picha {0}?"],["{#0} photos deleted.","Picha {0} zimefutwa."],["{#0} photo deleted.","Picha {0} imefutwa."],["Over by {0}","Imezidi kwa {0}"],["Due {0}","Mwisho {0}"],["Overdue · {0}","Imechelewa · {0}"],["of {#0} available","kati ya {0} zilizopo"],["All ({#0})","Zote ({0})"],["Choose photos ({#0} selected)","Chagua picha ({0} zimechaguliwa)"],
 ["{#0} photo","Picha {0}"],["{#0} pages","Kurasa {0}"],["about {0} MB","takriban MB {0}"],
 ["of {#0} selected. They appear in the book in this order.","kati ya {0} zimechaguliwa. Zinaonekana kwenye kitabu kwa mpangilio huu."],
 ["Preparing photos {#0}/{#1}…","Inatayarisha picha {0}/{1}…"],
