@@ -1283,6 +1283,28 @@ body.photographer-mode .app-sidebar .nav:not([data-view="photos"]):not([data-vie
 .auth-hero .brand-mark{width:64px !important;height:64px !important;border-radius:16px !important}
 .inv-top .brand-mark{width:30px !important;height:30px !important;border-radius:8px !important}
 
+/* ===== V93 · classic login panel ===== */
+.auth-art{background:linear-gradient(160deg,#16256b 0,#12206a 45%,#0d1850 100%) !important;border-radius:6px;padding:34px 38px 30px !important;gap:22px !important;box-shadow:inset 0 0 0 1px rgba(224,178,60,.22)}
+.auth-art:before{background:radial-gradient(80% 55% at 100% 0%,rgba(255,255,255,.10),transparent 62%),repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0 1px,transparent 1px 14px) !important}
+.auth-art:after{content:"";position:absolute;left:14px;right:14px;top:14px;bottom:14px;border:1px solid rgba(224,178,60,.30);border-radius:3px;pointer-events:none}
+.auth-pitch h2{font:700 32px/1.18 "Playfair Display",Georgia,"Times New Roman",serif !important;letter-spacing:.2px;margin:0 0 16px !important;color:#fff}
+.auth-pitch h2:before{content:"";display:block;width:44px;height:2px;background:var(--gold-l,#e3b84a);margin:0 0 16px}
+.auth-pitch p{font-size:14px !important;line-height:1.75 !important;color:#cdd6f3 !important;max-width:430px !important}
+.auth-points{gap:0 !important;margin:20px 0 0 !important;max-width:440px}
+.auth-points li{padding:10px 0;border-top:1px solid rgba(255,255,255,.12);font-size:13.5px !important;color:#e8edfb !important;align-items:center !important;gap:13px !important}
+.auth-points li:last-child{border-bottom:1px solid rgba(255,255,255,.12)}
+.auth-points svg{width:22px !important;height:22px !important;padding:5px;margin:0 !important;border-radius:50%;border:1px solid rgba(227,184,74,.7);color:var(--gold-l,#e3b84a) !important;box-sizing:border-box}
+.auth-sample{position:relative;align-self:flex-start;width:min(360px,100%) !important;background:linear-gradient(180deg,#fffdf7,#f7f1e1) !important;color:#1b2347 !important;border-radius:4px !important;padding:20px 22px 18px !important;box-shadow:0 22px 40px -18px rgba(0,0,0,.65),0 0 0 1px rgba(184,138,31,.55) !important;display:grid;grid-template-columns:1fr auto;column-gap:16px;align-items:end}
+.auth-sample:before{content:"";position:absolute;inset:6px;border:1px solid rgba(184,138,31,.45);border-radius:2px;pointer-events:none}
+.auth-sample .s-top{grid-column:1/-1;margin-bottom:12px;font:600 10.5px/1 var(--font-ui) !important;letter-spacing:.2em;text-transform:uppercase;color:#9a7416 !important}
+.auth-sample .s-badge{background:transparent !important;border:1px solid rgba(154,116,22,.6);color:#9a7416 !important;padding:3px 9px !important;letter-spacing:.12em;font-size:9.5px}
+.auth-sample .s-name{grid-column:1;font:700 23px/1.2 "Playfair Display",Georgia,serif !important;margin:0 0 6px !important;color:#16205a}
+.auth-sample .s-meta{grid-column:1;grid-row:3;font-size:11.5px !important;color:#6b6a63 !important;border-top:1px solid rgba(154,116,22,.35);padding-top:8px;margin-top:6px}
+.auth-sample .s-qr{grid-column:2;grid-row:2/4;margin:0 !important;width:66px !important;padding:5px;background:#fff;border:1px solid rgba(154,116,22,.4)}
+.auth-sample .s-qr i{background:#16205a !important}
+.auth-sample .s-qr i.o{background:transparent !important}
+.auth-hero .brand-mark{border-radius:16px !important}
+
 /* ===================== DESIGN STUDIO (V86) ===================== */
 body.st-open{overflow:hidden}
 .stI{width:18px;height:18px;flex:none;vertical-align:middle}
@@ -1796,7 +1818,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V92</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V93</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -11023,6 +11045,7 @@ window.addEventListener('resize',()=>{ if(EDS.open&&EDS.fit) fitZoom(); });
 <script>
 /* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
 window.SW_EXACT = {
+"Your photo galleries":"Albamu zako za picha",
 "Photographers":"Wapiga picha",
 "Use a saved design":"Tumia muundo uliohifadhiwa",
 "Collections":"Albamu za picha",
