@@ -1456,6 +1456,22 @@ body.st-open{overflow:hidden}
   .st-modal{padding:6px;align-items:flex-end} .st-mb{border-radius:16px 16px 0 0;max-height:94%}
 }
 @media (max-width:520px){ .st-tgrid{grid-template-columns:repeat(2,1fr)} .st-lh{padding-top:14px} }
+/* Cards & QR: pick a saved design */
+.cpk-ov{position:fixed;inset:0;z-index:9500;background:rgba(11,30,63,.5);display:flex;align-items:center;justify-content:center;padding:14px}
+.cpk-box{background:#fff;border-radius:16px;padding:16px;width:100%;max-width:560px;max-height:92vh;overflow:auto;box-shadow:0 30px 70px -20px rgba(11,30,63,.5)}
+.cpk-box.busy{opacity:.7;pointer-events:none}
+.cpk-h{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:16px}
+.cpk-x{border:0;background:transparent;font-size:26px;line-height:1;cursor:pointer;color:#475569;padding:0 6px}
+.cpk-note{color:#475569;font-size:13px;margin:6px 0 12px}
+.cpk-list{display:grid;gap:10px}
+.cpk-it{display:flex;gap:12px;align-items:center;border:1px solid #e2e8f0;border-radius:12px;padding:8px}
+.cpk-th{flex:0 0 88px;height:110px;background:#f1f5f9;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cpk-th img{max-width:100%;max-height:100%;object-fit:contain}
+.cpk-m{flex:1;min-width:0;display:grid;gap:4px}
+.cpk-m b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cpk-m span{color:#64748b;font-size:12px}
+.cpk-b{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.cpk-load{padding:18px;text-align:center;color:#64748b;font-size:13px}
+.cpk-f{display:flex;justify-content:flex-end;margin-top:12px}
 
 /* ===== V91 Collections ===== */
 .seg{display:inline-flex;background:var(--line-2,#eef0f6);border-radius:999px;padding:3px;gap:2px}
@@ -1780,7 +1796,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V91</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V92</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -1950,6 +1966,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
       <button class="primary" onclick="generateAll()"><svg class="i"><use href="#i-sparkle"/></svg>Generate all</button>
       <button class="gray" onclick="downloadAllZip()"><svg class="i"><use href="#i-download"/></svg>Download ZIP</button>
       <button class="gray" onclick="uploadAllGeneratedCards()"><svg class="i"><use href="#i-upload"/></svg>Save to cloud</button>
+      <button class="gray" onclick="studioPickForCards(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Use a saved design</button>
       <button class="gray" onclick="studioOpenForEvent(currentEventId)"><svg class="i"><use href="#i-sparkle"/></svg>Design the card</button>
     </div>
     <div class="hint-box"><svg class="i"><use href="#i-info"/></svg><span>This is a preview of each card. Click <b>PNG</b> to download a guest's full card, or <b>Download ZIP</b> to get them all at once.</span></div>
@@ -10832,6 +10849,57 @@ async function shareOut(kind){
   if(kind==='wa') window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
   else window.location.href='sms:'+(/iPhone|iPad|iPod/.test(navigator.userAgent)?'&':'?')+'body='+encodeURIComponent(msg);
 }
+async function posterCore(d,eid,which){
+  const nz=d.layers.find(l=>l.type==='namezone'&&vis(l));
+  await ensureFontsFor(d); ST._fv++; await Promise.all(d.layers.filter(l=>l.asset&&vis(l)).map(l=>imgReady(d.assets[l.asset])));
+    const S=Math.min(1.5,1800/d.w), cv=docCanvas(d,S,{}), blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+    const path=`${eid}/${Date.now()}-studio${which==='double'?'-double':''}.jpg`;
+    const up=await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false}); if(up.error) throw up.error;
+    const url=supabaseClient.storage.from(EVENT_POSTERS_BUCKET).getPublicUrl(path).data.publicUrl;
+    const sfx=which==='double'?'_double':'', upd={}; upd[which==='double'?'poster_url_double':'poster_url']=url;
+    if(nz){ const f=ST.CARD_FONTS.includes(nz.font)?nz.font:'Poppins'; upd['name_position_left'+sfx]=Math.round((nz.x+nz.w/2)/d.w*1000)/10; upd['name_position_top'+sfx]=Math.round((nz.y+nz.h/2)/d.h*1000)/10; upd['name_font_size'+sfx]=Math.max(8,Math.round(nz.size*S)); upd['name_font'+sfx]=f; upd['name_color'+sfx]=solid(nz.color,palOf(d)); upd['name_size_basis'+sfx]=cv.width; }
+    const r=await supabaseClient.from('events').update(upd).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
+    if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
+  return true;
+}
+
+/* ---------- Cards & QR: use a saved Design Studio design directly ---------- */
+async function cardApply(eid,designId,which,box){
+  try{
+    const ev=getEvent(eid); if(!ev) throw new Error(tr('Tukio halikupatikana.','Event not found.'));
+    if(ev.owner_id&&currentSupabaseUser&&ev.owner_id!==currentSupabaseUser.id) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
+    const nzNote=box&&box.querySelector('.cpk-note'); if(nzNote) nzNote.textContent=tr('Inatengeneza kadi…','Rendering the card…');
+    const row=await fetchDesign(designId); const d=row.doc; applyFields(d);
+    await posterCore(d,eid,which);
+    if(typeof loadEventsFromSupabase==='function') await loadEventsFromSupabase();
+    if(typeof renderCards==='function') renderCards();
+    toast(tr('Kadi za wageni sasa zinatumia muundo huu.','Guest cards now use this design.'));
+    return true;
+  }catch(e){ console.error('cardApply',e); const msg=String(e&&e.message||e); toast(/permission|policy|row-level|denied|owner/i.test(msg)?tr('Huna ruhusa ya kubadilisha poster ya tukio hili.','You do not have permission to change this event\'s poster.'):(msg.length<150?msg:tr('Imeshindwa kuweka muundo.','Could not apply the design.'))); return false; }
+}
+window.studioPickForCards=async function(eid){
+  eid=eid||currentEventId; const ev=getEvent(eid);
+  if(!ev){ toast(tr('Chagua tukio kwanza.','Choose an event first.')); return; }
+  if(!sbOK()){ toast(tr('Inahitaji mtandao.','Needs an internet connection.')); return; }
+  const old=document.getElementById('cpkOverlay'); if(old) old.remove();
+  const ov=document.createElement('div'); ov.id='cpkOverlay'; ov.className='cpk-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+  ov.innerHTML=`<div class="cpk-box"><div class="cpk-h"><b>${tr('Tumia muundo wa Design Studio kama kadi','Use a Design Studio design as the card')}</b><button type="button" class="cpk-x" aria-label="${tr('Funga','Close')}">×</button></div><p class="cpk-note">${tr('Chagua muundo uliohifadhiwa wa tukio hili. Utakuwa picha ya kadi ya kila mgeni; jina lake na QR vinawekwa juu yake.','Pick a saved design of this event. It becomes every guest\'s card image; their name and QR are placed on top.')}</p><div class="cpk-list"><div class="cpk-load">${tr('Inapakia miundo…','Loading designs…')}</div></div><div class="cpk-f"><button type="button" class="gray" data-new>${tr('Tengeneza muundo mpya','Make a new design')}</button></div></div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.addEventListener('click',async e=>{
+    if(e.target===ov||e.target.closest('.cpk-x')){ close(); return; }
+    if(e.target.closest('[data-new]')){ close(); studioOpenForEvent(eid); return; }
+    const b=e.target.closest('[data-use]'); if(!b||b.disabled) return;
+    const box=ov.querySelector('.cpk-box'); box.classList.add('busy'); ov.querySelectorAll('button').forEach(x=>x.disabled=true);
+    const ok=await cardApply(eid,b.dataset.id,b.dataset.use,box);
+    if(ok) close(); else { box.classList.remove('busy'); ov.querySelectorAll('button').forEach(x=>x.disabled=false); const n=box.querySelector('.cpk-note'); if(n) n.textContent=tr('Jaribu tena au chagua muundo mwingine.','Try again or pick another design.'); }
+  });
+  document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'){ close(); document.removeEventListener('keydown',esc); } });
+  const {rows,err}=await listDesigns(eid); const list=ov.querySelector('.cpk-list'); if(!list) return;
+  if(err||!rows.length){ list.innerHTML=`<div class="cpk-load">${err?tr('Miundo haikupakiwa.','Could not load designs.'):tr('Bado hujahifadhi muundo wowote kwa tukio hili. Bonyeza "Tengeneza muundo mpya".','You have not saved a design for this event yet. Press "Make a new design".')}</div>`; return; }
+  const E2=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  list.innerHTML=rows.map(r=>`<div class="cpk-it"><div class="cpk-th">${r.thumb_url?`<img alt="" src="${E2(r.thumb_url)}">`:''}</div><div class="cpk-m"><b>${E2(r.name||tr('Muundo bila jina','Untitled design'))}</b><span>${r.width}×${r.height}</span><div class="cpk-b"><button type="button" class="primary" data-use="single" data-id="${E2(r.id)}">${tr('Kadi ya Single','Single card')}</button><button type="button" class="gray" data-use="double" data-id="${E2(r.id)}">${tr('Kadi ya Double','Double card')}</button></div></div></div>`).join('');
+};
 async function usePoster(){
   const ev=EDS.ev; if(!ev){ toast(tr('Tukio halikupatikana.','Event not found.')); return; } if(!sbOK()){ toast(tr('Inahitaji mtandao.','Needs an internet connection.')); return; }
   const which=await new Promise(res=>{ const m=$q('#stModal'); const box=document.createElement('div'); box.className='st-mini'; box.innerHTML=`<div class="st-mb"><div class="st-mh"><b>${tr('Tumia kama poster ya tukio','Use as event poster')}</b></div><p class="st-note">${tr('Muundo huu utakuwa picha ya kadi ya mwaliko wa tukio. Jina la kila mgeni litaandikwa kwenye "Eneo la jina la mgeni" (ukiliweka).','This design becomes the event invitation image. Each guest\'s name is printed in the "guest name area" (if you added one).')}</p><div class="st-chips"><button class="st-b st-prim" data-w="single">${tr('Kadi ya Single','Single card')}</button><button class="st-b" data-w="double">${tr('Kadi ya Double','Double card')}</button><button class="st-b" data-w="">${tr('Ghairi','Cancel')}</button></div></div>`; m.appendChild(box); box.addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(!b) return; box.remove(); res(b.dataset.w); }); });
@@ -10842,14 +10910,7 @@ async function usePoster(){
   try{
     toast(tr('Inatengeneza poster…','Rendering poster…')); EDS.dirty&&await saveDesign();
     await ensureFontsFor(d); ST._fv++; await Promise.all(d.layers.filter(l=>l.asset&&vis(l)).map(l=>imgReady(d.assets[l.asset])));
-    const S=Math.min(1.5,1800/d.w), cv=docCanvas(d,S,{}), blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
-    const path=`${EDS.eventId}/${Date.now()}-studio${which==='double'?'-double':''}.jpg`;
-    const up=await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false}); if(up.error) throw up.error;
-    const url=supabaseClient.storage.from(EVENT_POSTERS_BUCKET).getPublicUrl(path).data.publicUrl;
-    const sfx=which==='double'?'_double':'', upd={}; upd[which==='double'?'poster_url_double':'poster_url']=url;
-    if(nz){ const f=ST.CARD_FONTS.includes(nz.font)?nz.font:'Poppins'; upd['name_position_left'+sfx]=Math.round((nz.x+nz.w/2)/d.w*1000)/10; upd['name_position_top'+sfx]=Math.round((nz.y+nz.h/2)/d.h*1000)/10; upd['name_font_size'+sfx]=Math.max(8,Math.round(nz.size*S)); upd['name_font'+sfx]=f; upd['name_color'+sfx]=solid(nz.color,palOf(d)); upd['name_size_basis'+sfx]=cv.width; }
-    const r=await supabaseClient.from('events').update(upd).eq('id',EDS.eventId).eq('owner_id',currentSupabaseUser.id).select('id');
-    if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
+    await posterCore(d,EDS.eventId,which);
     if(typeof loadEventsFromSupabase==='function') await loadEventsFromSupabase();
     EDS.ev=getEvent(EDS.eventId);
     toast(tr('Poster ya tukio imebadilishwa. Kadi za wageni zitatumia muundo huu.','Event poster updated. Guest cards now use this design.'));
@@ -10962,6 +11023,8 @@ window.addEventListener('resize',()=>{ if(EDS.open&&EDS.fit) fitZoom(); });
 <script>
 /* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
 window.SW_EXACT = {
+"Photographers":"Wapiga picha",
+"Use a saved design":"Tumia muundo uliohifadhiwa",
 "Collections":"Albamu za picha",
 "Beautiful online galleries for your work. Share one link with your client — no account needed.":"Albamu nzuri za mtandaoni kwa kazi yako. Mtumie mteja link moja — hahitaji akaunti.",
 "Mine":"Zangu",
