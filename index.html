@@ -1878,7 +1878,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V107</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V108</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3204,13 +3204,16 @@ function normalizeTzPhone(phone){
   if(p.startsWith('0')) return '+255'+p.slice(1);
   return p;
 }
-function siteBase(){ return /^https?:$/.test(location.protocol)&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? location.origin : ''; }
 function guestInviteUrl(ev,g){
-  const b=siteBase();
-  if(b) return b+'/i/'+encodeURIComponent(ev.id)+'/'+encodeURIComponent(g.id)+'/'+encodeURIComponent(g.type||'Single');
   return location.href.split('#')[0]+'#invite='+encodeURIComponent(ev.id)+'&guest='+encodeURIComponent(g.id)+'&type='+encodeURIComponent(g.type);
 }
-function mapShareUrl(ev){ if(!ev||!ev.maps) return ''; const b=siteBase(); return b? b+'/m/'+encodeURIComponent(ev.id) : ev.maps; }
+function mapShareUrl(ev){ return (ev&&ev.maps)||''; }
+/* WhatsApp builds its link preview from the FIRST link in the message. When the first link is the venue map, put our own site link first so the preview is the SHEREHE HUB card. */
+function waBrand(m){
+  const first=(String(m).match(/https?:\/\/[^\s]+/)||[])[0];
+  if(first && !/^https?:\/\/(www\.)?sherehehubtz\.com/i.test(first)) return 'SHEREHE HUB TZ \u2014 www.sherehehubtz.com\n\n'+m;
+  return m;
+}
 async function logGuestMessage(ev,g,channel,message,status='opened',providerMessageId=null){
   if(!supabaseClient || !currentSupabaseUser) return;
   try{
@@ -3294,7 +3297,7 @@ async function sendWA(gid){
   if(api.ok){
     toast('WhatsApp sent automatically to '+g.name+' (API).');
   }else{
-    const wa='https://wa.me/'+phone.replace('+','')+'?text='+encodeURIComponent(message);
+    const wa='https://wa.me/'+phone.replace('+','')+'?text='+encodeURIComponent(waBrand(message));
     window.open(wa,'_blank','noopener');
     toast('WhatsApp opened for '+g.name+' (automatic sending is not connected).');
   }
@@ -4806,7 +4809,7 @@ window.sendViaApi = async function(channel,ev,g,phone,message){
 };
 function markSent(g,channel){ g.sent=true; if(channel==='whatsapp') g.sent_whatsapp=true; else g.sent_sms=true; g.lastChannel=channel; g.lastSentAt=new Date().toISOString(); }
 function manualLink(channel,phone,message){
-  return channel==='whatsapp' ? 'https://wa.me/'+phone.replace('+','')+'?text='+encodeURIComponent(message) : 'sms:'+phone+'?body='+encodeURIComponent(message);
+  return channel==='whatsapp' ? 'https://wa.me/'+phone.replace('+','')+'?text='+encodeURIComponent(waBrand(message)) : 'sms:'+phone+'?body='+encodeURIComponent(message);
 }
 function openLink(url,channel){
   if(channel==='whatsapp'){ window.open(url,'_blank','noopener'); }
