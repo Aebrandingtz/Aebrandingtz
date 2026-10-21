@@ -20,12 +20,7 @@
 <meta name="description" content="Create events, manage guests, send WhatsApp/SMS invitations with QR cards and check guests in on the day.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@500;700&family=Playfair+Display:wght@500;700&family=Great+Vibes&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=Montserrat:wght@500;700&family=Playfair+Display:wght@500;700&family=Great+Vibes&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 <style>
 /* =========================================================================
    SHEREHE HUB — design system v40
@@ -1355,6 +1350,9 @@ button.icon svg.i{width:16px;height:16px}
   .guest-bar>.spacer{display:none}
   .toolbar>button:last-child:nth-child(odd),.guest-bar>button:last-child:nth-child(even){grid-column:1/-1}
 }
+.seq{width:44px;color:var(--muted,#64748b);font-weight:700;text-align:center}
+@media(max-width:700px){td.seq{display:none!important}}
+.ex-plus{margin-left:8px;border:0;background:var(--blue);color:#fff;width:20px;height:20px;border-radius:50%;line-height:20px;padding:0;font-weight:700;cursor:pointer}
 
 /* ===================== DESIGN STUDIO (V86) ===================== */
 body.st-open{overflow:hidden}
@@ -1756,11 +1754,11 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
 <div id="authScreen" class="auth" style="display:none">
   <header class="auth-hero">
     <span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span>
-    <h1>SHEREHE HUB</h1>
+    <h1>SHEREHE HUB TZ</h1>
     <p>Event Invitation &amp; Guest Management Portal</p>
   </header>
   <div class="auth-card">
-  <section class="auth-art" aria-label="About SHEREHE HUB">
+  <section class="auth-art" aria-label="About SHEREHE HUB TZ">
     <div class="auth-pitch">
       <h2>Plan. Invite. Celebrate.</h2>
       <p>Everything you need to run your event, from the first guest to the last photo. Plan the guest list, design and send personal invitations with QR codes by WhatsApp or SMS, follow every reply, and check guests in at the door, all in one place.</p>
@@ -1785,7 +1783,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
 
   <section class="auth-panel">
     <div class="auth-form">
-      <div class="brand"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span><span class="brand-word">SHEREHE <b>HUB</b></span></div>
+      <div class="brand"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span><span class="brand-word">SHEREHE <b>HUB TZ</b></span></div>
       <div class="auth-tabs" role="tablist">
         <button type="button" id="tabLogin" class="active" role="tab" onclick="setAuthMode('login')">Login</button>
         <button type="button" id="tabRegister" role="tab" onclick="setAuthMode('register')">Create account</button>
@@ -1823,7 +1821,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
 <!-- ============ APP HEADER ============ -->
 <header class="app-header">
   <button class="mobile-menu-btn" type="button" aria-label="Open menu" onclick="toggleMobileNav()"><svg class="i"><use href="#i-menu"/></svg></button>
-  <div class="brand"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span><span class="brand-word">SHEREHE <b>HUB</b></span></div>
+  <div class="brand"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span><span class="brand-word">SHEREHE <b>HUB TZ</b></span></div>
   <div class="page-title"><b id="pageTitle">Dashboard</b><span id="pageSubtitle"></span></div>
   <div class="header-right">
     <div class="user-chip" role="button" tabindex="0" title="My account" onclick="openAccountModal()" onkeydown="if(event.key==='Enter')openAccountModal()"><span class="avatar" id="userAvatar">S</span><span class="who"><b id="userName">—</b><small id="roleLabel">—</small></span></div>
@@ -1875,7 +1873,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V97</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V98</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2045,6 +2043,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
       <button class="primary" onclick="generateAll()"><svg class="i"><use href="#i-sparkle"/></svg>Generate all</button>
       <button class="gray" onclick="downloadAllZip()"><svg class="i"><use href="#i-download"/></svg>Download ZIP</button>
       <button class="gray" onclick="uploadAllGeneratedCards()"><svg class="i"><use href="#i-upload"/></svg>Save to cloud</button>
+      <button class="gray" onclick="cardsChangeOpen(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Change card</button>
       <button class="gray" onclick="studioPickForCards(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Use a saved design</button>
       <button class="gray" onclick="studioOpenForEvent(currentEventId)"><svg class="i"><use href="#i-sparkle"/></svg>Design the card</button>
       <button class="danger" onclick="cardsRemoveOpen(currentEventId)"><svg class="i"><use href="#i-trash"/></svg>Remove card</button>
@@ -2394,6 +2393,12 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
 
 <div id="modal" class="modal"><div class="modal-box" id="modalContent"></div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* heavy admin-only libraries load after the page is shown, so invitation links open fast on slow networks */
+(function(){var L=["https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js","https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js","https://unpkg.com/html5-qrcode"];function go(){L.forEach(function(u){var s=document.createElement("script");s.src=u;s.async=true;document.head.appendChild(s);});}if(document.readyState==="complete")setTimeout(go,300);else window.addEventListener("load",function(){setTimeout(go,300);});})();
+</script>
 <script>
 /* ===== SUPABASE AUTH ===== */
 const SUPABASE_URL = "https://ajxybsfhckdxzslpsnjb.supabase.co";
@@ -2932,6 +2937,8 @@ async function loadEventsFromSupabase(){
     publicPage: !!e.public_page,
     poster: safeUrl(e.poster_url || ""),
     posterDouble: safeUrl(e.poster_url_double || ""),
+    posterDesign: e.poster_design_id || null,
+    posterDesignDouble: e.poster_design_id_double || null,
     namePos: {
       left: String(e.name_position_left ?? 50) + "%",
       top: String(e.name_position_top ?? 68) + "%",
@@ -4290,8 +4297,10 @@ window.saveEditedEvent = async function(){
   try{
     const {error}=await supabaseClient.from('events').update(row).eq('id',id).eq('owner_id',evOwner(id));
     if(error) throw error;
+    const before={name:ev.name,type:ev.type,date:ev.date,venue:ev.venue,maps:ev.maps,message:ev.message};
     Object.assign(ev,{name,type:row.event_type,date:iso||'',venue:row.venue,maps:row.google_maps_url,message:row.message});
     closeEditEvent(); doRefresh(); toast('Event updated.');
+    if((ev.posterDesign||ev.posterDesignDouble)&&window.studioSyncAfterEdit) window.studioSyncAfterEdit(id,before,ev);
   }catch(err){ toast('Not saved: '+(err.message||err)); }
   finally{ btn.disabled=false; btn.textContent='Save changes'; }
 };
@@ -4882,13 +4891,13 @@ window.renderContributions = function(){
   if(!list.length){ box.innerHTML=emptyState(all.length?'No matches':'No contributors yet',all.length?'Change the search or filter.':'Record the first contributor using the form above.'); return; }
   const t=ctTotals(list);
   const guestKeys=ctGuestKeys(ev);
-  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Contributor</th><th class="num">Pledged</th><th class="num">Paid</th><th class="num">Balance</th><th class="actions">Actions</th></tr></thead><tbody>${list.map(x=>{
+  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th class="seq">No.</th><th>Contributor</th><th class="num">Pledged</th><th class="num">Paid</th><th class="num">Balance</th><th class="actions">Actions</th></tr></thead><tbody>${list.map((x,ix)=>{
     const inG=guestKeys.has('p:'+digitsOf(x.phone))&&digitsOf(x.phone)||guestKeys.has('n:'+x.name.trim().toLowerCase());
     const bal = x.left>0?`<b class="bal owe">${money(x.left)}</b>`:(x.pledged>0&&x.paid>x.pledged?`<span class="bal ok">Paid · +${money(x.paid-x.pledged)}</span>`:`<span class="bal ok">Cleared</span>`);
-    return `<tr><td data-l="Contributor"><div class="guest-cell"><span class="avatar">${E(initials(x.name))}</span><div style="min-width:0"><span class="cell-name">${E(x.name)}</span><span class="cell-sub">${E(x.phone||'No phone')}${inG?' · in guest list':''}</span>${x.due&&x.left>0?`<span class="cell-sub ${x.overdue?'due-late':''}">${x.overdue?'Overdue · ':'Due '}${E(fmtDay(x.due))}</span>`:''}</div></div></td>
+    return `<tr><td class="seq" data-l="No.">${ix+1}</td><td data-l="Contributor"><div class="guest-cell"><span class="avatar">${E(initials(x.name))}</span><div style="min-width:0"><span class="cell-name">${E(x.name)}</span><span class="cell-sub">${E(x.phone||'No phone')}${inG?' · in guest list':''}</span>${x.due&&x.left>0?`<span class="cell-sub ${x.overdue?'due-late':''}">${x.overdue?'Overdue · ':'Due '}${E(fmtDay(x.due))}</span>`:''}</div></div></td>
       <td class="num" data-l="Pledged">${money(x.pledged)}</td><td class="num" data-l="Paid">${money(x.paid)}</td><td class="num" data-l="Balance">${bal}</td>
       <td class="actions"><div class="row-actions"><button class="primary sm" onclick="openContributor('${x.id}',true)">${ic('plus')}Add payment</button><button class="icon" title="Details and history" aria-label="Details and history" onclick="openContributor('${x.id}')">${ic('user')}</button><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteContributor('${x.id}')">${ic('trash')}</button></div></td></tr>`;}).join('')}
-    </tbody><tfoot><tr class="ct-total"><td>Total (${list.length})</td><td class="num" data-l="Pledged">${money(t.pledged)}</td><td class="num" data-l="Paid">${money(t.collected)}</td><td class="num" data-l="Balance"><b>${money(t.left)}</b></td><td></td></tr></tfoot></table></div>`;
+    </tbody><tfoot><tr class="ct-total"><td></td><td>Total (${list.length})</td><td class="num" data-l="Pledged">${money(t.pledged)}</td><td class="num" data-l="Paid">${money(t.collected)}</td><td class="num" data-l="Balance"><b>${money(t.left)}</b></td><td></td></tr></tfoot></table></div>`;
 };
 window.ctSearchSet = v => { CT.search=v; renderContributions(); };
 window.ctFilterSet = v => { CT.filter=v; renderContributions(); };
@@ -4988,15 +4997,15 @@ window.downloadContributors = function(){
   const rows=[['No.','Name','Phone','Pledged (TZS)','Paid (TZS)','Balance (TZS)','Due date','Status']];
   people.forEach((x,i)=>rows.push([i+1,x.name,x.phone||'',x.pledged,x.paid,x.left,x.due||'',status(x)]));
   rows.push([]); rows.push(['','TOTAL','',t.pledged,t.collected,t.left,'','']);
-  const pay=[['Date','Name','Phone','Amount (TZS)','Method']];
-  people.forEach(x=>x.rows.slice().reverse().forEach(p=>pay.push([p.created_at?new Date(p.created_at).toLocaleDateString('en-GB'):'',x.name,x.phone||'',Number(p.amount),p.provider_reference||p.provider||''])));
-  const exp=[['Date','Description','Category','Amount (TZS)']];
-  (CT.expenses||[]).slice().sort((a,b)=>String(a.spent_on).localeCompare(String(b.spent_on))).forEach(e=>exp.push([e.spent_on||'',e.description,e.category||'',Number(e.amount)]));
-  exp.push([]); exp.push(['','TOTAL EXPENSES','',spent]);
+  const pay=[['No.','Date','Name','Phone','Amount (TZS)','Method']];
+  people.forEach(x=>x.rows.slice().reverse().forEach(p=>pay.push([pay.length,p.created_at?new Date(p.created_at).toLocaleDateString('en-GB'):'',x.name,x.phone||'',Number(p.amount),p.provider_reference||p.provider||''])));
+  const exp=[['No.','Date','Description','Category','Amount (TZS)']];
+  (CT.expenses||[]).slice().sort((a,b)=>String(a.spent_on).localeCompare(String(b.spent_on))).forEach(e=>exp.push([exp.length,e.spent_on||'',e.description,e.category||'',Number(e.amount)]));
+  exp.push([]); exp.push(['','','TOTAL EXPENSES','',spent]);
   const base=(ev.name||'event').replace(/[^\w.-]+/g,'_')+'-contribution-report';
   if(window.XLSX){
     const wb=XLSX.utils.book_new(), add=(aoa,name,cols)=>{ const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=cols.map(w=>({wch:w})); XLSX.utils.book_append_sheet(wb,ws,name); };
-    add(sum,'Summary',[28,22]); add(rows,'Contributors',[5,28,16,15,15,15,12,12]); add(pay,'Payments',[12,28,16,15,16]); add(exp,'Expenses',[12,32,20,15]);
+    add(sum,'Summary',[28,22]); add(rows,'Contributors',[5,28,16,15,15,15,12,12]); add(pay,'Payments',[5,12,28,16,15,16]); add(exp,'Expenses',[5,12,32,20,15]);
     XLSX.writeFile(wb,base+'.xlsx'); toast('Excel report downloaded.');
   }else{
     const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
@@ -5012,8 +5021,8 @@ function renderExpenses(){
   const list=CT.expenses||[];
   if(!list.length){ box.innerHTML=emptyState('No expenses yet','Add what was spent, for example hall booking, food or transport.'); return; }
   const by={}; list.forEach(x=>{ const k=x.category||'Other'; by[k]=(by[k]||0)+Number(x.amount||0); });
-  box.innerHTML=`<div class="ex-chips">${Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="ex-chip">${E(k)} <b>${money(v)}</b></span>`).join('')}</div>
-    <div class="table-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="num">Amount</th><th class="actions"></th></tr></thead><tbody>${list.map(x=>`<tr><td data-l="Date">${E(fmtDay(x.spent_on))}</td><td data-l="Description"><b>${E(x.description)}</b></td><td data-l="Category">${E(x.category||'Other')}</td><td class="num" data-l="Amount">${money(x.amount)}</td><td class="actions"><button class="icon del" title="Delete" aria-label="Delete expense" onclick="deleteExpense('${x.id}')">${ic('trash')}</button></td></tr>`).join('')}</tbody><tfoot><tr class="ct-total"><td colspan="3">Total expenses (${list.length})</td><td class="num"><b>${money(ctSpentTotal())}</b></td><td></td></tr></tfoot></table></div>`;
+  box.innerHTML=`<div class="ex-chips">${Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="ex-chip">${E(k)} <b>${money(v)}</b><button type="button" class="ex-plus" title="Add expense to ${E(k)}" aria-label="Add expense to ${E(k)}" onclick="openExpenseFor(${jq(k)})">+</button></span>`).join('')}</div>
+    <div class="table-wrap"><table><thead><tr><th class="seq">No.</th><th>Date</th><th>Description</th><th>Category</th><th class="num">Amount</th><th class="actions"></th></tr></thead><tbody>${list.map((x,ix)=>`<tr><td class="seq" data-l="No.">${ix+1}</td><td data-l="Date">${E(fmtDay(x.spent_on))}</td><td data-l="Description"><b>${E(x.description)}</b></td><td data-l="Category">${E(x.category||'Other')}</td><td class="num" data-l="Amount">${money(x.amount)}</td><td class="actions"><button class="icon del" title="Delete" aria-label="Delete expense" onclick="deleteExpense('${x.id}')">${ic('trash')}</button></td></tr>`).join('')}</tbody><tfoot><tr class="ct-total"><td colspan="4">Total expenses (${list.length})</td><td class="num"><b>${money(ctSpentTotal())}</b></td><td></td></tr></tfoot></table></div>`;
 }
 const _rc = window.renderContributions;
 window.renderContributions = function(){ _rc.apply(this,arguments); renderExpenses(); const d=$('exDate'); if(d&&!d.value) d.value=ctToday(); };
@@ -5027,6 +5036,30 @@ window.saveExpense = async function(){
   const r=await supabaseClient.from('expenses').insert({event_id:ev.id,description,category:$('exCat').value,amount,spent_on:$('exDate').value||ctToday()}).select('*').single();
   if(r.error){ st.textContent='Not saved: '+r.error.message; return; }
   CT.expenses.unshift(r.data); CT.expensesOk=true; $('exDesc').value=''; $('exAmount').value=''; st.textContent=`${description} added.`; renderContributions();
+};
+/* ----- V98: add a payment (expense) straight into one category ----- */
+window.openExpenseFor = function(cat){
+  const ev=getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
+  if(!(CT.loaded&&CT.eventId===ev.id)) return toast('Please wait, contributions are still loading.');
+  const spent=(CT.expenses||[]).filter(x=>(x.category||'Other')===cat).reduce((n,x)=>n+Number(x.amount||0),0);
+  const plan=(typeof BUD!=='undefined'&&BUD.rows&&BUD.rows[cat])||0;
+  $('contribModalBox').innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('wallet')}</div><div><h2>Add payment · ${E(cat)}</h2><p>${plan?`Planned ${money(plan)} · Spent so far ${money(spent)}`:`Spent so far ${money(spent)}`}</p></div></div>
+    <div class="guest-form-grid"><div class="field full"><label for="xfDesc">What was it for?</label><input id="xfDesc" placeholder="e.g. Deposit" autocomplete="off"></div>
+    <div class="field"><label for="xfAmount">Amount (TZS)</label><input id="xfAmount" inputmode="numeric" placeholder="e.g. 150,000"></div>
+    <div class="field"><label for="xfDate">Date</label><input id="xfDate" type="date" value="${ctToday()}"></div></div>
+    <div class="guest-form-actions"><span id="xfStatus" class="muted" style="margin-right:auto;font-size:13px"></span><button class="gray" onclick="closeContributor()">Cancel</button><button class="primary" onclick="saveExpenseFor(${jq(cat)})">${ic('check')}Add payment</button></div>`;
+  $('contribModal').classList.add('open'); setTimeout(()=>{ const a=$('xfDesc'); if(a) a.focus(); },60);
+};
+window.saveExpenseFor = async function(cat){
+  const ev=getEvent(currentEventId); if(!ev) return;
+  if(window.__offlineMode||!navigator.onLine) return toast('Saving expenses needs an internet connection.');
+  const description=$('xfDesc').value.trim()||cat, amount=numIn($('xfAmount').value);
+  if(amount<=0) return toast('Please enter the amount spent.');
+  const st=$('xfStatus'); st.textContent='Saving…';
+  const r=await supabaseClient.from('expenses').insert({event_id:ev.id,description,category:cat,amount,spent_on:$('xfDate').value||ctToday()}).select('*').single();
+  if(r.error){ st.textContent='Not saved: '+r.error.message; return; }
+  CT.expenses.unshift(r.data); CT.expensesOk=true; closeContributor(); renderContributions(); toast(`${money(amount)} added to ${cat}.`);
 };
 window.deleteExpense = async function(id){
   const x=CT.expenses.find(e=>e.id===id); if(!x) return;
@@ -5217,10 +5250,10 @@ window.downloadContributorsPdf = async function(){
       if(y>H-190){ doc.addPage(); y=50; }
       doc.setTextColor(30,35,50); doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.text('Expenses',M,y);
       doc.autoTable({ startY:y+8, margin:{left:M,right:M,bottom:44},
-        head:[['Date','Description','Category','Amount (TZS)']], body:exps.map(e=>[fmtDay(e.spent_on),pdfTxt(e.description),pdfTxt(e.category||'Other'),n(e.amount)]),
-        foot:[['','Total expenses','',n(spent)]], showFoot:'lastPage', theme:'striped',
+        head:[['#','Date','Description','Category','Amount (TZS)']], body:exps.map((e,i)=>[i+1,fmtDay(e.spent_on),pdfTxt(e.description),pdfTxt(e.category||'Other'),n(e.amount)]),
+        foot:[['','','Total expenses','',n(spent)]], showFoot:'lastPage', theme:'striped',
         styles:{font:'helvetica',fontSize:9,cellPadding:4.5,textColor:[30,35,50]}, headStyles:{fillColor:[120,53,15],textColor:255,fontStyle:'bold'}, footStyles:{fillColor:[245,232,222],textColor:[20,25,40],fontStyle:'bold'}, alternateRowStyles:{fillColor:[252,249,246]},
-        columnStyles:{3:{halign:'right'}}, didParseCell:d=>{ if(d.section!=='body'&&d.column.index===3) d.cell.styles.halign='right'; } });
+        columnStyles:{0:{cellWidth:22,halign:'center'},4:{halign:'right'}}, didParseCell:d=>{ if(d.section!=='body'&&d.column.index===4) d.cell.styles.halign='right'; } });
       y=doc.lastAutoTable.finalY+26;
     }
     if(y>H-130){ doc.addPage(); y=60; }
@@ -5581,17 +5614,19 @@ window.saveDeadline = async function(eid,clear){
 };
 
 /* ---------- V88: meal choices + public event page (host side) ---------- */
+window.mealSplit = m => String(m||'').split(/\s*,\s*/).map(x=>x.trim()).filter(Boolean);
 window.mealCounts = function(ev){
   const opts=(ev.mealOptions||[]).slice(), cnt={}; let none=0;
   opts.forEach(o=>cnt[o]=0);
-  (ev.guests||[]).forEach(g=>{ if(g.rsvp!=='Yes') return; if(g.meal){ if(!(g.meal in cnt)){ cnt[g.meal]=0; opts.push(g.meal); } cnt[g.meal]++; } else none++; });
-  return {rows:opts.map(o=>[o,cnt[o]]), none};
+  let yes=0;
+  (ev.guests||[]).forEach(g=>{ if(g.rsvp!=='Yes') return; yes++; const ms=mealSplit(g.meal); if(ms.length){ ms.forEach(m=>{ if(!(m in cnt)){ cnt[m]=0; opts.push(m); } cnt[m]++; }); } else none++; });
+  return {rows:opts.map(o=>[o,cnt[o]]), none, yes};
 };
 function mealPanelHtml(ev){
   const mc=mealCounts(ev); if(!mc.rows.length) return '';
-  const tot=Math.max(1,mc.rows.reduce((n,r)=>n+r[1],0)+mc.none);
+  const tot=Math.max(1,mc.yes);
   const bar=(l,n)=>`<div class="bar-row"><span>${E(l)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/tot*100)}%"></div></div><b>${n}</b></div>`;
-  return `<div class="panel"><div class="panel-heading"><div><h2>Meal choices</h2><p>One choice per card, from guests who said Yes.</p></div></div>${mc.rows.map(r=>bar(r[0],r[1])).join('')}${bar('No choice yet',mc.none)}</div>`;
+  return `<div class="panel"><div class="panel-heading"><div><h2>Meal choices</h2><p>Guests who said Yes can pick more than one meal.</p></div></div>${mc.rows.map(r=>bar(r[0],r[1])).join('')}${bar('No choice yet',mc.none)}</div>`;
 }
 const MEAL_SUGGEST=['Pilau','Wali na nyama','Wali na maharage','Chips kuku','Biriani','Samaki','Mboga mboga'];
 window.openMeals = function(eid){
@@ -5656,7 +5691,7 @@ const HELP_TOPICS = [
   ['Contributions and expenses', '<ul><li><b>Contributions</b> records who pledged and who paid. Add payments as they arrive; balances update automatically.</li><li>Add <b>expenses</b> to see the cash in hand.</li><li>Download the contribution report as PDF or Excel. You can also give a treasurer their own access.</li></ul>'],
   ['Guest messages and the big screen', '<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>'],
   ['Design Studio: posters and cards', '<ul><li>Open <b>Design Studio</b> in the menu, or press <b>Design</b> on an event. Pick a template, then change the text, photos, colours and fonts.</li><li>Use <b>Use as event poster</b> to put the design on your event. Guests’ names are placed on it automatically.</li><li>For a premium look you can also design in Photoshop or Canva and upload it as the poster. Design Studio is best for quick jobs.</li></ul>'],
-  ['Meal choices on RSVP', '<ul><li>On the <b>Guests</b> page press <b>Meal choices</b> and list the meals (up to 8), for example Pilau or Wali na nyama.</li><li>Guests pick one meal when they answer <b>Yes</b> on their invitation.</li><li>You see the choice in the guest details, the <b>Reports</b> page and the Excel export. It is one choice per card.</li><li>Leave the list empty to switch it off.</li></ul>'],
+  ['Meal choices on RSVP', '<ul><li>On the <b>Guests</b> page press <b>Meal choices</b> and list the meals (up to 8), for example Pilau or Wali na nyama.</li><li>Guests tick one or more meals when they answer <b>Yes</b> on their invitation.</li><li>You see the choice in the guest details, the <b>Reports</b> page and the Excel export. The choices are per card.</li><li>Leave the list empty to switch it off.</li></ul>'],
   ['Public event page', '<ul><li>On the <b>Guests</b> page press <b>Event page</b> and switch it on. Copy the link and share it anywhere, for example in a WhatsApp group.</li><li>The page shows the poster, date, venue, map and your message, with an add-to-calendar button.</li><li>Guests cannot reply on this page. To collect replies, send each guest their own invitation link.</li><li>Switch it off and the link stops working.</li></ul>'],
   ['Photographer collections', '<ul><li>Photographers and the admin see <b>Collections</b> in the menu. Create a collection, upload photos and design the cover (style, colour, typography, grid).</li><li>Publish it and share the link or QR code with your client. Clients can view, favourite and download the photos.</li><li>You do not need an event link. To show a collection on a SHEREHE HUB event, paste the event link in <b>Settings</b>; the event owner must approve it first.</li></ul>'],
   ['After the event', '<ul><li>On the dashboard, use <b>Thank guests who came</b> and <b>Message those who missed</b>.</li><li>Open <b>Photos</b> to share a gallery link with your guests.</li><li>On <b>Reports</b>, press <b>Full report (PDF)</b> for attendance, contributions and expenses in one document.</li></ul>'],
@@ -5883,13 +5918,13 @@ window.downloadInviteIcs = icsDownload;
 const INV_I18N={
   sw:{top:'Mwaliko',loading:'Inapakia mwaliko…',nf_h:'Mwaliko haupatikani',nf_p:'Link hii si sahihi au event imeondolewa. Wasiliana na mwandaaji wa sherehe.',err_h:'Mwaliko haujafunguka',retry:'Jaribu tena',
     hello:'Habari',cal:'Ongeza kwenye kalenda',maps:'Fungua kwenye Google Maps →',ask:'Utahudhuria?',dbl:'Double card · watu wawili',sgl:'Single card · mtu mmoja',
-    howmany:'Idadi ya watakaokuja',meal:'Chagua chakula chako',meal_h:'Chagua kimoja kabla ya kujibu “Ndiyo”.',meal_req:'Tafadhali chagua chakula kwanza.',two:'Wawili (2)',one:'Mmoja (1)',yes:'Ndiyo, nitahudhuria',no:'Sitaweza kuhudhuria',
+    howmany:'Idadi ya watakaokuja',meal:'Chagua chakula chako',meal_h:'Unaweza kuchagua zaidi ya kimoja kabla ya kujibu “Ndiyo”.',meal_req:'Tafadhali chagua chakula kwanza.',two:'Wawili (2)',one:'Mmoja (1)',yes:'Ndiyo, nitahudhuria',no:'Sitaweza kuhudhuria',
     d_yes:'✓ Umeshajibu: utahudhuria. Unaweza kubadilisha jibu hapo juu.',d_no:'Umeshajibu: hutahudhuria. Unaweza kubadilisha jibu hapo juu.',saving:'Inahifadhi jibu lako…',
     ok_yes:'✓ Asante! Tumepokea jibu lako — tunakusubiri kwa hamu.',ok_no:'✓ Asante kwa kutujulisha. Tumepokea jibu lako.',fail:'Jibu halijahifadhiwa: ',
     dl:'Tafadhali jibu kabla ya',dl_soon:'Muda wa kujibu unaisha karibuni:',dl_past:'Muda wa kujibu ulipita tarehe',dl_pastn:'Bado unaweza kujibu hapa chini.',tbl:'Meza yako',tblh:'Utakaa hapa — wahudumu watakuelekeza.',foot:'Imetumwa kupitia SHEREHE HUB',privacy:'Faragha',terms:'Masharti',back:'← Dashboard',alt:'Mwaliko',locale:'sw-TZ',wish_h:'Acha salamu kwa wenyeji',wish_p:'Andika ujumbe mfupi wa pongezi au baraka. Wenyeji pekee ndio watakaousoma.',wish_ph:'Andika salamu yako hapa…',wish_btn:'Tuma salamu',wish_edit:'Sasisha salamu',wish_ok:'✓ Asante! Salamu yako imewafikia wenyeji.',wish_fail:'Salamu haijatumwa: ',wish_empty:'Tafadhali andika salamu kwanza.',cd_label:'Zimebaki',cd_d:'siku',cd_h:'saa',cd_m:'dakika',cd_s:'sekunde',cd_today:'Siku ni leo! Tunakusubiri.',env_for:'Mwaliko maalum kwa'},
   en:{top:'Invitation',loading:'Loading your invitation…',nf_h:'Invitation not found',nf_p:'This link is not valid or the event has been removed. Please contact the host.',err_h:'The invitation could not be opened',retry:'Try again',
     hello:'Hello',cal:'Add to calendar',maps:'Open in Google Maps →',ask:'Will you attend?',dbl:'Double card · for two people',sgl:'Single card · for one person',
-    howmany:'Number attending',meal:'Choose your meal',meal_h:'Pick one before you answer “Yes”.',meal_req:'Please choose a meal first.',two:'Two (2)',one:'One (1)',yes:'Yes, I will attend',no:'Sorry, I cannot attend',
+    howmany:'Number attending',meal:'Choose your meal',meal_h:'You can pick more than one meal before you answer “Yes”.',meal_req:'Please choose a meal first.',two:'Two (2)',one:'One (1)',yes:'Yes, I will attend',no:'Sorry, I cannot attend',
     d_yes:'✓ You have replied: you will attend. You can change your reply above.',d_no:'You have replied: you will not attend. You can change your reply above.',saving:'Saving your reply…',
     ok_yes:'✓ Thank you! We have received your reply — we look forward to seeing you.',ok_no:'✓ Thank you for letting us know. We have received your reply.',fail:'Your reply was not saved: ',
     dl:'Please reply before',dl_soon:'The reply deadline is close:',dl_past:'The reply deadline passed on',dl_pastn:'You can still reply below.',tbl:'Your table',tblh:'You will be seated here — the ushers will guide you.',foot:'Sent through SHEREHE HUB',privacy:'Privacy',terms:'Terms',back:'← Dashboard',alt:'Invitation',locale:'en-GB',wish_h:'Leave a message for the hosts',wish_p:'Write a short note of congratulations or blessings. Only the hosts will read it.',wish_ph:'Write your message here…',wish_btn:'Send message',wish_edit:'Update message',wish_ok:'✓ Thank you! Your message has reached the hosts.',wish_fail:'Your message was not sent: ',wish_empty:'Please write a message first.',cd_label:'Time left',cd_d:'days',cd_h:'hours',cd_m:'min',cd_s:'sec',cd_today:'The day is here! We are waiting for you.',env_for:'A special invitation for'}
@@ -6002,8 +6037,8 @@ function renderInvite(){
   const peopleOpt=n=>n===1?T.one:n===2?T.two:`${L==='sw'?'Watu':'People'} (${n})`;
   const eventId=ev.id, guestId=g.id||window.__invGuestId;
   const prevAtt=$('publicAttendees')?.value;
-  const mealOpts=Array.isArray(ev.meal_options)?ev.meal_options.filter(Boolean):[], prevMeal=document.querySelector('input[name="invMeal"]:checked')?.value||window.__invMeal||g.meal||'';
-  const mealHtml=mealOpts.length?`<div class="inv-meal"><div class="inv-meal-h">${T.meal}</div><div class="inv-meal-opts">${mealOpts.map(x=>`<label class="inv-meal-o"><input type="radio" name="invMeal" value="${E(x)}" ${x===prevMeal?'checked':''}><span>${E(x)}</span></label>`).join('')}</div><small>${T.meal_h}</small></div>`:'';
+  const mealOpts=Array.isArray(ev.meal_options)?ev.meal_options.filter(Boolean):[], prevMealArr=(()=>{ const c=document.querySelectorAll('input[name="invMeal"]:checked'); if(c.length) return [...c].map(x=>x.value); return mealSplit(window.__invMeal||g.meal||''); })();
+  const mealHtml=mealOpts.length?`<div class="inv-meal"><div class="inv-meal-h">${T.meal}</div><div class="inv-meal-opts">${mealOpts.map(x=>`<label class="inv-meal-o"><input type="checkbox" name="invMeal" value="${E(x)}" ${prevMealArr.includes(x)?'checked':''}><span>${E(x)}</span></label>`).join('')}</div><small>${T.meal_h}</small></div>`:'';
   const rows=[];
   if(ev.date) rows.push(`<div>${ic('calendar')}<div><b>${E(invDate(ev.date,L))}</b><button class="text-button inv-cal" onclick="downloadInviteIcs()">${T.cal}</button></div></div>`);
   if(ev.venue) rows.push(`<div>${ic('pin')}<div><b>${E(ev.venue)}</b><br><a href="${E(ev.maps||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ev.venue)))}" target="_blank" rel="noopener">${T.maps}</a></div></div>`);
@@ -6064,9 +6099,9 @@ window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
   const mopts=(window.__invData&&window.__invData.event&&window.__invData.event.meal_options)||[], useMeal=Array.isArray(mopts)&&mopts.length>0;
   let meal=null;
   if(useMeal&&status==='Yes'){
-    const pick=document.querySelector('input[name="invMeal"]:checked'); meal=pick?pick.value:null;
+    const picks=[...document.querySelectorAll('input[name="invMeal"]:checked')].map(x=>x.value); meal=picks.length?picks.join('||'):null;
     if(!meal){ window.__invStatus='need_meal'; const b0=$('publicRsvpStatus'); if(b0) b0.outerHTML=invStatusHtml(INV_I18N[invLang()]); const f=document.querySelector('.inv-meal'); if(f) f.scrollIntoView({block:'center',behavior:'smooth'}); return; }
-    window.__invMeal=meal;
+    window.__invMeal=meal.split('||').join(', ');
   }
   window.__invStatus='saving';
   let box=$('publicRsvpStatus'); box.className='inv-done wait'; box.textContent=INV_I18N[invLang()].saving;
@@ -6075,7 +6110,7 @@ window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
     const {error}= useMeal ? await supabaseClient.rpc('submit_public_rsvp_meal',{p_event_id:eventId,p_guest_id:guestId,p_status:status,p_attendees:attendees,p_card_type:cardType,p_meal:meal})
                            : await supabaseClient.rpc('submit_public_rsvp',{p_event_id:eventId,p_guest_id:guestId,p_status:status,p_attendees:attendees,p_card_type:cardType});
     if(error) throw error;
-    if(window.__invData&&window.__invData.guest) window.__invData.guest.meal=meal;
+    if(window.__invData&&window.__invData.guest) window.__invData.guest.meal=meal?meal.split('||').join(', '):meal;
     window.__invStatus = status==='Yes' ? 'ok_yes' : 'ok_no';
   }catch(err){ window.__invStatus='fail:'+(err.message||err); }
   finally{
@@ -7142,11 +7177,11 @@ function renderBudget(){
   const cats = BUD_CATS.slice(); Object.keys(Object.assign({},spent,BUD.rows)).forEach(k=>{ if(!cats.includes(k)) cats.push(k); });
   let tp=0, ts=0;
   const rows = cats.map(k=>{ const p=BUD.rows[k]||0, s=spent[k]||0; tp+=p; ts+=s; const left=p-s;
-    return `<tr><td data-l="Category">${E(k)}</td><td data-l="Planned" class="num"><input class="bp-in" inputmode="numeric" value="${p?p.toLocaleString('en-US'):''}" placeholder="0" onchange="budSave(${jq(k)},this)"></td><td data-l="Spent" class="num">${money(s)}</td><td data-l="Left" class="num ${p&&left<0?'bp-over':(p?'bp-ok':'')}">${p?(left<0?'Over by '+money(-left):money(left)):'—'}</td></tr>`; }).join('');
+    return `<tr><td data-l="Category">${E(k)}</td><td data-l="Planned" class="num"><input class="bp-in" inputmode="numeric" value="${p?p.toLocaleString('en-US'):''}" placeholder="0" onchange="budSave(${jq(k)},this)"></td><td data-l="Spent" class="num">${money(s)}</td><td data-l="Left" class="num ${p&&left<0?'bp-over':(p?'bp-ok':'')}">${p?(left<0?'Over by '+money(-left):money(left)):'—'}</td><td class="actions"><button type="button" class="primary sm" onclick="openExpenseFor(${jq(k)})">${ic('plus')}Add payment</button></td></tr>`; }).join('');
   const tl = tp-ts;
   box.innerHTML = `<div class="panel-heading"><div><h2>Planned budget</h2><p>Set how much you plan to spend per category and compare it with what is actually spent.</p></div></div>
-    <div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Planned (TZS)</th><th class="num">Spent</th><th class="num">Left</th></tr></thead><tbody>${rows}</tbody>
-    <tfoot><tr><th>Total</th><th class="num">${money(tp)}</th><th class="num">${money(ts)}</th><th class="num ${tp&&tl<0?'bp-over':''}">${tp?(tl<0?'Over by '+money(-tl):money(tl)):'—'}</th></tr></tfoot></table></div>`;
+    <div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Planned (TZS)</th><th class="num">Spent</th><th class="num">Left</th><th class="actions"></th></tr></thead><tbody>${rows}</tbody>
+    <tfoot><tr><th>Total</th><th class="num">${money(tp)}</th><th class="num">${money(ts)}</th><th class="num ${tp&&tl<0?'bp-over':''}">${tp?(tl<0?'Over by '+money(-tl):money(tl)):'—'}</th><th></th></tr></tfoot></table></div>`;
 }
 window.budSave = async function(cat, input){
   const ev = getEvent(currentEventId); if(!ev) return;
@@ -10930,14 +10965,14 @@ async function shareOut(kind){
   if(kind==='wa') window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
   else window.location.href='sms:'+(/iPhone|iPad|iPod/.test(navigator.userAgent)?'&':'?')+'body='+encodeURIComponent(msg);
 }
-async function posterCore(d,eid,which){
+async function posterCore(d,eid,which,designId){
   const nz=d.layers.find(l=>l.type==='namezone'&&vis(l));
   await ensureFontsFor(d); ST._fv++; await Promise.all(d.layers.filter(l=>l.asset&&vis(l)).map(l=>imgReady(d.assets[l.asset])));
     const S=Math.min(1.5,1800/d.w), cv=docCanvas(d,S,{}), blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
     const path=`${eid}/${Date.now()}-studio${which==='double'?'-double':''}.jpg`;
     const up=await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false}); if(up.error) throw up.error;
     const url=supabaseClient.storage.from(EVENT_POSTERS_BUCKET).getPublicUrl(path).data.publicUrl;
-    const sfx=which==='double'?'_double':'', upd={}; upd[which==='double'?'poster_url_double':'poster_url']=url;
+    const sfx=which==='double'?'_double':'', upd={}; upd[which==='double'?'poster_url_double':'poster_url']=url; upd[which==='double'?'poster_design_id_double':'poster_design_id']=designId||null;
     if(nz){ const f=ST.CARD_FONTS.includes(nz.font)?nz.font:'Poppins'; upd['name_position_left'+sfx]=Math.round((nz.x+nz.w/2)/d.w*1000)/10; upd['name_position_top'+sfx]=Math.round((nz.y+nz.h/2)/d.h*1000)/10; upd['name_font_size'+sfx]=Math.max(8,Math.round(nz.size*S)); upd['name_font'+sfx]=f; upd['name_color'+sfx]=solid(nz.color,palOf(d)); upd['name_size_basis'+sfx]=cv.width; }
     const r=await supabaseClient.from('events').update(upd).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
     if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
@@ -10951,7 +10986,7 @@ async function cardApply(eid,designId,which,box){
     if(ev.owner_id&&currentSupabaseUser&&ev.owner_id!==currentSupabaseUser.id) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
     const nzNote=box&&box.querySelector('.cpk-note'); if(nzNote) nzNote.textContent=tr('Inatengeneza kadi…','Rendering the card…');
     const row=await fetchDesign(designId); const d=row.doc; applyFields(d);
-    await posterCore(d,eid,which);
+    await posterCore(d,eid,which,designId);
     if(typeof loadEventsFromSupabase==='function') await loadEventsFromSupabase();
     if(typeof renderCards==='function') renderCards();
     toast(tr('Kadi za wageni sasa zinatumia muundo huu.','Guest cards now use this design.'));
@@ -11009,7 +11044,7 @@ async function crmRemoveDesign(eid,which){
     ok:tr('Ondoa kadi','Remove card')}); if(!ok) return false;
   try{
     const old=dbl?ev.posterDouble:ev.poster, col=dbl?'poster_url_double':'poster_url';
-    const r=await supabaseClient.from('events').update({[col]:null}).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
+    const r=await supabaseClient.from('events').update({[col]:null,[dbl?'poster_design_id_double':'poster_design_id']:null}).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
     if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kuondoa kadi.','Only the event owner can remove the card.'));
     const p=crmPath(old,EVENT_POSTERS_BUCKET); if(p){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p]); }catch(_){} }
     await crmReload(); toast(tr('Kadi imeondolewa.','Card removed.')); return true;
@@ -11058,6 +11093,85 @@ window.cardsRemoveOpen=async function(eid){
   document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'&&!document.querySelector('#confirmModal.open')){ close(); document.removeEventListener('keydown',esc); } });
   await draw();
 };
+/* ---------- V98: when the event is renamed/edited, refresh the cards made in Design Studio ---------- */
+window.studioSyncAfterEdit=async function(eid,before,ev){
+  try{
+    if(!sbOK()||!ev) return;
+    const ids={single:ev.posterDesign||null,double:ev.posterDesignDouble||null};
+    if(!ids.single&&!ids.double) return;
+    const fOld=eventFields(before), fNew=eventFields(ev), keys=Object.keys(fNew).filter(k=>fOld[k]!==fNew[k]);
+    if(!keys.length) return;
+    toast(tr('Inasasisha kadi kwa jina/taarifa mpya…','Updating the cards with the new details…'));
+    const done={}; let n=0;
+    for(const which of ['single','double']){
+      const id=ids[which]; if(!id) continue;
+      let d;
+      if(done[id]) d=done[id]; else {
+        const row=await fetchDesign(id); d=row.doc; d.fields=d.fields||{}; let ch=false;
+        keys.forEach(k=>{ if(d.fields[k]===fOld[k]){ d.fields[k]=fNew[k]; ch=true; } });
+        if(!ch){ done[id]=null; continue; }
+        applyFields(d); done[id]=d;
+        const thumb=docCanvas(d,320/Math.max(d.w,d.h),{}).toDataURL('image/jpeg',.72);
+        const up=await supabaseClient.from('event_designs').update({doc:d,thumb_url:thumb,updated_at:new Date().toISOString()}).eq('id',id); if(up.error) throw up.error;
+      }
+      if(!d) continue;
+      const oldUrl=which==='double'?ev.posterDouble:ev.poster;
+      await posterCore(d,eid,which,id); n++;
+      const p=crmPath(oldUrl,EVENT_POSTERS_BUCKET); if(p){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p]); }catch(_){} }
+    }
+    if(n){ await crmReload(); toast(tr('Kadi zimesasishwa na jina jipya la tukio.','The cards now show the new event details.')); }
+  }catch(e){ console.warn('studioSyncAfterEdit',e); toast(tr('Tukio limehifadhiwa, ila kadi hazikusasishwa. Fungua Cards & QR → Tumia muundo uliohifadhiwa.','Event saved, but the cards could not be refreshed. Open Cards & QR → Use a saved design.')); }
+};
+/* ---------- Cards & QR: "Change card" chooser (V98) ---------- */
+async function cardUploadPoster(eid,which,file){
+  const ev=getEvent(eid); if(!ev) throw new Error(tr('Tukio halikupatikana.','Event not found.'));
+  if(ev.owner_id&&currentSupabaseUser&&ev.owner_id!==currentSupabaseUser.id) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
+  if(!/^image\//.test(file.type||'')) throw new Error(tr('Chagua picha (JPG au PNG).','Please choose an image (JPG or PNG).'));
+  if(file.size>12*1024*1024) throw new Error(tr('Picha ni kubwa mno (zaidi ya 12MB).','The image is too large (over 12MB).'));
+  const dbl=which==='double', safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const path=`${eid}/${dbl?'double-':''}${Date.now()}-${safe}`;
+  const up=await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).upload(path,file,{contentType:file.type||'image/jpeg',upsert:false}); if(up.error) throw up.error;
+  const url=supabaseClient.storage.from(EVENT_POSTERS_BUCKET).getPublicUrl(path).data.publicUrl;
+  const old=dbl?ev.posterDouble:ev.poster, col=dbl?'poster_url_double':'poster_url';
+  const r=await supabaseClient.from('events').update({[col]:url,[dbl?'poster_design_id_double':'poster_design_id']:null}).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
+  if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
+  const p=crmPath(old,EVENT_POSTERS_BUCKET); if(p){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p]); }catch(_){} }
+  return true;
+}
+window.cardsChangeOpen=function(eid){
+  eid=eid||currentEventId; const ev=getEvent(eid);
+  if(!ev){ toast(tr('Chagua tukio kwanza.','Choose an event first.')); return; }
+  if(!sbOK()){ toast(tr('Inahitaji mtandao.','Needs an internet connection.')); return; }
+  const old=document.getElementById('cchOverlay'); if(old) old.remove();
+  const ov=document.createElement('div'); ov.id='cchOverlay'; ov.className='cpk-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+  const e2=getEvent(eid)||ev;
+  const th=url=>`<div class="cpk-th">${url?`<img alt="" src="${CRM_E(url)}">`:''}</div>`;
+  const it=(img,title,sub,btns)=>`<div class="cpk-it">${img}<div class="cpk-m"><b>${title}</b><span>${sub}</span><div class="cpk-b">${btns}</div></div></div>`;
+  ov.innerHTML=`<div class="cpk-box"><div class="cpk-h"><b>${tr('Badilisha kadi ya tukio hili','Change this event\'s card')}</b><button type="button" class="cpk-x" aria-label="${tr('Funga','Close')}">×</button></div>
+    <p class="cpk-note">${tr('Kama hupendi kadi ya sasa, chagua njia moja ya kuibadilisha. Kadi zote za wageni zitatumia muundo mpya.','If you do not like the current card, pick a way to replace it. All guest cards will use the new design.')}</p>
+    <div class="cpk-list">
+    ${it(th(e2.poster),tr('Kadi ya sasa','Current card'),e2.poster?tr('Single'+(e2.posterDouble?' · Double imewekwa':''),'Single'+(e2.posterDouble?' · Double is set':'')):tr('Hakuna kadi bado','No card yet'),'')}
+    ${it('',tr('Tumia muundo uliohifadhiwa','Use a saved design'),tr('Chagua kutoka Design Studio ya tukio hili.','Pick from this event\'s Design Studio.'),`<button type="button" class="primary" data-go="saved">${tr('Chagua muundo','Choose a design')}</button>`)}
+    ${it('',tr('Tengeneza kadi mpya','Design a new card'),tr('Fungua Design Studio uunde kadi kutoka mwanzo.','Open Design Studio and make a card from scratch.'),`<button type="button" class="gray" data-go="new">${tr('Fungua Design Studio','Open Design Studio')}</button>`)}
+    ${it('',tr('Pakia poster yako mwenyewe','Upload your own poster'),tr('Poster kutoka mahali pengine (picha JPG au PNG). Nafasi ya jina inabaki ilivyo.','A poster made elsewhere (JPG or PNG image). The name position stays as it is.'),`<button type="button" class="gray" data-up="single">${tr('Pakia ya Single','Upload Single')}</button><button type="button" class="gray" data-up="double">${tr('Pakia ya Double','Upload Double')}</button>`)}
+    ${it('',tr('Ondoa kadi','Remove the card'),tr('Ondoa kadi ya sasa bila kuweka nyingine.','Remove the current card without a replacement.'),`<button type="button" class="danger" data-go="remove">${tr('Ondoa kadi','Remove card')}</button>`)}
+    </div><input type="file" id="cchFile" accept="image/*" hidden></div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove(); let which='single'; const fi=ov.querySelector('#cchFile');
+  fi.addEventListener('change',async()=>{
+    const f=fi.files&&fi.files[0]; fi.value=''; if(!f) return;
+    const box=ov.querySelector('.cpk-box'); box.classList.add('busy');
+    try{ await cardUploadPoster(eid,which,f); await crmReload(); toast(tr('Kadi imebadilishwa. Wageni wote sasa wanatumia poster mpya.','Card changed. All guests now use the new poster.')); close(); }
+    catch(e){ box.classList.remove('busy'); crmErr(e); }
+  });
+  ov.addEventListener('click',e=>{
+    if(e.target===ov||e.target.closest('.cpk-x')){ close(); return; }
+    const u=e.target.closest('[data-up]'); if(u){ which=u.dataset.up; fi.click(); return; }
+    const g=e.target.closest('[data-go]'); if(!g) return; const a=g.dataset.go; close();
+    if(a==='saved') studioPickForCards(eid); else if(a==='new') studioOpenForEvent(eid); else if(a==='remove') cardsRemoveOpen(eid);
+  });
+  document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'){ close(); document.removeEventListener('keydown',esc); } });
+};
 async function usePoster(){
   const ev=EDS.ev; if(!ev){ toast(tr('Tukio halikupatikana.','Event not found.')); return; } if(!sbOK()){ toast(tr('Inahitaji mtandao.','Needs an internet connection.')); return; }
   const which=await new Promise(res=>{ const m=$q('#stModal'); const box=document.createElement('div'); box.className='st-mini'; box.innerHTML=`<div class="st-mb"><div class="st-mh"><b>${tr('Tumia kama poster ya tukio','Use as event poster')}</b></div><p class="st-note">${tr('Muundo huu utakuwa picha ya kadi ya mwaliko wa tukio. Jina la kila mgeni litaandikwa kwenye "Eneo la jina la mgeni" (ukiliweka).','This design becomes the event invitation image. Each guest\'s name is printed in the "guest name area" (if you added one).')}</p><div class="st-chips"><button class="st-b st-prim" data-w="single">${tr('Kadi ya Single','Single card')}</button><button class="st-b" data-w="double">${tr('Kadi ya Double','Double card')}</button><button class="st-b" data-w="">${tr('Ghairi','Cancel')}</button></div></div>`; m.appendChild(box); box.addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(!b) return; box.remove(); res(b.dataset.w); }); });
@@ -11068,7 +11182,7 @@ async function usePoster(){
   try{
     toast(tr('Inatengeneza poster…','Rendering poster…')); EDS.dirty&&await saveDesign();
     await ensureFontsFor(d); ST._fv++; await Promise.all(d.layers.filter(l=>l.asset&&vis(l)).map(l=>imgReady(d.assets[l.asset])));
-    await posterCore(d,EDS.eventId,which);
+    await posterCore(d,EDS.eventId,which,EDS.designId);
     if(typeof loadEventsFromSupabase==='function') await loadEventsFromSupabase();
     EDS.ev=getEvent(EDS.eventId);
     toast(tr('Poster ya tukio imebadilishwa. Kadi za wageni zitatumia muundo huu.','Event poster updated. Guest cards now use this design.'));
@@ -12278,6 +12392,8 @@ Object.assign(window.SW_EXACT,{
 "Reports and photos":"Ripoti na picha","Live reports, photo albums and a guest book PDF":"Ripoti za moja kwa moja, albamu za picha na PDF ya kitabu cha wageni"
 });
 Object.assign(window.SW_EXACT,{"Remove card":"Ondoa kadi","Delete card":"Futa kadi","No card design is set for this event. Use a saved design, or design a new card.":"Hakuna muundo wa kadi kwa tukio hili. Tumia muundo uliohifadhiwa, au buni kadi mpya."});
+Object.assign(window.SW_EXACT,{"No.":"Na.","Change card":"Badilisha kadi","Guests who said Yes can pick more than one meal.":"Wageni waliojibu Ndiyo wanaweza kuchagua zaidi ya chakula kimoja.","You can pick more than one meal before you answer “Yes”.":"Unaweza kuchagua zaidi ya chakula kimoja kabla ya kujibu “Ndiyo”.","The choices are per card.":"Machaguo ni kwa kila kadi.","What was it for?":"Ilikuwa ya nini?","e.g. Deposit":"k.m. Kiasi cha awali","Cancel":"Ghairi","Please wait, contributions are still loading.":"Tafadhali subiri, michango bado inapakiwa."});
+window.SW_PAT.push(["Add payment · {0}","Ongeza malipo · {0}"],["Planned {0} · Spent so far {1}","Iliyopangwa {0} · Imetumika hadi sasa {1}"],["Spent so far {0}","Imetumika hadi sasa {0}"],["{0} added to {1}.","{0} imeongezwa kwenye {1}."],["Add expense to {0}","Ongeza matumizi kwenye {0}"]);
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
