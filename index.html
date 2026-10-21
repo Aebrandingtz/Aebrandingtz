@@ -2037,7 +2037,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V113</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V114</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -8358,9 +8358,11 @@ document.addEventListener('keydown',e=>{
 const TK_TZ='Africa/Dar_es_Salaam';
 const TK_UUID_RX=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TK_CATS={
-  music:['Muziki na matamasha','Music & concerts'], bongo_flava:['Bongo Flava, DJ na tamasha','Bongo Flava, DJ & festivals'],
-  comedy:['Vichekesho na burudani','Comedy & entertainment'], cinema:['Sinema na filamu','Cinema & film'],
-  sports:['Michezo','Sports'], conference:['Mikutano, semina na maonyesho','Conferences & expos'],
+  music:['Muziki na matamasha','Music & concerts'], gospel:['Muziki wa injili na ibada za sifa','Gospel & worship concerts'], bongo_flava:['Bongo Flava, DJ na tamasha','Bongo Flava, DJ & festivals'],
+  taarab:['Taarab, singeli na muziki wa asili','Taarab, singeli & traditional music'], comedy:['Vichekesho na burudani','Comedy & entertainment'], cinema:['Sinema na filamu','Cinema & film'],
+  theatre:['Tamthilia na maigizo','Theatre & drama'], sports:['Michezo','Sports'], church:['Kanisa, misikiti na mikutano ya injili','Church, faith events & crusades'],
+  conference:['Mikutano, semina na maonyesho','Conferences & expos'], business:['Biashara na mitandao ya kazi','Business & networking'], education:['Elimu, warsha na mafunzo','Education & workshops'],
+  charity:['Hisani na uchangiaji','Charity & fundraising'], fashion:['Mitindo na urembo','Fashion & beauty'], food:['Chakula na vinywaji','Food & drink'], family:['Watoto na familia','Kids & family'],
   club:['Klabu na sherehe za usiku','Club & nightlife'], cultural:['Utamaduni na sikukuu','Cultural festivals'], other:['Mengineyo','Other']
 };
 const TK_KINDS={ early_bird:['Early Bird','Early Bird'], regular:['Kawaida','Regular'], vip:['VIP','VIP'], vvip:['VVIP','VVIP'], group:['Kundi','Group'], table:['Meza / Kifurushi','Table / Package'], free:['Usajili wa bure','Free registration'] };
