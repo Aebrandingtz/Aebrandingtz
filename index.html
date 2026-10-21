@@ -1875,7 +1875,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V100</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V101</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2048,7 +2048,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
       <button class="gray" onclick="cardsChangeOpen(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Change card</button>
       <button class="gray" onclick="studioPickForCards(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Use a saved design</button>
       <button class="gray" onclick="studioOpenForEvent(currentEventId)"><svg class="i"><use href="#i-sparkle"/></svg>Design the card</button>
-      <button class="danger" onclick="cardsRemoveOpen(currentEventId)"><svg class="i"><use href="#i-trash"/></svg>Remove card</button>
+      <button class="danger" onclick="cardsRemoveOpen(currentEventId)"><svg class="i"><use href="#i-trash"/></svg>Delete card</button>
     </div>
     <div class="hint-box"><svg class="i"><use href="#i-info"/></svg><span>This is a preview of each card. Click <b>PNG</b> to download a guest's full card, or <b>Download ZIP</b> to get them all at once.</span></div>
     <div id="cardsGrid" class="grid3"></div>
@@ -11058,16 +11058,16 @@ async function crmRemoveDesign(eid,which){
   const ev=getEvent(eid); if(!ev) return false;
   if(ev.owner_id&&currentSupabaseUser&&ev.owner_id!==currentSupabaseUser.id){ toast(tr('Ni mmiliki wa tukio pekee anayeweza kuondoa kadi.','Only the event owner can remove the card.')); return false; }
   const dbl=which==='double';
-  const ok=await confirmDialog({title:dbl?tr('Ondoa kadi ya Double?','Remove the Double card?'):tr('Ondoa kadi ya Single?','Remove the Single card?'),
+  const ok=await confirmDialog({title:dbl?tr('Futa kadi ya Double?','Delete the Double card?'):tr('Futa kadi ya Single?','Delete the Single card?'),
     text:dbl?tr('Wageni wa Double wataanza kutumia kadi ya Single. Unaweza kuweka kadi mpya baadaye.','Double guests will use the Single card instead. You can set a new card later.')
       :tr('Kadi za wageni zitabaki bila muundo hadi uchague muundo mpya. Mialiko iliyokwisha tumwa itaonyesha bila bango.','Guest cards will have no design until you choose a new one. Invitations already sent will show without the poster.'),
-    ok:tr('Ondoa kadi','Remove card')}); if(!ok) return false;
+    ok:tr('Futa','Delete')}); if(!ok) return false;
   try{
     const old=dbl?ev.posterDouble:ev.poster, col=dbl?'poster_url_double':'poster_url';
     const r=await supabaseClient.from('events').update({[col]:null,[dbl?'poster_design_id_double':'poster_design_id']:null}).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
     if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kuondoa kadi.','Only the event owner can remove the card.'));
     const p=crmPath(old,EVENT_POSTERS_BUCKET); if(p){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p]); }catch(_){} }
-    await crmReload(); toast(tr('Kadi imeondolewa.','Card removed.')); return true;
+    await crmReload(); toast(tr('Kadi imefutwa.','Card deleted.')); return true;
   }catch(e){ crmErr(e); return false; }
 }
 async function crmDeleteAllSaved(eid){
@@ -11094,10 +11094,10 @@ window.cardsRemoveOpen=async function(eid){
     const e2=getEvent(eid)||ev;
     const row=(url,title,sub,act)=>`<div class="cpk-it"><div class="cpk-th">${url?`<img alt="" src="${CRM_E(url)}">`:''}</div><div class="cpk-m"><b>${title}</b><span>${sub}</span><div class="cpk-b">${act}</div></div></div>`;
     const btn=(a,label,dis)=>`<button type="button" class="danger" data-act="${a}"${dis?' disabled':''}>${label}</button>`;
-    ov.innerHTML=`<div class="cpk-box"><div class="cpk-h"><b>${tr('Ondoa kadi','Remove cards')}</b><button type="button" class="cpk-x" aria-label="${tr('Funga','Close')}">×</button></div><p class="cpk-note">${tr('Chagua unachotaka kuondoa. Orodha ya wageni haibadiliki.','Choose what to remove. The guest list is not changed.')}</p><div class="cpk-list">`
-      +row(e2.poster,tr('Kadi ya Single','Single card'),e2.poster?tr('Inatumika kwa wageni wote wa Single','Used by every Single guest'):tr('Haijawekwa','Not set'),btn('single',tr('Ondoa kadi ya Single','Remove Single card'),!e2.poster))
-      +row(e2.posterDouble,tr('Kadi ya Double','Double card'),e2.posterDouble?tr('Inatumika kwa wageni wa Double','Used by Double guests'):tr('Haijawekwa, Double wanatumia Single','Not set, Double guests use the Single card'),btn('double',tr('Ondoa kadi ya Double','Remove Double card'),!e2.posterDouble))
-      +`<div class="cpk-it"><div class="cpk-m"><b>${tr('Kadi zilizohifadhiwa kwenye cloud','Cards saved in the cloud')}</b><span id="crmCount">${tr('Inahesabu…','Counting…')}</span><div class="cpk-b">${btn('saved',tr('Futa zote zilizohifadhiwa','Delete all saved cards'),true)}</div></div></div>`
+    ov.innerHTML=`<div class="cpk-box"><div class="cpk-h"><b>${tr('Futa kadi','Delete cards')}</b><button type="button" class="cpk-x" aria-label="${tr('Funga','Close')}">×</button></div><p class="cpk-note">${tr('Chagua unachotaka kufuta. Orodha ya wageni haibadiliki.','Choose what to delete. The guest list is not changed.')}</p><div class="cpk-list">`
+      +row(e2.poster,tr('Kadi ya Single','Single card'),e2.poster?tr('Inatumika kwa wageni wote wa Single','Used by every Single guest'):tr('Haijawekwa','Not set'),btn('single',tr('Futa','Delete'),!e2.poster))
+      +row(e2.posterDouble,tr('Kadi ya Double','Double card'),e2.posterDouble?tr('Inatumika kwa wageni wa Double','Used by Double guests'):tr('Haijawekwa, Double wanatumia Single','Not set, Double guests use the Single card'),btn('double',tr('Futa','Delete'),!e2.posterDouble))
+      +`<div class="cpk-it"><div class="cpk-m"><b>${tr('Kadi zilizohifadhiwa kwenye cloud','Cards saved in the cloud')}</b><span id="crmCount">${tr('Inahesabu…','Counting…')}</span><div class="cpk-b">${btn('saved',tr('Futa','Delete'),true)}</div></div></div>`
       +`</div></div>`;
     try{ const n=(await crmListSaved(eid)).length; const c=ov.querySelector('#crmCount'); if(c) c.textContent=n?tr(n+' zimehifadhiwa',n+' saved'):tr('Hakuna kadi iliyohifadhiwa','No saved cards'); const b=ov.querySelector('[data-act="saved"]'); if(b) b.disabled=!n; }
     catch(_){ const c=ov.querySelector('#crmCount'); if(c) c.textContent=tr('Haikuhesabika','Could not count'); }
@@ -11156,6 +11156,10 @@ async function cardUploadPoster(eid,which,file){
   const r=await supabaseClient.from('events').update({[col]:url,[dbl?'poster_design_id_double':'poster_design_id']:null}).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
   if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
   const p=crmPath(old,EVENT_POSTERS_BUCKET); if(p){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p]); }catch(_){} }
+  if(!dbl&&ev.posterDouble){ /* one uploaded card is used for every guest */
+    const r2=await supabaseClient.from('events').update({poster_url_double:null,poster_design_id_double:null}).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
+    if(!r2.error){ const p2=crmPath(ev.posterDouble,EVENT_POSTERS_BUCKET); if(p2){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p2]); }catch(_){} } }
+  }
   return true;
 }
 window.cardsChangeOpen=function(eid){
@@ -11173,8 +11177,8 @@ window.cardsChangeOpen=function(eid){
     ${it(th(e2.poster),tr('Kadi ya sasa','Current card'),e2.poster?tr('Single'+(e2.posterDouble?' · Double imewekwa':''),'Single'+(e2.posterDouble?' · Double is set':'')):tr('Hakuna kadi bado','No card yet'),'')}
     ${it('',tr('Tumia muundo uliohifadhiwa','Use a saved design'),tr('Chagua kutoka Design Studio ya tukio hili.','Pick from this event\'s Design Studio.'),`<button type="button" class="primary" data-go="saved">${tr('Chagua muundo','Choose a design')}</button>`)}
     ${it('',tr('Tengeneza kadi mpya','Design a new card'),tr('Fungua Design Studio uunde kadi kutoka mwanzo.','Open Design Studio and make a card from scratch.'),`<button type="button" class="gray" data-go="new">${tr('Fungua Design Studio','Open Design Studio')}</button>`)}
-    ${it('',tr('Pakia poster yako mwenyewe','Upload your own poster'),tr('Poster kutoka mahali pengine (picha JPG au PNG). Nafasi ya jina inabaki ilivyo.','A poster made elsewhere (JPG or PNG image). The name position stays as it is.'),`<button type="button" class="gray" data-up="single">${tr('Pakia ya Single','Upload Single')}</button><button type="button" class="gray" data-up="double">${tr('Pakia ya Double','Upload Double')}</button>`)}
-    ${it('',tr('Ondoa kadi','Remove the card'),tr('Ondoa kadi ya sasa bila kuweka nyingine.','Remove the current card without a replacement.'),`<button type="button" class="danger" data-go="remove">${tr('Ondoa kadi','Remove card')}</button>`)}
+    ${it('',tr('Pakia poster yako mwenyewe','Upload your own poster'),tr('Poster kutoka mahali pengine (picha JPG au PNG). Itatumika kwa wageni wote. Nafasi ya jina inabaki ilivyo.','A poster made elsewhere (JPG or PNG image). It is used for all guests. The name position stays as it is.'),`<button type="button" class="gray" data-up="single">${tr('Pakia kadi','Upload card')}</button>`)}
+    ${it('',tr('Futa kadi','Delete the card'),tr('Futa kadi ya sasa bila kuweka nyingine.','Delete the current card without a replacement.'),`<button type="button" class="danger" data-go="remove">${tr('Futa','Delete')}</button>`)}
     </div><input type="file" id="cchFile" accept="image/*" hidden></div>`;
   document.body.appendChild(ov);
   const close=()=>ov.remove(); let which='single'; const fi=ov.querySelector('#cchFile');
