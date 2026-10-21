@@ -1353,6 +1353,9 @@ button.icon svg.i{width:16px;height:16px}
 .seq{width:44px;color:var(--muted,#64748b);font-weight:700;text-align:center}
 @media(max-width:700px){td.seq{display:none!important}}
 .ex-plus{margin-left:8px;border:0;background:var(--blue);color:#fff;width:20px;height:20px;border-radius:50%;line-height:20px;padding:0;font-weight:700;cursor:pointer}
+.inv-getcard{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 18px 0;text-align:center}
+.inv-getcard button{width:100%;max-width:340px;padding:13px 16px;font-size:15px;font-weight:700;border-radius:12px}
+.inv-getcard small{color:var(--muted,#64748b);font-size:12px}
 
 /* ===================== DESIGN STUDIO (V86) ===================== */
 body.st-open{overflow:hidden}
@@ -1875,7 +1878,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V105</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V106</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2106,7 +2109,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
       <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Guests not yet invited</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="attending">Said Yes, not arrived yet (event-day reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
     </div>
     <div class="field"><label for="bulkMessage">Message</label><textarea id="bulkMessage" rows="6" oninput="this.dataset.dirty='1'"></textarea></div>
-    <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{map}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
+    <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{day}}</code> <code>{{time}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{map}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
     <div id="messageHelp" class="hint-box" style="margin-top:14px"></div>
     <div class="toolbar" style="margin-top:6px"><button class="primary" id="sendBulkBtn" onclick="sendBulkMessages()"><svg class="i"><use href="#i-send"/></svg>Send invitations</button><span id="messageCount" class="muted"></span></div>
     <div id="messageProgress" class="help"></div>
@@ -3201,9 +3204,13 @@ function normalizeTzPhone(phone){
   if(p.startsWith('0')) return '+255'+p.slice(1);
   return p;
 }
+function siteBase(){ return /^https?:$/.test(location.protocol)&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? location.origin : ''; }
 function guestInviteUrl(ev,g){
+  const b=siteBase();
+  if(b) return b+'/i/'+encodeURIComponent(ev.id)+'/'+encodeURIComponent(g.id)+'/'+encodeURIComponent(g.type||'Single');
   return location.href.split('#')[0]+'#invite='+encodeURIComponent(ev.id)+'&guest='+encodeURIComponent(g.id)+'&type='+encodeURIComponent(g.type);
 }
+function mapShareUrl(ev){ if(!ev||!ev.maps) return ''; const b=siteBase(); return b? b+'/m/'+encodeURIComponent(ev.id) : ev.maps; }
 async function logGuestMessage(ev,g,channel,message,status='opened',providerMessageId=null){
   if(!supabaseClient || !currentSupabaseUser) return;
   try{
@@ -4723,15 +4730,17 @@ window.buildBulkTemplate = function(ev){
   if(aud==='arrived') return 'Habari {{name}}, asante sana kwa kuhudhuria {{event}}. Uwepo wako uliongeza furaha yetu.'+photosLine;
   if(aud==='absent') return 'Habari {{name}}, tulikukumbuka kwenye {{event}}. Asante kwa kuwa sehemu ya wapendwa wetu.'+photosLine;
   const dl = ev && ev.rsvpDeadline, mapLine = ev && ev.maps ? '\n{{map}}' : '';
-  const head = '\nTarehe: {{date}}\nUkumbi: {{venue}}'+mapLine+'\n\n';
+  const head = '\nTarehe: {{day}}\nMuda: {{time}}\nUkumbi: {{venue}}'+mapLine+'\n\n';
   if(aud==='attending') return 'Habari {{name}}, tunakukumbusha kuhusu {{event}}.'+head+'Tunakusubiri! Leta kadi yako ya QR ili uingie kwa haraka:\n{{link}}';
   if(aud==='noreply') return 'Habari {{name}}, tunakukumbusha mwaliko wako wa {{event}}.'+head+'Bado hatujapata jibu lako.'+(dl?' Tafadhali jibu kabla ya {{deadline}} hapa:':' Tafadhali thibitisha kuhudhuria hapa:')+'\n{{link}}';
   return 'Habari {{name}}, tunafurahi kukukaribisha kwenye {{event}}.'+head+'Tafadhali fungua mwaliko wako (kadi {{card_type}}) na uthibitishe kuhudhuria'+(dl?' kabla ya {{deadline}}':'')+':\n{{link}}';
 };
+function daySw(iso){ const d=new Date(iso); if(isNaN(d)) return ''; try{ return d.toLocaleDateString('sw-TZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }catch(e){ return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); } }
+function timeSw(iso){ const d=new Date(iso); if(isNaN(d)) return ''; const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes()); }
 function fillTemplate(tpl,ev,g){
   return tpl.replaceAll('{{name}}',g.name).replaceAll('{{event}}',ev.name)
-    .replaceAll('{{date}}',ev.date?fmtDate(ev.date):'tarehe itatangazwa').replaceAll('{{venue}}',ev.venue||'ukumbi utatangazwa')
-    .replaceAll('{{deadline}}',ev.rsvpDeadline?dlFmt(new Date(ev.rsvpDeadline),'sw-TZ'):'').replaceAll('{{photos}}',galleryUrl(ev)).replaceAll('{{card_type}}',cardLabel(g)).replaceAll('{{table}}',g.table||'').replaceAll('{{group}}',g.group||'').replaceAll('{{link}}',g._ct?'':guestInviteUrl(ev,g)).replaceAll('{{map}}',ev.maps||'')
+    .replaceAll('{{day}}',ev.date?daySw(ev.date):'itatangazwa').replaceAll('{{time}}',ev.date?timeSw(ev.date):'itatangazwa').replaceAll('{{date}}',ev.date?fmtDate(ev.date):'tarehe itatangazwa').replaceAll('{{venue}}',ev.venue||'ukumbi utatangazwa')
+    .replaceAll('{{deadline}}',ev.rsvpDeadline?dlFmt(new Date(ev.rsvpDeadline),'sw-TZ'):'').replaceAll('{{photos}}',galleryUrl(ev)).replaceAll('{{card_type}}',cardLabel(g)).replaceAll('{{table}}',g.table||'').replaceAll('{{group}}',g.group||'').replaceAll('{{link}}',g._ct?'':guestInviteUrl(ev,g)).replaceAll('{{map}}',mapShareUrl(ev))
     .replaceAll('{{pledged}}',g._ct?money(g._ct.pledged):'').replaceAll('{{paid}}',g._ct?money(g._ct.paid):'').replaceAll('{{balance}}',g._ct?money(g._ct.left):'').replaceAll('{{due}}',g._ct&&g._ct.due?fmtDay(g._ct.due):'');
 }
 /* contributors as message recipients (built from the Contributions page data) */
@@ -4856,7 +4865,7 @@ window.scGo=async function(channel){
   showView('messaging');
   const ch=$('messageChannel'), au=$('messageAudience'), msg=$('bulkMessage'); if(!ch||!au||!msg) return;
   ch.value=channel; au.value=a;
-  msg.value='Habari {{name}}, hii ni kadi yako ya mwaliko wa {{event}} (kadi {{card_type}}).\nTarehe: {{date}}\nUkumbi: {{venue}}'+(ev.maps?'\n{{map}}':'')+'\n\nFungua kadi yako hapa (ina jina lako na QR ya kuingia):\n{{link}}'; msg.dataset.eventId=ev.id; msg.dataset.dirty='1';
+  msg.value='Habari {{name}}, hii ni kadi yako ya mwaliko wa {{event}} (kadi {{card_type}}).\nTarehe: {{day}}\nMuda: {{time}}\nUkumbi: {{venue}}'+(ev.maps?'\n{{map}}':'')+'\n\nFungua kadi yako hapa (unaweza kuipakua ikiwa na jina lako na QR ya kuingia):\n{{link}}'; msg.dataset.eventId=ev.id; msg.dataset.dirty='1';
   renderMessagingHelp();
   window.__scMode=true;
   try{ await sendBulkMessages(); } finally { window.__scMode=false; delete msg.dataset.dirty; msg.dataset.eventId=''; }
@@ -6004,13 +6013,13 @@ window.downloadInviteIcs = icsDownload;
 /* ---------- public invitation (Kiswahili / English) ---------- */
 const INV_I18N={
   sw:{top:'Mwaliko',loading:'Inapakia mwaliko…',nf_h:'Mwaliko haupatikani',nf_p:'Link hii si sahihi au event imeondolewa. Wasiliana na mwandaaji wa sherehe.',err_h:'Mwaliko haujafunguka',retry:'Jaribu tena',
-    hello:'Habari',cal:'Ongeza kwenye kalenda',maps:'Fungua kwenye Google Maps →',ask:'Utahudhuria?',dbl:'Double card · watu wawili',sgl:'Single card · mtu mmoja',
+    hello:'Habari',dlcard:'⬇ Pakua kadi yako',dlcard_h:'Hifadhi kadi yako (ina jina lako na QR ya kuingia) kwenye simu yako.',dlcard_busy:'Inaandaa kadi yako…',dlcard_fail:'Kadi haikupakuliwa: ',cal:'Ongeza kwenye kalenda',maps:'Fungua kwenye Google Maps →',ask:'Utahudhuria?',dbl:'Double card · watu wawili',sgl:'Single card · mtu mmoja',
     howmany:'Idadi ya watakaokuja',meal:'Chagua chakula chako',meal_h:'Unaweza kuchagua zaidi ya kimoja kabla ya kujibu “Ndiyo”.',meal_req:'Tafadhali chagua chakula kwanza.',two:'Wawili (2)',one:'Mmoja (1)',yes:'Ndiyo, nitahudhuria',no:'Sitaweza kuhudhuria',
     d_yes:'✓ Umeshajibu: utahudhuria. Unaweza kubadilisha jibu hapo juu.',d_no:'Umeshajibu: hutahudhuria. Unaweza kubadilisha jibu hapo juu.',saving:'Inahifadhi jibu lako…',
     ok_yes:'✓ Asante! Tumepokea jibu lako — tunakusubiri kwa hamu.',ok_no:'✓ Asante kwa kutujulisha. Tumepokea jibu lako.',fail:'Jibu halijahifadhiwa: ',
     dl:'Tafadhali jibu kabla ya',dl_soon:'Muda wa kujibu unaisha karibuni:',dl_past:'Muda wa kujibu ulipita tarehe',dl_pastn:'Bado unaweza kujibu hapa chini.',tbl:'Meza yako',tblh:'Utakaa hapa — wahudumu watakuelekeza.',foot:'Imetumwa kupitia SHEREHE HUB',privacy:'Faragha',terms:'Masharti',back:'← Dashboard',alt:'Mwaliko',locale:'sw-TZ',wish_h:'Acha salamu kwa wenyeji',wish_p:'Andika ujumbe mfupi wa pongezi au baraka. Wenyeji pekee ndio watakaousoma.',wish_ph:'Andika salamu yako hapa…',wish_btn:'Tuma salamu',wish_edit:'Sasisha salamu',wish_ok:'✓ Asante! Salamu yako imewafikia wenyeji.',wish_fail:'Salamu haijatumwa: ',wish_empty:'Tafadhali andika salamu kwanza.',cd_label:'Zimebaki',cd_d:'siku',cd_h:'saa',cd_m:'dakika',cd_s:'sekunde',cd_today:'Siku ni leo! Tunakusubiri.',env_for:'Mwaliko maalum kwa'},
   en:{top:'Invitation',loading:'Loading your invitation…',nf_h:'Invitation not found',nf_p:'This link is not valid or the event has been removed. Please contact the host.',err_h:'The invitation could not be opened',retry:'Try again',
-    hello:'Hello',cal:'Add to calendar',maps:'Open in Google Maps →',ask:'Will you attend?',dbl:'Double card · for two people',sgl:'Single card · for one person',
+    hello:'Hello',dlcard:'⬇ Download your card',dlcard_h:'Save your card (with your name and entry QR) on your phone.',dlcard_busy:'Preparing your card…',dlcard_fail:'Card not downloaded: ',cal:'Add to calendar',maps:'Open in Google Maps →',ask:'Will you attend?',dbl:'Double card · for two people',sgl:'Single card · for one person',
     howmany:'Number attending',meal:'Choose your meal',meal_h:'You can pick more than one meal before you answer “Yes”.',meal_req:'Please choose a meal first.',two:'Two (2)',one:'One (1)',yes:'Yes, I will attend',no:'Sorry, I cannot attend',
     d_yes:'✓ You have replied: you will attend. You can change your reply above.',d_no:'You have replied: you will not attend. You can change your reply above.',saving:'Saving your reply…',
     ok_yes:'✓ Thank you! We have received your reply — we look forward to seeing you.',ok_no:'✓ Thank you for letting us know. We have received your reply.',fail:'Your reply was not saved: ',
@@ -6134,6 +6143,7 @@ function renderInvite(){
     rows.push(`<div class="inv-dl ${past?'past':soon?'soon':''}">${ic('clock')}<div><b>${E(label)}</b></div></div>`); } }
   if(g.table) rows.push(`<div class="inv-table">${ic('users')}<div><span>${T.tbl}</span><b>${E(g.table)}</b><small>${T.tblh}</small></div></div>`);
   invShell(`${ev.poster_url?`<img class="inv-poster" src="${E(ev.poster_url)}" alt="${T.alt}">`:''}
+    <div class="inv-getcard"><button class="primary" type="button" onclick="downloadMyCard(this)">${T.dlcard}</button><small>${T.dlcard_h}</small></div>
     <div class="inv-body"><div class="inv-hello">${T.hello} ${E((g.name||'').trim())},</div>
     <h1 class="inv-title">${E(ev.name||'Event')}</h1>
     <div class="inv-who"><span class="tag blue">${E(ev.type||'Event')}</span><span class="tag ${dbl?'gold':''}">${plabel?E(plabel)+' · '+(party>1?(L==='sw'?'watu '+party:party+' people'):(L==='sw'?'mtu mmoja':'one person')):(dbl?T.dbl:T.sgl)}</span></div>
@@ -6160,7 +6170,8 @@ window.loadPublicInvitationFromSupabase = async function(){
   if(!supabaseClient){ try{ initSupabaseAuth(); }catch(e){} }
   try{
     const args={p_event_id:eventId,p_guest_id:guestId,p_card_type:type};
-    let res=await supabaseClient.rpc('get_public_invitation_v2',args);
+    let res=await supabaseClient.rpc('get_public_invitation_v3',args);
+    if(res.error) res=await supabaseClient.rpc('get_public_invitation_v2',args);
     if(res.error) res=await supabaseClient.rpc('get_public_invitation',args);
     const {data,error}=res;
     if(error) throw error;
@@ -6179,6 +6190,21 @@ window.loadPublicInvitationFromSupabase = async function(){
     invShell(`<div class="inv-error"><h2>${T2.err_h}</h2><p>${E(err.message||String(err))}</p><p style="margin-top:10px"><button class="gray" onclick="loadPublicInvitationFromSupabase()">${T2.retry}</button></p></div>`);
     return true;
   }
+};
+window.downloadMyCard = async function(btn){
+  const d=window.__invData; if(!d) return; const T=INV_I18N[invLang()], old=btn.textContent;
+  btn.disabled=true; btn.textContent=T.dlcard_busy;
+  try{
+    const ev=d.event, g=d.guest, p=ev.name_pos||{left:50,top:68,size:28,font:'Arial',color:'#111111',basis:480};
+    const np={left:String(p.left)+'%',top:String(p.top)+'%',size:Number(p.size)||28,font:p.font||'Arial',color:p.color||'#111111',basis:Number(p.basis)||480};
+    const evx={id:ev.id,poster:ev.poster_url,posterDouble:'',namePos:np,namePosDouble:np};
+    const gx={id:g.id||window.__invGuestId,name:(g.name||'').trim(),type:g.card_type||'Single',label:g.card_label};
+    const c=await buildCardCanvas(evx,gx);
+    const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('PNG')),'image/png'));
+    const safe=s=>String(s||'').replace(/[^a-zA-Z0-9._-]+/g,'_').replace(/^_+|_+$/g,'');
+    downloadBlobFile(blob,(safe(gx.name)||'kadi')+'-'+(safe(ev.name)||'sherehe')+'.png');
+  }catch(err){ alert(T.dlcard_fail+(err.message||err)); }
+  finally{ btn.disabled=false; btn.textContent=old; }
 };
 window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
   const dbl=String(cardType).toLowerCase()==='double', sel=$('publicAttendees');
