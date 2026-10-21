@@ -1878,7 +1878,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V106</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V107</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -4730,7 +4730,7 @@ window.buildBulkTemplate = function(ev){
   if(aud==='arrived') return 'Habari {{name}}, asante sana kwa kuhudhuria {{event}}. Uwepo wako uliongeza furaha yetu.'+photosLine;
   if(aud==='absent') return 'Habari {{name}}, tulikukumbuka kwenye {{event}}. Asante kwa kuwa sehemu ya wapendwa wetu.'+photosLine;
   const dl = ev && ev.rsvpDeadline, mapLine = ev && ev.maps ? '\n{{map}}' : '';
-  const head = '\nTarehe: {{day}}\nMuda: {{time}}\nUkumbi: {{venue}}'+mapLine+'\n\n';
+  const head = '\nTarehe: {{date}}\nUkumbi: {{venue}}'+mapLine+'\n\n';
   if(aud==='attending') return 'Habari {{name}}, tunakukumbusha kuhusu {{event}}.'+head+'Tunakusubiri! Leta kadi yako ya QR ili uingie kwa haraka:\n{{link}}';
   if(aud==='noreply') return 'Habari {{name}}, tunakukumbusha mwaliko wako wa {{event}}.'+head+'Bado hatujapata jibu lako.'+(dl?' Tafadhali jibu kabla ya {{deadline}} hapa:':' Tafadhali thibitisha kuhudhuria hapa:')+'\n{{link}}';
   return 'Habari {{name}}, tunafurahi kukukaribisha kwenye {{event}}.'+head+'Tafadhali fungua mwaliko wako (kadi {{card_type}}) na uthibitishe kuhudhuria'+(dl?' kabla ya {{deadline}}':'')+':\n{{link}}';
@@ -4865,7 +4865,7 @@ window.scGo=async function(channel){
   showView('messaging');
   const ch=$('messageChannel'), au=$('messageAudience'), msg=$('bulkMessage'); if(!ch||!au||!msg) return;
   ch.value=channel; au.value=a;
-  msg.value='Habari {{name}}, hii ni kadi yako ya mwaliko wa {{event}} (kadi {{card_type}}).\nTarehe: {{day}}\nMuda: {{time}}\nUkumbi: {{venue}}'+(ev.maps?'\n{{map}}':'')+'\n\nFungua kadi yako hapa (unaweza kuipakua ikiwa na jina lako na QR ya kuingia):\n{{link}}'; msg.dataset.eventId=ev.id; msg.dataset.dirty='1';
+  msg.value='Habari {{name}}, hii ni kadi yako ya mwaliko wa {{event}} (kadi {{card_type}}).\nTarehe: {{date}}\nUkumbi: {{venue}}'+(ev.maps?'\n{{map}}':'')+'\n\nFungua kadi yako hapa (unaweza kuipakua ikiwa na jina lako na QR ya kuingia):\n{{link}}'; msg.dataset.eventId=ev.id; msg.dataset.dirty='1';
   renderMessagingHelp();
   window.__scMode=true;
   try{ await sendBulkMessages(); } finally { window.__scMode=false; delete msg.dataset.dirty; msg.dataset.eventId=''; }
