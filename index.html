@@ -1698,6 +1698,8 @@ body.cp-lock{overflow:hidden}
 .gal-coll b{font-size:14px}.gal-coll span{font-size:12px;color:var(--muted)}
 body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!important}
 
+body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
+
 </style>
 </head>
 <body>
@@ -1873,7 +1875,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V99</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V100</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -4092,7 +4094,7 @@ const VIEW_META = {
   contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], collections:['Collections','Your photo galleries'], wishes:['Guest messages','Messages from your guests'], tasks:['Tasks','Committee to-do list'], studio:['Design Studio','Design invitations, posters and graphics'], admin:['Admin Console','Customers and system usage']
 };
 window.showView = function(id,btn){
-  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?'photos':'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
+  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?(window.__photoOnly?'collections':'photos'):'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
   if(!$(id)) return;
   if(id==='admin' && !isAdmin){ toast('You do not have access to the Admin Console.'); return; }
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
@@ -6174,13 +6176,13 @@ window.onAudienceChange = function(){
 
 /* ---------- door staff ---------- */
 window.evOwner = id => ((db.events||[]).find(e=>e.id===id)||{}).owner_id || currentSupabaseUser.id;
-window.staffRole = () => !window.__staffMode ? null : ((window.__staffRoles||{})[currentEventId]||'checkin');
+window.staffRole = () => !window.__staffMode ? null : (window.__photoOnly ? 'photographer' : ((window.__staffRoles||{})[currentEventId]||'checkin'));
 window.applyStaffMode = function(){
   const role=staffRole(), door=role==='checkin', tre=role==='treasurer', host=role==='cohost', pho=role==='photographer', b=document.body;
   if(b.classList.contains('staff-mode')!==door || b.classList.contains('treasurer-mode')!==tre || b.classList.contains('cohost-mode')!==host || b.classList.contains('photographer-mode')!==pho){
     b.classList.toggle('staff-mode',door); b.classList.toggle('treasurer-mode',tre); b.classList.toggle('cohost-mode',host); b.classList.toggle('photographer-mode',pho);
     renderUserChip();
-    if(role) setTimeout(()=>showView(host?'dashboard':(tre?'contributions':(pho?'photos':'rsvp'))),0);
+    if(role) setTimeout(()=>showView(host?'dashboard':(tre?'contributions':(pho?(window.__photoOnly?'collections':'photos'):'rsvp'))),0);
   }
 };
 window.renderStaff = async function(){
@@ -7891,7 +7893,15 @@ window.coDecide=async function(id,status){
   const orig=window.loadAdminFlag;
   window.loadAdminFlag=async function(){ const r=await orig.apply(this,arguments); refreshCanCollect(); return r; };
   const oe=window.loadEventsFromSupabase;
-  if(oe) window.loadEventsFromSupabase=async function(){ const r=await oe.apply(this,arguments); refreshCanCollect(); return r; };
+  if(oe) window.loadEventsFromSupabase=async function(){
+    const r=await oe.apply(this,arguments); await refreshCanCollect();
+    /* a photographer account with no events of its own and no event given by a host: show Collections only */
+    const only=!isAdmin && !(db.events||[]).length && !Object.keys(window.__staffRoles||{}).length && !!window.__canCollect && !!CO.sub;
+    const was=!!window.__photoOnly;
+    window.__photoOnly=only; document.body.classList.toggle('photo-only',only); if(only) window.__staffMode=true; else if(was) window.__staffMode=false;
+    if(only!==was || only){ if(window.applyStaffMode) window.applyStaffMode(); if(only&&window.showView&&!$('collections').classList.contains('active')) showView('collections'); }
+    return r;
+  };
 })();
 
 /* =========================================================================
