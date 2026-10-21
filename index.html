@@ -1875,7 +1875,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V102</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V103</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2016,6 +2016,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
         <option value="All">All guests</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option>
       </select>
       <span class="spacer"></span>
+      <button class="green no-cohost" onclick="openSendCards()"><svg class="i"><use href="#i-send"/></svg>Send cards</button>
       <button class="gray no-cohost" onclick="openMeals()"><svg class="i"><use href="#i-gift"/></svg>Meal choices</button>
       <button class="gray no-cohost" onclick="openEventPage()"><svg class="i"><use href="#i-eye"/></svg>Event page</button>
       <button class="gray no-cohost" onclick="exportGuestsExcel()"><svg class="i"><use href="#i-download"/></svg>Export</button>
@@ -4827,6 +4828,38 @@ window.manualSend = function(channel,gid,btn){
   const row=btn.closest('.queue-item'); if(row){ row.classList.add('done'); btn.disabled=true; btn.textContent='Opened'; }
   refreshAll();
 };
+/* ----- V103: send every guest their card from the Guests page ----- */
+const SC_AUD=[['all','All guests'],['pending','Guests not yet invited'],['noreply','Invited, no reply yet']];
+function scValid(g){ return normalizeTzPhone(g.phone).replace(/\D/g,'').length>=9; }
+function scCount(ev,a){ return ev.guests.filter(g=>scValid(g)&&(a==='all'||(a==='pending'&&!g.sent)||(a==='noreply'&&g.sent&&(!g.rsvp||g.rsvp==='Pending')))).length; }
+window.openSendCards=function(){
+  const ev=getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
+  if(!ev.guests.length) return toast('Add guests first.');
+  const nop=ev.guests.filter(g=>!scValid(g)).length;
+  $('contribModalBox').innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('send')}</div><div><h2>Send cards to guests</h2><p>${E(ev.name)}</p></div></div>
+    <div class="field"><label for="scAud">Who should receive their card?</label><select id="scAud" onchange="scRefresh()">${SC_AUD.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></div>
+    <div id="scInfo" class="help" style="margin:10px 0 14px"></div>
+    <div class="hint-box">${ic('info')}<span>Each guest gets a message with their own card link (it shows the invitation, their name and the QR code for the door). If automatic sending is not connected, WhatsApp or the SMS app opens on your phone for each guest.</span></div>
+    <div class="guest-form-actions"><button class="gray" onclick="closeContributor()">Cancel</button><button class="green" onclick="scGo('whatsapp')">${ic('whatsapp')}WhatsApp</button><button class="primary" onclick="scGo('sms')">${ic('message')}SMS</button></div>`;
+  $('contribModal').classList.add('open'); scRefresh();
+};
+window.scRefresh=function(){
+  const ev=getEvent(currentEventId), a=$('scAud')?.value||'all', n=scCount(ev,a), nop=ev.guests.filter(g=>!scValid(g)).length;
+  const el=$('scInfo'); if(el) el.textContent=`${n} ${n===1?'guest':'guests'} will receive their card`+(nop?` (${nop} without a valid phone number will be skipped)`:'')+'.';
+};
+window.scGo=async function(channel){
+  const ev=getEvent(currentEventId); if(!ev) return; const a=$('scAud')?.value||'all';
+  if(!scCount(ev,a)) return toast('No guests with valid phone numbers match this selection.');
+  closeContributor();
+  showView('messaging');
+  const ch=$('messageChannel'), au=$('messageAudience'), msg=$('bulkMessage'); if(!ch||!au||!msg) return;
+  ch.value=channel; au.value=a;
+  msg.value='Habari {{name}}, hii ni kadi yako ya mwaliko wa {{event}} (kadi {{card_type}}), {{date}}, {{venue}}. Fungua kadi yako hapa (ina jina lako na QR ya kuingia): {{link}}'; msg.dataset.eventId=ev.id; msg.dataset.dirty='1';
+  renderMessagingHelp();
+  window.__scMode=true;
+  try{ await sendBulkMessages(); } finally { window.__scMode=false; delete msg.dataset.dirty; msg.dataset.eventId=''; }
+};
 window.sendBulkMessages = async function(){
   const ev=getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
   const channel=$('messageChannel').value, label=channel==='whatsapp'?'WhatsApp':'SMS';
@@ -4837,7 +4870,7 @@ window.sendBulkMessages = async function(){
   const list=audienceList(ev).filter(g=>normalizeTzPhone(g.phone).replace(/\D/g,'').length>=9);
   if(!list.length) return toast(isCtAud()?'No contributors with valid phone numbers match this selection.':'No guests with valid phone numbers match this selection.');
   const tpl=$('bulkMessage').value.trim()||buildBulkTemplate(ev);
-  const ok=await confirmDialog({title:isCtAud()?'Send contribution messages?':['arrived','absent'].includes($('messageAudience')?.value)?'Send thank-you messages?':'Send invitations?',text:`The message will be sent to <b>${list.length}</b> ${isCtAud()?'contributors':'guests'} via <b>${label}</b>.`,ok:'Send now',tone:'primary',icon:'send'});
+  const ok=await confirmDialog({title:window.__scMode?'Send cards?':isCtAud()?'Send contribution messages?':['arrived','absent'].includes($('messageAudience')?.value)?'Send thank-you messages?':'Send invitations?',text:`The message will be sent to <b>${list.length}</b> ${isCtAud()?'contributors':'guests'} via <b>${label}</b>.`,ok:'Send now',tone:'primary',icon:'send'});
   if(!ok) return;
   const btn=$('sendBulkBtn'), progress=$('messageProgress'), results=$('messageResults');
   btn.disabled=true; results.innerHTML='';
@@ -12469,6 +12502,9 @@ Object.assign(window.SW_EXACT,{"No.":"Na.","Change card":"Badilisha kadi","Guest
 window.SW_PAT.push(["Add payment · {0}","Ongeza malipo · {0}"],["Planned {0} · Spent so far {1}","Iliyopangwa {0} · Imetumika hadi sasa {1}"],["Spent so far {0}","Imetumika hadi sasa {0}"],["{0} added to {1}.","{0} imeongezwa kwenye {1}."],["Add expense to {0}","Ongeza matumizi kwenye {0}"]);
 Object.assign(window.SW_EXACT,{"New version found. Reloading…":"Toleo jipya limepatikana. Inapakia upya…","A new version is ready. Refresh the page to use it.":"Toleo jipya liko tayari. Onyesha upya ukurasa ulitumie."});
 Object.assign(window.SW_EXACT,{"Guest name position":"Nafasi ya jina la mgeni","Drag the name box to the right place on the card. Size, font and colour apply to every guest card.":"Buruta kisanduku cha jina hadi mahali sahihi kwenye kadi. Ukubwa, fonti na rangi vinatumika kwa kadi zote za wageni.","You can change the details and where the guest name appears on the card.":"Unaweza kubadilisha taarifa na mahali jina la mgeni linapoonekana kwenye kadi.","Double guests use the Single card.":"Wageni wa Double wanatumia kadi ya Single.","Single card":"Kadi ya Single","Double card":"Kadi ya Double","All cards":"Kadi zote"});
+Object.assign(window.SW_EXACT,{"Send cards":"Tuma kadi","Send cards to guests":"Tuma kadi kwa wageni","Who should receive their card?":"Nani apokee kadi yake?","Guests not yet invited":"Wageni ambao hawajaalikwa bado","Invited, no reply yet":"Walioalikwa, bado hawajajibu","Each guest gets a message with their own card link (it shows the invitation, their name and the QR code for the door). If automatic sending is not connected, WhatsApp or the SMS app opens on your phone for each guest.":"Kila mgeni anapata ujumbe wenye kiungo cha kadi yake (kinaonyesha mwaliko, jina lake na QR ya mlangoni). Kama kutuma moja kwa moja hakujaunganishwa, WhatsApp au programu ya SMS inafunguka kwenye simu yako kwa kila mgeni."});
+window.SW_PAT.push(["{#0} guests will receive their card.","Wageni {0} watapokea kadi yao."],["{#0} guest will receive their card.","Mgeni {0} atapokea kadi yake."],["{#0} guests will receive their card ({#1} without a valid phone number will be skipped).","Wageni {0} watapokea kadi yao (wageni {1} wasio na namba sahihi ya simu wataachwa)."],["{#0} guest will receive their card ({#1} without a valid phone number will be skipped).","Mgeni {0} atapokea kadi yake (wageni {1} wasio na namba sahihi ya simu wataachwa)."]);
+Object.assign(window.SW_EXACT,{"Send cards?":"Tuma kadi?"});
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
