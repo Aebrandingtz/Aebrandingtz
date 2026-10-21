@@ -1875,7 +1875,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V101</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V102</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2381,7 +2381,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 
 <div id="editEventModal" class="modal"><div class="modal-box" style="max-width:600px">
   <button class="modal-close" onclick="closeEditEvent()" aria-label="Close">×</button>
-  <div class="guest-modal-head"><div class="guest-modal-icon"><svg class="i"><use href="#i-calendar"/></svg></div><div><h2>Edit event</h2><p>The poster and name position cannot be changed here.</p></div></div>
+  <div class="guest-modal-head"><div class="guest-modal-icon"><svg class="i"><use href="#i-calendar"/></svg></div><div><h2>Edit event</h2><p>You can change the details and where the guest name appears on the card.</p></div></div>
   <div class="guest-form-grid">
     <div class="field full"><label for="eeName">Event name *</label><input id="eeName"></div>
     <div class="field"><label for="eeType">Type</label><select id="eeType"><option>Wedding</option><option>Send Off</option><option>Kitchen Party</option><option>Birthday</option><option>Graduation</option><option>Church Event</option><option>Baby Shower</option><option>Fundraising</option><option>Other</option></select></div>
@@ -2390,6 +2390,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
     <div class="field full"><label for="eeMaps">Google Maps link</label><input id="eeMaps"></div>
     <div class="field full"><label for="eeMessage">Message to guests</label><textarea id="eeMessage" rows="3"></textarea></div>
   </div>
+  <div id="eeNameSec" style="display:none;margin-top:16px"></div>
   <div class="guest-form-actions"><button class="gray" onclick="closeEditEvent()">Cancel</button><button class="primary" id="eeSaveBtn" onclick="saveEditedEvent()">Save changes</button></div>
 </div></div>
 
@@ -4288,21 +4289,69 @@ window.openEditEvent = function(id){
   window.editingEventId=id;
   $('eeName').value=ev.name||''; $('eeType').value=ev.type||'Other'; $('eeDate').value=toLocalInput(ev.date);
   $('eeVenue').value=ev.venue||''; $('eeMaps').value=ev.maps||''; $('eeMessage').value=ev.message||'';
-  $('editEventModal').classList.add('open'); setTimeout(()=>$('eeName').focus(),40);
+  $('editEventModal').classList.add('open'); eeNameInit(ev); setTimeout(()=>$('eeName').focus(),40);
 };
 window.editEvent = window.openEditEvent;
 window.closeEditEvent = function(){ $('editEventModal').classList.remove('open'); window.editingEventId=null; };
+/* ----- V98+: edit where the guest name appears on the card (Edit event) ----- */
+const EEN={};
+function eeNameInit(ev){
+  const sec=$('eeNameSec'); if(!sec) return; for(const k in EEN) delete EEN[k];
+  if(!ev.poster){ sec.style.display='none'; sec.innerHTML=''; return; }
+  const fonts=($('nameFont')||{}).innerHTML||'<option>Arial</option><option>Georgia</option>';
+  const one=(v,url,pos,title)=>`<div class="ee-np" style="margin-bottom:14px"><h3 style="margin:0 0 6px;font-size:15px">${title}</h3><div class="poster-stage" style="min-height:0;padding:10px"><div class="poster-canvas" id="eeCv_${v}"><img class="poster-img" id="eeImg_${v}" src="${E(url)}" alt="" style="max-height:360px;width:auto;max-width:100%"></div></div>
+    <div class="style-controls"><div><label for="eeSize_${v}">Size</label><input id="eeSize_${v}" type="number" min="8" max="160" value="${Math.round(pos.size)}" oninput="eeNameStyle('${v}')"></div><div><label for="eeFont_${v}">Font</label><select id="eeFont_${v}" onchange="eeNameStyle('${v}')">${fonts}</select></div><div><label for="eeColor_${v}">Color</label><input id="eeColor_${v}" type="color" value="${E(/^#[0-9a-f]{6}$/i.test(pos.color)?pos.color:'#111111')}" oninput="eeNameStyle('${v}')"></div></div>
+    <button type="button" class="gray reset-position" onclick="eeNameReset('${v}')">${ic('refresh')}Reset position</button></div>`;
+  sec.innerHTML=`<div class="panel-heading" style="margin-bottom:6px"><div><h2 style="font-size:17px">Guest name position</h2><p>Drag the name box to the right place on the card. Size, font and colour apply to every guest card.</p></div></div>`
+    +one('main',ev.poster,ev.namePos,ev.posterDouble?'Single card':'All cards')
+    +(ev.posterDouble?one('double',ev.posterDouble,ev.namePosDouble,'Double card'):`<p class="muted" style="font-size:13px">Double guests use the Single card.</p>`);
+  sec.style.display='block';
+  ['main'].concat(ev.posterDouble?['double']:[]).forEach(v=>{
+    const pos=v==='double'?ev.namePosDouble:ev.namePos; EEN[v]={basis:pos.basis||480,left:parseFloat(pos.left),top:parseFloat(pos.top)};
+    const sel=$('eeFont_'+v); if(sel){ sel.value=pos.font; if(sel.value!==pos.font){ const op=document.createElement('option'); op.textContent=pos.font; sel.appendChild(op); sel.value=pos.font; } }
+    const img=$('eeImg_'+v), go=()=>eeNameBox(v); if(img.complete&&img.naturalWidth) go(); else img.onload=go;
+  });
+}
+function eeNameBox(v){
+  const cv=$('eeCv_'+v); if(!cv) return; const old=cv.querySelector('.name-box'); if(old) old.remove();
+  const b=document.createElement('div'); b.className='name-box'; b.id='eeBox_'+v; b.style.touchAction='none'; b.style.left=EEN[v].left+'%'; b.style.top=EEN[v].top+'%'; b.innerHTML='GUEST NAME<span class="handle"></span>'; cv.appendChild(b);
+  let drag=false,dx=0,dy=0;
+  b.addEventListener('pointerdown',e=>{ if(e.target.classList.contains('handle')) return; drag=true; try{ b.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); });
+  b.addEventListener('pointermove',e=>{ if(!drag) return; const r=cv.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width*100, y=(e.clientY-r.top)/r.height*100; b.style.left=Math.max(5,Math.min(95,x))+'%'; b.style.top=Math.max(5,Math.min(95,y))+'%'; });
+  const end=()=>{ drag=false; }; b.addEventListener('pointerup',end); b.addEventListener('pointercancel',end);
+  eeNameStyle(v);
+}
+window.eeNameStyle=function(v){
+  const b=$('eeBox_'+v), img=$('eeImg_'+v); if(!b||!img) return;
+  const size=Number($('eeSize_'+v).value)||28, scale=(img.clientWidth||img.width||EEN[v].basis)/EEN[v].basis;
+  b.style.fontSize=Math.max(6,size*scale)+'px'; b.style.fontFamily=$('eeFont_'+v).value; b.style.color=$('eeColor_'+v).value;
+};
+window.eeNameReset=function(v){ const b=$('eeBox_'+v); if(b){ b.style.left='50%'; b.style.top='68%'; } };
+function eeNameRow(){
+  const row={}; 
+  [['main',''],['double','_double']].forEach(([v,s])=>{
+    const b=$('eeBox_'+v); if(!b) return;
+    row['name_position_left'+s]=Math.round(parseFloat(b.style.left)*10)/10; row['name_position_top'+s]=Math.round(parseFloat(b.style.top)*10)/10;
+    row['name_font_size'+s]=Math.max(8,Math.min(160,Number($('eeSize_'+v).value)||28)); row['name_font'+s]=$('eeFont_'+v).value; row['name_color'+s]=$('eeColor_'+v).value;
+    row['name_size_basis'+s]=EEN[v].basis||480;
+  });
+  return row;
+}
 window.saveEditedEvent = async function(){
   const id=window.editingEventId, ev=getEvent(id); if(!ev) return;
   const name=$('eeName').value.trim(); if(!name) return toast('Please enter the event name.');
   const raw=$('eeDate').value; const iso = raw?new Date(raw).toISOString():null;
   const row={event_name:name,event_type:$('eeType').value,event_date:iso,venue:$('eeVenue').value.trim(),google_maps_url:$('eeMaps').value.trim(),maps_url:$('eeMaps').value.trim(),message:$('eeMessage').value.trim()};
+  Object.assign(row,eeNameRow());
   const btn=$('eeSaveBtn'); btn.disabled=true; btn.textContent='Saving…';
   try{
     const {error}=await supabaseClient.from('events').update(row).eq('id',id).eq('owner_id',evOwner(id));
     if(error) throw error;
     const before={name:ev.name,type:ev.type,date:ev.date,venue:ev.venue,maps:ev.maps,message:ev.message};
     Object.assign(ev,{name,type:row.event_type,date:iso||'',venue:row.venue,maps:row.google_maps_url,message:row.message});
+    if(row.name_position_left!=null) ev.namePos={left:row.name_position_left+'%',top:row.name_position_top+'%',size:row.name_font_size,font:row.name_font,color:row.name_color,basis:row.name_size_basis};
+    if(row.name_position_left_double!=null) ev.namePosDouble={left:row.name_position_left_double+'%',top:row.name_position_top_double+'%',size:row.name_font_size_double,font:row.name_font_double,color:row.name_color_double,basis:row.name_size_basis_double};
+    else if(row.name_position_left!=null&&!ev.posterDouble) ev.namePosDouble=Object.assign({},ev.namePos);
     closeEditEvent(); doRefresh(); toast('Event updated.');
     if((ev.posterDesign||ev.posterDesignDouble)&&window.studioSyncAfterEdit) window.studioSyncAfterEdit(id,before,ev);
   }catch(err){ toast('Not saved: '+(err.message||err)); }
@@ -10985,7 +11034,7 @@ async function shareOut(kind){
   if(kind==='wa') window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
   else window.location.href='sms:'+(/iPhone|iPad|iPod/.test(navigator.userAgent)?'&':'?')+'body='+encodeURIComponent(msg);
 }
-async function posterCore(d,eid,which,designId){
+async function posterCore(d,eid,which,designId,keepName){
   const nz=d.layers.find(l=>l.type==='namezone'&&vis(l));
   await ensureFontsFor(d); ST._fv++; await Promise.all(d.layers.filter(l=>l.asset&&vis(l)).map(l=>imgReady(d.assets[l.asset])));
     const S=Math.min(1.5,1800/d.w), cv=docCanvas(d,S,{}), blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
@@ -10993,7 +11042,7 @@ async function posterCore(d,eid,which,designId){
     const up=await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false}); if(up.error) throw up.error;
     const url=supabaseClient.storage.from(EVENT_POSTERS_BUCKET).getPublicUrl(path).data.publicUrl;
     const sfx=which==='double'?'_double':'', upd={}; upd[which==='double'?'poster_url_double':'poster_url']=url; upd[which==='double'?'poster_design_id_double':'poster_design_id']=designId||null;
-    if(nz){ const f=ST.CARD_FONTS.includes(nz.font)?nz.font:'Poppins'; upd['name_position_left'+sfx]=Math.round((nz.x+nz.w/2)/d.w*1000)/10; upd['name_position_top'+sfx]=Math.round((nz.y+nz.h/2)/d.h*1000)/10; upd['name_font_size'+sfx]=Math.max(8,Math.round(nz.size*S)); upd['name_font'+sfx]=f; upd['name_color'+sfx]=solid(nz.color,palOf(d)); upd['name_size_basis'+sfx]=cv.width; }
+    if(nz&&!keepName){ const f=ST.CARD_FONTS.includes(nz.font)?nz.font:'Poppins'; upd['name_position_left'+sfx]=Math.round((nz.x+nz.w/2)/d.w*1000)/10; upd['name_position_top'+sfx]=Math.round((nz.y+nz.h/2)/d.h*1000)/10; upd['name_font_size'+sfx]=Math.max(8,Math.round(nz.size*S)); upd['name_font'+sfx]=f; upd['name_color'+sfx]=solid(nz.color,palOf(d)); upd['name_size_basis'+sfx]=cv.width; }
     const r=await supabaseClient.from('events').update(upd).eq('id',eid).eq('owner_id',currentSupabaseUser.id).select('id');
     if(r.error) throw r.error; if(!r.data||!r.data.length) throw new Error(tr('Ni mmiliki wa tukio pekee anayeweza kubadilisha poster.','Only the event owner can replace the poster.'));
   return true;
@@ -11136,7 +11185,7 @@ window.studioSyncAfterEdit=async function(eid,before,ev){
       }
       if(!d) continue;
       const oldUrl=which==='double'?ev.posterDouble:ev.poster;
-      await posterCore(d,eid,which,id); n++;
+      await posterCore(d,eid,which,id,true); n++;
       const p=crmPath(oldUrl,EVENT_POSTERS_BUCKET); if(p){ try{ await supabaseClient.storage.from(EVENT_POSTERS_BUCKET).remove([p]); }catch(_){} }
     }
     if(n){ await crmReload(); toast(tr('Kadi zimesasishwa na jina jipya la tukio.','The cards now show the new event details.')); }
@@ -12419,6 +12468,7 @@ Object.assign(window.SW_EXACT,{"Remove card":"Ondoa kadi","Delete card":"Futa ka
 Object.assign(window.SW_EXACT,{"No.":"Na.","Change card":"Badilisha kadi","Guests who said Yes can pick more than one meal.":"Wageni waliojibu Ndiyo wanaweza kuchagua zaidi ya chakula kimoja.","You can pick more than one meal before you answer “Yes”.":"Unaweza kuchagua zaidi ya chakula kimoja kabla ya kujibu “Ndiyo”.","The choices are per card.":"Machaguo ni kwa kila kadi.","What was it for?":"Ilikuwa ya nini?","e.g. Deposit":"k.m. Kiasi cha awali","Cancel":"Ghairi","Please wait, contributions are still loading.":"Tafadhali subiri, michango bado inapakiwa."});
 window.SW_PAT.push(["Add payment · {0}","Ongeza malipo · {0}"],["Planned {0} · Spent so far {1}","Iliyopangwa {0} · Imetumika hadi sasa {1}"],["Spent so far {0}","Imetumika hadi sasa {0}"],["{0} added to {1}.","{0} imeongezwa kwenye {1}."],["Add expense to {0}","Ongeza matumizi kwenye {0}"]);
 Object.assign(window.SW_EXACT,{"New version found. Reloading…":"Toleo jipya limepatikana. Inapakia upya…","A new version is ready. Refresh the page to use it.":"Toleo jipya liko tayari. Onyesha upya ukurasa ulitumie."});
+Object.assign(window.SW_EXACT,{"Guest name position":"Nafasi ya jina la mgeni","Drag the name box to the right place on the card. Size, font and colour apply to every guest card.":"Buruta kisanduku cha jina hadi mahali sahihi kwenye kadi. Ukubwa, fonti na rangi vinatumika kwa kadi zote za wageni.","You can change the details and where the guest name appears on the card.":"Unaweza kubadilisha taarifa na mahali jina la mgeni linapoonekana kwenye kadi.","Double guests use the Single card.":"Wageni wa Double wanatumia kadi ya Single.","Single card":"Kadi ya Single","Double card":"Kadi ya Double","All cards":"Kadi zote"});
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
