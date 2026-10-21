@@ -1,5 +1,5 @@
 /* SHEREHE HUB service worker: lets the app open and run check-in with no internet. */
-const VERSION = 'sherehe-v114';
+const VERSION = 'sherehe-v115';
 const CDN = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
@@ -14,8 +14,8 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Short links (/i/, /m/, /og/) are redirects handled by the server: never answer them from the cache.
-  if (/^\/(i|m|og)\//.test(url.pathname)) return;
+  // Short links (/i/, /m/, /og/) and payment endpoints (/api/) are redirects handled by the server: never answer them from the cache.
+  if (/^\/(i|m|og|api)\//.test(url.pathname)) return;
 
   // The app page: network first (always the newest version), cached copy when the network is slow or gone.
   if (req.mode === 'navigate' && url.origin === location.origin) {
