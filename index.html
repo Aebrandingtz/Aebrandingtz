@@ -1873,7 +1873,7 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V98</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V99</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -4052,7 +4052,9 @@ function renderUserChip(){
   $('roleLabel').textContent = isAdmin ? 'Administrator' : (window.__staffMode ? (staffRole()==='treasurer'?'Treasurer':(staffRole()==='cohost'?'Co-host':(staffRole()==='photographer'?'Photographer':'Door staff'))) : 'Event organiser');
   const g=$('dashGreeting'); if(g) g.textContent='Welcome, '+name.split(' ')[0];
 }
-window.loadAdminFlag = async function(){
+let _adminFlight=null;
+window.loadAdminFlag = function(){ if(_adminFlight&&performance.now()<12000) return _adminFlight; const p=_loadAdminFlag(); _adminFlight=p; p.finally(()=>{ setTimeout(()=>{ if(_adminFlight===p) _adminFlight=null; },3000); }); return p; };
+const _loadAdminFlag = async function(){
   isAdmin=false;
   if(supabaseClient && currentSupabaseUser){
     try{
@@ -6587,7 +6589,7 @@ const _loadEvents = window.loadEventsFromSupabase;
 let _loadFlight=null,_loadAgain=false;
 window.loadEventsFromSupabase = function(){
   /* one load at a time: overlapping loads used to append the same guests twice */
-  if(_loadFlight){ _loadAgain=true; return _loadFlight; }
+  if(_loadFlight){ if(performance.now()>12000) _loadAgain=true; return _loadFlight; } /* during start-up the two sign-in callbacks ask for the same data: load it once */
   const args=arguments, self=this;
   _loadFlight=(async()=>{ try{ do{ _loadAgain=false; await _loadEventsOnce.apply(self,args); }while(_loadAgain); } finally{ _loadFlight=null; } })();
   return _loadFlight;
@@ -6625,6 +6627,12 @@ window.addEventListener('load',()=>{
     const hadCtl=!!navigator.serviceWorker.controller; let reloaded=false;
     navigator.serviceWorker.register('/sw.js').then(reg=>{ const chk=()=>{ try{ reg.update(); }catch(e){} }; chk(); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) chk(); }); setInterval(chk,600000); }).catch(()=>{});
     /* a newer version took over: load it right away (never while scanning or on a guest invitation page) */
+    navigator.serviceWorker.addEventListener('message',ev=>{
+      if(!ev.data||ev.data.type!=='newer'||reloaded) return;
+      if(qrScanner||document.body.classList.contains('invite-mode')) return;
+      if(performance.now()<60000){ reloaded=true; try{ toast('New version found. Reloading…'); }catch(e){} setTimeout(()=>location.reload(),1200); }
+      else { try{ toast('A new version is ready. Refresh the page to use it.'); }catch(e){} }
+    });
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
       if(!hadCtl||reloaded) return;
       const go=()=>{ if(reloaded) return; if(qrScanner||document.body.classList.contains('invite-mode')){ setTimeout(go,5000); return; } reloaded=true; try{ toast('New version found. Reloading…'); }catch(e){} setTimeout(()=>location.reload(),1200); };
@@ -7844,8 +7852,10 @@ window.coCopy=async function(){ const c=coGet(CO.cur); if(!c) return; try{ await
 function coQr(){ const el=$('coQr'), c=coGet(CO.cur); if(!el||!c||!window.QRCode) return; el.innerHTML=''; try{ new QRCode(el,{text:coUrl(c.id),width:150,height:150,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} }
 
 /* ---------- event owner side: approve or refuse photographers ---------- */
-async function coLoadRequests(){
+let _coReqAt=0;
+async function coLoadRequests(force){
   if(!supabaseClient||!currentSupabaseUser) return;
+  if(!force&&Date.now()-_coReqAt<4000) return; _coReqAt=Date.now();
   try{
     const r=await supabaseClient.from('collection_event_requests').select('id,collection_id,event_id,requester_id,requester_email,collection_title,event_name,status,created_at').order('created_at',{ascending:false});
     if(r.error) throw r.error; CO.reqIn=(r.data||[]).filter(x=>x.requester_id!==coMe());
@@ -7866,7 +7876,7 @@ function coRequestsPanel(ev){
 window.coDecide=async function(id,status){
   try{
     const r=await supabaseClient.from('collection_event_requests').update({status,decided_at:new Date().toISOString()}).eq('id',id); if(r.error) throw r.error;
-    toast(status==='approved'?'Approved.':(status==='denied'?'Refused.':'Access removed.')); await coLoadRequests();
+    toast(status==='approved'?'Approved.':(status==='denied'?'Refused.':'Access removed.')); await coLoadRequests(true);
   }catch(e){ toast('Failed: '+(e.message||e)); }
 };
 (function(){
@@ -12394,6 +12404,7 @@ Object.assign(window.SW_EXACT,{
 Object.assign(window.SW_EXACT,{"Remove card":"Ondoa kadi","Delete card":"Futa kadi","No card design is set for this event. Use a saved design, or design a new card.":"Hakuna muundo wa kadi kwa tukio hili. Tumia muundo uliohifadhiwa, au buni kadi mpya."});
 Object.assign(window.SW_EXACT,{"No.":"Na.","Change card":"Badilisha kadi","Guests who said Yes can pick more than one meal.":"Wageni waliojibu Ndiyo wanaweza kuchagua zaidi ya chakula kimoja.","You can pick more than one meal before you answer “Yes”.":"Unaweza kuchagua zaidi ya chakula kimoja kabla ya kujibu “Ndiyo”.","The choices are per card.":"Machaguo ni kwa kila kadi.","What was it for?":"Ilikuwa ya nini?","e.g. Deposit":"k.m. Kiasi cha awali","Cancel":"Ghairi","Please wait, contributions are still loading.":"Tafadhali subiri, michango bado inapakiwa."});
 window.SW_PAT.push(["Add payment · {0}","Ongeza malipo · {0}"],["Planned {0} · Spent so far {1}","Iliyopangwa {0} · Imetumika hadi sasa {1}"],["Spent so far {0}","Imetumika hadi sasa {0}"],["{0} added to {1}.","{0} imeongezwa kwenye {1}."],["Add expense to {0}","Ongeza matumizi kwenye {0}"]);
+Object.assign(window.SW_EXACT,{"New version found. Reloading…":"Toleo jipya limepatikana. Inapakia upya…","A new version is ready. Refresh the page to use it.":"Toleo jipya liko tayari. Onyesha upya ukurasa ulitumie."});
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the

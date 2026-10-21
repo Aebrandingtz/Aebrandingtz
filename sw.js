@@ -1,5 +1,5 @@
 /* SHEREHE HUB service worker: lets the app open and run check-in with no internet. */
-const VERSION = 'sherehe-v98';
+const VERSION = 'sherehe-v99';
 const CDN = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
@@ -26,9 +26,13 @@ self.addEventListener('fetch', e => {
           new Promise((_, rej) => setTimeout(() => rej(new Error('slow')), 4000))
         ]);
       } catch (err) {
-        net.catch(() => {});
         const cached = await cache.match('/');
-        if (cached) return cached;
+        if (cached) {
+          /* the slow download keeps going; when it finishes, tell the open page a newer version is ready */
+          net.then(res => { try { if (res && res.ok && res.headers.get('etag') !== cached.headers.get('etag')) self.clients.matchAll().then(cs => cs.forEach(c => c.postMessage({ type: 'newer' }))); } catch (e) {} }).catch(() => {});
+          return cached;
+        }
+        net.catch(() => {});
         return net;
       }
     })());
