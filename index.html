@@ -1703,6 +1703,159 @@ body.photographer-mode .app-sidebar .nav[data-view="collections"]{display:flex!i
 
 body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 
+/* ===== V113 Ticketing ===== */
+.tk-public{background:var(--bg,#eff3f6);color:var(--ink);font-family:var(--font-body,inherit);display:none}
+.tk-public *{box-sizing:border-box}
+.tk-public h1,.tk-public h2,.tk-public h3{font-family:var(--font-display,inherit);letter-spacing:-.01em;margin:0}
+.tk-public .mono,.ta-main .mono,#tkBox .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;letter-spacing:.02em}
+.tk-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.tk-brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--navy);font-weight:700;min-width:0}
+.tk-brand .brand-mark{width:34px;height:34px;flex:none}
+.brand-word{font-size:15px;white-space:nowrap}.brand-word b{color:var(--gold)}
+.tk-top-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tk-link{background:transparent;color:var(--navy);border:0;padding:8px 10px;font-weight:650;box-shadow:none}
+.tk-link:hover{background:var(--line-2)}.tk-link svg{width:16px;height:16px}
+.tk-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;padding:34px 16px 38px}
+.tk-hero>div{max-width:1120px;margin:0 auto}
+.tk-hero h1{font-size:clamp(24px,4.4vw,38px);line-height:1.12;color:#fff}
+.tk-hero p{margin:8px 0 0;opacity:.88;max-width:620px;font-size:15.5px}
+.tk-wrap{max-width:1120px;margin:0 auto;padding:18px 16px 40px}
+.tk-narrow{max-width:560px}
+.tk-orderwrap{max-width:980px}
+.tk-back{display:inline-block;margin:0 0 12px;color:var(--blue);font-weight:650;text-decoration:none;font-size:14px}
+.tk-note{color:var(--muted);font-size:14px;margin:8px 0}.tk-note.sm{font-size:12.5px}
+.tk-filters{display:flex;flex-direction:column;gap:12px;margin:-34px 0 20px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;box-shadow:0 10px 30px -18px rgba(20,32,90,.4);position:relative}
+.tk-search{position:relative}.tk-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--faint);pointer-events:none}
+.tk-search input{padding-left:40px;min-height:46px;font-size:15px}
+.tk-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tk-chip{flex:none;background:var(--line-2);color:var(--ink-2);border-radius:99px;padding:8px 14px;font-size:13px;white-space:nowrap}
+.tk-chip.on{background:var(--navy);color:#fff}
+.tk-sels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;min-height:120px}
+.tk-grid.is-loading{opacity:.6;transition:opacity .15s}
+.tk-grid>.tk-msg,.tk-grid>.tk-note{grid-column:1/-1}
+.tk-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+.tk-card:hover,.tk-card:focus-visible{transform:translateY(-3px);box-shadow:0 16px 34px -18px rgba(20,32,90,.45)}
+.tk-card.is-out .tk-cimg img{filter:grayscale(.85)}
+.tk-cimg{position:relative;aspect-ratio:4/5;background:linear-gradient(135deg,var(--blue-soft,#e8edfc),#fff);overflow:hidden}
+.tk-cimg img{width:100%;height:100%;object-fit:cover;display:block}
+.tk-noimg{position:absolute;inset:0;display:grid;place-items:center;color:var(--blue)}.tk-noimg svg{width:44px;height:44px;opacity:.5}
+.tk-poster .tk-noimg{position:relative;min-height:220px}
+.tk-date{position:absolute;left:10px;top:10px;background:#fff;border-radius:10px;padding:6px 10px;font-size:12px;color:var(--muted);line-height:1.25;box-shadow:0 4px 14px rgba(0,0,0,.18);display:flex;flex-direction:column}
+.tk-date b{color:var(--navy);font-size:13px}
+.tk-cbody{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tk-cat{align-self:flex-start;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--blue);background:var(--blue-soft);padding:3px 9px;border-radius:99px}
+.tk-cbody h3{font-size:17px;line-height:1.25}
+.tk-vn{display:flex;align-items:center;gap:6px;margin:0;color:var(--muted);font-size:13.5px}.tk-vn svg{width:14px;height:14px;flex:none}
+.tk-cfoot{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line)}
+.tk-price{font-size:16px;color:var(--navy)}.tk-from{font-size:12px}
+.tk-org{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+.tk-badge{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--line-2);color:var(--muted)}
+.tk-badge.bad{background:var(--bad-soft);color:var(--bad)}.tk-badge.warn{background:var(--warn-soft);color:var(--warn)}
+.tk-msg{text-align:center;background:#fff;border:1px dashed var(--line);border-radius:var(--r-lg);padding:34px 18px}
+.tk-msg h2{font-size:19px;margin-bottom:6px}.tk-msg p{color:var(--muted);margin:0 0 14px}
+.tk-banner{border-radius:var(--r-md);padding:12px 14px;margin:0 0 14px;background:var(--blue-soft);color:var(--blue-d);font-size:14px}
+.tk-banner.warn{background:var(--warn-soft);color:var(--warn)}.tk-banner.bad{background:var(--bad-soft);color:var(--bad)}
+.tk-prevbar{position:sticky;top:0;z-index:6;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--gold-l);color:#3a2b00;padding:10px 16px;font-weight:650;font-size:14px}
+.tk-prevbar button{background:#3a2b00;color:#fff}
+.tk-evgrid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:26px;align-items:start}
+.tk-poster{border-radius:var(--r-lg);overflow:hidden;background:var(--blue-soft);margin-bottom:16px;position:relative}
+.tk-poster img{width:100%;max-height:560px;object-fit:cover;display:block}
+.tk-evmain h1{font-size:clamp(24px,4vw,34px);line-height:1.15;margin:10px 0 14px}
+.tk-evmain h3{margin:22px 0 6px;font-size:17px}
+.tk-facts{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:12px}
+.tk-facts li{display:flex;gap:12px;align-items:flex-start}
+.tk-facts li>svg{width:20px;height:20px;color:var(--blue);flex:none;margin-top:3px}
+.tk-facts li div{display:flex;flex-direction:column;gap:1px;font-size:14px}.tk-facts small{color:var(--faint);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.05em}
+.tk-facts a{color:var(--blue);font-weight:650}
+.tk-share{margin:10px 0}
+.tk-desc{white-space:pre-line;line-height:1.6;color:var(--ink-2);margin:0}
+.tk-buybox{position:sticky;top:76px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:0 14px 34px -22px rgba(20,32,90,.45)}
+.tk-buybox h3{font-size:17px;margin-bottom:10px}
+.tk-type{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1.5px solid var(--line);border-radius:var(--r-md);padding:12px;margin-bottom:10px}
+.tk-type.off{opacity:.6;background:var(--line-2)}
+.tk-tinfo{min-width:0;font-size:14px}.tk-tinfo p{margin:4px 0 0;color:var(--muted);font-size:13px}.tk-tinfo small{color:var(--faint)}
+.tk-kind{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin:0 4px}
+.tk-tbuy{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.tk-tprice{color:var(--navy);font-size:15px;white-space:nowrap}
+.tk-step{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:#fff}
+.tk-step button{width:38px;height:36px;border-radius:0;background:transparent;font-size:18px;padding:0}
+.tk-step button:disabled{opacity:.3;cursor:not-allowed}
+.tk-step output{min-width:28px;text-align:center;font-weight:700}
+.tk-buy label{display:block;margin:12px 0 4px;font-size:13.5px;font-weight:650}
+.tk-chk{display:flex!important;align-items:center;gap:8px;font-weight:500!important}.tk-chk input{width:auto;min-height:0}
+.tk-names{display:grid;gap:8px;margin-top:8px}
+.tk-sum{background:var(--line-2);border-radius:var(--r-md);padding:12px;font-size:14px;display:grid;gap:6px}
+.tk-sum>div{display:flex;justify-content:space-between;gap:10px}
+.tk-sum .sub{color:var(--muted);font-size:13px}.tk-sum .tot{border-top:1px solid var(--line);padding-top:8px;font-size:16px;color:var(--navy)}
+.tk-go{width:100%;margin-top:12px;min-height:48px;font-size:15px}
+.tk-panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;margin-bottom:16px}
+.tk-panel label{display:block;margin:12px 0 4px;font-weight:650;font-size:13.5px}
+.tk-saved{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line-2);text-decoration:none;color:var(--ink);flex-wrap:wrap}
+.tk-saved span{color:var(--muted);font-size:13px}
+.tk-ohead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.tk-ohead h1{font-size:24px}.tk-ohead p{margin:4px 0 0;color:var(--muted)}
+.tk-st{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:4px 11px;border-radius:99px;background:var(--line-2);color:var(--muted);white-space:nowrap}
+.tk-st.ok{background:var(--ok-soft);color:var(--ok)}.tk-st.warn{background:var(--warn-soft);color:var(--warn)}.tk-st.bad{background:var(--bad-soft);color:var(--bad)}.tk-st.info{background:var(--blue-soft);color:var(--blue-d)}
+.tk-linkrow{display:flex;gap:8px;margin-top:8px}.tk-linkrow input{font-size:12.5px}
+.tk-oact{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.tk-tickets{display:grid;gap:18px}
+.tk-tkt{display:grid;grid-template-columns:minmax(0,1fr) 250px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 12px 30px -22px rgba(20,32,90,.5);break-inside:avoid;page-break-inside:avoid}
+.tk-tkt.dead{opacity:.7}
+.tk-tl{padding:16px 18px;border-right:2px dashed var(--line)}
+.tk-tbrand{display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--navy)}.tk-tbrand .brand-mark{width:28px;height:28px}.tk-tbrand .tk-st{margin-left:auto}
+.tk-tposter{margin:0 0 10px;border-radius:10px;overflow:hidden;max-height:150px}.tk-tposter img{width:100%;height:150px;object-fit:cover;display:block}
+.tk-tl h3{font-size:19px;margin-bottom:10px;line-height:1.2}
+.tk-tl dl{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:0}.tk-tl dt{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}.tk-tl dd{margin:1px 0 0;font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
+.tk-tr{padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:linear-gradient(180deg,#fff,var(--line-2))}
+.tk-qr{width:200px;height:200px;background:#fff;padding:0;border-radius:8px}.tk-qr img,.tk-qr canvas{display:block;width:200px!important;height:200px!important}
+.tk-qr.dead{background:repeating-linear-gradient(45deg,var(--line-2),var(--line-2) 8px,#fff 8px,#fff 16px);border:1px solid var(--line)}
+.tk-tr p{margin:0;font-size:12px;color:var(--muted)}
+.tk-foot{text-align:center;padding:24px 16px 34px;color:var(--faint);font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}.tk-foot .brand-mark{width:20px;height:20px}
+.tk-foot a{color:var(--muted)}
+.auth-tickets-link{display:inline-block;margin-top:2px;color:inherit;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+
+@media(max-width:860px){
+  .tk-evgrid{grid-template-columns:1fr}.tk-buybox{position:static}
+  .tk-tkt{grid-template-columns:1fr}.tk-tl{border-right:0;border-bottom:2px dashed var(--line)}
+  .tk-filters{margin-top:-28px}
+}
+@media(max-width:520px){.brand-word{display:none}.tk-top{padding:8px 12px}.tk-sels{grid-template-columns:1fr}.tk-grid{grid-template-columns:1fr}.tk-cimg{aspect-ratio:16/10}.tk-tl dl{grid-template-columns:1fr}}
+
+/* printing e-tickets */
+@media print{
+  body.tk-print > *:not(#tkPublic){display:none!important}
+  body.tk-print #tkPublic{position:static!important;overflow:visible!important;background:#fff!important;display:block!important}
+  .no-print,.tk-top,.tk-foot{display:none!important}
+  .tk-tkt{box-shadow:none;border:1px solid #999;margin-bottom:12px}
+  .tk-wrap{padding:0;max-width:none}
+}
+
+/* ----- app side: organizer, scanner, admin ----- */
+#tkBox .ta-tabs{align-items:center;flex-wrap:wrap;overflow:visible}
+#tkBox .ta-pub{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:650;color:var(--blue);text-decoration:none;padding:8px 4px;white-space:nowrap}
+#tkBox .ta-pub svg{width:14px;height:14px}
+.ta-card .co-meta{gap:4px}
+.ta-bar{display:block;height:6px;border-radius:99px;background:var(--line-2);overflow:hidden;margin:6px 0 2px}
+.ta-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--gold-l));border-radius:99px}
+.ta-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 0 16px}
+.ta-act{white-space:nowrap}.ta-act button{margin-right:6px}
+.ta-poster{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.ta-poster img,.ta-poster .co-noimg{width:120px;height:150px;object-fit:cover;border-radius:10px;background:var(--blue-soft);position:relative;display:grid;place-items:center}
+.ta-tform{background:var(--line-2);margin:12px 0;border:1px solid var(--line)}
+.ta-cam{margin:14px 0}
+#tkReader{width:100%;max-width:420px;min-height:0;border-radius:12px;overflow:hidden;background:#000}
+#tkReader:empty{display:none}
+.ta-live{display:flex;align-items:baseline;gap:6px;min-height:40px}
+.ta-live b{font-size:30px;font-family:var(--font-display);color:var(--navy)}.ta-live span{font-size:18px;color:var(--muted)}.ta-live small{color:var(--bad);margin-left:8px}
+.ta-res{border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:4px;margin:12px 0;text-align:center;border:2px solid var(--line);background:var(--line-2);color:var(--muted);font-size:15px}
+.ta-res b{font-size:clamp(22px,5vw,30px);display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--font-display)}
+.ta-res b svg{width:30px;height:30px}
+.ta-res span{font-size:17px;font-weight:600}.ta-res small{font-size:13px;opacity:.85}
+.ta-res.ok{background:#e3f4ec;border-color:#0f7b53;color:#0a5a3d}
+.ta-res.bad{background:#fdeceb;border-color:#b42318;color:#8f1b11}
+#taAsk textarea{min-height:90px}
+@media(max-width:700px){#tkBox .ta-pub{margin-left:0}.ta-poster img,.ta-poster .co-noimg{width:90px;height:112px}}
+
 </style>
 </head>
 <body>
@@ -1761,6 +1914,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
     <span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span>
     <h1>SHEREHE HUB TZ</h1>
     <p>Event Invitation &amp; Guest Management Portal</p>
+    <p><a class="auth-tickets-link" href="#tickets">Browse event tickets</a></p>
   </header>
   <div class="auth-card">
   <section class="auth-art" aria-label="About SHEREHE HUB TZ">
@@ -1865,6 +2019,11 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
     <button class="nav" data-view="collections" onclick="showView('collections',this)"><svg class="i"><use href="#i-camera"/></svg>Collections</button>
   </div>
 
+  <div id="tkNavGroup">
+    <div class="side-label">Event tickets</div>
+    <button class="nav" data-view="tickets" onclick="showView('tickets',this)"><svg class="i"><use href="#i-qr"/></svg>Tickets</button>
+  </div>
+
   <div class="side-label">Insights</div>
   <button class="nav" data-view="reports" onclick="showView('reports',this)"><svg class="i"><use href="#i-chart"/></svg>Reports</button>
   <button class="nav" data-view="contributions" onclick="showView('contributions',this)"><svg class="i"><use href="#i-wallet"/></svg>Contributions</button>
@@ -1878,7 +2037,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V112</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V113</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2157,6 +2316,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 
 <!-- ============ COLLECTIONS ============ -->
 <section id="collections" class="view"><div id="collBox"></div></section>
+<section id="tickets" class="view"><div id="tkBox"></div></section>
 
 <!-- ============ GUEST MESSAGES ============ -->
 <section id="wishes" class="view">
@@ -3991,7 +4151,7 @@ function hideSplash(){
   const s=$('bootSplash'); if(!s) return;
   s.classList.add('gone'); setTimeout(()=>{ if(s.parentNode) s.parentNode.removeChild(s); },400);
 }
-const isInviteLink = () => /(invite|gallery|collection)=|^#event=/.test(location.hash);
+const isInviteLink = () => /(invite|gallery|collection)=|^#event=|^#tickets|^#tk-(event|order|find)/.test(location.hash);
 if(isInviteLink()) document.body.classList.add('invite-mode');
 setTimeout(()=>{
   if($('bootSplash')){
@@ -4097,7 +4257,7 @@ const VIEW_META = {
   create:['Create Event','New event'], guests:['Guests','Guest list'],
   cards:['Cards & QR','Guest cards'], messaging:['Messaging','Send invitations'],
   rsvp:['Check-in','Event day'], reports:['Reports','Event statistics'],
-  contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], collections:['Collections','Your photo galleries'], wishes:['Guest messages','Messages from your guests'], tasks:['Tasks','Committee to-do list'], studio:['Design Studio','Design invitations, posters and graphics'], admin:['Admin Console','Customers and system usage']
+  contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], collections:['Collections','Your photo galleries'], tickets:['Tickets','Sell tickets, scan at the gate'], wishes:['Guest messages','Messages from your guests'], tasks:['Tasks','Committee to-do list'], studio:['Design Studio','Design invitations, posters and graphics'], admin:['Admin Console','Customers and system usage']
 };
 window.showView = function(id,btn){
   if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?(window.__photoOnly?'collections':'photos'):'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
@@ -4112,6 +4272,7 @@ window.showView = function(id,btn){
   if(id==='seating') renderSeating();
   if(id==='photos') loadPhotos();
   if(id==='collections' && window.loadCollections) loadCollections();
+  if(id==='tickets' && window.loadTickets) loadTickets();
   if(id==='wishes') loadWishes();
   if(id==='tasks' && window.loadTasks) loadTasks();
   if(id==='studio' && window.studioShow) window.studioShow();
@@ -6229,7 +6390,7 @@ window.submitPublicRsvp = async function(eventId,guestId,status,cardType,btn){
     document.querySelectorAll('.inv-btns button').forEach(b=>b.disabled=false);
   }
 };
-const routePublic=()=>{ if(!/^#collection=/.test(location.hash) && window.coHidePublic) coHidePublic(); if(/^#collection=/.test(location.hash)){ if(window.loadPublicCollection) loadPublicCollection(); return; } if(/^#event=/.test(location.hash)){ if(window.loadPublicEvent) loadPublicEvent(); return; } if(isInviteLink()&&/invite=/.test(location.hash)) loadPublicInvitationFromSupabase(); if(/^#gallery=/.test(location.hash) && window.loadPublicGallery) loadPublicGallery(); };
+const routePublic=()=>{ const isTk=/^#tickets|^#tk-(event|order|find)/.test(location.hash); if(!isTk && window.tkHidePublic) tkHidePublic(); if(isTk && window.tkRoute){ tkRoute(); return; } if(!/^#collection=/.test(location.hash) && window.coHidePublic) coHidePublic(); if(/^#collection=/.test(location.hash)){ if(window.loadPublicCollection) loadPublicCollection(); return; } if(/^#event=/.test(location.hash)){ if(window.loadPublicEvent) loadPublicEvent(); return; } if(isInviteLink()&&/invite=/.test(location.hash)) loadPublicInvitationFromSupabase(); if(/^#gallery=/.test(location.hash) && window.loadPublicGallery) loadPublicGallery(); };
 window.addEventListener('hashchange',routePublic);
 document.addEventListener('DOMContentLoaded',routePublic);
 
@@ -8189,6 +8350,739 @@ document.addEventListener('keydown',e=>{
     return r;
   };
 })();
+
+/* =========================================================================
+   V113 — Ticketing (public side): marketplace, event page, booking, e-tickets.
+   Everything goes through server functions (tk_*). The browser never touches orders or tickets directly.
+   ========================================================================= */
+const TK_TZ='Africa/Dar_es_Salaam';
+const TK_UUID_RX=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const TK_CATS={
+  music:['Muziki na matamasha','Music & concerts'], bongo_flava:['Bongo Flava, DJ na tamasha','Bongo Flava, DJ & festivals'],
+  comedy:['Vichekesho na burudani','Comedy & entertainment'], cinema:['Sinema na filamu','Cinema & film'],
+  sports:['Michezo','Sports'], conference:['Mikutano, semina na maonyesho','Conferences & expos'],
+  club:['Klabu na sherehe za usiku','Club & nightlife'], cultural:['Utamaduni na sikukuu','Cultural festivals'], other:['Mengineyo','Other']
+};
+const TK_KINDS={ early_bird:['Early Bird','Early Bird'], regular:['Kawaida','Regular'], vip:['VIP','VIP'], vvip:['VVIP','VVIP'], group:['Kundi','Group'], table:['Meza / Kifurushi','Table / Package'], free:['Usajili wa bure','Free registration'] };
+const TKT={
+  sw:{ brand:'Tiketi', find:'Tiketi zangu', login:'Ingia', hero_h:'Tafuta tukio, nunua tiketi', hero_p:'Matamasha, vichekesho, sinema, michezo, mikutano na zaidi, tiketi inakufikia kwa QR.',
+    search:'Tafuta tukio, msanii, mwandaaji, ukumbi au mji', all:'Yote', d_all:'Tarehe yoyote', d_today:'Leo', d_week:'Siku 7 zijazo', d_month:'Mwezi huu',
+    p_all:'Bei yoyote', p_free:'Bure', p_u20:'Hadi TSh 20,000', p_o20:'Zaidi ya TSh 20,000', loading:'Inapakia…', none_h:'Hakuna matukio yaliyopatikana', none_p:'Jaribu neno lingine au ondoa vichujio.',
+    err_h:'Ukurasa haukufunguka', retry:'Jaribu tena', from:'Kuanzia', free:'Bure', sold_out:'Tiketi zimeisha', left:n=>`Zimebaki ${n}`, by:'Na',
+    back:'← Matukio yote', date:'Tarehe na saa', venue:'Ukumbi', map:'Tazama ramani', organizer:'Mwandaaji', about:'Kuhusu tukio', refund:'Sera ya kurudishiwa pesa / kughairi',
+    tickets:'Tiketi', qty_left:n=>`Zimebaki ${n}`, state_sold_out:'Zimeisha', state_not_started:'Mauzo hayajaanza', state_ended:'Mauzo yamefungwa', state_closed:'Mauzo yamefungwa', ev_ended:'Tukio hili limeisha.', ev_cancelled:'Tukio hili limeghairiwa.',
+    admits:n=>`Anaingia ${n}`, your:'Taarifa zako', name:'Jina kamili', email:'Barua pepe', phone:'Simu (WhatsApp)', contact_note:'Weka angalau barua pepe au simu. Tiketi itaonekana kwenye ukurasa utakaofunguka na unaweza kuipata tena.',
+    att_on:'Weka majina ya kila mhudhuriaji', att_ph:n=>`Jina la mhudhuriaji ${n}`, summary:'Muhtasari wa oda', empty_cart:'Chagua idadi ya tiketi hapo juu.', subtotal:'Jumla ya tiketi', fee:p=>`Ada ya huduma (${p}%)`, tax:p=>`Kodi (${p}%)`, total:'Jumla ya kulipa',
+    get_free:'Pata tiketi (bure)', pay_off:'Malipo ya mtandaoni bado hayajafunguliwa', pay_off_p:'Tiketi za kulipia zitaanza kuuzwa hivi karibuni. Tiketi za bure zinapatikana sasa.', placing:'Inaandaa tiketi…',
+    terms_p:'Kwa kuendelea unakubali', terms:'Masharti', privacy:'Faragha', and:'na', share:'Shiriki', copied:'Link imenakiliwa.', preview_note:'Hii ni onyesho la kujaribu. Wateja hawaoni bado.', exit_prev:'Funga onyesho', prev_buy:'Kununua kumezimwa kwenye onyesho',
+    e_bad_items:'Chagua tiketi kwanza.', e_bad_name:'Weka jina kamili (herufi 2 au zaidi).', e_bad_email:'Barua pepe si sahihi.', e_bad_phone:'Namba ya simu si sahihi.', e_contact_required:'Weka barua pepe au namba ya simu.',
+    e_event_closed:'Mauzo ya tukio hili yamefungwa.', e_event_ended:'Tukio hili limeisha.', e_sales_not_open:'Mauzo hayajaanza.', e_sales_closed:'Mauzo yamefungwa.', e_type_unavailable:'Aina hii ya tiketi haipatikani tena.',
+    e_bad_quantity:'Idadi ya tiketi si sahihi kwa aina hii.', e_sold_out:'Samahani, tiketi hazitoshi. Punguza idadi au chagua aina nyingine.', e_payments_disabled:'Malipo ya mtandaoni bado hayajafunguliwa.', e_rate_limited:'Maombi mengi sana. Subiri dakika chache kisha ujaribu tena.', e_bad_idem:'Jaribu tena.', e_unknown:'Kuna hitilafu. Jaribu tena.',
+    o_loading:'Inapakia tiketi zako…', o_nf_h:'Oda haikupatikana', o_nf_p:'Link si sahihi, au taarifa ulizoweka hazilingani. Tumia "Tiketi zangu" na namba ya oda.', o_h:'Oda yako', o_ref:'Namba ya oda', o_ok:'Imethibitishwa', o_pending:'Inasubiri malipo', o_cancelled:'Imeghairiwa', o_expired:'Muda umeisha', o_refunded:'Imerudishiwa pesa',
+    o_save:'Hifadhi link hii au chukua picha ya skrini: ndiyo njia ya kupata tiketi zako tena.', t_valid:'Halali', t_used:'Imetumika', t_cancelled:'Imeghairiwa', t_refunded:'Imerudishiwa pesa', t_no:'Tiketi', t_type:'Aina', t_holder:'Mhudhuriaji',
+    dl:'Pakua picha', dl_all:'Pakua zote', print:'Chapisha / PDF', copy_link:'Nakili link', enter_p:'Onyesha QR hii langoni. Itasomwa mara moja tu. Usimpe mtu mwingine picha yake.', dl_busy:'Inatayarisha…', dl_fail:'Picha haikutengenezwa. Jaribu tena.',
+    f_h:'Tafuta tiketi zangu', f_p:'Weka namba ya oda (mfano SH-1A2B3C4D5E) na barua pepe au simu uliyotumia kuagiza.', f_ref:'Namba ya oda', f_contact:'Barua pepe au simu', f_go:'Tafuta', f_saved:'Zilizohifadhiwa kwenye kifaa hiki', f_none:'Hakuna oda zilizohifadhiwa kwenye kifaa hiki.', foot:'Imetumwa kupitia SHEREHE HUB', lang:'Lugha' },
+  en:{ brand:'Tickets', find:'My tickets', login:'Sign in', hero_h:'Find an event, buy tickets', hero_p:'Concerts, comedy, cinema, sports, conferences and more. Your ticket arrives with a QR code.',
+    search:'Search event, artist, promoter, venue or city', all:'All', d_all:'Any date', d_today:'Today', d_week:'Next 7 days', d_month:'This month',
+    p_all:'Any price', p_free:'Free', p_u20:'Up to TSh 20,000', p_o20:'Over TSh 20,000', loading:'Loading…', none_h:'No events found', none_p:'Try another word or clear the filters.',
+    err_h:'The page could not be opened', retry:'Try again', from:'From', free:'Free', sold_out:'Sold out', left:n=>`${n} left`, by:'By',
+    back:'← All events', date:'Date and time', venue:'Venue', map:'View map', organizer:'Organizer', about:'About this event', refund:'Refund / cancellation policy',
+    tickets:'Tickets', qty_left:n=>`${n} left`, state_sold_out:'Sold out', state_not_started:'Sales not started', state_ended:'Sales closed', state_closed:'Sales closed', ev_ended:'This event has ended.', ev_cancelled:'This event has been cancelled.',
+    admits:n=>`Admits ${n}`, your:'Your details', name:'Full name', email:'Email', phone:'Phone (WhatsApp)', contact_note:'Give at least an email or a phone number. Your ticket appears on the next page and you can open it again later.',
+    att_on:'Enter a name for each attendee', att_ph:n=>`Attendee ${n} name`, summary:'Order summary', empty_cart:'Choose how many tickets you want above.', subtotal:'Tickets subtotal', fee:p=>`Service fee (${p}%)`, tax:p=>`Tax (${p}%)`, total:'Total to pay',
+    get_free:'Get my tickets (free)', pay_off:'Online payments are not open yet', pay_off_p:'Paid tickets will go on sale soon. Free tickets are available now.', placing:'Preparing your tickets…',
+    terms_p:'By continuing you accept the', terms:'Terms', privacy:'Privacy', and:'and', share:'Share', copied:'Link copied.', preview_note:'This is a preview. Customers cannot see it yet.', exit_prev:'Close preview', prev_buy:'Buying is turned off in preview',
+    e_bad_items:'Choose tickets first.', e_bad_name:'Enter your full name (2+ letters).', e_bad_email:'The email looks wrong.', e_bad_phone:'The phone number looks wrong.', e_contact_required:'Enter an email or a phone number.',
+    e_event_closed:'Sales for this event are closed.', e_event_ended:'This event has ended.', e_sales_not_open:'Sales have not started.', e_sales_closed:'Sales are closed.', e_type_unavailable:'This ticket type is no longer available.',
+    e_bad_quantity:'That quantity is not allowed for this ticket type.', e_sold_out:'Sorry, not enough tickets are left. Reduce the quantity or choose another type.', e_payments_disabled:'Online payments are not open yet.', e_rate_limited:'Too many requests. Wait a few minutes and try again.', e_bad_idem:'Please try again.', e_unknown:'Something went wrong. Please try again.',
+    o_loading:'Loading your tickets…', o_nf_h:'Order not found', o_nf_p:'The link is not valid, or the details do not match. Use "My tickets" with your order number.', o_h:'Your order', o_ref:'Order number', o_ok:'Confirmed', o_pending:'Waiting for payment', o_cancelled:'Cancelled', o_expired:'Expired', o_refunded:'Refunded',
+    o_save:'Save this link or take a screenshot: it is how you get your tickets again.', t_valid:'Valid', t_used:'Used', t_cancelled:'Cancelled', t_refunded:'Refunded', t_no:'Ticket', t_type:'Type', t_holder:'Attendee',
+    dl:'Download image', dl_all:'Download all', print:'Print / PDF', copy_link:'Copy link', enter_p:'Show this QR at the gate. It can be scanned only once. Do not share a picture of it.', dl_busy:'Preparing…', dl_fail:'The image could not be made. Try again.',
+    f_h:'Find my tickets', f_p:'Enter your order number (for example SH-1A2B3C4D5E) and the email or phone you used.', f_ref:'Order number', f_contact:'Email or phone', f_go:'Find', f_saved:'Saved on this device', f_none:'No orders saved on this device.', foot:'Sent through SHEREHE HUB', lang:'Language' }
+};
+const tkt=(k,...a)=>{ const v=(TKT[invLang()]||TKT.sw)[k]; if(v===undefined) return TKT.en[k]===undefined?k:(typeof TKT.en[k]==='function'?TKT.en[k](...a):TKT.en[k]); return typeof v==='function'?v(...a):v; };
+const tkCat=c=>(TK_CATS[c]||TK_CATS.other)[invLang()==='en'?1:0];
+const tkKind=k=>(TK_KINDS[k]||TK_KINDS.regular)[invLang()==='en'?1:0];
+const tkLocale=()=>invLang()==='en'?'en-GB':'sw-TZ';
+const tkMoney=n=>'TSh '+Number(n||0).toLocaleString('en-US');
+const tkDate=(iso,opt)=>{ try{ return new Date(iso).toLocaleString(tkLocale(),Object.assign({timeZone:TK_TZ},opt||{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})); }catch(e){ return ''; } };
+const tkDay=iso=>tkDate(iso,{weekday:'short',day:'numeric',month:'short'});
+const tkTime=iso=>tkDate(iso,{hour:'2-digit',minute:'2-digit'});
+const tkMapUrl=ev=>{ const u=safeUrl(ev.maps_url||''); if(u) return u; const q=[ev.venue,ev.address].filter(Boolean).join(', '); return q?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q):''; };
+const TP=window.TP={view:'list',f:{q:'',cat:'',date:'',price:''},events:null,state:'loading',err:'',ev:null,qty:{},buyer:{name:'',email:'',phone:''},att:false,names:[],idem:'',busy:false,msg:'',preview:false,order:null,seq:0,timer:null};
+const tkNewIdem=()=>{ try{ return 'ck-'+crypto.randomUUID().replace(/-/g,''); }catch(e){ return 'ck-'+Date.now().toString(36)+Math.random().toString(36).slice(2,12)+Math.random().toString(36).slice(2,10); } };
+const tkSaved=()=>{ try{ return JSON.parse(localStorage.getItem('sherehe_tk_orders')||'[]').filter(x=>x&&x.ref&&x.secret).slice(0,30); }catch(e){ return []; } };
+const tkSaveOrder=(ref,secret,title)=>{ try{ const l=tkSaved().filter(x=>x.ref!==ref); l.unshift({ref,secret,title:title||'',t:Date.now()}); localStorage.setItem('sherehe_tk_orders',JSON.stringify(l.slice(0,30))); }catch(e){} };
+
+function tkHost(){ let h=$('tkPublic'); if(!h){ h=document.createElement('div'); h.id='tkPublic'; h.className='co-public tk-public'; document.body.appendChild(h); } return h; }
+window.tkHidePublic=function(){ const h=$('tkPublic'); if(h){ h.style.display='none'; h.innerHTML=''; } clearTimeout(TP.timer); document.body.classList.remove('tk-print'); };
+window.tkGo=function(hash){ if(location.hash===hash) tkRoute(); else location.hash=hash; };
+function tkInit(){
+  document.body.classList.add('invite-mode'); $('authScreen').style.display='none'; $('publicRsvp').style.display='none'; if($('galleryPage')) $('galleryPage').style.display='none';
+  const c=$('coPublic'); if(c){ c.style.display='none'; c.innerHTML=''; }
+  hideSplash(); document.documentElement.lang=invLang();
+  if(!supabaseClient){ try{ initSupabaseAuth(); }catch(e){} }
+}
+window.tkRoute=function(){
+  const h=location.hash;
+  tkInit(); document.body.classList.remove('tk-print'); TP.preview=false;
+  let m;
+  if((m=h.match(/^#tk-event=([^&]+)/))){ tkpEventLoad(decodeURIComponent(m[1])); return true; }
+  if((m=h.match(/^#tk-order=([A-Za-z0-9-]+)\.([A-Za-z0-9]+)/))){ tkpOrderLoad(m[1],m[2]); return true; }
+  if(/^#tk-find/.test(h)){ TP.view='find'; TP.order=null; tkpRender(); return true; }
+  TP.view='list'; tkpRender(); tkpListLoad(); return true;
+};
+window.tkLang=function(l){ setInviteLang(l); document.documentElement.lang=l; tkpRender(); if(TP.view==='list') tkpGrid(); };
+/* setInviteLang re-renders the invitation page; make it harmless while a ticket page is open */
+(function(){ const o=window.setInviteLang; window.setInviteLang=function(l){ if($('tkPublic')&&$('tkPublic').style.display!=='none'&&$('tkPublic').innerHTML){ if(l!=='sw'&&l!=='en') return; window.__invLang=l; try{ localStorage.setItem('sherehe_lang',l); }catch(e){} document.documentElement.lang=l; if(window.setLang&&window.currentLang&&window.currentLang()!==l&&!window.__langSync){ window.__langSync=true; try{ window.setLang(l); }finally{ window.__langSync=false; } } tkpRender(); if(TP.view==='list') tkpGrid(); return; } return o.apply(this,arguments); }; })();
+
+function tkTop(){
+  const L=invLang();
+  return `<div class="tk-top"><a class="tk-brand" href="#tickets" onclick="tkGo('#tickets');return false"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span><span class="brand-word">SHEREHE <b>${tkt('brand')}</b></span></a>
+    <div class="tk-top-r"><button type="button" class="tk-link" onclick="tkGo('#tk-find')">${ic('qr')}<span>${tkt('find')}</span></button>
+    <div class="lang-switch" role="group" aria-label="${tkt('lang')}"><button type="button" class="${L==='sw'?'on':''}" onclick="tkLang('sw')">SW</button><button type="button" class="${L==='en'?'on':''}" onclick="tkLang('en')">EN</button></div>
+    <button type="button" class="tk-link" onclick="tkLeave()">${tkt('login')}</button></div></div>`;
+}
+window.tkLeave=function(){ tkHidePublic(); history.replaceState(null,'',location.pathname+location.search); document.body.classList.remove('invite-mode'); if(!currentSupabaseUser) $('authScreen').style.display='flex'; else if(window.doRefresh) doRefresh(); };
+function tkFoot(){ return `<footer class="tk-foot"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span> ${tkt('foot')} · <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${tkt('privacy')}</a> · <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${tkt('terms')}</a></footer>`; }
+function tkMsg(h,p,btn){ return `<div class="tk-msg"><h2>${E(h)}</h2><p>${E(p||'')}</p>${btn||''}</div>`; }
+
+/* ---------- marketplace ---------- */
+function tkRange(k){
+  const today=new Date(Date.now()+3*3600e3), iso=d=>d.toISOString().slice(0,10);
+  if(k==='today') return [iso(today),iso(today)];
+  if(k==='week'){ const e=new Date(today.getTime()+6*86400e3); return [iso(today),iso(e)]; }
+  if(k==='month'){ const e=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth()+1,0)); return [iso(today),iso(e)]; }
+  return [null,null];
+}
+function tkPrice(k){ return k==='free'?[null,0]:k==='u20'?[null,20000]:k==='o20'?[20001,null]:[null,null]; }
+async function tkpListLoad(){
+  const my=++TP.seq; TP.state='loading'; tkpGrid();
+  try{
+    const f=TP.f, rg=tkRange(f.date), pr=tkPrice(f.price);
+    const r=await supabaseClient.rpc('tk_list_public_events',{p_q:f.q||null,p_category:f.cat||null,p_from:rg[0],p_to:rg[1],p_min:pr[0],p_max:pr[1]});
+    if(my!==TP.seq) return; if(r.error) throw r.error;
+    TP.events=r.data||[]; TP.state='ready';
+  }catch(e){ if(my!==TP.seq) return; TP.state='error'; TP.err=(!navigator.onLine)?(invLang()==='en'?'You are offline.':'Huna mtandao.'):(e.message||String(e)); }
+  tkpGrid();
+}
+function tkCard(e){
+  const img=safeUrl(e.poster_url||''), so=e.sold_out;
+  const price=so?`<span class="tk-badge bad">${tkt('sold_out')}</span>`:(Number(e.max_price)===0?`<b class="tk-price">${tkt('free')}</b>`:`<span class="tk-from">${tkt('from')}</span> <b class="tk-price">${tkMoney(e.min_price)}</b>`);
+  return `<a class="tk-card${so?' is-out':''}" href="#tk-event=${E(e.id)}" onclick="tkGo('#tk-event=${E(e.id)}');return false">
+    <div class="tk-cimg">${img?`<img loading="lazy" decoding="async" src="${E(img)}" alt="${E(e.title)}">`:`<span class="tk-noimg">${ic('calendar')}</span>`}<span class="tk-date"><b>${E(tkDay(e.starts_at))}</b>${E(tkTime(e.starts_at))}</span></div>
+    <div class="tk-cbody"><span class="tk-cat">${E(tkCat(e.category))}</span><h3>${E(e.title)}</h3><p class="tk-vn">${ic('pin')}${E(e.venue)}</p><div class="tk-cfoot"><span>${price}</span><span class="tk-org">${tkt('by')} ${E(e.organizer||'')}</span></div></div></a>`;
+}
+window.tkpGrid=function(){
+  const g=$('tkGrid'); if(!g) return;
+  if(TP.state==='loading'&&!TP.events){ g.innerHTML=`<p class="tk-note">${tkt('loading')}</p>`; return; }
+  if(TP.state==='error'){ g.innerHTML=tkMsg(tkt('err_h'),TP.err,`<button class="primary" onclick="tkpListLoad()">${tkt('retry')}</button>`); return; }
+  const l=TP.events||[]; g.classList.toggle('is-loading',TP.state==='loading');
+  g.innerHTML=l.length?l.map(tkCard).join(''):tkMsg(tkt('none_h'),tkt('none_p'));
+};
+function tkFilters(){
+  const f=TP.f, chip=(v,t)=>`<button type="button" class="tk-chip${f.cat===v?' on':''}" onclick="tkSet('cat',${jq(v)})">${E(t)}</button>`;
+  const sel=(k,opts)=>`<select aria-label="${k}" onchange="tkSet('${k}',this.value)">${opts.map(([v,t])=>`<option value="${v}"${f[k]===v?' selected':''}>${E(t)}</option>`).join('')}</select>`;
+  return `<div class="tk-filters"><div class="tk-search">${ic('search')}<input type="search" id="tkQ" placeholder="${E(tkt('search'))}" value="${E(f.q)}" oninput="tkQ(this.value)" autocomplete="off"></div>
+    <div class="tk-chips">${chip('',tkt('all'))}${Object.keys(TK_CATS).map(c=>chip(c,tkCat(c))).join('')}</div>
+    <div class="tk-sels">${sel('date',[['',tkt('d_all')],['today',tkt('d_today')],['week',tkt('d_week')],['month',tkt('d_month')]])}${sel('price',[['',tkt('p_all')],['free',tkt('p_free')],['u20',tkt('p_u20')],['o20',tkt('p_o20')]])}</div></div>`;
+}
+window.tkSet=function(k,v){ TP.f[k]=v; tkpRender(); tkpListLoad(); };
+window.tkQ=function(v){ TP.f.q=v; clearTimeout(TP.timer); TP.timer=setTimeout(tkpListLoad,350); };
+
+/* ---------- event page ---------- */
+async function tkpEventLoad(id){
+  TP.view='event'; TP.ev=null; TP.state='loading'; TP.qty={}; TP.msg=''; TP.busy=false; TP.idem=tkNewIdem(); TP.att=false; TP.names=[]; tkpRender();
+  if(!TK_UUID_RX.test(id)){ TP.state='missing'; tkpRender(); return; }
+  try{
+    const r=await supabaseClient.rpc('tk_get_public_event',{p_id:id}); if(r.error) throw r.error;
+    if(!r.data) TP.state='missing'; else { TP.ev=r.data; TP.state='ready'; try{ document.title=r.data.title+' — SHEREHE HUB'; }catch(e){} }
+  }catch(e){ TP.state='error'; TP.err=e.message||String(e); }
+  tkpRender();
+}
+function tkCalc(){
+  const ev=TP.ev; let sub=0,n=0; (ev.types||[]).forEach(t=>{ const q=TP.qty[t.id]||0; sub+=q*Number(t.price_tzs); n+=q; });
+  const fee=sub>0?Math.round(sub*Number(ev.fee_pct||0)/100):0, tax=sub>0?Math.round((sub+fee)*Number(ev.tax_pct||0)/100):0;
+  return {sub,n,fee,tax,total:sub+fee+tax};
+}
+function tkSalesBanner(ev){
+  if(ev.status==='cancelled') return `<div class="tk-banner bad">${tkt('ev_cancelled')}</div>`;
+  if(ev.sales_state==='ended') return `<div class="tk-banner">${tkt('ev_ended')}</div>`;
+  if(ev.sales_state==='not_started') return `<div class="tk-banner warn">${tkt('state_not_started')}${ev.sales_open_at?': '+E(tkDate(ev.sales_open_at)):''}</div>`;
+  if(ev.sales_state==='closed') return `<div class="tk-banner">${tkt('state_closed')}</div>`;
+  return '';
+}
+function tkTypeRow(t,canBuy){
+  const q=TP.qty[t.id]||0, st=t.state, ok=canBuy&&st==='on_sale', max=Math.min(t.max_per_order,t.available);
+  const badge=st==='sold_out'?`<span class="tk-badge bad">${tkt('state_sold_out')}</span>`:st==='not_started'?`<span class="tk-badge">${tkt('state_not_started')}</span>`:st==='ended'?`<span class="tk-badge">${tkt('state_ended')}</span>`:(t.available<=10?`<span class="tk-badge warn">${tkt('qty_left',t.available)}</span>`:'');
+  return `<div class="tk-type${ok?'':' off'}"><div class="tk-tinfo"><b>${E(t.name)}</b> <span class="tk-kind">${E(tkKind(t.kind))}</span> ${badge}
+    ${t.description?`<p>${E(t.description)}</p>`:''}${t.admits>1?`<small>${tkt('admits',t.admits)}</small>`:''}</div>
+    <div class="tk-tbuy"><b class="tk-tprice">${Number(t.price_tzs)===0?tkt('free'):tkMoney(t.price_tzs)}</b>
+    <div class="tk-step" role="group" aria-label="${E(t.name)}"><button type="button" aria-label="−" ${(!ok||q<=0)?'disabled':''} onclick="tkQty(${jq(t.id)},-1)">−</button><output>${q}</output><button type="button" aria-label="+" ${(!ok||q>=max)?'disabled':''} onclick="tkQty(${jq(t.id)},1)">+</button></div></div></div>`;
+}
+window.tkQty=function(id,d){
+  const t=(TP.ev.types||[]).find(x=>x.id===id); if(!t) return;
+  const max=Math.min(t.max_per_order,t.available); TP.qty[id]=Math.max(0,Math.min(max,(TP.qty[id]||0)+d)); TP.idem=tkNewIdem(); TP.msg='';
+  tkpBuy(); const el=$('tkTypes'); if(el) el.innerHTML=(TP.ev.types||[]).map(x=>tkTypeRow(x,tkCanBuy())).join('');
+};
+const tkCanBuy=()=>{ const ev=TP.ev; return !!ev&&ev.status==='published'&&ev.sales_state==='open'; };
+function tkpBuy(){
+  const box=$('tkBuy'); if(!box||!TP.ev) return;
+  const ev=TP.ev, c=tkCalc(), canBuy=tkCanBuy(), payOff=c.total>0&&!ev.payments_enabled, b=TP.buyer;
+  while(TP.names.length<c.n) TP.names.push(''); TP.names.length=c.n;
+  const rows=c.n?`<div class="tk-sum">${(ev.types||[]).filter(t=>TP.qty[t.id]).map(t=>`<div><span>${TP.qty[t.id]} × ${E(t.name)}</span><b>${Number(t.price_tzs)===0?tkt('free'):tkMoney(TP.qty[t.id]*t.price_tzs)}</b></div>`).join('')}
+    ${c.sub>0?`<div class="sub"><span>${tkt('subtotal')}</span><span>${tkMoney(c.sub)}</span></div>${c.fee?`<div class="sub"><span>${tkt('fee',Number(ev.fee_pct))}</span><span>${tkMoney(c.fee)}</span></div>`:''}${c.tax?`<div class="sub"><span>${tkt('tax',Number(ev.tax_pct))}</span><span>${tkMoney(c.tax)}</span></div>`:''}`:''}
+    <div class="tot"><span>${tkt('total')}</span><b>${c.total>0?tkMoney(c.total):tkt('free')}</b></div></div>`:`<p class="tk-note">${tkt('empty_cart')}</p>`;
+  const attBox=c.n>1?`<label class="tk-chk"><input type="checkbox" ${TP.att?'checked':''} onchange="tkAtt(this.checked)"> ${tkt('att_on')}</label>${TP.att?`<div class="tk-names">${TP.names.map((v,i)=>`<input type="text" maxlength="80" value="${E(v)}" placeholder="${E(tkt('att_ph',i+1))}" oninput="TP.names[${i}]=this.value">`).join('')}</div>`:''}`:'';
+  box.innerHTML=`<h3>${tkt('your')}</h3>
+    <label for="tkName">${tkt('name')}</label><input id="tkName" type="text" maxlength="80" autocomplete="name" value="${E(b.name)}" oninput="TP.buyer.name=this.value">
+    <label for="tkEmail">${tkt('email')}</label><input id="tkEmail" type="email" autocomplete="email" value="${E(b.email)}" oninput="TP.buyer.email=this.value">
+    <label for="tkPhone">${tkt('phone')}</label><input id="tkPhone" type="tel" autocomplete="tel" placeholder="0712 345 678" value="${E(b.phone)}" oninput="TP.buyer.phone=this.value">
+    <p class="tk-note sm">${tkt('contact_note')}</p>${attBox}
+    <h3 style="margin-top:18px">${tkt('summary')}</h3>${rows}
+    ${payOff?`<div class="tk-banner warn"><b>${tkt('pay_off')}</b><br>${tkt('pay_off_p')}</div>`:''}
+    ${TP.msg?`<div class="tk-banner bad" role="alert">${E(TP.msg)}</div>`:''}
+    <button type="button" class="primary tk-go" ${(!canBuy||!c.n||payOff||TP.busy||TP.preview)?'disabled':''} onclick="tkSubmit()">${TP.busy?tkt('placing'):(TP.preview?tkt('prev_buy'):tkt('get_free'))}</button>
+    <p class="tk-note sm">${tkt('terms_p')} <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${tkt('terms')}</a> ${tkt('and')} <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${tkt('privacy')}</a>.</p>`;
+}
+window.tkAtt=function(on){ TP.att=on; tkpBuy(); };
+window.tkSubmit=async function(){
+  if(TP.busy||TP.preview) return; const ev=TP.ev, c=tkCalc();
+  const items=(ev.types||[]).filter(t=>TP.qty[t.id]>0).map(t=>({type_id:t.id,qty:TP.qty[t.id]})); if(!items.length) return;
+  TP.busy=true; TP.msg=''; tkpBuy();
+  try{
+    const r=await supabaseClient.rpc('tk_create_order',{p_event:ev.id,p_items:items,p_name:TP.buyer.name,p_email:TP.buyer.email||null,p_phone:TP.buyer.phone||null,p_idem:TP.idem,p_attendees:(TP.att&&c.n>1)?TP.names:null});
+    if(r.error) throw r.error; const d=r.data||{};
+    if(!d.ok){ TP.busy=false; TP.msg=tkt('e_'+(d.error||'unknown')); if(TP.msg==='e_'+d.error) TP.msg=tkt('e_unknown'); if(d.error==='sold_out'){ tkpEventRefresh(); } tkpBuy(); return; }
+    tkSaveOrder(d.ref,d.secret,ev.title); TP.busy=false; location.hash='#tk-order='+d.ref+'.'+d.secret;
+  }catch(e){ TP.busy=false; TP.msg=(!navigator.onLine)?(invLang()==='en'?'You are offline. Your order was not placed.':'Huna mtandao. Oda haijatumwa.'):tkt('e_unknown'); tkpBuy(); }
+};
+async function tkpEventRefresh(){ try{ const r=await supabaseClient.rpc('tk_get_public_event',{p_id:TP.ev.id}); if(r.data){ TP.ev=r.data; Object.keys(TP.qty).forEach(k=>{ const t=r.data.types.find(x=>x.id===k); if(!t) delete TP.qty[k]; else TP.qty[k]=Math.min(TP.qty[k],t.available,t.max_per_order); }); const el=$('tkTypes'); if(el) el.innerHTML=(TP.ev.types||[]).map(x=>tkTypeRow(x,tkCanBuy())).join(''); tkpBuy(); } }catch(e){} }
+window.tkShare=async function(){
+  const u=location.origin+location.pathname+'#tk-event='+TP.ev.id;
+  try{ if(navigator.share){ await navigator.share({title:TP.ev.title,url:u}); return; } }catch(e){ return; }
+  try{ await navigator.clipboard.writeText(u); toast(tkt('copied')); }catch(e){ prompt('',u); }
+};
+window.tkPreview=function(data){ tkInit(); TP.view='event'; TP.ev=data; TP.state='ready'; TP.preview=true; TP.qty={}; TP.msg=''; TP.att=false; TP.names=[]; tkpRender(); window.scrollTo(0,0); const h=$('tkPublic'); if(h) h.scrollTop=0; };
+window.tkClosePreview=function(){ TP.preview=false; tkHidePublic(); document.body.classList.remove('invite-mode'); if(window.doRefresh) doRefresh(); };
+function tkEventHtml(){
+  const ev=TP.ev, img=safeUrl(ev.poster_url||''), map=tkMapUrl(ev), canBuy=tkCanBuy();
+  return `${TP.preview?`<div class="tk-prevbar"><span>${tkt('preview_note')}</span><button type="button" onclick="tkClosePreview()">${tkt('exit_prev')}</button></div>`:''}
+  ${tkTop()}<main class="tk-wrap">
+    ${TP.preview?'':`<a class="tk-back" href="#tickets" onclick="tkGo('#tickets');return false">${tkt('back')}</a>`}
+    ${tkSalesBanner(ev)}
+    <div class="tk-evgrid"><div class="tk-evmain">
+      <div class="tk-poster">${img?`<img src="${E(img)}" alt="${E(ev.title)}">`:`<span class="tk-noimg">${ic('calendar')}</span>`}</div>
+      <span class="tk-cat">${E(tkCat(ev.category))}</span><h1>${E(ev.title)}</h1>
+      <ul class="tk-facts"><li>${ic('calendar')}<div><small>${tkt('date')}</small><b>${E(tkDate(ev.starts_at))}</b>${ev.ends_at?`<span> → ${E(tkDate(ev.ends_at,{hour:'2-digit',minute:'2-digit'}))}</span>`:''}</div></li>
+        <li>${ic('pin')}<div><small>${tkt('venue')}</small><b>${E(ev.venue)}</b>${ev.address?`<span>${E(ev.address)}</span>`:''}${map?`<a href="${E(map)}" target="_blank" rel="noopener">${tkt('map')} ↗</a>`:''}</div></li>
+        <li>${ic('user')}<div><small>${tkt('organizer')}</small><b>${E(ev.organizer||'')}</b></div></li></ul>
+      <div class="tk-share"><button type="button" class="gray" onclick="tkShare()">${ic('external')}${tkt('share')}</button></div>
+      ${ev.description?`<h3>${tkt('about')}</h3><p class="tk-desc">${E(ev.description)}</p>`:''}
+      ${ev.refund_policy?`<h3>${tkt('refund')}</h3><p class="tk-desc">${E(ev.refund_policy)}</p>`:''}
+    </div>
+    <aside class="tk-buybox"><h3>${tkt('tickets')}</h3><div id="tkTypes">${(ev.types||[]).map(t=>tkTypeRow(t,canBuy)).join('')}</div><div id="tkBuy" class="tk-buy"></div></aside></div>
+  </main>${tkFoot()}`;
+}
+
+/* ---------- order + e-tickets ---------- */
+async function tkpOrderLoad(ref,secret){
+  TP.view='order'; TP.order=null; TP.state='loading'; TP.cred={ref,secret}; tkpRender();
+  try{
+    const r=await supabaseClient.rpc('tk_get_order',{p_ref:ref,p_secret:secret}); if(r.error) throw r.error;
+    if(!r.data||!r.data.ok){ TP.state=(r.data&&r.data.error==='rate_limited')?'rate':'missing'; } else { TP.order=r.data.order; TP.state='ready'; try{ document.title=r.data.order.event.title+' — '+tkt('t_no'); }catch(e){} }
+  }catch(e){ TP.state='error'; TP.err=e.message||String(e); }
+  tkpRender();
+}
+const tkStatusLbl=s=>({free_confirmed:'o_ok',paid:'o_ok',pending_payment:'o_pending',cancelled:'o_cancelled',expired:'o_expired',refunded:'o_refunded'}[s]||'o_ok');
+const tkTStatus=s=>({valid:'t_valid',used:'t_used',cancelled:'t_cancelled',refunded:'t_refunded'}[s]||'t_valid');
+function tkTicketHtml(o,t,i){
+  const ev=o.event, live=t.status==='valid', img=safeUrl(ev.poster_url||'');
+  return `<article class="tk-tkt${live?'':' dead'}"><div class="tk-tl"><div class="tk-tbrand"><span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span><b>SHEREHE HUB</b><span class="tk-st ${live?'ok':t.status==='used'?'info':'bad'}">${tkt(tkTStatus(t.status))}</span></div>
+      ${img?`<div class="tk-tposter"><img src="${E(img)}" alt=""></div>`:''}
+      <h3>${E(ev.title)}</h3>
+      <dl><div><dt>${tkt('date')}</dt><dd>${E(tkDate(ev.starts_at))}</dd></div><div><dt>${tkt('venue')}</dt><dd>${E(ev.venue)}</dd></div>
+      <div><dt>${tkt('t_type')}</dt><dd>${E(t.type)}${t.admits>1?' · '+tkt('admits',t.admits):''}</dd></div>${t.attendee_name?`<div><dt>${tkt('t_holder')}</dt><dd>${E(t.attendee_name)}</dd></div>`:''}
+      <div><dt>${tkt('t_no')}</dt><dd class="mono">${E(t.number)}</dd></div><div><dt>${tkt('o_ref')}</dt><dd class="mono">${E(o.ref)}</dd></div></dl></div>
+    <div class="tk-tr">${t.qr?`<div class="tk-qr" data-qr="${E(t.qr)}"></div>`:`<div class="tk-qr dead"></div>`}<p>${live?tkt('enter_p'):''}</p>
+      <div class="tk-tact no-print">${t.qr?`<button type="button" class="gray sm" onclick="tkDownload(${i},this)">${ic('download')}${tkt('dl')}</button>`:''}</div></div></article>`;
+}
+function tkOrderHtml(){
+  const o=TP.order, live=o.status==='paid'||o.status==='free_confirmed', link=location.origin+location.pathname+'#tk-order='+(TP.cred?TP.cred.ref+'.'+TP.cred.secret:'');
+  return `${tkTop()}<main class="tk-wrap tk-orderwrap">
+    <div class="tk-ohead"><div><h1>${tkt('o_h')}</h1><p>${tkt('o_ref')}: <b class="mono">${E(o.ref)}</b></p></div><span class="tk-st ${live?'ok':o.status==='pending_payment'?'warn':'bad'}">${tkt(tkStatusLbl(o.status))}</span></div>
+    ${TP.cred?`<div class="tk-banner no-print">${tkt('o_save')}<div class="tk-linkrow"><input readonly value="${E(link)}" onclick="this.select()"><button type="button" class="gray sm" onclick="tkCopy(${jq(link)})">${ic('copy')}${tkt('copy_link')}</button></div></div>`:''}
+    ${live&&o.tickets.length?`<div class="tk-oact no-print"><button type="button" class="primary" onclick="tkDownloadAll(this)">${ic('download')}${tkt('dl_all')}</button><button type="button" class="gray" onclick="window.print()">${ic('download')}${tkt('print')}</button></div>`:''}
+    ${o.status==='pending_payment'?`<div class="tk-banner warn">${tkt('o_pending')}</div>`:''}
+    <div class="tk-tickets">${o.tickets.map((t,i)=>tkTicketHtml(o,t,i)).join('')}</div>
+  </main>${tkFoot()}`;
+}
+window.tkCopy=async function(t){ try{ await navigator.clipboard.writeText(t); toast(tkt('copied')); }catch(e){ prompt('',t); } };
+function tkMakeQr(text,size){
+  return new Promise(res=>{
+    const d=document.createElement('div'); d.style.cssText='position:fixed;left:-9999px;top:0'; document.body.appendChild(d);
+    try{ new QRCode(d,{text,width:size,height:size,correctLevel:QRCode.CorrectLevel.M}); }catch(e){ d.remove(); res(null); return; }
+    setTimeout(()=>{ const c=d.querySelector('canvas'), im=d.querySelector('img'); let out=null; if(c&&c.width){ out=document.createElement('canvas'); out.width=c.width; out.height=c.height; out.getContext('2d').drawImage(c,0,0); } else if(im&&im.src) out=im; setTimeout(()=>d.remove(),50); res(out); },30);
+  });
+}
+function tkLoadImg(u){ return new Promise(res=>{ if(!u){ res(null); return; } const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>res(im); im.onerror=()=>res(null); im.src=u; }); }
+function tkWrap(ctx,text,x,y,w,lh){
+  const words=String(text).split(/\s+/); let line='',n=0;
+  for(const wd of words){ const t=line?line+' '+wd:wd; if(ctx.measureText(t).width>w&&line){ ctx.fillText(line,x,y); y+=lh; line=wd; n++; } else line=t; }
+  if(line) ctx.fillText(line,x,y); return y+lh;
+}
+async function tkTicketCanvas(o,t){
+  const ev=o.event, W=900, H=1480, c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+  x.fillStyle='#ffffff'; x.fillRect(0,0,W,H); x.fillStyle='#1d2f7a'; x.fillRect(0,0,W,120);
+  x.fillStyle='#ffc933'; x.font='700 40px Poppins,Arial,sans-serif'; x.textBaseline='middle'; x.fillText('SHEREHE HUB',40,60);
+  x.fillStyle='#ffffff'; x.font='600 26px Poppins,Arial,sans-serif'; x.textAlign='right'; x.fillText((invLang()==='en'?'E-TICKET':'TIKETI'),W-40,60); x.textAlign='left'; x.textBaseline='alphabetic';
+  let y=120; const im=await tkLoadImg(safeUrl(ev.poster_url||''));
+  if(im){ const ph=420, r=Math.max(W/im.width,ph/im.height), sw=W/r, sh=ph/r; x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,y,W,ph); y+=ph; }
+  y+=60; x.fillStyle='#1b2336'; x.font='700 44px Poppins,Arial,sans-serif'; y=tkWrap(x,ev.title,40,y,W-80,54,2);
+  const rows=[[tkt('date'),tkDate(ev.starts_at)],[tkt('venue'),ev.venue],[tkt('t_type'),t.type+(t.admits>1?' · '+tkt('admits',t.admits):'')]];
+  if(t.attendee_name) rows.push([tkt('t_holder'),t.attendee_name]); rows.push([tkt('t_no'),t.number+'   ·   '+o.ref]);
+  y+=8; rows.forEach(([k,v])=>{ x.fillStyle='#5f6b82'; x.font='500 22px Poppins,Arial,sans-serif'; x.fillText(k.toUpperCase(),40,y); y+=32; x.fillStyle='#1b2336'; x.font='600 28px Poppins,Arial,sans-serif'; y=tkWrap(x,v,40,y,W-80,36,2)+8; });
+  const qs=520, qx=(W-qs)/2, qy=Math.max(y+10,H-qs-170);
+  x.strokeStyle='#dde3ec'; x.setLineDash([10,8]); x.lineWidth=2; x.beginPath(); x.moveTo(30,qy-24); x.lineTo(W-30,qy-24); x.stroke(); x.setLineDash([]);
+  const q=await tkMakeQr(t.qr,qs); if(q) x.drawImage(q,qx,qy,qs,qs);
+  x.textAlign='center'; x.fillStyle='#5f6b82'; x.font='500 22px Poppins,Arial,sans-serif'; x.fillText(tkt('enter_p').slice(0,70),W/2,qy+qs+44); x.fillText(tkt('enter_p').slice(70,150),W/2,qy+qs+74);
+  return c;
+}
+window.tkDownload=async function(i,btn){
+  const o=TP.order, t=o&&o.tickets[i]; if(!t||!t.qr) return; const old=btn&&btn.innerHTML; if(btn){ btn.disabled=true; btn.textContent=tkt('dl_busy'); }
+  try{ const c=await tkTicketCanvas(o,t); const b=await new Promise(r=>c.toBlob(r,'image/png')); if(!b) throw 0; downloadBlobFile(b,'Tiketi-'+t.number+'.png'); }catch(e){ toast(tkt('dl_fail')); }
+  if(btn){ btn.disabled=false; btn.innerHTML=old; }
+};
+window.tkDownloadAll=async function(btn){
+  const o=TP.order; if(!o) return; const old=btn.innerHTML; btn.disabled=true; btn.textContent=tkt('dl_busy');
+  try{ for(let i=0;i<o.tickets.length;i++){ const t=o.tickets[i]; if(!t.qr) continue; const c=await tkTicketCanvas(o,t); const b=await new Promise(r=>c.toBlob(r,'image/png')); if(b) downloadBlobFile(b,'Tiketi-'+t.number+'.png'); await new Promise(r=>setTimeout(r,350)); } }catch(e){ toast(tkt('dl_fail')); }
+  btn.disabled=false; btn.innerHTML=old;
+};
+function tkFindHtml(){
+  const sv=tkSaved();
+  return `${tkTop()}<main class="tk-wrap tk-narrow"><a class="tk-back" href="#tickets" onclick="tkGo('#tickets');return false">${tkt('back')}</a>
+    <div class="tk-panel"><h1>${tkt('f_h')}</h1><p class="tk-note">${tkt('f_p')}</p>
+    <label for="tkFRef">${tkt('f_ref')}</label><input id="tkFRef" type="text" maxlength="20" placeholder="SH-XXXXXXXXXX" autocapitalize="characters" value="${E(TP.fref||'')}">
+    <label for="tkFC">${tkt('f_contact')}</label><input id="tkFC" type="text" maxlength="80" value="${E(TP.fc||'')}">
+    ${TP.msg?`<div class="tk-banner bad" role="alert">${E(TP.msg)}</div>`:''}
+    <button type="button" class="primary tk-go" onclick="tkFind()">${tkt('f_go')}</button></div>
+    <div class="tk-panel"><h3>${tkt('f_saved')}</h3>${sv.length?sv.map(x=>`<a class="tk-saved" href="#tk-order=${E(x.ref)}.${E(x.secret)}" onclick="tkGo('#tk-order=${E(x.ref)}.${E(x.secret)}');return false"><b class="mono">${E(x.ref)}</b><span>${E(x.title||'')}</span></a>`).join(''):`<p class="tk-note">${tkt('f_none')}</p>`}</div></main>${tkFoot()}`;
+}
+window.tkFind=async function(){
+  TP.fref=$('tkFRef').value; TP.fc=$('tkFC').value; TP.msg='';
+  try{
+    const r=await supabaseClient.rpc('tk_find_order',{p_ref:TP.fref,p_contact:TP.fc}); if(r.error) throw r.error;
+    if(!r.data||!r.data.ok){ TP.msg=r.data&&r.data.error==='rate_limited'?tkt('e_rate_limited'):tkt('o_nf_p'); tkpRender(); return; }
+    TP.order=r.data.order; TP.cred=null; TP.view='order'; TP.state='ready'; tkpRender();
+  }catch(e){ TP.msg=tkt('e_unknown'); tkpRender(); }
+};
+
+/* ---------- shell ---------- */
+window.tkpRender=function(){
+  const h=tkHost(); h.style.display='block'; const v=TP.view;
+  if(v==='list'){
+    const first=!$('tkGrid');
+    h.innerHTML=`${tkTop()}<header class="tk-hero"><div><h1>${tkt('hero_h')}</h1><p>${tkt('hero_p')}</p></div></header><main class="tk-wrap">${tkFilters()}<div class="tk-grid" id="tkGrid"></div></main>${tkFoot()}`;
+    tkpGrid(); return;
+  }
+  document.body.classList.toggle('tk-print',v==='order');
+  if(v==='find'){ h.innerHTML=tkFindHtml(); return; }
+  const st=TP.state;
+  if(st!=='ready'){
+    h.innerHTML=`${tkTop()}<main class="tk-wrap">${st==='loading'?`<p class="tk-note">${tkt(v==='order'?'o_loading':'loading')}</p>`:st==='missing'?tkMsg(tkt('o_nf_h'),tkt('o_nf_p'),`<button class="primary" onclick="tkGo('#tk-find')">${tkt('find')}</button>`):st==='rate'?tkMsg(tkt('e_rate_limited')):tkMsg(tkt('err_h'),TP.err,`<button class="primary" onclick="tkRoute()">${tkt('retry')}</button>`)}</main>${tkFoot()}`;
+    return;
+  }
+  if(v==='event'){ h.innerHTML=tkEventHtml(); tkpBuy(); return; }
+  if(v==='order'){ h.innerHTML=tkOrderHtml(); h.querySelectorAll('[data-qr]').forEach(el=>{ try{ new QRCode(el,{text:el.dataset.qr,width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} }); window.scrollTo(0,0); h.scrollTop=0; }
+};
+
+/* =========================================================================
+   V113 — Ticketing (inside the app): organizer dashboard, ticket types, sales, scanner, admin.
+   Rights are enforced by the database (row level security + server functions); the buttons here only follow them.
+   ========================================================================= */
+const TA_BUCKET='ticket-posters';
+const A_=(sw,en)=>invLang()==='en'?en:sw;
+const TKA=window.TKA={me:undefined,events:[],cur:null,tab:'events',sub:'overview',stats:null,types:[],orders:[],att:[],staff:[],form:null,tform:null,err:'',busy:false,loaded:false,
+  scan:{ev:null,live:null,res:null,q:'',results:[],busy:false,last:'',lastAt:0,cam:null,camOn:false,timer:null,msg:''},admin:{orgs:[],settings:{},audit:[]},seq:0};
+const taUid=()=>currentSupabaseUser&&currentSupabaseUser.id;
+const taEv=id=>(TKA.events||[]).find(e=>e.id===id);
+const taErr=e=>{ const m=(e&&e.message)||String(e||''); if(/forbidden|permission denied|row-level/i.test(m)) return A_('Huna ruhusa ya kufanya hili.','You do not have permission to do this.'); if(!navigator.onLine) return A_('Huna mtandao.','You are offline.'); return m; };
+const taIso=v=>v?new Date(v+':00+03:00').toISOString():null;                       /* datetime-local is Dar es Salaam time */
+const taLocal=iso=>iso?new Date(new Date(iso).getTime()+3*3600e3).toISOString().slice(0,16):'';
+const taMoney=n=>'TSh '+Number(n||0).toLocaleString('en-US');
+const taStatusPill=s=>`<span class="status ${s==='published'?'ok':s==='cancelled'?'bad':'idle'}">${E(s==='published'?A_('Imechapishwa','Published'):s==='cancelled'?A_('Imeghairiwa','Cancelled'):A_('Rasimu','Draft'))}</span>`;
+const taPubLink=id=>location.origin+location.pathname+'#tk-event='+id;
+
+window.taAsk=function({title,label,ok,ph,area}){
+  return new Promise(res=>{
+    let m=$('taAsk'); if(m) m.remove(); m=document.createElement('div'); m.id='taAsk'; m.className='modal open';
+    m.innerHTML=`<div class="modal-box confirm-box"><h2>${E(title)}</h2><label for="taAskIn" style="text-align:left">${E(label)}</label>${area?`<textarea id="taAskIn" placeholder="${E(ph||'')}"></textarea>`:`<input id="taAskIn" type="text" placeholder="${E(ph||'')}">`}<div class="row" style="margin-top:18px"><button class="gray" id="taAskNo">${A_('Ghairi','Cancel')}</button><button class="primary" id="taAskYes">${E(ok||'OK')}</button></div></div>`;
+    document.body.appendChild(m); const inp=$('taAskIn'); setTimeout(()=>inp.focus(),30);
+    const done=v=>{ m.remove(); res(v); }; $('taAskNo').onclick=()=>done(null); $('taAskYes').onclick=()=>done(inp.value.trim()||null);
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!area) done(inp.value.trim()||null); if(e.key==='Escape') done(null); });
+  });
+}
+
+/* ---------- load ---------- */
+window.loadTickets=async function(){
+  if(!supabaseClient||!currentSupabaseUser) return;
+  TKA.err='';
+  try{
+    const [m,e]=await Promise.all([supabaseClient.from('tk_organizers').select('*').eq('user_id',taUid()).maybeSingle(),supabaseClient.rpc('tk_my_events')]);
+    if(m.error) throw m.error; TKA.me=m.data||null; TKA.events=e.error?[]:(e.data||[]); if(e.error) TKA.err=taErr(e.error);
+  }catch(e){ TKA.err=taErr(e); if(TKA.me===undefined) TKA.me=null; }
+  TKA.loaded=true;
+  if(TKA.cur&&!taEv(TKA.cur)) TKA.cur=null;
+  renderTickets();
+  if(TKA.cur&&TKA.tab==='events') taLoadDetail();
+};
+const taCanScan=()=>(TKA.events||[]).some(e=>e.status!=='cancelled');
+function taTabs(){
+  const t=(id,l,show=true)=>show?`<button type="button" class="${TKA.tab===id?'on':''}" onclick="taTab('${id}')">${l}</button>`:'';
+  return `<div class="co-tabs ta-tabs">${t('events',A_('Matukio yangu','My events'))}${t('scan',A_('Scanner ya mlangoni','Gate scanner'),taCanScan())}${t('admin',A_('Msimamizi (Admin)','Admin'),isAdmin)}
+    <a class="ta-pub" href="#tickets" target="_blank" rel="noopener">${ic('external')}${A_('Fungua soko la umma','Open public marketplace')}</a></div>`;
+}
+window.taTab=function(t){ TKA.tab=t; if(t!=='scan') taStopCam(); if(t==='admin') taLoadAdmin(); renderTickets(); if(t==='scan') taScanInit(); };
+window.renderTickets=function(){
+  const box=$('tkBox'); if(!box) return;
+  if(!TKA.loaded){ box.innerHTML=`<div class="empty"><b>${A_('Inapakia…','Loading…')}</b></div>`; return; }
+  const body=TKA.tab==='scan'?taScanHtml():TKA.tab==='admin'?taAdminHtml():(TKA.form?taFormHtml():TKA.cur&&taEv(TKA.cur)?taDetailHtml():taListHtml());
+  box.innerHTML=`${taTabs()}${TKA.err?`<div class="hint-box">${ic('alert')}<span>${E(TKA.err)}</span></div>`:''}${body}`;
+};
+
+/* ---------- organizer status / application ---------- */
+function taGate(){
+  const me=TKA.me;
+  if(!me) return `<div class="panel"><div class="panel-heading"><div><h2>${A_('Anza kuuza tiketi','Start selling tickets')}</h2><p>${A_('Omba kuwa mwandaaji. Admin atakuidhinisha kabla matukio yako hayajaonekana kwenye soko.','Apply to become an organizer. An admin approves you before your events appear in the marketplace.')}</p></div></div>
+    <div class="form-grid"><div class="field"><label for="taOrgName">${A_('Jina la mwandaaji / kampuni','Organizer / company name')}</label><input id="taOrgName" maxlength="80" value="${E((typeof PROFILE!=='undefined'&&PROFILE&&PROFILE.name)||'')}"></div>
+    <div class="field"><label for="taOrgPhone">${A_('Simu (WhatsApp)','Phone (WhatsApp)')}</label><input id="taOrgPhone" type="tel" value="${E((typeof PROFILE!=='undefined'&&PROFILE&&PROFILE.phone)||'')}"></div></div>
+    <div class="toolbar" style="margin-top:14px"><button class="primary" type="button" onclick="taApply(this)">${ic('send')}${A_('Tuma ombi','Send application')}</button></div></div>`;
+  if(me.status==='pending') return `<div class="panel"><div class="empty"><b>${A_('Ombi lako linakaguliwa','Your application is being reviewed')}</b>${A_('Utaweza kutengeneza matukio mara tu admin atakapoliidhinisha.','You can create events as soon as an admin approves it.')}</div></div>`;
+  if(me.status!=='approved') return `<div class="panel"><div class="empty"><b>${me.status==='suspended'?A_('Akaunti yako ya mwandaaji imesimamishwa','Your organizer account is suspended'):A_('Ombi lako halikukubaliwa','Your application was not approved')}</b>${me.note?E(me.note):A_('Wasiliana na SHEREHE HUB kwa msaada.','Contact SHEREHE HUB for help.')}</div></div>`;
+  return '';
+}
+window.taApply=async function(btn){
+  const n=$('taOrgName').value.trim(), p=$('taOrgPhone').value.trim(); if(n.length<2){ toast(A_('Weka jina (herufi 2 au zaidi).','Enter a name (2+ letters).')); return; }
+  btn.disabled=true;
+  const r=await supabaseClient.from('tk_organizers').insert({user_id:taUid(),display_name:n,phone:p||null,email:currentSupabaseUser.email||null});
+  btn.disabled=false; if(r.error){ toast(taErr(r.error)); return; }
+  toast(A_('Ombi limetumwa.','Application sent.')); loadTickets();
+};
+
+/* ---------- events list ---------- */
+function taListHtml(){
+  const gate=taGate(), ok=TKA.me&&TKA.me.status==='approved';
+  const own=(TKA.events||[]).filter(e=>e.role!=='staff');
+  const cards=own.map(e=>{
+    const img=safeUrl(e.poster_url||''), pct=e.quantity?Math.round(e.sold/e.quantity*100):0;
+    return `<button type="button" class="co-card ta-card" onclick="taOpen(${jq(e.id)})"><span class="co-thumb">${img?`<img loading="lazy" src="${E(img)}" alt="">`:`<span class="co-noimg">${ic('calendar')}</span>`}<span class="co-pill ${e.status==='published'?'on':''}">${E(e.status==='published'?A_('Imechapishwa','Published'):e.status==='cancelled'?A_('Imeghairiwa','Cancelled'):A_('Rasimu','Draft'))}</span></span>
+      <span class="co-meta"><b>${E(e.title)}</b><span>${E(tkDate(e.starts_at))}</span><span>${E(e.venue)}</span>
+      <span class="ta-bar"><i style="width:${pct}%"></i></span><span>${A_('Zimeuzwa','Sold')} ${e.sold}/${e.quantity} · ${A_('Zimeingia','Checked in')} ${e.checked_in}${e.revenue!=null?` · ${taMoney(e.revenue)}`:''}</span></span></button>`;
+  }).join('');
+  return `${gate}${ok||isAdmin&&TKA.me?`<div class="panel"><div class="panel-heading"><div><h2>${A_('Matukio yangu','My events')}</h2><p>${A_('Tengeneza tukio, ongeza aina za tiketi, chapisha na ufuatilie mauzo.','Create an event, add ticket types, publish and follow sales.')}</p></div>
+    <button class="primary" type="button" onclick="taNew()">${ic('plus')}${A_('Tukio jipya','New event')}</button></div>
+    ${cards?`<div class="co-grid">${cards}</div>`:`<div class="empty"><b>${A_('Bado hakuna tukio','No events yet')}</b>${A_('Bonyeza "Tukio jipya" kuanza.','Press "New event" to start.')}</div>`}</div>`:''}`;
+}
+window.taOpen=function(id){ TKA.cur=id; TKA.sub='overview'; TKA.stats=null; renderTickets(); taLoadDetail(); };
+window.taBack=function(){ TKA.cur=null; TKA.form=null; TKA.tform=null; renderTickets(); };
+
+/* ---------- create / edit event ---------- */
+window.taNew=function(){
+  const d=new Date(Date.now()+7*86400e3+3*3600e3); d.setUTCHours(18,0,0,0);
+  TKA.form={id:null,title:'',category:'music',venue:'',address:'',maps_url:'',starts_at:d.toISOString().slice(0,16),ends_at:'',capacity:'',sales_open_at:'',sales_close_at:'',description:'',refund_policy:'',poster_url:''};
+  renderTickets();
+};
+window.taEdit=function(){
+  taFetchFull(TKA.cur).then(f=>{ TKA.form={id:f.id,title:f.title,category:f.category,venue:f.venue,address:f.address||'',maps_url:f.maps_url||'',starts_at:taLocal(f.starts_at),ends_at:taLocal(f.ends_at),capacity:f.capacity||'',sales_open_at:taLocal(f.sales_open_at),sales_close_at:taLocal(f.sales_close_at),description:f.description||'',refund_policy:f.refund_policy||'',poster_url:f.poster_url||''}; renderTickets(); });
+};
+async function taFetchFull(id){ const r=await supabaseClient.from('tk_events').select('*').eq('id',id).single(); if(r.error){ toast(taErr(r.error)); throw r.error; } TKA.full=r.data; return r.data; }
+function taFormHtml(){
+  const f=TKA.form, v=k=>E(f[k]==null?'':f[k]);
+  return `<div class="panel"><div class="panel-heading"><div><h2>${f.id?A_('Hariri tukio','Edit event'):A_('Tukio jipya','New event')}</h2><p>${A_('Taarifa hizi ndizo wateja wataona.','Customers will see these details.')}</p></div><button class="gray" type="button" onclick="taCancelForm()">${A_('Funga','Close')}</button></div>
+    <div class="form-grid">
+      <div class="field full"><label for="tfTitle">${A_('Jina la tukio','Event title')}</label><input id="tfTitle" maxlength="140" value="${v('title')}" oninput="TKA.form.title=this.value"></div>
+      <div class="field"><label for="tfCat">${A_('Aina ya tukio','Category')}</label><select id="tfCat" onchange="TKA.form.category=this.value">${Object.keys(TK_CATS).map(c=>`<option value="${c}"${f.category===c?' selected':''}>${E(tkCat(c))}</option>`).join('')}</select></div>
+      <div class="field"><label for="tfCap">${A_('Uwezo wa ukumbi (jumla ya tiketi, hiari)','Venue capacity (total tickets, optional)')}</label><input id="tfCap" type="number" min="1" value="${v('capacity')}" oninput="TKA.form.capacity=this.value"></div>
+      <div class="field"><label for="tfVenue">${A_('Ukumbi','Venue')}</label><input id="tfVenue" maxlength="120" value="${v('venue')}" oninput="TKA.form.venue=this.value"></div>
+      <div class="field"><label for="tfAddr">${A_('Anwani / mji','Address / city')}</label><input id="tfAddr" maxlength="160" value="${v('address')}" oninput="TKA.form.address=this.value"></div>
+      <div class="field full"><label for="tfMaps">${A_('Link ya Google Maps (hiari)','Google Maps link (optional)')}</label><input id="tfMaps" type="url" placeholder="https://maps.app.goo.gl/…" value="${v('maps_url')}" oninput="TKA.form.maps_url=this.value"></div>
+      <div class="field"><label for="tfStart">${A_('Inaanza (saa za Tanzania)','Starts (Tanzania time)')}</label><input id="tfStart" type="datetime-local" value="${v('starts_at')}" oninput="TKA.form.starts_at=this.value"></div>
+      <div class="field"><label for="tfEnd">${A_('Inaisha (hiari)','Ends (optional)')}</label><input id="tfEnd" type="datetime-local" value="${v('ends_at')}" oninput="TKA.form.ends_at=this.value"></div>
+      <div class="field"><label for="tfSO">${A_('Mauzo yanafunguliwa (hiari)','Sales open (optional)')}</label><input id="tfSO" type="datetime-local" value="${v('sales_open_at')}" oninput="TKA.form.sales_open_at=this.value"></div>
+      <div class="field"><label for="tfSC">${A_('Mauzo yanafungwa (hiari)','Sales close (optional)')}</label><input id="tfSC" type="datetime-local" value="${v('sales_close_at')}" oninput="TKA.form.sales_close_at=this.value"></div>
+      <div class="field full"><label for="tfDesc">${A_('Maelezo ya tukio','Description')}</label><textarea id="tfDesc" maxlength="4000" oninput="TKA.form.description=this.value">${v('description')}</textarea></div>
+      <div class="field full"><label for="tfRef">${A_('Sera ya kughairi / kurudisha pesa','Cancellation / refund policy')}</label><textarea id="tfRef" maxlength="2000" oninput="TKA.form.refund_policy=this.value">${v('refund_policy')}</textarea></div>
+      <div class="field full"><label>${A_('Poster ya tukio','Event poster')}</label>
+        <div class="ta-poster">${safeUrl(f.poster_url)?`<img src="${E(safeUrl(f.poster_url))}" alt="">`:`<span class="co-noimg">${ic('image')}</span>`}
+        <div><input type="file" id="tfFile" accept="image/jpeg,image/png,image/webp" onchange="taPoster(this)"><small class="muted">${A_('JPG, PNG au WebP. Inapunguzwa ukubwa kiotomatiki.','JPG, PNG or WebP. It is resized automatically.')}</small>${f.poster_url?`<br><button class="danger sm" type="button" onclick="TKA.form.poster_url='';renderTickets()">${A_('Ondoa','Remove')}</button>`:''}</div></div></div>
+    </div>
+    <div class="guest-form-actions"><button class="gray" type="button" onclick="taCancelForm()">${A_('Ghairi','Cancel')}</button><button class="primary" type="button" id="tfSave" onclick="taSaveEvent(this)">${ic('check')}${A_('Hifadhi','Save')}</button></div></div>`;
+}
+window.taCancelForm=function(){ TKA.form=null; renderTickets(); };
+window.taPoster=async function(inp){
+  const file=inp.files&&inp.files[0]; if(!file) return;
+  try{
+    const bmp=await new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>rej(new Error('image')); im.src=u; });
+    const r=Math.min(1,1400/Math.max(bmp.width,bmp.height)), c=document.createElement('canvas'); c.width=Math.round(bmp.width*r); c.height=Math.round(bmp.height*r); c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const blob=await new Promise(res=>c.toBlob(res,'image/jpeg',0.85)); if(!blob) throw new Error('image');
+    const path=`${taUid()}/${(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2))}.jpg`;
+    toast(A_('Inapakia poster…','Uploading poster…'));
+    const up=await supabaseClient.storage.from(TA_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false}); if(up.error) throw up.error;
+    TKA.form.poster_url=supabaseClient.storage.from(TA_BUCKET).getPublicUrl(path).data.publicUrl; renderTickets();
+  }catch(e){ toast(A_('Poster haikupakiwa: ','Poster failed: ')+taErr(e)); }
+};
+window.taSaveEvent=async function(btn){
+  const f=TKA.form;
+  if(f.title.trim().length<3) return toast(A_('Weka jina la tukio (herufi 3+).','Enter an event title (3+ letters).'));
+  if(f.venue.trim().length<2) return toast(A_('Weka ukumbi.','Enter the venue.'));
+  if(!f.starts_at) return toast(A_('Weka tarehe na saa ya kuanza.','Enter the start date and time.'));
+  const row={title:f.title.trim(),category:f.category,venue:f.venue.trim(),address:f.address.trim()||null,maps_url:(f.maps_url.trim()?normalizeUrl(f.maps_url.trim()):null),starts_at:taIso(f.starts_at),ends_at:taIso(f.ends_at),capacity:f.capacity?parseInt(f.capacity,10):null,
+    sales_open_at:taIso(f.sales_open_at),sales_close_at:taIso(f.sales_close_at),description:f.description.trim()||null,refund_policy:f.refund_policy.trim()||null,poster_url:f.poster_url||null};
+  btn.disabled=true; let r;
+  if(f.id) r=await supabaseClient.from('tk_events').update(row).eq('id',f.id).select('id').single();
+  else r=await supabaseClient.from('tk_events').insert(Object.assign({organizer_id:taUid()},row)).select('id').single();
+  btn.disabled=false; if(r.error){ toast(taErr(r.error)); return; }
+  toast(A_('Imehifadhiwa.','Saved.')); TKA.form=null; TKA.cur=r.data.id; TKA.sub=f.id?TKA.sub:'types'; await loadTickets(); taOpen(r.data.id); if(!f.id){ TKA.sub='types'; renderTickets(); }
+};
+
+/* ---------- event detail ---------- */
+async function taLoadDetail(){
+  const id=TKA.cur; if(!id) return; const e=taEv(id); if(!e) return; const my=++TKA.seq;
+  try{
+    const calls=[supabaseClient.from('tk_ticket_types').select('*').eq('event_id',id).order('sort').order('price_tzs')];
+    if(e.role!=='staff'){ calls.push(supabaseClient.rpc('tk_org_stats',{p_event:id})); calls.push(supabaseClient.rpc('tk_org_orders',{p_event:id})); calls.push(supabaseClient.rpc('tk_staff_list',{p_event:id})); }
+    const [t,s,o,st]=await Promise.all(calls); if(my!==TKA.seq) return;
+    if(t.error) throw t.error; TKA.types=t.data||[]; TKA.stats=s&&!s.error?s.data:null; TKA.orders=o&&!o.error?(o.data||[]):[]; TKA.staff=st&&!st.error?(st.data||[]):[];
+  }catch(err){ TKA.err=taErr(err); }
+  if(TKA.cur===id&&TKA.tab==='events'&&!TKA.form) renderTickets();
+}
+function taStat(l,v,s){ return `<div class="stat"><div><span>${l}</span><b>${v}</b>${s?`<small>${s}</small>`:''}</div></div>`; }
+function taDetailHtml(){
+  const e=taEv(TKA.cur), owner=e.role!=='staff'; const sub=TKA.sub;
+  const tab=(id,l)=>`<button type="button" class="${sub===id?'on':''}" onclick="taSub('${id}')">${l}</button>`;
+  return `<div class="panel"><div class="panel-heading"><div><button class="gray sm" type="button" onclick="taBack()">← ${A_('Matukio yote','All events')}</button><h2 style="margin-top:10px">${E(e.title)} ${taStatusPill(e.status)}</h2><p>${E(tkDate(e.starts_at))} · ${E(e.venue)}</p></div>
+    <div class="toolbar">${owner?`<button class="gray" type="button" onclick="taEdit()">${ic('edit')}${A_('Hariri','Edit')}</button><button class="gray" type="button" onclick="taPreview()">${ic('eye')}${A_('Onyesho','Preview')}</button>
+    ${e.status==='published'?`<button class="gray" type="button" onclick="taSetStatus('draft')">${A_('Ondoa sokoni','Unpublish')}</button>`:e.status==='draft'?`<button class="primary" type="button" onclick="taSetStatus('published')">${ic('check')}${A_('Chapisha','Publish')}</button>`:''}`:''}
+    <button class="gray" type="button" onclick="taScanThis()">${ic('scan')}${A_('Scanner','Scanner')}</button></div></div>
+    <div class="co-tabs">${tab('overview',A_('Muhtasari','Overview'))}${owner?tab('types',A_('Aina za tiketi','Ticket types')):''}${owner?tab('sales',A_('Mauzo na wahudhuriaji','Sales & attendees')):''}${owner?tab('staff',A_('Wasaidizi wa mlangoni','Gate staff')):''}</div>
+    ${sub==='overview'?taOverview(e):sub==='types'?taTypes(e):sub==='sales'?taSales(e):taStaff(e)}</div>`;
+}
+window.taSub=function(s){ TKA.sub=s; TKA.tform=null; renderTickets(); };
+function taOverview(e){
+  const s=TKA.stats; if(!s&&e.role!=='staff') return `<div class="empty"><b>${A_('Inapakia…','Loading…')}</b></div>`;
+  const link=taPubLink(e.id);
+  return `${s?`<div class="stats-row ta-stats">${taStat(A_('Zilizouzwa','Sold'),s.tickets_issued,s.orders.paid+' '+(s.orders.paid===1?A_('oda','order'):A_('oda','orders')))}${taStat(A_('Zilizobaki','Remaining'),s.types.reduce((a,t)=>a+Math.max(t.remaining,0),0))}
+    ${taStat(A_('Mapato ya tiketi','Ticket revenue'),taMoney(s.subtotal_tzs),A_('Jumla pamoja na ada','With fees')+' '+taMoney(s.gross_tzs))}${taStat(A_('Walioingia','Checked in'),s.checked_in+'/'+s.tickets_issued)}
+    ${s.orders.pending?taStat(A_('Zinasubiri malipo','Awaiting payment'),s.orders.pending):''}</div>
+    <div class="table-wrap"><table><thead><tr><th>${A_('Aina','Type')}</th><th>${A_('Bei','Price')}</th><th>${A_('Idadi','Quantity')}</th><th>${A_('Zimeuzwa','Sold')}</th><th>${A_('Zimehifadhiwa','Reserved')}</th><th>${A_('Zimebaki','Left')}</th><th>${A_('Mapato','Revenue')}</th></tr></thead><tbody>
+    ${s.types.map(t=>`<tr><td>${E(t.name)}</td><td>${t.price_tzs?taMoney(t.price_tzs):A_('Bure','Free')}</td><td>${t.quantity}</td><td>${t.sold}</td><td>${t.reserved}</td><td>${t.remaining}</td><td>${taMoney(t.revenue)}</td></tr>`).join('')||`<tr><td colspan="7">${A_('Hakuna aina ya tiketi bado.','No ticket types yet.')}</td></tr>`}</tbody></table></div>
+    <div class="help" style="margin-top:12px"><b>${A_('Malipo na mapato yako:','Payout:')}</b> ${A_('Malipo ya mtandaoni bado hayajafunguliwa, kwa hiyo hakuna fedha za kulipwa kwa sasa. Hatua hii itaongezwa baadaye.','Online payments are not open yet, so there is nothing to pay out for now. This comes in a later step.')}</div>`:''}
+    <div class="help" style="margin-top:12px"><b>${A_('Link ya tukio:','Event link:')}</b> ${e.status==='published'?`<a href="${E(link)}" target="_blank" rel="noopener">${E(link)}</a> <button class="gray sm" type="button" onclick="tkCopy(${jq(link)})">${ic('copy')}${A_('Nakili','Copy')}</button>`:A_('Chapisha tukio ili link ifanye kazi.','Publish the event so the link works.')}</div>
+    ${e.role!=='staff'?`<div class="toolbar" style="margin-top:12px"><button class="gray" type="button" onclick="taDup()">${ic('copy')}${A_('Nakili tukio','Duplicate event')}</button>${e.status!=='cancelled'?`<button class="danger" type="button" onclick="taCancelEvent()">${A_('Ghairi tukio','Cancel event')}</button>`:''}</div>`:''}`;
+}
+window.taSetStatus=async function(s){
+  const r=await supabaseClient.from('tk_events').update({status:s}).eq('id',TKA.cur); if(r.error){ toast(r.error.message&&/ticket type/i.test(r.error.message)?A_('Ongeza angalau aina moja ya tiketi kabla ya kuchapisha.','Add at least one ticket type before publishing.'):taErr(r.error)); return; }
+  toast(s==='published'?A_('Tukio limechapishwa.','Event published.'):A_('Tukio limeondolewa sokoni.','Event removed from the marketplace.')); loadTickets();
+};
+window.taCancelEvent=async function(){
+  const ok=await confirmDialog({title:A_('Ghairi tukio hili?','Cancel this event?'),text:A_('Tukio litaonekana kama limeghairiwa na mauzo yatasimama. Tiketi zilizouzwa hazitaruhusiwa kuingia. Kurudisha pesa (ikiwa kuna malipo) kunafanywa na admin.','The event will show as cancelled and sales stop. Tickets already issued will not be accepted at the gate. Refunds (when payments exist) are handled by an admin.'),ok:A_('Ghairi tukio','Cancel event')});
+  if(!ok) return; const r=await supabaseClient.from('tk_events').update({status:'cancelled'}).eq('id',TKA.cur); if(r.error){ toast(taErr(r.error)); return; } toast(A_('Tukio limeghairiwa.','Event cancelled.')); loadTickets();
+};
+window.taDup=async function(){ const r=await supabaseClient.rpc('tk_duplicate_event',{p_event:TKA.cur}); if(r.error||!r.data||!r.data.ok){ toast(taErr(r.error)); return; } toast(A_('Nakala imetengenezwa kama rasimu.','Copy created as a draft.')); await loadTickets(); taOpen(r.data.id); };
+window.taPreview=async function(){
+  const f=await taFetchFull(TKA.cur).catch(()=>null); if(!f) return; const t=(TKA.types||[]).filter(x=>x.status==='active');
+  const data={id:f.id,title:f.title,description:f.description,category:f.category,venue:f.venue,address:f.address,maps_url:f.maps_url,starts_at:f.starts_at,ends_at:f.ends_at,poster_url:f.poster_url,status:'published',refund_policy:f.refund_policy,
+    organizer:(TKA.me&&TKA.me.display_name)||'',sales_state:'open',payments_enabled:false,fee_pct:0,tax_pct:0,
+    types:t.map(x=>({id:x.id,name:x.name,kind:x.kind,price_tzs:x.price_tzs,description:x.description,admits:x.admits,max_per_order:Math.min(x.max_per_order,Math.max(x.quantity-x.sold-x.reserved,0)),available:Math.max(x.quantity-x.sold-x.reserved,0),state:(x.quantity-x.sold-x.reserved)<=0?'sold_out':'on_sale'}))};
+  tkPreview(data);
+};
+
+/* ---------- ticket types ---------- */
+function taTypes(e){
+  const rows=(TKA.types||[]).map(t=>`<tr><td><b>${E(t.name)}</b><br><small class="muted">${E(tkKind(t.kind))}${t.status==='hidden'?' · '+A_('Imefichwa','Hidden'):''}</small></td><td>${t.price_tzs?taMoney(t.price_tzs):A_('Bure','Free')}</td><td>${t.sold}/${t.quantity}${t.reserved?` (+${t.reserved})`:''}</td><td>${t.max_per_order}</td><td class="ta-act"><button class="gray sm" type="button" onclick="taTypeEdit(${jq(t.id)})">${ic('edit')}</button><button class="danger sm" type="button" ${(t.sold||t.reserved)?'disabled title="'+E(A_('Tayari kuna mauzo','Already has sales'))+'"':''} onclick="taTypeDel(${jq(t.id)})">${ic('trash')}</button></td></tr>`).join('');
+  return `${e.status==='cancelled'?'':`<div class="toolbar"><button class="primary" type="button" onclick="taTypeNew()">${ic('plus')}${A_('Aina mpya ya tiketi','New ticket type')}</button></div>`}
+    ${TKA.tform?taTypeForm():''}
+    <div class="table-wrap"><table><thead><tr><th>${A_('Jina','Name')}</th><th>${A_('Bei','Price')}</th><th>${A_('Zilizouzwa / idadi','Sold / quantity')}</th><th>${A_('Kiwango kwa mteja','Max per customer')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5">${A_('Bado hakuna aina ya tiketi. Ongeza Regular, VIP, Early Bird n.k.','No ticket types yet. Add Regular, VIP, Early Bird, etc.')}</td></tr>`}</tbody></table></div>
+    <p class="muted" style="font-size:12.5px;margin-top:10px">${A_('Idadi ya tiketi haiwezi kushuka chini ya zilizokwisha uzwa. Mfumo unazuia kuuza tiketi nyingi kuliko ulizoweka.','Quantity cannot drop below what is already sold. The system never sells more tickets than you set.')}</p>`;
+}
+window.taTypeNew=function(){ TKA.tform={id:null,name:'',kind:'regular',price_tzs:'',quantity:'',max_per_order:10,admits:1,sale_start:'',sale_end:'',description:'',status:'active'}; renderTickets(); };
+window.taTypeEdit=function(id){ const t=(TKA.types||[]).find(x=>x.id===id); if(!t) return; TKA.tform={id:t.id,name:t.name,kind:t.kind,price_tzs:t.price_tzs,quantity:t.quantity,max_per_order:t.max_per_order,admits:t.admits,sale_start:taLocal(t.sale_start),sale_end:taLocal(t.sale_end),description:t.description||'',status:t.status}; renderTickets(); };
+function taTypeForm(){
+  const f=TKA.tform, v=k=>E(f[k]==null?'':f[k]);
+  return `<div class="panel ta-tform"><h3 style="margin-bottom:10px">${f.id?A_('Hariri aina ya tiketi','Edit ticket type'):A_('Aina mpya ya tiketi','New ticket type')}</h3><div class="form-grid">
+    <div class="field"><label for="ttName">${A_('Jina (mf. VIP)','Name (e.g. VIP)')}</label><input id="ttName" maxlength="60" value="${v('name')}" oninput="TKA.tform.name=this.value"></div>
+    <div class="field"><label for="ttKind">${A_('Aina','Kind')}</label><select id="ttKind" onchange="taKind(this.value)">${Object.keys(TK_KINDS).map(k=>`<option value="${k}"${f.kind===k?' selected':''}>${E(tkKind(k))}</option>`).join('')}</select></div>
+    <div class="field"><label for="ttPrice">${A_('Bei (TSh)','Price (TSh)')}</label><input id="ttPrice" type="number" min="0" step="500" value="${v('price_tzs')}" ${f.kind==='free'?'disabled':''} oninput="TKA.tform.price_tzs=this.value"></div>
+    <div class="field"><label for="ttQty">${A_('Idadi ya tiketi','Quantity available')}</label><input id="ttQty" type="number" min="0" value="${v('quantity')}" oninput="TKA.tform.quantity=this.value"></div>
+    <div class="field"><label for="ttMax">${A_('Kiwango cha juu kwa mteja','Max per customer')}</label><input id="ttMax" type="number" min="1" max="100" value="${v('max_per_order')}" oninput="TKA.tform.max_per_order=this.value"></div>
+    <div class="field"><label for="ttAdm">${A_('Watu wanaoingia kwa tiketi 1','People admitted per ticket')}</label><input id="ttAdm" type="number" min="1" max="50" value="${v('admits')}" oninput="TKA.tform.admits=this.value"></div>
+    <div class="field"><label for="ttS">${A_('Mauzo yanaanza (hiari)','Sales start (optional)')}</label><input id="ttS" type="datetime-local" value="${v('sale_start')}" oninput="TKA.tform.sale_start=this.value"></div>
+    <div class="field"><label for="ttE">${A_('Mauzo yanaisha (hiari)','Sales end (optional)')}</label><input id="ttE" type="datetime-local" value="${v('sale_end')}" oninput="TKA.tform.sale_end=this.value"></div>
+    <div class="field full"><label for="ttD">${A_('Maelezo (hiari)','Description (optional)')}</label><input id="ttD" maxlength="200" value="${v('description')}" oninput="TKA.tform.description=this.value"></div>
+    <div class="field"><label for="ttSt">${A_('Hali','Status')}</label><select id="ttSt" onchange="TKA.tform.status=this.value"><option value="active"${f.status==='active'?' selected':''}>${A_('Inauzwa','On sale')}</option><option value="hidden"${f.status==='hidden'?' selected':''}>${A_('Imefichwa','Hidden')}</option></select></div></div>
+    <div class="guest-form-actions"><button class="gray" type="button" onclick="TKA.tform=null;renderTickets()">${A_('Ghairi','Cancel')}</button><button class="primary" type="button" onclick="taTypeSave(this)">${ic('check')}${A_('Hifadhi','Save')}</button></div></div>`;
+}
+window.taKind=function(k){ TKA.tform.kind=k; if(k==='free') TKA.tform.price_tzs=0; renderTickets(); };
+window.taTypeSave=async function(btn){
+  const f=TKA.tform; if(f.name.trim().length<2) return toast(A_('Weka jina la aina ya tiketi.','Enter a ticket type name.'));
+  const price=f.kind==='free'?0:parseInt(f.price_tzs,10), qty=parseInt(f.quantity,10);
+  if(!(price>=0)) return toast(A_('Weka bei sahihi.','Enter a valid price.')); if(!(qty>=0)) return toast(A_('Weka idadi ya tiketi.','Enter the quantity.'));
+  const row={name:f.name.trim(),kind:f.kind,price_tzs:price,quantity:qty,max_per_order:parseInt(f.max_per_order,10)||10,admits:parseInt(f.admits,10)||1,sale_start:taIso(f.sale_start),sale_end:taIso(f.sale_end),description:f.description.trim()||null,status:f.status};
+  btn.disabled=true; const r=f.id?await supabaseClient.from('tk_ticket_types').update(row).eq('id',f.id):await supabaseClient.from('tk_ticket_types').insert(Object.assign({event_id:TKA.cur},row));
+  btn.disabled=false; if(r.error){ toast(/check constraint|sold/i.test(r.error.message||'')?A_('Idadi haiwezi kuwa chini ya tiketi zilizokwisha uzwa au kuhifadhiwa.','Quantity cannot be lower than tickets already sold or reserved.'):taErr(r.error)); return; }
+  toast(A_('Imehifadhiwa.','Saved.')); TKA.tform=null; await loadTickets();
+};
+window.taTypeDel=async function(id){
+  const ok=await confirmDialog({title:A_('Futa aina hii ya tiketi?','Delete this ticket type?'),text:A_('Hakuna tiketi iliyouzwa kwa aina hii, kwa hiyo ni salama kuifuta.','No tickets were sold for this type, so it is safe to delete.'),ok:A_('Futa','Delete')}); if(!ok) return;
+  const r=await supabaseClient.from('tk_ticket_types').delete().eq('id',id); if(r.error){ toast(taErr(r.error)); return; } loadTickets();
+};
+
+/* ---------- sales, attendees, export ---------- */
+function taSales(e){
+  const o=TKA.orders||[];
+  const rows=o.map(x=>`<tr><td class="mono">${E(x.order)}</td><td>${E(x.buyer)}<br><small class="muted">${E(x.email||'')} ${E(x.phone||'')}</small></td><td>${x.tickets}</td><td>${x.total_tzs?taMoney(x.total_tzs):A_('Bure','Free')}</td><td><span class="status ${x.status==='paid'||x.status==='free_confirmed'?'ok':x.status==='pending_payment'?'warn':'bad'}">${E(x.status)}</span></td><td>${E(tkDate(x.created_at,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</td>
+    <td>${(x.status==='paid'||x.status==='free_confirmed')?`<button class="danger sm" type="button" onclick="taCancelOrder(${jq(x.id)},${jq(x.order)})">${A_('Ghairi','Cancel')}</button>`:''}</td></tr>`).join('');
+  return `<div class="toolbar"><button class="gray" type="button" onclick="taExport('csv')">${ic('download')}CSV</button><button class="gray" type="button" onclick="taExport('xlsx')">${ic('sheet')}Excel</button><button class="gray" type="button" onclick="loadTickets()">${ic('refresh')}${A_('Onyesha upya','Refresh')}</button></div>
+    <div class="table-wrap"><table><thead><tr><th>${A_('Oda','Order')}</th><th>${A_('Mnunuzi','Buyer')}</th><th>${A_('Tiketi','Tickets')}</th><th>${A_('Jumla','Total')}</th><th>${A_('Hali','Status')}</th><th>${A_('Muda','Time')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="7">${A_('Bado hakuna oda.','No orders yet.')}</td></tr>`}</tbody></table></div>`;
+}
+window.taCancelOrder=async function(oid,ref){
+  const reason=await taAsk({title:A_('Ghairi oda '+ref,'Cancel order '+ref),label:A_('Sababu (itahifadhiwa kwenye kumbukumbu)','Reason (kept in the audit log)'),ok:A_('Ghairi oda','Cancel order'),area:true}); if(!reason) return;
+  const r=await supabaseClient.rpc('tk_cancel_order',{p_order:oid,p_reason:reason}); const d=r.data||{};
+  if(r.error||!d.ok){ toast(r.error?taErr(r.error):({already_used:A_('Tiketi tayari zimetumika.','Tickets were already used.'),refund_needs_admin:A_('Oda ya kulipia inaghairiwa na admin.','A paid order is cancelled by an admin.'),reason_required:A_('Andika sababu.','Write a reason.')}[d.error]||d.error)); return; }
+  toast(A_('Oda imeghairiwa, tiketi hazitumiki tena.','Order cancelled; its tickets no longer work.')); loadTickets();
+};
+function taCsv(rows){ const esc=v=>{ v=v==null?'':String(v); if(/^[=+\-@]/.test(v)) v="'"+v; return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }; return '﻿'+rows.map(r=>r.map(esc).join(',')).join('\r\n'); }
+window.taExport=async function(kind){
+  const r=await supabaseClient.rpc('tk_org_attendees',{p_event:TKA.cur}); if(r.error){ toast(taErr(r.error)); return; }
+  const e=taEv(TKA.cur), head=[A_('Tiketi','Ticket'),A_('Aina','Type'),A_('Mhudhuriaji','Attendee'),A_('Mnunuzi','Buyer'),'Email',A_('Simu','Phone'),A_('Oda','Order'),A_('Hali ya tiketi','Ticket status'),A_('Ameingia saa','Checked in at'),A_('Alioagiza','Ordered at')];
+  const rows=[head].concat((r.data||[]).map(a=>[a.ticket,a.type,a.attendee,a.buyer,a.email,a.phone,a.order,a.status,a.checked_in_at?tkDate(a.checked_in_at):'',tkDate(a.ordered_at)]));
+  const name=(e.title||'event').replace(/[^a-z0-9]+/gi,'-').slice(0,40)+'-attendees';
+  if(kind==='xlsx'&&window.XLSX){ const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=head.map(()=>({wch:20})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Attendees'); XLSX.writeFile(wb,name+'.xlsx'); }
+  else { if(kind==='xlsx') toast(A_('Excel bado inapakia, nimetumia CSV.','Excel is still loading; using CSV.')); downloadBlobFile(new Blob([taCsv(rows)],{type:'text/csv;charset=utf-8'}),name+'.csv'); }
+};
+
+/* ---------- gate staff ---------- */
+function taStaff(e){
+  return `<div class="help">${A_('Mpe mtu ruhusa ya kuscan tiketi kwenye tukio hili. Lazima awe amejisajili SHEREHE HUB kwa barua pepe hiyo. Wasaidizi wanaona Scanner pekee, hawaoni mapato.','Give someone permission to scan tickets for this event. They must already have a SHEREHE HUB account with that email. Staff only see the scanner, not revenue.')}</div>
+    <div class="toolbar" style="margin-top:12px"><input id="taStaffEmail" type="email" placeholder="email@example.com" style="max-width:320px"><button class="primary" type="button" onclick="taStaffAdd()">${ic('plus')}${A_('Ongeza','Add')}</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Email</th><th></th></tr></thead><tbody>${(TKA.staff||[]).map(s=>`<tr><td>${E(s.email)}</td><td><button class="danger sm" type="button" onclick="taStaffRemove(${jq(s.user_id)})">${A_('Ondoa','Remove')}</button></td></tr>`).join('')||`<tr><td colspan="2">${A_('Hakuna wasaidizi bado.','No staff yet.')}</td></tr>`}</tbody></table></div>`;
+}
+window.taStaffAdd=async function(){ const em=$('taStaffEmail').value.trim(); if(!em) return; const r=await supabaseClient.rpc('tk_staff_add',{p_event:TKA.cur,p_email:em}); const d=r.data||{}; if(r.error||!d.ok){ toast(r.error?taErr(r.error):A_('Hakuna akaunti yenye barua pepe hiyo.','No account with that email.')); return; } toast(A_('Ameongezwa.','Added.')); taLoadDetail(); };
+window.taStaffRemove=async function(uid){ const r=await supabaseClient.rpc('tk_staff_remove',{p_event:TKA.cur,p_user:uid}); if(r.error){ toast(taErr(r.error)); return; } taLoadDetail(); };
+
+/* ---------- scanner ---------- */
+const TA_REASON={invalid:['Tiketi si halali','Invalid ticket','Hii si tiketi ya SHEREHE HUB au imebadilishwa.','This is not a SHEREHE HUB ticket or it was altered.'],
+  net:['Hakuna mtandao / hitilafu','Connection error','Tiketi haikukaguliwa. Jaribu tena.','The ticket was not checked. Try again.'],
+  wrong_event:['Tukio lingine','Different event','Tiketi hii ni ya tukio jingine.','This ticket is for another event.'],
+  event_cancelled:['Tukio limeghairiwa','Event cancelled','Tukio hili limeghairiwa.','This event was cancelled.'],
+  cancelled:['Tiketi imeghairiwa','Ticket cancelled','Oda ya tiketi hii iliondolewa.','The order for this ticket was cancelled.'],
+  refunded:['Imerudishiwa pesa','Refunded','Pesa za tiketi hii zimerudishwa.','This ticket was refunded.'],
+  already_used:['Tayari imetumika','Already used','Tiketi hii ilishaingia.','This ticket has already been scanned.'],
+  used:['Tayari imetumika','Already used','Tiketi hii ilishaingia.','This ticket has already been scanned.']};
+window.taScanThis=function(){ TKA.scan.ev=TKA.cur; TKA.tab='scan'; renderTickets(); taScanInit(); };
+function taScanEvents(){ return (TKA.events||[]).filter(e=>e.status!=='cancelled'); }
+function taScanInit(){
+  const S=TKA.scan; const l=taScanEvents(); if(!S.ev||!l.find(e=>e.id===S.ev)) S.ev=l[0]&&l[0].id||null;
+  if(S.ev) taScanLive(); clearInterval(S.timer); S.timer=setInterval(()=>{ if(TKA.tab==='scan'&&S.ev&&!document.hidden) taScanLive(); },20000);
+}
+function taScanHtml(){
+  const S=TKA.scan, l=taScanEvents();
+  if(!l.length) return `<div class="panel"><div class="empty"><b>${A_('Hakuna tukio la kuscan','No event to scan')}</b>${A_('Utaonekana hapa ukiongezwa kama msaidizi wa mlangoni au ukitengeneza tukio.','You appear here when added as gate staff or after you create an event.')}</div></div>`;
+  const lv=S.live, res=S.res;
+  const banner=res?(res.ok?`<div class="ta-res ok" role="status"><b>${ic('check')} ${A_('Ruhusu kuingia','Admit')}</b><span>${E(res.attendee||'')}</span><small>${E(res.type||'')} · ${E(res.number||'')}</small></div>`
+    :`<div class="ta-res bad" role="alert"><b>${ic('x')} ${E(taReasonTitle(res.reason))}</b><span>${E(taReasonText(res))}</span>${res.number?`<small>${E(res.type||'')} · ${E(res.number)}${res.attendee?' · '+E(res.attendee):''}</small>`:''}</div>`):`<div class="ta-res idle">${A_('Elekeza kamera kwenye QR ya tiketi.','Point the camera at the ticket QR.')}</div>`;
+  return `<div class="panel"><div class="panel-heading"><div><h2>${A_('Scanner ya mlangoni','Gate scanner')}</h2><p>${A_('Inahitaji mtandao: kila tiketi inakaguliwa kwenye seva ili isiingie mara mbili.','Needs a connection: every ticket is checked on the server so it cannot enter twice.')}</p></div></div>
+    <div class="form-grid"><div class="field"><label for="taScanEv">${A_('Tukio','Event')}</label><select id="taScanEv" onchange="taScanEvent(this.value)">${l.map(e=>`<option value="${e.id}"${e.id===S.ev?' selected':''}>${E(e.title)} · ${E(tkDay(e.starts_at))}</option>`).join('')}</select></div>
+    <div class="field"><label>${A_('Walioingia','Checked in')}</label><div class="ta-live"><b>${lv?lv.checked_in:'–'}</b><span>/ ${lv?lv.issued:'–'}</span>${lv&&lv.rejected?`<small>${lv.rejected} ${A_('zimekataliwa','rejected')}</small>`:''}</div></div></div>
+    ${banner}
+    <div class="ta-cam"><div id="tkReader"></div>${S.msg?`<p class="hint-box" style="margin-top:8px">${ic('alert')}<span>${E(S.msg)}</span></p>`:''}
+      <div class="toolbar" style="margin-top:10px">${S.camOn?`<button class="gray" type="button" onclick="taStopCam(true)">${A_('Zima kamera','Stop camera')}</button>`:`<button class="primary" type="button" onclick="taStartCam()">${ic('camera')}${A_('Washa kamera','Start camera')}</button>`}</div></div>
+    <h3 style="margin:18px 0 4px">${A_('Tafuta kwa mkono','Manual lookup')}</h3><p class="muted" style="font-size:12.5px">${A_('Namba ya tiketi (TK-…), namba ya oda (SH-…), jina au simu. Au bandika maandishi ya QR.','Ticket number (TK-…), order number (SH-…), name or phone. Or paste the QR text.')}</p>
+    <div class="toolbar"><input id="taLook" type="text" placeholder="TK-XXXXXXXX" value="${E(S.q)}" style="max-width:320px" onkeydown="if(event.key==='Enter')taLookup()"><button class="primary" type="button" onclick="taLookup()">${ic('search')}${A_('Tafuta','Search')}</button><button class="gray" type="button" onclick="taPasteScan()">${A_('Kagua QR iliyobandikwa','Check pasted QR')}</button></div>
+    ${S.results.length?`<div class="table-wrap"><table><thead><tr><th>${A_('Tiketi','Ticket')}</th><th>${A_('Mhudhuriaji','Attendee')}</th><th>${A_('Aina','Type')}</th><th>${A_('Hali','Status')}</th><th></th></tr></thead><tbody>${S.results.map(r=>`<tr><td class="mono">${E(r.number)}<br><small class="muted">${E(r.order)}</small></td><td>${E(r.attendee||r.buyer||'')}</td><td>${E(r.type)}</td><td><span class="status ${r.status==='valid'?'ok':r.status==='used'?'info':'bad'}">${E(r.status==='used'&&r.used_at?tkTime(r.used_at):r.status)}</span></td><td>${r.status==='valid'?`<button class="primary sm" type="button" onclick="taAdmit(${jq(r.id)})">${A_('Ruhusu (kwa mkono)','Admit (manual)')}</button>`:''}${r.status==='used'&&taOwnsScan()?`<button class="danger sm" type="button" onclick="taUndo(${jq(r.id)})">${A_('Tengua','Undo')}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:''}
+    ${lv&&lv.recent&&lv.recent.length?`<h3 style="margin:18px 0 6px">${A_('Walioingia hivi karibuni','Latest entries')}</h3><div class="table-wrap"><table><tbody>${lv.recent.map(r=>`<tr><td>${E(tkTime(r.at))}</td><td class="mono">${E(r.number)}</td><td>${E(r.attendee||'')}</td><td>${E(r.type)}</td><td>${E(r.staff||'')}${r.manual?' · '+A_('kwa mkono','manual'):''}</td></tr>`).join('')}</tbody></table></div>`:''}</div>`;
+}
+const taReasonTitle=r=>{ const m=TA_REASON[r]; return m?m[invLang()==='en'?1:0]:r; };
+const taReasonText=res=>{ let t=(TA_REASON[res.reason]||[])[invLang()==='en'?3:2]||''; if(res.reason==='already_used'&&res.used_at) t+=' '+A_('Iliingia saa ','Scanned at ')+tkTime(res.used_at)+(res.used_by?' ('+res.used_by+')':''); return t; };
+const taOwnsScan=()=>{ const e=taEv(TKA.scan.ev); return !!e&&(e.role==='owner'||e.role==='admin'); };
+window.taScanEvent=function(id){ TKA.scan.ev=id; TKA.scan.res=null; TKA.scan.results=[]; TKA.scan.live=null; renderTickets(); taScanLive(); if(TKA.scan.camOn){ TKA.scan.msg=''; } };
+async function taScanLive(){ const S=TKA.scan; if(!S.ev) return; const id=S.ev; const r=await supabaseClient.rpc('tk_event_live',{p_event:id}); if(!r.error&&S.ev===id){ S.live=r.data; if(TKA.tab==='scan') taPatchLive(); } }
+function taPatchLive(){ const keep=document.activeElement&&document.activeElement.id==='taLook'; if(keep) return; const c=document.querySelector('.ta-live'); if(c&&TKA.scan.live) c.innerHTML=`<b>${TKA.scan.live.checked_in}</b><span>/ ${TKA.scan.live.issued}</span>${TKA.scan.live.rejected?`<small>${TKA.scan.live.rejected} ${A_('zimekataliwa','rejected')}</small>`:''}`; }
+window.taStartCam=async function(){
+  const S=TKA.scan; S.msg='';
+  if(!window.Html5Qrcode){ S.msg=A_('Maktaba ya scanner haijapakia. Onyesha ukurasa upya kisha ujaribu.','The scanner library has not loaded. Refresh the page and try again.'); renderTickets(); return; }
+  if(S.camOn) return; renderTickets();
+  try{ S.cam=new Html5Qrcode('tkReader'); await S.cam.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:240}},taOnDecode,()=>{}); S.camOn=true; renderTickets(); taReattach(); }
+  catch(e){ S.cam=null; S.camOn=false; S.msg=A_('Kamera haikuwaka. Ruhusu kamera kwenye kivinjari (ikoni ya kufuli karibu na anwani), au tumia utafutaji wa mkono hapa chini. ','The camera could not start. Allow camera access in your browser (lock icon next to the address), or use the manual lookup below. ')+(e&&e.message?'('+e.message+')':''); renderTickets(); }
+};
+function taReattach(){ /* renderTickets rebuilt the reader div; restart the stream into the new node */ const S=TKA.scan; if(!S.camOn||!S.cam) return; const old=S.cam; S.camOn=false; old.stop().catch(()=>{}).then(async()=>{ try{ S.cam=new Html5Qrcode('tkReader'); await S.cam.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:240}},taOnDecode,()=>{}); S.camOn=true; }catch(e){ S.cam=null; S.msg=A_('Kamera haikuwaka.','The camera could not start.'); renderTickets(); } }); }
+window.taStopCam=function(redraw){ const S=TKA.scan; const c=S.cam; S.cam=null; S.camOn=false; if(c){ c.stop().catch(()=>{}).then(()=>{ try{ c.clear(); }catch(e){} }); } if(redraw) renderTickets(); };
+function taOnDecode(text){ const S=TKA.scan, now=Date.now(); if(S.busy) return; if(text===S.last&&now-S.lastAt<4000) return; S.last=text; S.lastAt=now; taScanCode(text); }
+async function taScanCode(code){
+  const S=TKA.scan; if(!S.ev||S.busy) return; S.busy=true;
+  try{
+    const r=await supabaseClient.rpc('tk_scan',{p_event:S.ev,p_code:code}); if(r.error) throw r.error; S.res=r.data;
+    try{ if(navigator.vibrate) navigator.vibrate(r.data.ok?60:[120,60,120]); }catch(e){}
+  }catch(e){ S.res={ok:false,reason:'net'}; toast(taErr(e)); }
+  S.busy=false; renderScanBanner(); taScanLive();
+}
+window.taScanCode=taScanCode;
+function renderScanBanner(){ if(TKA.tab!=='scan') return; const S=TKA.scan; const cur=document.querySelector('.ta-res'); if(!cur){ renderTickets(); return; } const tmp=document.createElement('div'); const keepCam=S.camOn; tmp.innerHTML=taScanHtml(); const nb=tmp.querySelector('.ta-res'); if(nb) cur.replaceWith(nb); }
+window.taLookup=async function(){
+  const S=TKA.scan; S.q=$('taLook').value.trim(); if(S.q.length<3){ toast(A_('Andika angalau herufi 3.','Type at least 3 characters.')); return; }
+  if(/^SHT:/i.test(S.q)||/^[0-9a-f]{32}$/i.test(S.q)){ taScanCode(S.q); return; }
+  const r=await supabaseClient.rpc('tk_scan_lookup',{p_event:S.ev,p_query:S.q}); if(r.error){ toast(taErr(r.error)); return; } S.results=r.data||[]; if(!S.results.length) toast(A_('Hakuna tiketi iliyopatikana.','No ticket found.')); renderTickets(); if(S.camOn) taReattach();
+};
+window.taPasteScan=function(){ const v=($('taLook').value||'').trim(); if(!v){ toast(A_('Bandika maandishi ya QR kwanza.','Paste the QR text first.')); return; } taScanCode(v); };
+window.taAdmit=async function(id){
+  const reason=await taAsk({title:A_('Ruhusu kwa mkono','Manual admit'),label:A_('Sababu (mf. QR haisomeki). Itahifadhiwa kwenye kumbukumbu.','Reason (e.g. QR unreadable). Kept in the audit log.'),ok:A_('Ruhusu','Admit')}); if(!reason) return;
+  const r=await supabaseClient.rpc('tk_admit_manual',{p_event:TKA.scan.ev,p_ticket:id,p_reason:reason}); const d=r.data||{};
+  if(r.error||!d.ok){ toast(r.error?taErr(r.error):(taReasonTitle(d.reason||'')||d.error)); } else toast(A_('Ameruhusiwa.','Admitted.'));
+  taLookup2();
+};
+window.taUndo=async function(id){
+  const reason=await taAsk({title:A_('Tengua kuingia','Undo check-in'),label:A_('Sababu (inahifadhiwa)','Reason (kept in the audit log)'),ok:A_('Tengua','Undo')}); if(!reason) return;
+  const r=await supabaseClient.rpc('tk_undo_checkin',{p_ticket:id,p_reason:reason}); const d=r.data||{}; if(r.error||!d.ok){ toast(r.error?taErr(r.error):d.error); } else toast(A_('Imetenguliwa.','Undone.')); taLookup2();
+};
+async function taLookup2(){ const S=TKA.scan; if(S.q.length>=3){ const r=await supabaseClient.rpc('tk_scan_lookup',{p_event:S.ev,p_query:S.q}); if(!r.error) S.results=r.data||[]; } renderTickets(); if(S.camOn) taReattach(); taScanLive(); }
+
+/* ---------- admin ---------- */
+async function taLoadAdmin(){
+  if(!isAdmin) return;
+  try{
+    const [o,s,a]=await Promise.all([supabaseClient.rpc('tk_admin_organizers'),supabaseClient.rpc('tk_admin_settings'),supabaseClient.from('tk_audit').select('*').order('created_at',{ascending:false}).limit(40)]);
+    TKA.admin.orgs=o.data||[]; TKA.admin.settings=s.data||{}; TKA.admin.audit=a.data||[]; if(o.error) TKA.err=taErr(o.error);
+  }catch(e){ TKA.err=taErr(e); }
+  if(TKA.tab==='admin') renderTickets();
+}
+function taAdminHtml(){
+  if(!isAdmin) return '';
+  const A=TKA.admin, st=A.settings||{};
+  const sc={pending:'warn',approved:'ok',suspended:'bad',rejected:'bad'};
+  return `<div class="panel"><div class="panel-heading"><div><h2>${A_('Waandaaji','Organizers')}</h2><p>${A_('Idhinisha au simamisha waandaaji. Mwandaaji aliyesimamishwa matukio yake yanaondolewa sokoni.','Approve or suspend organizers. A suspended organizer\'s events are taken off the marketplace.')}</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>${A_('Jina','Name')}</th><th>${A_('Mawasiliano','Contact')}</th><th>${A_('Matukio','Events')}</th><th>${A_('Hali','Status')}</th><th></th></tr></thead><tbody>
+    ${(A.orgs||[]).map(o=>`<tr><td><b>${E(o.name)}</b></td><td>${E(o.email||'')}<br><small class="muted">${E(o.phone||'')}</small></td><td>${o.events}</td><td><span class="status ${sc[o.status]||'idle'}">${E(o.status)}</span></td>
+    <td class="ta-act">${o.status!=='approved'?`<button class="primary sm" type="button" onclick="taDecide(${jq(o.user_id)},'approved')">${A_('Idhinisha','Approve')}</button>`:''}${o.status==='pending'?`<button class="danger sm" type="button" onclick="taDecide(${jq(o.user_id)},'rejected')">${A_('Kataa','Reject')}</button>`:''}${o.status==='approved'?`<button class="danger sm" type="button" onclick="taDecide(${jq(o.user_id)},'suspended')">${A_('Simamisha','Suspend')}</button>`:''}</td></tr>`).join('')||`<tr><td colspan="5">${A_('Hakuna maombi bado.','No applications yet.')}</td></tr>`}</tbody></table></div></div>
+    <div class="panel"><div class="panel-heading"><div><h2>${A_('Ada na mipangilio','Fees and settings')}</h2><p>${A_('Mabadiliko yanaathiri oda mpya tu na yanaandikwa kwenye kumbukumbu.','Changes affect new orders only and are written to the audit log.')}</p></div></div>
+    <div class="form-grid"><div class="field"><label for="taFee">${A_('Ada ya huduma (%)','Service fee (%)')}</label><input id="taFee" type="number" min="0" max="30" step="0.5" value="${E(st.service_fee_pct||'0')}"></div>
+    <div class="field"><label for="taTax">${A_('Kodi (%) (VAT n.k., kama inahitajika)','Tax (%) (VAT etc., if required)')}</label><input id="taTax" type="number" min="0" max="30" step="0.5" value="${E(st.tax_pct||'0')}"></div>
+    <div class="field"><label for="taRes">${A_('Muda wa kushikilia tiketi (dakika)','Reservation time (minutes)')}</label><input id="taRes" type="number" min="5" max="60" value="${E(st.reservation_minutes||'15')}"></div>
+    <div class="field"><label>${A_('Malipo ya mtandaoni','Online payments')}</label><div class="status ${st.payments_enabled==='true'?'ok':'idle'}" style="margin-top:6px">${st.payments_enabled==='true'?A_('Yamefunguliwa','Enabled'):A_('Bado hayajafunguliwa (Awamu ya 2)','Not open yet (phase 2)')}</div></div></div>
+    <div class="toolbar" style="margin-top:12px"><button class="primary" type="button" onclick="taSaveSettings(this)">${ic('check')}${A_('Hifadhi','Save')}</button></div></div>
+    <div class="panel"><div class="panel-heading"><div><h2>${A_('Kumbukumbu za ukaguzi','Audit log')}</h2><p>${A_('Vitendo nyeti vya hivi karibuni.','Latest sensitive actions.')}</p></div></div><div class="table-wrap"><table><thead><tr><th>${A_('Muda','Time')}</th><th>${A_('Nani','Who')}</th><th>${A_('Kitendo','Action')}</th><th>${A_('Maelezo','Detail')}</th></tr></thead><tbody>
+    ${(A.audit||[]).map(a=>`<tr><td>${E(tkDate(a.created_at,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</td><td>${E(a.actor_email||'')}</td><td>${E(a.action)}</td><td><small>${E(JSON.stringify(a.detail||{}).slice(0,120))}</small></td></tr>`).join('')||`<tr><td colspan="4">${A_('Hakuna bado.','Nothing yet.')}</td></tr>`}</tbody></table></div></div>`;
+}
+window.taDecide=async function(uid,status){
+  let note=null; if(status!=='approved'){ note=await taAsk({title:status==='rejected'?A_('Kataa ombi','Reject application'):A_('Simamisha mwandaaji','Suspend organizer'),label:A_('Sababu (mwandaaji ataiona)','Reason (the organizer will see it)'),ok:A_('Endelea','Continue'),area:true}); if(!note) return; }
+  const r=await supabaseClient.rpc('tk_admin_decide_organizer',{p_user:uid,p_status:status,p_note:note}); if(r.error||!(r.data||{}).ok){ toast(taErr(r.error)); return; } toast(A_('Imehifadhiwa.','Saved.')); taLoadAdmin();
+};
+window.taSaveSettings=async function(btn){
+  const vals=[['service_fee_pct',$('taFee').value],['tax_pct',$('taTax').value],['reservation_minutes',$('taRes').value]]; btn.disabled=true;
+  for(const [k,v] of vals){ if(String(TKA.admin.settings[k])===String(v)) continue; const r=await supabaseClient.rpc('tk_admin_set_setting',{p_key:k,p_value:String(v)}); if(r.error||!(r.data||{}).ok){ toast(A_('Thamani si sahihi kwa ','Invalid value for ')+k); btn.disabled=false; return; } }
+  btn.disabled=false; toast(A_('Imehifadhiwa.','Saved.')); taLoadAdmin();
+};
+
+window.addEventListener('langchange',()=>{ try{ const s=$('tickets'); if(TKA.loaded&&s&&s.classList.contains('active')&&!TKA.scan.camOn) renderTickets(); }catch(e){} });
 
 })();
 
@@ -11424,6 +12318,10 @@ window.addEventListener('resize',()=>{ if(EDS.open&&EDS.fit) fitZoom(); });
 <script>
 /* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
 window.SW_EXACT = {
+"Event tickets":"Tiketi za matukio",
+"Tickets":"Tiketi",
+"Sell tickets, scan at the gate":"Uza tiketi, scan mlangoni",
+"Browse event tickets":"Tazama tiketi za matukio",
 "Your photo galleries":"Albamu zako za picha",
 "Photographers":"Wapiga picha",
 "Use a saved design":"Tumia muundo uliohifadhiwa",
