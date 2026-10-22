@@ -1921,6 +1921,33 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 body.staff-mode #smNavGroup{display:none!important}
 @media(max-width:760px){.sm-stats{grid-template-columns:1fr 1fr}.sm-row-side{align-items:flex-start;text-align:left;width:100%}.sm-launchbar{flex-direction:column;align-items:stretch}.sm-launchbar button{width:100%}.sm-bubble{max-width:100%}.sm-tabs{margin-left:-4px}}
 #adminCustomers .tag{white-space:nowrap;margin:1px 2px 1px 0;display:inline-block}
+/* V120 — services chooser, pay wall, blocked screen */
+body.svc-no-host .app-sidebar [data-svc="host"]{display:none!important}
+body.svc-no-tickets #tkNavGroup,body.svc-no-sms #smNavGroup,body.svc-no-photog #collNavGroup{display:none!important}
+body.svc-photog #collNavGroup{display:block!important}
+.svc-screen{position:fixed;inset:0;z-index:130;background:var(--bg,#f5f7fc);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px 40px}
+.svc-box{width:100%;max-width:860px}
+.svc-box h1{font-size:26px;margin:0 0 6px;color:var(--ink)}
+.svc-box>p{margin:0 0 18px;color:var(--muted);font-size:14.5px}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:18px}
+.svc-card{position:relative;text-align:left;align-items:flex-start;justify-content:flex-start;background:var(--surface,#fff);border:2px solid var(--line,#e3e8f4);border-radius:14px;padding:16px 16px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;color:var(--ink);font:inherit;min-height:150px}
+.svc-card:hover{border-color:var(--blue,#2c4bd6)}
+.svc-card.on{border-color:var(--blue,#2c4bd6);background:var(--blue-soft,#eaf0ff)}
+.svc-card b{font-size:16px}
+.svc-card span{font-size:13px;color:var(--muted)}
+.svc-card .svc-price{margin-top:auto;font-weight:700;color:var(--blue-d,#1d2f7a);font-size:13.5px}
+.svc-card .svc-tick{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line,#cfd6ea);background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff}
+.svc-card.on .svc-tick{background:var(--blue,#2c4bd6);border-color:var(--blue,#2c4bd6)}
+.svc-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.svc-wall{position:fixed;z-index:60;top:var(--header-h);left:var(--side-w);right:0;bottom:0;background:var(--bg,#f5f7fc);overflow:auto;padding:28px 20px}
+.svc-wall .svc-box{max-width:640px;margin:0 auto}
+.svc-wall .panel,.svc-screen .panel{margin-bottom:14px}
+.svc-fee{font-size:22px;font-weight:800;color:var(--blue-d,#1d2f7a)}
+.svc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-2,#eef1f8)}
+.svc-row:last-child{border-bottom:0}
+.svc-row small{display:block;color:var(--muted);font-size:12px}
+@media (max-width:900px){.svc-wall{left:0}}
+@media print{.svc-wall,.svc-screen{display:none!important}}
 
 </style>
 </head>
@@ -2058,26 +2085,26 @@ body.staff-mode #smNavGroup{display:none!important}
 
 <div class="layout">
 <aside class="app-sidebar" aria-label="Main navigation">
-  <div class="side-label">Overview</div>
-  <button class="nav active" data-view="dashboard" onclick="showView('dashboard',this)"><svg class="i"><use href="#i-home"/></svg>Dashboard</button>
+  <div class="side-label" data-svc="host">Overview</div>
+  <button class="nav active" data-svc="host" data-view="dashboard" onclick="showView('dashboard',this)"><svg class="i"><use href="#i-home"/></svg>Dashboard</button>
 
-  <div class="side-label">Plan</div>
-  <button class="nav" data-view="events" onclick="showView('events',this)"><svg class="i"><use href="#i-calendar"/></svg>My Events<span class="count" id="navEventsCount">0</span></button>
-  <button class="nav no-cohost" data-view="create" onclick="showView('create',this)"><svg class="i"><use href="#i-plus"/></svg>Create Event</button>
-  <button class="nav" data-view="tasks" onclick="showView('tasks',this)"><svg class="i"><use href="#i-check"/></svg>Tasks</button>
+  <div class="side-label" data-svc="host">Plan</div>
+  <button class="nav" data-svc="host" data-view="events" onclick="showView('events',this)"><svg class="i"><use href="#i-calendar"/></svg>My Events<span class="count" id="navEventsCount">0</span></button>
+  <button class="nav no-cohost" data-svc="host" data-view="create" onclick="showView('create',this)"><svg class="i"><use href="#i-plus"/></svg>Create Event</button>
+  <button class="nav" data-svc="host" data-view="tasks" onclick="showView('tasks',this)"><svg class="i"><use href="#i-check"/></svg>Tasks</button>
 
-  <div class="side-label">Invite</div>
-  <button class="nav" data-view="guests" onclick="showView('guests',this)"><svg class="i"><use href="#i-users"/></svg>Guests<span class="count" id="navGuestsCount">0</span></button>
-  <button class="nav" data-view="seating" onclick="showView('seating',this)"><svg class="i"><use href="#i-seat"/></svg>Seating</button>
-  <button class="nav" data-view="cards" onclick="showView('cards',this)"><svg class="i"><use href="#i-qr"/></svg>Cards &amp; QR</button>
-  <button class="nav" data-view="messaging" onclick="showView('messaging',this)"><svg class="i"><use href="#i-chat"/></svg>Messaging</button>
+  <div class="side-label" data-svc="host">Invite</div>
+  <button class="nav" data-svc="host" data-view="guests" onclick="showView('guests',this)"><svg class="i"><use href="#i-users"/></svg>Guests<span class="count" id="navGuestsCount">0</span></button>
+  <button class="nav" data-svc="host" data-view="seating" onclick="showView('seating',this)"><svg class="i"><use href="#i-seat"/></svg>Seating</button>
+  <button class="nav" data-svc="host" data-view="cards" onclick="showView('cards',this)"><svg class="i"><use href="#i-qr"/></svg>Cards &amp; QR</button>
+  <button class="nav" data-svc="host" data-view="messaging" onclick="showView('messaging',this)"><svg class="i"><use href="#i-chat"/></svg>Messaging</button>
 
-  <div class="side-label">Event day</div>
-  <button class="nav" data-view="rsvp" onclick="showView('rsvp',this)"><svg class="i"><use href="#i-scan"/></svg>Check-in</button>
+  <div class="side-label" data-svc="host">Event day</div>
+  <button class="nav" data-svc="host" data-view="rsvp" onclick="showView('rsvp',this)"><svg class="i"><use href="#i-scan"/></svg>Check-in</button>
 
-  <div class="side-label">After the event</div>
-  <button class="nav" data-view="photos" onclick="showView('photos',this)"><svg class="i"><use href="#i-image"/></svg>Photos</button>
-  <button class="nav" data-view="wishes" onclick="showView('wishes',this)"><svg class="i"><use href="#i-heart"/></svg>Guest messages</button>
+  <div class="side-label" data-svc="host">After the event</div>
+  <button class="nav" data-svc="host" data-view="photos" onclick="showView('photos',this)"><svg class="i"><use href="#i-image"/></svg>Photos</button>
+  <button class="nav" data-svc="host" data-view="wishes" onclick="showView('wishes',this)"><svg class="i"><use href="#i-heart"/></svg>Guest messages</button>
 
   <div id="collNavGroup" style="display:none">
     <div class="side-label">Photographers</div>
@@ -2094,9 +2121,9 @@ body.staff-mode #smNavGroup{display:none!important}
     <button class="nav" data-view="sms" onclick="showView('sms',this)"><svg class="i"><use href="#i-send"/></svg>Bulk SMS</button>
   </div>
 
-  <div class="side-label">Insights</div>
-  <button class="nav" data-view="reports" onclick="showView('reports',this)"><svg class="i"><use href="#i-chart"/></svg>Reports</button>
-  <button class="nav" data-view="contributions" onclick="showView('contributions',this)"><svg class="i"><use href="#i-wallet"/></svg>Contributions</button>
+  <div class="side-label" data-svc="host">Insights</div>
+  <button class="nav" data-svc="host" data-view="reports" onclick="showView('reports',this)"><svg class="i"><use href="#i-chart"/></svg>Reports</button>
+  <button class="nav" data-svc="host" data-view="contributions" onclick="showView('contributions',this)"><svg class="i"><use href="#i-wallet"/></svg>Contributions</button>
 
   <div id="adminNavGroup" style="display:none">
     <div class="side-label">Administration</div>
@@ -2104,10 +2131,11 @@ body.staff-mode #smNavGroup{display:none!important}
   </div>
 
   <div class="side-label">Support</div>
+  <button class="nav" id="svcNavBtn" type="button" style="display:none" onclick="svcManage()"><svg class="i"><use href="#i-plus"/></svg>My services</button>
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V119</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V120</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2501,6 +2529,10 @@ body.staff-mode #smNavGroup{display:none!important}
   <div class="panel">
     <div class="panel-heading"><div><h2>Customers</h2><p>Registered users.</p></div></div>
     <div id="adminCustomers"></div>
+  </div>
+  <div class="panel" id="adminSvcPanel">
+    <div class="panel-heading"><div><h2>Services and prices</h2><p>What each service costs, and how customers pay. Customers pay by M-Pesa; you then activate them from their View window.</p></div></div>
+    <div id="adminSvc"></div>
   </div>
   <div class="panel">
     <div class="panel-heading"><div><h2>Photographer subscriptions</h2><p>Photographers pay a monthly fee to upload photos. After a payment arrives, activate their email here.</p></div></div>
@@ -6197,10 +6229,18 @@ window.renderAdmin = function(){
     if(evByOwner[p.id]) k.push('<span class="tag">Host</span>'); if(o.tk) k.push('<span class="tag">Tickets · '+E(o.tk)+'</span>');
     if(o.photog_until) k.push('<span class="tag">Photographer · '+(new Date(o.photog_until)>new Date()?'active':'expired')+'</span>');
     if(o.sms_status) k.push('<span class="tag">Bulk SMS'+(o.sms_campaigns?' · '+o.sms_campaigns+' campaigns':'')+'</span>');
+    const sv=o.svc||{};
+    ['cohost','treasurer'].forEach(q=>{ if(sv[q]&&sv[q].chosen) k.push('<span class="tag">'+(q==='cohost'?'Co-host':'Treasurer')+' · '+(sv[q].active?'paid':'unpaid')+'</span>'); });
+    if(sv.photographer&&sv.photographer.chosen&&!sv.photographer.active&&!o.photog_until) k.push('<span class="tag">Photographer · unpaid</span>');
+    if(sv.tickets&&sv.tickets.chosen&&!sv.tickets.active&&!o.tk) k.push('<span class="tag">Tickets · unpaid</span>');
+    if(sv.sms&&sv.sms.chosen&&!o.sms_status) k.push('<span class="tag">Bulk SMS · chosen</span>');
+    if(sv.host&&sv.host.chosen&&!evByOwner[p.id]) k.push('<span class="tag">Host · no events yet</span>');
+    if(o.pay_notice) k.push('<span class="tag gold">Says paid</span>');
+    if(o.blocked) k.push('<span class="tag" style="background:#fde8e8;color:#b42318">Removed</span>');
     return k.length&&!(k.length===1&&p.role==='admin'&&!evByOwner[p.id])?k.join(' '):(p.role==='admin'?k.join(' '):'<span class="status idle">Just signed up</span>'); };
   const rev=p=>{ if(p.role==='admin') return '<span class="status ok">Owner</span>'; const o=ov[p.id]; if(!o) return '—'; const r=o.review; return r==='approved'?'<span class="status ok">Approved</span>':r==='watch'?'<span class="status warn">Watch</span>':'<span class="status idle">Not reviewed</span>'; };
   $('adminCustomers').innerHTML = d.profiles.length ? `<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Account type</th><th>Email</th><th>Last seen</th><th>Events</th><th>Guests</th><th>Joined</th><th>Review</th><th></th></tr></thead><tbody>${d.profiles.map(p=>{ const o=ov[p.id]||{}; return `<tr><td><div class="guest-cell"><span class="avatar">${E(initials(p.full_name||p.email))}</span><div style="min-width:0"><span class="cell-name">${E(p.full_name||'(no name)')}</span><span class="cell-sub">${E(p.email||'')}</span></div></div></td><td>${E(p.phone||'—')}</td><td>${kinds(p)}</td><td>${d.ov?(o.confirmed?'<span class="status ok">Verified</span>':'<span class="status warn">Not verified</span>'):'—'}</td><td>${d.ov?E(ago(o.last_sign_in)):'—'}</td><td>${evByOwner[p.id]||0}</td><td>${gByOwner[p.id]||0}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</td><td>${rev(p)}</td><td><button class="gray" onclick="admCustView(${jq(p.id)})">View</button></td></tr>`; }).join('')}</tbody></table></div>${d.ov?'':'<div class="help">Account details could not be loaded. Run the V118 SQL in Supabase.</div>'}` : emptyState('No customers yet','');
-  renderAdminSubs();
+  renderAdminSubs(); if(window.renderAdminSvc) renderAdminSvc();
   $('adminTable').innerHTML = d.events.length ? `<div class="table-wrap"><table><thead><tr><th>Event</th><th>Organiser</th><th>Date</th><th>Guests</th><th>Invited</th><th>Attending</th><th>Arrived</th></tr></thead><tbody>${d.events.map(e=>{ const x=byEvent[e.id]||{n:0,sent:0,yes:0,in:0}, o=owner[e.owner_id]; return `<tr><td><span class="cell-name">${E(e.event_name)}</span><span class="cell-sub">${E(e.event_type||'')}</span></td><td><span class="cell-name">${E(o?.full_name||'—')}</span><span class="cell-sub">${E(o?.email||'')}</span></td><td>${e.event_date?E(fmtDate(e.event_date)):'—'}</td><td>${x.n}</td><td><div class="progress" title="${pct(x.sent,x.n)}%"><i style="width:${pct(x.sent,x.n)}%"></i></div></td><td>${x.yes}</td><td>${x.in}</td></tr>`; }).join('')}</tbody></table></div>` : emptyState('No events yet','');
 };
 
@@ -6213,12 +6253,13 @@ window.admCustView = async function(id){
   const rv=x.review||{status:'new'};
   $('admCustBox').innerHTML=`<button class="modal-close" onclick="admCustClose()" aria-label="Close">×</button>
   <div class="guest-modal-head"><div class="guest-modal-icon"><span class="avatar">${E(initials(p.name||p.email))}</span></div><div><h2>${E(p.name||'(no name)')}</h2><p>${E(p.email||'')} · ${E(p.phone||'no phone')}</p></div></div>
-  <div class="help">Read-only view. You can see what this customer has done, but you cannot log in as them or change their data. Every time you open this view it is recorded.</div>
+  <div class="help">You can see what this customer has done, activate their subscription, or remove them. You cannot log in as them or change their data. Every time you open this view it is recorded.</div>
   <h3 class="sm-h3">Sign-up</h3>
   <div class="sm-cells"><div class="sm-cell ${a.confirmed?'ok':'warn'}"><b>${a.confirmed?'Yes':'No'}</b><span>Email verified</span></div><div class="sm-cell"><b>${E(a.provider||'—')}</b><span>Sign-up method</span></div><div class="sm-cell"><b style="font-size:14px">${E(dt(p.joined))}</b><span>Joined</span></div><div class="sm-cell"><b style="font-size:14px">${E(dt(a.last_sign_in))}</b><span>Last sign-in</span></div></div>
   <h3 class="sm-h3">What they use</h3>
   <ul class="sm-rules"><li>Events: <b>${ev.length}</b> (${ev.reduce((n,e)=>n+e.guests,0)} guests)</li><li>Event tickets: ${x.tickets?'<b>'+E(x.tickets.status)+'</b> · '+x.tickets.events+' events':'not an organiser'}</li><li>Photographer: ${x.photographer?'until <b>'+E(dt(x.photographer.active_until))+'</b>':'no subscription'}</li><li>Bulk SMS: ${x.sms?'<b>'+E(x.sms.status)+'</b> · '+x.sms.campaigns+' campaigns'+(x.sms.sender?' · sender '+E(x.sms.sender):''):'not opened'}</li></ul>
   ${ev.length?`<div class="table-wrap"><table><thead><tr><th>Event</th><th>Date</th><th>Guests</th><th>Attending</th><th>Arrived</th><th>Messages sent</th></tr></thead><tbody>${ev.map(e=>`<tr><td><span class="cell-name">${E(e.name)}</span><span class="cell-sub">${E(e.type||'')}</span></td><td>${e.date?E(fmtDate(e.date)):'—'}</td><td>${e.guests}</td><td>${e.yes}</td><td>${e.arrived}</td><td>${e.messages}</td></tr>`).join('')}</tbody></table></div>`:''}
+  ${window.svcAdminSection?svcAdminSection(x,p):''}
   ${p.role==='admin'?'':`<h3 class="sm-h3">Your review</h3>
   <p class="sm-note">Current: <b>${rv.status==='approved'?'Approved':rv.status==='watch'?'Watch':'Not reviewed'}</b>${rv.at?' · '+E(dt(rv.at)):''}. This is only your own note; it does not block or allow anything.</p>
   <div class="field"><label for="admRevNote">Note (only you see it)</label><input id="admRevNote" maxlength="500" value="${E(rv.note||'')}" placeholder="e.g. Called him, wedding planner in Dar"></div>
@@ -7020,7 +7061,7 @@ window.addEventListener('load',()=>{
    ========================================================================= */
 const PHOTOS_BUCKET = 'event-photos', PHOTO_MAX = 500, PHOTO_EDGE = 1600;
 /* photographer subscription (V75): edit these three lines to change the price or payment number */
-const PHOTOG_PRICE = 'TSh 15,000 / month', PHOTOG_PAY = 'M-Pesa 0764 009 731 (Yosiah Simbeye)', PHOTOG_WA = '255764009731';
+const PHOTOG_PRICE = 'TSh 30,000 / month', PHOTOG_PAY = 'M-Pesa 0764 009 731 (Yosiah Simbeye)', PHOTOG_WA = '255764009731';
 const isPhotog = () => !!(window.__staffMode && staffRole()==='photographer');
 window.photogBlocked = () => { const s=window.__photogSub; return isPhotog() && !!s && s.loaded && !s.err && !(s.until && new Date(s.until)>new Date()); };
 window.loadPhotogSub = async function(){
@@ -8455,6 +8496,251 @@ document.addEventListener('keydown',e=>{
     return r;
   };
 })();
+
+/* =========================================================================
+   V120 — Services: a new customer chooses what they need (Host, Co-host, Treasurer, Photographer, Tickets, Bulk SMS),
+   sees only that part of the app, and pays a monthly fee for the paid ones. When the fee runs out, access stops
+   (the server enforces it for Co-host, Treasurer and Tickets; this screen only explains it).
+   An administrator can remove (block) a member from the Admin Console.
+   ========================================================================= */
+const SVC_HOST_VIEWS=new Set(['dashboard','events','create','tasks','guests','seating','cards','messaging','rsvp','photos','wishes','reports','contributions']);
+const SVC_INFO={
+  host:{n:'Event host',d:'Create events, guest lists, invitations, cards, check-in and reports.'},
+  cohost:{n:'Co-host',d:'Help a host run their event. The host adds your email to their event.'},
+  treasurer:{n:'Treasurer',d:'Record contributions and expenses for an event you were invited to.'},
+  photographer:{n:'Photographer',d:'Online photo galleries and photo uploads for your clients.'},
+  tickets:{n:'Event tickets',d:'Sell tickets for your event and scan them at the gate.'},
+  sms:{n:'Bulk SMS',d:'Send SMS to guests, parents, members and customers. You only pay for the SMS you send.'}
+};
+const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
+const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
+const SVC=window.SVC={me:null,picked:new Set(),busy:false};
+const svcMoney=n=>Number(n||0).toLocaleString('en-US');
+const svcPlan=k=>((SVC.me&&SVC.me.plans)||[]).find(p=>p.key===k)||{key:k,name:SVC_INFO[k].n,kind:'monthly',fee:30000};
+const svcSt=k=>((SVC.me&&SVC.me.state)||{})[k]||{};
+const svcPriceText=k=>{ const p=svcPlan(k); return p.kind==='free'?'Free':(p.kind==='per_sms'?`TZS ${svcMoney(p.fee)} per SMS`:`TZS ${svcMoney(p.fee)} / month`); };
+const svcOn=()=>!!(SVC.me&&!SVC.me.admin&&!isAdmin);
+const svcHostish=()=>{ const m=SVC.me; return !!(m&&(svcSt('host').chosen||m.has_events||m.is_staff||((db&&db.events)||[]).length)); };
+const svcBad=k=>{ const s=svcSt(k); return !!(s.chosen&&s.kind==='monthly'&&!s.active); };
+
+function svcAllowed(id){
+  if(!svcOn()) return true;
+  if(id==='admin') return !!isAdmin;
+  if(SVC_HOST_VIEWS.has(id)) return svcHostish();
+  if(id==='tickets') return !!svcSt('tickets').chosen;
+  if(id==='sms') return !!svcSt('sms').chosen;
+  if(id==='collections') return !!svcSt('photographer').chosen||!!window.__canCollect;
+  return true;
+}
+function svcHome(){
+  if(svcHostish()) return 'dashboard';
+  for(const k of ['tickets','sms','photographer']) if(svcSt(k).chosen) return SVC_HOME[k];
+  return 'dashboard';
+}
+function svcGate(id){
+  if(!svcOn()) return null;
+  if(id==='tickets') return svcBad('tickets')?'tickets':null;
+  if(id==='collections') return svcBad('photographer')?'photographer':null;
+  if(SVC_HOST_VIEWS.has(id)){
+    if(svcSt('host').chosen||SVC.me.has_events) return null;
+    return svcBad('cohost')?'cohost':(svcBad('treasurer')?'treasurer':null);
+  }
+  return null;
+}
+
+/* ---------- loading ---------- */
+window.svcRefresh=async function(){
+  if(!supabaseClient||!currentSupabaseUser) return null;
+  try{
+    const r=await supabaseClient.rpc('svc_me');
+    if(r.error) throw r.error;
+    SVC.me=r.data; svcApply();
+  }catch(e){ console.warn('svc_me:',e); }
+  return SVC.me;
+};
+function svcClearUi(){
+  ['svcChooser','svcBlocked','svcWall'].forEach(id=>{ const el=$(id); if(el) el.remove(); });
+  document.body.classList.remove('svc-on','svc-no-host','svc-no-tickets','svc-no-sms','svc-no-photog','svc-photog');
+  const b=$('svcNavBtn'); if(b) b.style.display='none';
+}
+function svcApply(){
+  const m=SVC.me;
+  if(!m||m.admin||isAdmin){ svcClearUi(); return; }
+  const b=document.body;
+  if(m.blocked){ svcShowBlocked(); return; }
+  const bl=$('svcBlocked'); if(bl) bl.remove();
+  if(m.show_chooser){ svcShowChooser(true); return; }
+  const ch=$('svcChooser'); if(ch&&ch.dataset.first==='1') ch.remove();
+  b.classList.add('svc-on');
+  b.classList.toggle('svc-no-host',!svcHostish());
+  b.classList.toggle('svc-no-tickets',!svcSt('tickets').chosen);
+  b.classList.toggle('svc-no-sms',!svcSt('sms').chosen);
+  const ph=!!svcSt('photographer').chosen;
+  b.classList.toggle('svc-photog',ph);
+  b.classList.toggle('svc-no-photog',!ph&&!window.__canCollect);
+  const nb=$('svcNavBtn'); if(nb) nb.style.display='';
+  const act=document.querySelector('.view.active'); const id=act?act.id:'dashboard';
+  if(!svcAllowed(id)){ window.showView(svcHome()); }
+  else svcGuard(id);
+}
+
+/* ---------- chooser (first screen after sign-up, and "My services") ---------- */
+function svcCardHtml(k,on){
+  const i=SVC_INFO[k], st=svcSt(k);
+  return `<button type="button" class="svc-card${on?' on':''}" data-k="${k}" onclick="svcPick('${k}')" aria-pressed="${on?'true':'false'}"><span class="svc-tick">${on?'✓':''}</span><b>${E(i.n)}</b><span>${E(i.d)}</span><span class="svc-price">${E(svcPriceText(k))}</span></button>`;
+}
+function svcShowChooser(first){
+  let el=$('svcChooser'); if(!el){ el=document.createElement('div'); el.id='svcChooser'; el.className='svc-screen'; document.body.appendChild(el); }
+  el.dataset.first=first?'1':'0';
+  if(first) SVC.picked=new Set(SVC.picked.size?SVC.picked:[]);
+  else SVC.picked=new Set(SVC_ORDER.filter(k=>svcSt(k).chosen));
+  el.innerHTML=`<div class="svc-box"><h1>${first?'What do you need SHEREHE HUB for?':'My services'}</h1>
+    <p>${first?'Choose the service you need. You will only see that part of the app. You can add another service later.':'Add or remove services. Paid services need an active subscription.'}</p>
+    <div class="svc-grid">${SVC_ORDER.map(k=>svcCardHtml(k,SVC.picked.has(k))).join('')}</div>
+    <div class="svc-actions"><button class="primary" id="svcGo" type="button" onclick="svcSave()" ${SVC.picked.size?'':'disabled'}>${first?'Continue':'Save'}</button>${first?'':'<button class="gray" type="button" onclick="svcCloseChooser()">Cancel</button>'}<button class="gray" type="button" onclick="logout()">Sign out</button></div></div>`;
+}
+window.svcPick=function(k){
+  if(SVC.picked.has(k)) SVC.picked.delete(k); else SVC.picked.add(k);
+  const c=document.querySelector('#svcChooser .svc-card[data-k="'+k+'"]'); if(c){ const on=SVC.picked.has(k); c.classList.toggle('on',on); c.setAttribute('aria-pressed',on?'true':'false'); c.querySelector('.svc-tick').textContent=on?'✓':''; }
+  const g=$('svcGo'); if(g) g.disabled=!SVC.picked.size;
+};
+window.svcCloseChooser=function(){ const el=$('svcChooser'); if(el) el.remove(); };
+window.svcManage=function(){ if(SVC.me) svcShowChooser(false); };
+window.svcSave=async function(){
+  if(SVC.busy) return; SVC.busy=true;
+  const g=$('svcGo'); if(g){ g.disabled=true; g.textContent='Saving…'; }
+  try{
+    const now=SVC.me&&SVC.me.state||{};
+    for(const k of SVC_ORDER){
+      const had=!!(now[k]&&now[k].chosen), want=SVC.picked.has(k);
+      if(want&&!had){ const r=await supabaseClient.rpc('svc_choose',{p_service:k}); if(r.error) throw r.error; }
+      if(!want&&had){ const r=await supabaseClient.rpc('svc_unchoose',{p_service:k}); if(r.error) throw r.error; }
+    }
+    const first=$('svcChooser')&&$('svcChooser').dataset.first==='1';
+    svcCloseChooser();
+    await svcRefresh();
+    if(first&&window.loadEventsFromSupabase){ try{ await window.loadEventsFromSupabase(); }catch(e){} }
+    window.showView(svcHome());
+  }catch(e){ toast('Could not save: '+(e.message||e)); const g2=$('svcGo'); if(g2){ g2.disabled=false; g2.textContent='Save'; } }
+  finally{ SVC.busy=false; }
+};
+
+/* ---------- pay wall ---------- */
+function svcWaLink(k){
+  const m=SVC.me||{}, num=String(m.wa||'255764009731').replace(/\D/g,'');
+  return 'https://wa.me/'+num+'?text='+encodeURIComponent('Habari, nimelipia huduma ya '+svcPlan(k).name+' kwenye SHEREHE HUB. Email yangu: '+String((currentSupabaseUser&&currentSupabaseUser.email)||''));
+}
+function svcGuard(id){
+  const k=svcGate(id), w=$('svcWall');
+  if(!k){ if(w) w.remove(); return; }
+  const st=svcSt(k), nm=svcPlan(k).name, fee=svcPlan(k).fee;
+  const until=st.until&&new Date(st.until)<=new Date()?new Date(st.until).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+  const mail=String((currentSupabaseUser&&currentSupabaseUser.email)||'');
+  const el=w||document.createElement('div'); el.id='svcWall'; el.className='svc-wall'; if(!w) document.body.appendChild(el);
+  const need=k==='cohost'?'<div class="help">After you pay, ask the event host to add your email as a Co-host in their event.</div>':(k==='treasurer'?'<div class="help">After you pay, ask the event host to add your email as a Treasurer in their event.</div>':'');
+  el.innerHTML=`<div class="svc-box"><div class="panel"><div class="panel-heading"><div><h2>Subscription needed</h2><p><span class="tag">${E(nm)}</span></p><p>Your access is paused until you pay. Your data is safe and comes back as soon as your subscription is active.</p></div></div>
+    ${until?`<div class="hint-box">${ic('alert')}<span>Your subscription ended on ${E(until)}.</span></div>`:''}
+    <div class="svc-row"><div><b>Fee</b><small>Per month</small></div><div class="svc-fee">TZS ${E(svcMoney(fee))}</div></div>
+    <div class="svc-row"><div><b>Pay to</b><small>Use your email as the reference</small></div><div style="text-align:right"><b>${E(SVC.me.pay_text||'')}</b></div></div>
+    <div class="svc-row"><div><b>Your account</b></div><div>${E(mail)}</div></div>
+    <div class="help">After you pay, press "I have paid" below. We will check the payment and activate your account.</div>${need}
+    ${st.notice?`<div class="hint-box">${ic('check')}<span>Payment notice sent. We will activate your account soon.</span></div>`:''}
+    <div class="svc-actions" style="margin-top:12px"><button class="primary" type="button" onclick="svcPaid('${k}')" ${st.notice?'disabled':''}>I have paid</button><button class="gray" type="button" onclick="window.open(${jq(svcWaLink(k))},'_blank','noopener')">${ic('whatsapp')}Contact us on WhatsApp</button><button class="gray" type="button" onclick="svcRecheck()">Check again</button></div>
+    <div class="svc-actions" style="margin-top:10px"><button class="gray" type="button" onclick="svcManage()">Choose another service</button><button class="gray" type="button" onclick="logout()">Sign out</button></div></div></div>`;
+}
+window.svcPaid=async function(k){
+  const r=await supabaseClient.rpc('svc_notify_paid',{p_service:k});
+  if(r.error) return toast('Could not send: '+r.error.message);
+  SVC.me=r.data; toast('Thank you. We will check the payment and activate your account.'); svcApply();
+};
+window.svcRecheck=async function(){
+  await svcRefresh();
+  if(window.loadEventsFromSupabase){ try{ await window.loadEventsFromSupabase(); }catch(e){} }
+  const act=document.querySelector('.view.active'); svcGuard(act?act.id:'dashboard');
+  if(!$('svcWall')) toast('Your subscription is active.'); else toast('Not active yet. Please wait for the payment to be confirmed.');
+};
+
+/* ---------- removed member ---------- */
+function svcShowBlocked(){
+  let el=$('svcBlocked'); if(!el){ el=document.createElement('div'); el.id='svcBlocked'; el.className='svc-screen'; el.style.zIndex=140; document.body.appendChild(el); }
+  el.innerHTML=`<div class="svc-box" style="max-width:520px;margin-top:8vh"><div class="panel"><div class="panel-heading"><div><h2>This account has been removed</h2><p>The administrator has stopped access to SHEREHE HUB for this account. If you think this is a mistake, contact us.</p></div></div>
+    <div class="svc-actions"><button class="gray" type="button" onclick="window.open(${jq(svcWaLink('host'))},'_blank','noopener')">${ic('whatsapp')}Contact us on WhatsApp</button><button class="primary" type="button" onclick="logout()">Sign out</button></div></div></div>`;
+}
+
+/* ---------- wiring ---------- */
+(function(){
+  const sv=window.showView;
+  window.showView=function(id,btn){
+    if(!svcOn()) return sv.apply(this,arguments);
+    if(!svcAllowed(id)){ id=svcHome(); btn=null; }
+    const r=sv.call(this,id,btn);
+    const act=document.querySelector('.view.active'); svcGuard(act?act.id:id);
+    return r;
+  };
+  const oe=window.loadEventsFromSupabase;
+  if(oe) window.loadEventsFromSupabase=async function(){
+    const r=await oe.apply(this,arguments);
+    await svcRefresh();
+    return r;
+  };
+  const lo=window.supabaseLogout;
+  window.supabaseLogout=async function(){ SVC.me=null; svcClearUi(); return lo.apply(this,arguments); };
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&SVC.me&&!SVC.me.admin&&($('svcWall')||$('svcBlocked'))) svcRefresh(); });
+})();
+
+/* ---------- Admin Console: services, prices, remove member ---------- */
+window.renderAdminSvc=async function(){
+  const box=$('adminSvc'); if(!box) return;
+  let me=SVC.me; if(!me||!me.plans){ const r=await supabaseClient.rpc('svc_me'); if(!r.error) me=r.data; }
+  if(!me||!me.plans){ box.innerHTML='<div class="help">Services could not be loaded.</div>'; return; }
+  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Service</th><th>How it is paid</th><th>Fee (TZS)</th><th></th></tr></thead><tbody>${me.plans.map(p=>`<tr><td><b>${E(SVC_INFO[p.key]?SVC_INFO[p.key].n:p.name)}</b></td><td>${p.kind==='free'?'Free':(p.kind==='per_sms'?'Per SMS sent':'Per month')}</td><td>${p.kind==='free'?'—':`<input id="svcFee_${p.key}" type="number" min="0" step="1" value="${p.fee}" style="max-width:130px" aria-label="Fee for ${E(p.name)}">`}</td><td>${p.kind==='free'?'':`<button class="gray" type="button" onclick="admSvcFee('${p.key}')">Save</button>`}</td></tr>`).join('')}</tbody></table></div>
+    <div class="field" style="margin-top:12px"><label for="svcPayText">Payment instructions shown to customers</label><div class="toolbar"><input id="svcPayText" maxlength="300" value="${E(me.pay_text||'')}" style="max-width:420px"><button class="gray" type="button" onclick="admSvcSetting('pay_text','svcPayText')">Save</button></div></div>
+    <div class="field"><label for="svcWaNum">WhatsApp number (with country code, digits only)</label><div class="toolbar"><input id="svcWaNum" maxlength="20" value="${E(me.wa||'')}" style="max-width:220px"><button class="gray" type="button" onclick="admSvcSetting('wa_number','svcWaNum')">Save</button></div></div>
+    <div class="help">The Bulk SMS fee is the price your customer pays per SMS. NextSMS charges you TZS 16 per SMS, so your profit is the difference.</div>`;
+};
+window.admSvcFee=async function(k){
+  const v=parseInt(($('svcFee_'+k)||{}).value,10);
+  if(!(v>=0)) return toast('Enter a valid amount.');
+  const r=await supabaseClient.rpc('admin_svc_plan_set',{p_service:k,p_fee:v});
+  if(r.error) return toast('Could not save: '+r.error.message);
+  toast('Saved.'); SVC.me=null; renderAdminSvc();
+};
+window.admSvcSetting=async function(key,inputId){
+  const r=await supabaseClient.rpc('admin_svc_setting_set',{p_key:key,p_value:(($(inputId)||{}).value||'').trim()});
+  if(r.error) return toast('Could not save: '+r.error.message);
+  toast('Saved.');
+};
+window.admSvcActivate=async function(uid,k,days){
+  const r=await supabaseClient.rpc('admin_svc_activate',{p_user:uid,p_service:k,p_days:days});
+  if(r.error) return toast('Could not save: '+r.error.message);
+  toast(days>0?'Activated.':'Subscription ended.'); await admCustView(uid); if(window.loadAdminData) loadAdminData(true);
+};
+window.admMemberBlock=async function(uid,name){
+  const ok=await confirmDialog({title:'Remove this member?',text:`<b>${E(name)}</b> will not be able to sign in or use SHEREHE HUB. Their data is kept, and you can restore them any time.`,ok:'Remove member'});
+  if(!ok) return;
+  const reason=(($('admBlockReason')||{}).value||'').trim();
+  const r=await supabaseClient.rpc('admin_member_block',{p_user:uid,p_reason:reason||null});
+  if(r.error) return toast('Could not remove: '+r.error.message);
+  toast('Member removed.'); await admCustView(uid); if(window.loadAdminData) loadAdminData(true);
+};
+window.admMemberRestore=async function(uid){
+  const r=await supabaseClient.rpc('admin_member_unblock',{p_user:uid});
+  if(r.error) return toast('Could not restore: '+r.error.message);
+  toast('Member restored.'); await admCustView(uid); if(window.loadAdminData) loadAdminData(true);
+};
+window.svcAdminSection=function(x,p){
+  const svc=x.svc||{}, dt=iso=>iso?new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
+  const rows=['cohost','treasurer','photographer','tickets'].filter(k=>svc[k]&&svc[k].chosen).map(k=>{
+    const s=svc[k], act=s.active, nm=SVC_INFO[k].n;
+    return `<div class="svc-row"><div><b>${E(nm)}</b><small>${act?'Active until '+E(dt(s.until)):(s.until?'Ended on '+E(dt(s.until)):'Waiting for payment')}${s.notice?' <span class="tag gold">Says paid</span>':''}</small></div><div class="svc-actions"><button class="primary" type="button" onclick="admSvcActivate(${jq(p.id)},'${k}',30)">+30 days</button>${act?`<button class="gray" type="button" onclick="admSvcActivate(${jq(p.id)},'${k}',-1)">End now</button>`:''}</div></div>`;
+  });
+  const free=['host','sms'].filter(k=>svc[k]&&svc[k].chosen).map(k=>SVC_INFO[k].n);
+  const bl=x.blocked;
+  return `<h3 class="sm-h3">Services and payment</h3>
+    ${rows.length?rows.join(''):'<p class="sm-note">No paid service chosen.</p>'}
+    ${free.length?`<p class="sm-note"><span>Also chosen:</span> <b>${E(free.join(', '))}</b></p>`:''}
+    ${p.role==='admin'?'':`<h3 class="sm-h3">Account access</h3>${bl?`<p class="sm-note"><b>Removed on ${E(dt(bl.at))}</b>${bl.reason?' <span>· '+E(bl.reason)+'</span>':''}</p><div class="guest-form-actions"><button class="primary" type="button" onclick="admMemberRestore(${jq(p.id)})">Restore member</button></div>`:`<div class="field"><label for="admBlockReason">Reason (only you see it)</label><input id="admBlockReason" maxlength="300" placeholder="e.g. Fake sign-up"></div><div class="guest-form-actions"><button class="danger" type="button" onclick="admMemberBlock(${jq(p.id)},${jq(p.name||p.email||'this member')})">Remove member</button></div>`}`}`;
+};
 
 /* =========================================================================
    V113 — Ticketing (public side): marketplace, event page, booking, e-tickets.
@@ -14151,6 +14437,55 @@ Object.assign(window.SW_EXACT,{"Send cards?":"Tuma kadi?"});
 
 Object.assign(window.SW_EXACT, {"Account type":"Aina ya akaunti","Last seen":"Alionekana mwisho","Review":"Ukaguzi","View":"Angalia","Never":"Hajawahi","Just now":"Sasa hivi","Just signed up":"Amejiunga tu","Host":"Mwenyeji","Verified":"Imethibitishwa","Not verified":"Haijathibitishwa","Approved":"Amekubaliwa","Watch":"Chunguza","Not reviewed":"Hajakaguliwa","Owner":"Mmiliki","Account details could not be loaded. Run the V118 SQL in Supabase.":"Maelezo ya akaunti hayakupakiwa. Endesha SQL ya V118 kwenye Supabase.","Read-only view. You can see what this customer has done, but you cannot log in as them or change their data. Every time you open this view it is recorded.":"Kutazama tu. Unaona mteja amefanya nini, lakini huwezi kuingia kama yeye wala kubadilisha data yake. Kila unapofungua ukurasa huu inarekodiwa.","Sign-up":"Usajili","Email verified":"Barua pepe imethibitishwa","Sign-up method":"Njia ya kujisajili","Last sign-in":"Alipoingia mwisho","What they use":"Anachotumia","Your review":"Ukaguzi wako","Note (only you see it)":"Maelezo (wewe tu unayaona)","Mark approved":"Mkubali","Loading…":"Inapakia…","Messages sent":"Ujumbe uliotumwa","Bulk SMS":"Bulk SMS","Attending":"Wanahudhuria"});
 window.SW_PAT.push(["Bulk SMS · {#0} campaigns","Bulk SMS · kampeni {0}"],["Last seen {0}","Alionekana {0}"],["{#0} min ago","Dakika {0} zilizopita"],["{#0} h ago","Saa {0} zilizopita"],["{#0} days ago","Siku {0} zilizopita"],["{#0} day ago","Siku {0} iliyopita"]);
+Object.assign(window.SW_EXACT, {
+"What do you need SHEREHE HUB for?":"Unahitaji SHEREHE HUB kwa ajili ya nini?",
+"My services":"Huduma zangu",
+"Choose the service you need. You will only see that part of the app. You can add another service later.":"Chagua huduma unayohitaji. Utaona sehemu hiyo tu ya mfumo. Unaweza kuongeza huduma nyingine baadaye.",
+"Add or remove services. Paid services need an active subscription.":"Ongeza au ondoa huduma. Huduma za malipo zinahitaji usajili unaoendelea.",
+"Continue":"Endelea","Sign out":"Toka","Saving…":"Inahifadhi…","Free":"Bure","Fee":"Ada","Per month":"Kwa mwezi","Pay to":"Lipia kwenda","Your account":"Akaunti yako",
+"Event host":"Mwenyeji wa tukio","Co-host":"Mwenyeji msaidizi","Treasurer":"Mhazini","Photographer":"Mpiga picha",
+"Create events, guest lists, invitations, cards, check-in and reports.":"Tengeneza matukio, orodha ya wageni, mialiko, kadi, check-in na ripoti.",
+"Help a host run their event. The host adds your email to their event.":"Msaidie mwenyeji kuendesha tukio lake. Mwenyeji ataweka barua pepe yako kwenye tukio lake.",
+"Record contributions and expenses for an event you were invited to.":"Rekodi michango na matumizi ya tukio ulilokaribishwa.",
+"Online photo galleries and photo uploads for your clients.":"Albamu za picha mtandaoni na kupakia picha kwa wateja wako.",
+"Sell tickets for your event and scan them at the gate.":"Uza tiketi za tukio lako na uzikague mlangoni.",
+"Send SMS to guests, parents, members and customers. You only pay for the SMS you send.":"Tuma SMS kwa wageni, wazazi, wanachama na wateja. Unalipia SMS unazotuma tu.",
+"Your access is paused until you pay. Your data is safe and comes back as soon as your subscription is active.":"Huduma imesimama hadi ulipe. Taarifa zako ziko salama na zinarudi mara usajili wako utakapowashwa.",
+"Use your email as the reference":"Tumia barua pepe yako kama kumbukumbu",
+"After you pay, press \"I have paid\" below. We will check the payment and activate your account.":"Baada ya kulipa, bonyeza \"Nimelipa\" hapa chini. Tutaangalia malipo na kuwasha akaunti yako.",
+"After you pay, ask the event host to add your email as a Co-host in their event.":"Baada ya kulipa, mwombe mwenyeji wa tukio aweke barua pepe yako kama Mwenyeji msaidizi kwenye tukio lake.",
+"After you pay, ask the event host to add your email as a Treasurer in their event.":"Baada ya kulipa, mwombe mwenyeji wa tukio aweke barua pepe yako kama Mhazini kwenye tukio lake.",
+"Payment notice sent. We will activate your account soon.":"Taarifa ya malipo imetumwa. Tutawasha akaunti yako hivi karibuni.",
+"I have paid":"Nimelipa","Check again":"Angalia tena","Choose another service":"Chagua huduma nyingine",
+"Thank you. We will check the payment and activate your account.":"Asante. Tutaangalia malipo na kuwasha akaunti yako.",
+"Your subscription is active.":"Usajili wako unafanya kazi.",
+"Not active yet. Please wait for the payment to be confirmed.":"Bado haujawashwa. Tafadhali subiri malipo yathibitishwe.",
+"This account has been removed":"Akaunti hii imeondolewa",
+"The administrator has stopped access to SHEREHE HUB for this account. If you think this is a mistake, contact us.":"Msimamizi amezuia akaunti hii kutumia SHEREHE HUB. Ukiona ni kosa, wasiliana nasi.",
+"Services and prices":"Huduma na bei","Subscription needed":"Usajili unahitajika",
+"What each service costs, and how customers pay. Customers pay by M-Pesa; you then activate them from their View window.":"Gharama ya kila huduma na jinsi wateja wanavyolipa. Wateja hulipa kwa M-Pesa; kisha wewe unawawasha kupitia dirisha lao la Angalia.",
+"Service":"Huduma","How it is paid":"Inavyolipwa","Fee (TZS)":"Ada (TZS)","Per SMS sent":"Kwa kila SMS inayotumwa",
+"Payment instructions shown to customers":"Maelekezo ya malipo wanayoonyeshwa wateja",
+"WhatsApp number (with country code, digits only)":"Namba ya WhatsApp (pamoja na msimbo wa nchi, tarakimu tu)",
+"The Bulk SMS fee is the price your customer pays per SMS. NextSMS charges you TZS 16 per SMS, so your profit is the difference.":"Ada ya Bulk SMS ni bei analipa mteja kwa kila SMS. NextSMS inakutoza TZS 16 kwa SMS, hivyo faida yako ni tofauti.",
+"Services could not be loaded.":"Huduma hazikupakiwa.",
+"Enter a valid amount.":"Weka kiasi sahihi.","Saved.":"Imehifadhiwa.","Activated.":"Imewashwa.","Subscription ended.":"Usajili umeisha.",
+"Remove this member?":"Kumuondoa mwanachama huyu?",
+"will not be able to sign in or use SHEREHE HUB. Their data is kept, and you can restore them any time.":"hataweza kuingia wala kutumia SHEREHE HUB. Taarifa zake zinabaki, na unaweza kumrudisha wakati wowote.",
+"Remove member":"Muondoe mwanachama","Member removed.":"Mwanachama ameondolewa.","Member restored.":"Mwanachama amerudishwa.","Restore member":"Mrudishe mwanachama",
+"Services and payment":"Huduma na malipo","No paid service chosen.":"Hajachagua huduma ya malipo.","Waiting for payment":"Anasubiri malipo","Also chosen:":"Pia amechagua:",
+"Account access":"Ruhusa ya akaunti","Reason (only you see it)":"Sababu (wewe tu unaiona)","+30 days":"+ siku 30","End now":"Maliza sasa",
+"Co-host · paid":"Mwenyeji msaidizi · amelipa","Co-host · unpaid":"Mwenyeji msaidizi · hajalipa","Treasurer · paid":"Mhazini · amelipa","Treasurer · unpaid":"Mhazini · hajalipa",
+"Photographer · unpaid":"Mpiga picha · hajalipa","Tickets · unpaid":"Tiketi · hajalipa","Bulk SMS · chosen":"Bulk SMS · amechagua","Host · no events yet":"Mwenyeji · bado hana tukio",
+"Says paid":"Anasema amelipa","Removed":"Ameondolewa",
+"You can see what this customer has done, activate their subscription, or remove them. You cannot log in as them or change their data. Every time you open this view it is recorded.":"Unaweza kuona mteja amefanya nini, kuwasha usajili wake, au kumuondoa. Huwezi kuingia kama yeye wala kubadilisha data yake. Kila unapofungua ukurasa huu inarekodiwa."
+});
+window.SW_PAT.push(
+["TZS {#0} per SMS","TZS {0} kwa SMS"],["TZS {#0} / month","TZS {0} / mwezi"],
+["Your subscription ended on {0}.","Usajili wako uliisha {0}."],
+["Active until {0}","Umewashwa hadi {0}"],["Ended on {0}","Uliisha {0}"],["Removed on {0}","Ameondolewa {0}"],
+["Could not send: {0}","Imeshindikana kutuma: {0}"],["Could not remove: {0}","Imeshindikana kumuondoa: {0}"],["Could not restore: {0}","Imeshindikana kumrudisha: {0}"]
+);
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
