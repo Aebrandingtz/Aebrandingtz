@@ -1924,7 +1924,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
       <ul class="auth-feats">
         <li><b>01</b><span class="ft">Guest list</span><span class="fd">Add guests one by one or import them from Excel</span></li>
         <li><b>02</b><span class="ft">Personal QR cards</span><span class="fd">Single, Double, VIP or Family, each with its own QR</span></li>
-        <li><b>03</b><span class="ft">Design Studio</span><span class="fd">Design invitation cards and posters from 24 templates</span></li>
+        <li><b>03</b><span class="ft">Tickets</span><span class="fd">Sell tickets, scan at the gate</span></li>
         <li><b>04</b><span class="ft">Invitations</span><span class="fd">Send by WhatsApp or SMS and follow every reply live</span></li>
         <li><b>05</b><span class="ft">RSVP and wishes</span><span class="fd">Guests reply, pick a meal and leave a wish</span></li>
         <li><b>06</b><span class="ft">Tables and money</span><span class="fd">Seating, contributions and your budget</span></li>
@@ -2005,7 +2005,6 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" data-view="seating" onclick="showView('seating',this)"><svg class="i"><use href="#i-seat"/></svg>Seating</button>
   <button class="nav" data-view="cards" onclick="showView('cards',this)"><svg class="i"><use href="#i-qr"/></svg>Cards &amp; QR</button>
   <button class="nav" data-view="messaging" onclick="showView('messaging',this)"><svg class="i"><use href="#i-chat"/></svg>Messaging</button>
-  <button class="nav" data-view="studio" onclick="showView('studio',this)"><svg class="i"><use href="#i-sparkle"/></svg>Design Studio</button>
 
   <div class="side-label">Event day</div>
   <button class="nav" data-view="rsvp" onclick="showView('rsvp',this)"><svg class="i"><use href="#i-scan"/></svg>Check-in</button>
@@ -2037,7 +2036,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V115</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V116</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2119,7 +2118,6 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
         <div class="upload-zone" onclick="document.getElementById('fPoster').click()"><div class="upload-icon"><svg class="i"><use href="#i-upload"/></svg></div><div><b>Choose poster file</b><p>JPG, PNG or WEBP</p></div><span class="upload-btn">Browse</span></div>
         <input id="fPoster" type="file" accept="image/png,image/jpeg,image/webp" onchange="previewPoster(this,'main')" style="display:none">
         <div id="posterFileName" class="file-status">No poster selected.</div>
-        <p class="muted" style="font-size:12.5px;margin:8px 0 0">Want a professional design? Save the event first, then open it in <b>Design Studio</b> and use <i>Use as event poster</i>.</p>
         </div>
         <div id="pmMaker" style="display:none">
           <p class="pm-note">No designer needed. The poster is built from the event name, date, venue and message you entered above, and updates as you type. Guest names are added on top automatically.</p>
@@ -2209,8 +2207,6 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
       <button class="gray" onclick="downloadAllZip()"><svg class="i"><use href="#i-download"/></svg>Download ZIP</button>
       <button class="gray" onclick="uploadAllGeneratedCards()"><svg class="i"><use href="#i-upload"/></svg>Save to cloud</button>
       <button class="gray" onclick="cardsChangeOpen(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Change card</button>
-      <button class="gray" onclick="studioPickForCards(currentEventId)"><svg class="i"><use href="#i-image"/></svg>Use a saved design</button>
-      <button class="gray" onclick="studioOpenForEvent(currentEventId)"><svg class="i"><use href="#i-sparkle"/></svg>Design the card</button>
       <button class="danger" onclick="cardsRemoveOpen(currentEventId)"><svg class="i"><use href="#i-trash"/></svg>Delete card</button>
     </div>
     <div class="hint-box"><svg class="i"><use href="#i-info"/></svg><span>This is a preview of each card. Click <b>PNG</b> to download a guest's full card, or <b>Download ZIP</b> to get them all at once.</span></div>
@@ -4260,6 +4256,7 @@ const VIEW_META = {
   contributions:['Contributions','Contributions and pledges'], seating:['Seating plan','Arrange guests by table'], photos:['Photos','Event photos and gallery'], collections:['Collections','Your photo galleries'], tickets:['Tickets','Sell tickets, scan at the gate'], wishes:['Guest messages','Messages from your guests'], tasks:['Tasks','Committee to-do list'], studio:['Design Studio','Design invitations, posters and graphics'], admin:['Admin Console','Customers and system usage']
 };
 window.showView = function(id,btn){
+  if(id==='studio') id='dashboard'; /* Design Studio is switched off for now */
   if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?(window.__photoOnly?'collections':'photos'):'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
   if(!$(id)) return;
   if(id==='admin' && !isAdmin){ toast('You do not have access to the Admin Console.'); return; }
@@ -4275,7 +4272,7 @@ window.showView = function(id,btn){
   if(id==='tickets' && window.loadTickets) loadTickets();
   if(id==='wishes') loadWishes();
   if(id==='tasks' && window.loadTasks) loadTasks();
-  if(id==='studio' && window.studioShow) window.studioShow();
+  if(id==='studio'){ /* Design Studio is switched off for now */ }
   if(id==='admin') loadAdminData();
   window.scrollTo({top:0});
 };
@@ -4444,7 +4441,7 @@ window.renderEventCards = function(containerId){
       ${valid?`<div class="event-meta">${ic('clock')}${E(fmtDate(e.date))}</div>`:''}
       ${e.venue?`<div class="event-meta">${ic('pin')}${E(e.venue)}</div>`:''}
       ${prog}
-      <div class="event-actions"><button class="primary" onclick="openEventHub('${e.id}','guests')">Guests</button><button class="gray" onclick="openEventHub('${e.id}','cards')">Cards</button><button class="gray" onclick="studioOpenForEvent('${e.id}')">${ic('sparkle')}Design</button>
+      <div class="event-actions"><button class="primary" onclick="openEventHub('${e.id}','guests')">Guests</button><button class="gray" onclick="openEventHub('${e.id}','cards')">Cards</button>
       <button class="gray icon" title="Edit event" aria-label="Edit event" onclick="openEditEvent('${e.id}')">${ic('edit')}</button><button class="gray icon no-cohost" title="Duplicate event" aria-label="Duplicate event" onclick="duplicateEvent('${e.id}')">${ic('copy')}</button><button class="danger icon no-cohost" title="Delete event" aria-label="Delete event" onclick="deleteEvent('${e.id}')">${ic('trash')}</button></div></div>`;
   }).join('');
 };
@@ -5943,7 +5940,6 @@ const HELP_TOPICS = [
   ['Event day: check-in at the door', '<ul><li>Open <b>Check-in</b> and scan each guest’s QR code, or search by name.</li><li>You can give door staff access with their e-mail address; they only see the check-in screen.</li><li>Check-in keeps working if the internet drops and syncs when it returns.</li></ul>'],
   ['Contributions and expenses', '<ul><li><b>Contributions</b> records who pledged and who paid. Add payments as they arrive; balances update automatically.</li><li>Add <b>expenses</b> to see the cash in hand.</li><li>Download the contribution report as PDF or Excel. You can also give a treasurer their own access.</li></ul>'],
   ['Guest messages and the big screen', '<ul><li>After a guest answers their invitation, a box appears where they can leave a <b>message</b> for you.</li><li>Open <b>Guest messages</b> to read them. Use <b>Hide</b> for any message you do not want to show.</li><li>Press <b>Big screen</b> on the event day to show the messages one by one on a TV or projector.</li><li>Press <b>Memory book (PDF)</b> to keep all messages as a keepsake.</li></ul>'],
-  ['Design Studio: posters and cards', '<ul><li>Open <b>Design Studio</b> in the menu, or press <b>Design</b> on an event. Pick a template, then change the text, photos, colours and fonts.</li><li>Use <b>Use as event poster</b> to put the design on your event. Guests’ names are placed on it automatically.</li><li>For a premium look you can also design in Photoshop or Canva and upload it as the poster. Design Studio is best for quick jobs.</li></ul>'],
   ['Meal choices on RSVP', '<ul><li>On the <b>Guests</b> page press <b>Meal choices</b> and list the meals (up to 8), for example Pilau or Wali na nyama.</li><li>Guests tick one or more meals when they answer <b>Yes</b> on their invitation.</li><li>You see the choice in the guest details, the <b>Reports</b> page and the Excel export. The choices are per card.</li><li>Leave the list empty to switch it off.</li></ul>'],
   ['Public event page', '<ul><li>On the <b>Guests</b> page press <b>Event page</b> and switch it on. Copy the link and share it anywhere, for example in a WhatsApp group.</li><li>The page shows the poster, date, venue, map and your message, with an add-to-calendar button.</li><li>Guests cannot reply on this page. To collect replies, send each guest their own invitation link.</li><li>Switch it off and the link stops working.</li></ul>'],
   ['Photographer collections', '<ul><li>Photographers and the admin see <b>Collections</b> in the menu. Create a collection, upload photos and design the cover (style, colour, typography, grid).</li><li>Publish it and share the link or QR code with your client. Clients can view, favourite and download the photos.</li><li>You do not need an event link. To show a collection on a SHEREHE HUB event, paste the event link in <b>Settings</b>; the event owner must approve it first.</li></ul>'],
@@ -12210,8 +12206,6 @@ window.cardsChangeOpen=function(eid){
     <p class="cpk-note">${tr('Kama hupendi kadi ya sasa, chagua njia moja ya kuibadilisha. Kadi zote za wageni zitatumia muundo mpya.','If you do not like the current card, pick a way to replace it. All guest cards will use the new design.')}</p>
     <div class="cpk-list">
     ${it(th(e2.poster),tr('Kadi ya sasa','Current card'),e2.poster?tr('Single'+(e2.posterDouble?' · Double imewekwa':''),'Single'+(e2.posterDouble?' · Double is set':'')):tr('Hakuna kadi bado','No card yet'),'')}
-    ${it('',tr('Tumia muundo uliohifadhiwa','Use a saved design'),tr('Chagua kutoka Design Studio ya tukio hili.','Pick from this event\'s Design Studio.'),`<button type="button" class="primary" data-go="saved">${tr('Chagua muundo','Choose a design')}</button>`)}
-    ${it('',tr('Tengeneza kadi mpya','Design a new card'),tr('Fungua Design Studio uunde kadi kutoka mwanzo.','Open Design Studio and make a card from scratch.'),`<button type="button" class="gray" data-go="new">${tr('Fungua Design Studio','Open Design Studio')}</button>`)}
     ${it('',tr('Pakia poster yako mwenyewe','Upload your own poster'),tr('Poster kutoka mahali pengine (picha JPG au PNG). Itatumika kwa wageni wote. Nafasi ya jina inabaki ilivyo.','A poster made elsewhere (JPG or PNG image). It is used for all guests. The name position stays as it is.'),`<button type="button" class="gray" data-up="single">${tr('Pakia kadi','Upload card')}</button>`)}
     ${it('',tr('Futa kadi','Delete the card'),tr('Futa kadi ya sasa bila kuweka nyingine.','Delete the current card without a replacement.'),`<button type="button" class="danger" data-go="remove">${tr('Futa','Delete')}</button>`)}
     </div><input type="file" id="cchFile" accept="image/*" hidden></div>`;
