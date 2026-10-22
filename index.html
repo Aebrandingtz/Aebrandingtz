@@ -1920,6 +1920,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 #smNavGroup{display:block}
 body.staff-mode #smNavGroup{display:none!important}
 @media(max-width:760px){.sm-stats{grid-template-columns:1fr 1fr}.sm-row-side{align-items:flex-start;text-align:left;width:100%}.sm-launchbar{flex-direction:column;align-items:stretch}.sm-launchbar button{width:100%}.sm-bubble{max-width:100%}.sm-tabs{margin-left:-4px}}
+#adminCustomers .tag{white-space:nowrap;margin:1px 2px 1px 0;display:inline-block}
 
 </style>
 </head>
@@ -2106,7 +2107,7 @@ body.staff-mode #smNavGroup{display:none!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V118</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V119</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -6180,7 +6181,8 @@ window.loadAdminData = async function(force){
       fetchAll(()=>supabaseClient.from('guests').select('id,event_id,rsvp_status,checked_in,sent_whatsapp,sent_sms').order('id'))
     ]);
     let subs=[]; try{ subs=await fetchAll(()=>supabaseClient.from('photographer_subscriptions').select('email,active_until,note,updated_at').order('active_until',{ascending:false})); }catch(e){ subs=null; }
-    window.__admin={events,profiles,guests,subs,at:Date.now()}; renderAdmin();
+    let ov=null; try{ const r=await supabaseClient.rpc('admin_customer_overview'); if(!r.error&&Array.isArray(r.data)) ov=Object.fromEntries(r.data.map(x=>[x.id,x])); }catch(e){ ov=null; }
+    window.__admin={events,profiles,guests,subs,ov,at:Date.now()}; renderAdmin();
   }catch(e){ $('adminTable').innerHTML=emptyState('Data could not be loaded',String(e.message||e)); }
 };
 window.renderAdmin = function(){
@@ -6190,9 +6192,44 @@ window.renderAdmin = function(){
   $('aOwners').textContent=d.profiles.length; $('aEvents').textContent=d.events.length; $('aGuests').textContent=d.guests.length; $('aChecks').textContent=d.guests.filter(g=>g.checked_in).length;
   const evByOwner={}, gByOwner={};
   d.events.forEach(e=>{ evByOwner[e.owner_id]=(evByOwner[e.owner_id]||0)+1; gByOwner[e.owner_id]=(gByOwner[e.owner_id]||0)+(byEvent[e.id]?.n||0); });
-  $('adminCustomers').innerHTML = d.profiles.length ? `<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Role</th><th>Events</th><th>Guests</th><th>Joined</th></tr></thead><tbody>${d.profiles.map(p=>`<tr><td><div class="guest-cell"><span class="avatar">${E(initials(p.full_name||p.email))}</span><div style="min-width:0"><span class="cell-name">${E(p.full_name||'(no name)')}</span><span class="cell-sub">${E(p.email||'')}</span></div></div></td><td>${E(p.phone||'—')}</td><td>${p.role==='admin'?'<span class="tag gold">Admin</span>':'<span class="tag">Customer</span>'}</td><td>${evByOwner[p.id]||0}</td><td>${gByOwner[p.id]||0}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</td></tr>`).join('')}</tbody></table></div>` : emptyState('No customers yet','');
+  const ov=d.ov||{}, ago=iso=>{ if(!iso) return 'Never'; const m=Math.round((Date.now()-new Date(iso).getTime())/60000); if(m<2) return 'Just now'; if(m<60) return m+' min ago'; const h=Math.round(m/60); if(h<24) return h+' h ago'; const dd=Math.round(h/24); return dd+(dd===1?' day ago':' days ago'); };
+  const kinds=p=>{ const o=ov[p.id]||{}, k=[]; if(p.role==='admin') k.push('<span class="tag gold">Admin</span>');
+    if(evByOwner[p.id]) k.push('<span class="tag">Host</span>'); if(o.tk) k.push('<span class="tag">Tickets · '+E(o.tk)+'</span>');
+    if(o.photog_until) k.push('<span class="tag">Photographer · '+(new Date(o.photog_until)>new Date()?'active':'expired')+'</span>');
+    if(o.sms_status) k.push('<span class="tag">Bulk SMS'+(o.sms_campaigns?' · '+o.sms_campaigns+' campaigns':'')+'</span>');
+    return k.length&&!(k.length===1&&p.role==='admin'&&!evByOwner[p.id])?k.join(' '):(p.role==='admin'?k.join(' '):'<span class="status idle">Just signed up</span>'); };
+  const rev=p=>{ if(p.role==='admin') return '<span class="status ok">Owner</span>'; const o=ov[p.id]; if(!o) return '—'; const r=o.review; return r==='approved'?'<span class="status ok">Approved</span>':r==='watch'?'<span class="status warn">Watch</span>':'<span class="status idle">Not reviewed</span>'; };
+  $('adminCustomers').innerHTML = d.profiles.length ? `<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Account type</th><th>Email</th><th>Last seen</th><th>Events</th><th>Guests</th><th>Joined</th><th>Review</th><th></th></tr></thead><tbody>${d.profiles.map(p=>{ const o=ov[p.id]||{}; return `<tr><td><div class="guest-cell"><span class="avatar">${E(initials(p.full_name||p.email))}</span><div style="min-width:0"><span class="cell-name">${E(p.full_name||'(no name)')}</span><span class="cell-sub">${E(p.email||'')}</span></div></div></td><td>${E(p.phone||'—')}</td><td>${kinds(p)}</td><td>${d.ov?(o.confirmed?'<span class="status ok">Verified</span>':'<span class="status warn">Not verified</span>'):'—'}</td><td>${d.ov?E(ago(o.last_sign_in)):'—'}</td><td>${evByOwner[p.id]||0}</td><td>${gByOwner[p.id]||0}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</td><td>${rev(p)}</td><td><button class="gray" onclick="admCustView(${jq(p.id)})">View</button></td></tr>`; }).join('')}</tbody></table></div>${d.ov?'':'<div class="help">Account details could not be loaded. Run the V118 SQL in Supabase.</div>'}` : emptyState('No customers yet','');
   renderAdminSubs();
   $('adminTable').innerHTML = d.events.length ? `<div class="table-wrap"><table><thead><tr><th>Event</th><th>Organiser</th><th>Date</th><th>Guests</th><th>Invited</th><th>Attending</th><th>Arrived</th></tr></thead><tbody>${d.events.map(e=>{ const x=byEvent[e.id]||{n:0,sent:0,yes:0,in:0}, o=owner[e.owner_id]; return `<tr><td><span class="cell-name">${E(e.event_name)}</span><span class="cell-sub">${E(e.event_type||'')}</span></td><td><span class="cell-name">${E(o?.full_name||'—')}</span><span class="cell-sub">${E(o?.email||'')}</span></td><td>${e.event_date?E(fmtDate(e.event_date)):'—'}</td><td>${x.n}</td><td><div class="progress" title="${pct(x.sent,x.n)}%"><i style="width:${pct(x.sent,x.n)}%"></i></div></td><td>${x.yes}</td><td>${x.in}</td></tr>`; }).join('')}</tbody></table></div>` : emptyState('No events yet','');
+};
+
+window.admCustView = async function(id){
+  let m=$('admCustModal'); if(!m){ m=document.createElement('div'); m.id='admCustModal'; m.className='modal'; m.innerHTML='<div class="modal-box" id="admCustBox" style="max-width:760px"></div>'; document.body.appendChild(m); m.addEventListener('click',e=>{ if(e.target===m) admCustClose(); }); }
+  $('admCustBox').innerHTML='<button class="modal-close" onclick="admCustClose()" aria-label="Close">×</button><p class="muted">Loading…</p>'; m.classList.add('open');
+  const r=await supabaseClient.rpc('admin_customer_detail',{p_user:id});
+  if(r.error||!r.data){ $('admCustBox').innerHTML='<button class="modal-close" onclick="admCustClose()" aria-label="Close">×</button><div class="help">Could not load this customer: '+E(r.error?r.error.message:'no data')+'</div>'; return; }
+  const x=r.data, p=x.profile||{}, a=x.auth||{}, ev=x.events||[], dt=iso=>iso?new Date(iso).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  const rv=x.review||{status:'new'};
+  $('admCustBox').innerHTML=`<button class="modal-close" onclick="admCustClose()" aria-label="Close">×</button>
+  <div class="guest-modal-head"><div class="guest-modal-icon"><span class="avatar">${E(initials(p.name||p.email))}</span></div><div><h2>${E(p.name||'(no name)')}</h2><p>${E(p.email||'')} · ${E(p.phone||'no phone')}</p></div></div>
+  <div class="help">Read-only view. You can see what this customer has done, but you cannot log in as them or change their data. Every time you open this view it is recorded.</div>
+  <h3 class="sm-h3">Sign-up</h3>
+  <div class="sm-cells"><div class="sm-cell ${a.confirmed?'ok':'warn'}"><b>${a.confirmed?'Yes':'No'}</b><span>Email verified</span></div><div class="sm-cell"><b>${E(a.provider||'—')}</b><span>Sign-up method</span></div><div class="sm-cell"><b style="font-size:14px">${E(dt(p.joined))}</b><span>Joined</span></div><div class="sm-cell"><b style="font-size:14px">${E(dt(a.last_sign_in))}</b><span>Last sign-in</span></div></div>
+  <h3 class="sm-h3">What they use</h3>
+  <ul class="sm-rules"><li>Events: <b>${ev.length}</b> (${ev.reduce((n,e)=>n+e.guests,0)} guests)</li><li>Event tickets: ${x.tickets?'<b>'+E(x.tickets.status)+'</b> · '+x.tickets.events+' events':'not an organiser'}</li><li>Photographer: ${x.photographer?'until <b>'+E(dt(x.photographer.active_until))+'</b>':'no subscription'}</li><li>Bulk SMS: ${x.sms?'<b>'+E(x.sms.status)+'</b> · '+x.sms.campaigns+' campaigns'+(x.sms.sender?' · sender '+E(x.sms.sender):''):'not opened'}</li></ul>
+  ${ev.length?`<div class="table-wrap"><table><thead><tr><th>Event</th><th>Date</th><th>Guests</th><th>Attending</th><th>Arrived</th><th>Messages sent</th></tr></thead><tbody>${ev.map(e=>`<tr><td><span class="cell-name">${E(e.name)}</span><span class="cell-sub">${E(e.type||'')}</span></td><td>${e.date?E(fmtDate(e.date)):'—'}</td><td>${e.guests}</td><td>${e.yes}</td><td>${e.arrived}</td><td>${e.messages}</td></tr>`).join('')}</tbody></table></div>`:''}
+  ${p.role==='admin'?'':`<h3 class="sm-h3">Your review</h3>
+  <p class="sm-note">Current: <b>${rv.status==='approved'?'Approved':rv.status==='watch'?'Watch':'Not reviewed'}</b>${rv.at?' · '+E(dt(rv.at)):''}. This is only your own note; it does not block or allow anything.</p>
+  <div class="field"><label for="admRevNote">Note (only you see it)</label><input id="admRevNote" maxlength="500" value="${E(rv.note||'')}" placeholder="e.g. Called him, wedding planner in Dar"></div>
+  <div class="guest-form-actions"><button class="gray" onclick="admCustReview(${jq(p.id)},'new')">Not reviewed</button><button class="gray" onclick="admCustReview(${jq(p.id)},'watch')">Watch</button><button class="primary" onclick="admCustReview(${jq(p.id)},'approved')">Mark approved</button></div>`}`;
+};
+window.admCustClose = function(){ const m=$('admCustModal'); if(m) m.classList.remove('open'); };
+window.admCustReview = async function(id,status){
+  const note=(($('admRevNote')||{}).value||'').trim();
+  const r=await supabaseClient.rpc('admin_customer_review_set',{p_user:id,p_status:status,p_note:note||null});
+  if(r.error) return toast('Could not save: '+r.error.message);
+  toast('Saved.'); admCustClose(); loadAdminData(true);
 };
 
 window.renderAdminSubs = function(){
@@ -13727,7 +13764,7 @@ window.SW_EXACT = {
 "Yes":"Ndiyo",
 "No":"Hapana",
 "Search":"Tafuta",
-"Loading…":"Inapakia…",
+"Loading…":"Inapakia…","Messages sent":"Ujumbe uliotumwa","Bulk SMS":"Bulk SMS",
 "Loading...":"Inapakia...",
 "Remove":"Ondoa",
 "Back":"Rudi",
@@ -14111,6 +14148,9 @@ Object.assign(window.SW_EXACT,{"Guest name position":"Nafasi ya jina la mgeni","
 Object.assign(window.SW_EXACT,{"Send cards":"Tuma kadi","Send cards to guests":"Tuma kadi kwa wageni","Who should receive their card?":"Nani apokee kadi yake?","Guests not yet invited":"Wageni ambao hawajaalikwa bado","Invited, no reply yet":"Walioalikwa, bado hawajajibu","Each guest gets a message with their own card link (it shows the invitation, their name and the QR code for the door). If automatic sending is not connected, WhatsApp or the SMS app opens on your phone for each guest.":"Kila mgeni anapata ujumbe wenye kiungo cha kadi yake (kinaonyesha mwaliko, jina lake na QR ya mlangoni). Kama kutuma moja kwa moja hakujaunganishwa, WhatsApp au programu ya SMS inafunguka kwenye simu yako kwa kila mgeni."});
 window.SW_PAT.push(["{#0} guests will receive their card.","Wageni {0} watapokea kadi yao."],["{#0} guest will receive their card.","Mgeni {0} atapokea kadi yake."],["{#0} guests will receive their card ({#1} without a valid phone number will be skipped).","Wageni {0} watapokea kadi yao (wageni {1} wasio na namba sahihi ya simu wataachwa)."],["{#0} guest will receive their card ({#1} without a valid phone number will be skipped).","Mgeni {0} atapokea kadi yake (wageni {1} wasio na namba sahihi ya simu wataachwa)."]);
 Object.assign(window.SW_EXACT,{"Send cards?":"Tuma kadi?"});
+
+Object.assign(window.SW_EXACT, {"Account type":"Aina ya akaunti","Last seen":"Alionekana mwisho","Review":"Ukaguzi","View":"Angalia","Never":"Hajawahi","Just now":"Sasa hivi","Just signed up":"Amejiunga tu","Host":"Mwenyeji","Verified":"Imethibitishwa","Not verified":"Haijathibitishwa","Approved":"Amekubaliwa","Watch":"Chunguza","Not reviewed":"Hajakaguliwa","Owner":"Mmiliki","Account details could not be loaded. Run the V118 SQL in Supabase.":"Maelezo ya akaunti hayakupakiwa. Endesha SQL ya V118 kwenye Supabase.","Read-only view. You can see what this customer has done, but you cannot log in as them or change their data. Every time you open this view it is recorded.":"Kutazama tu. Unaona mteja amefanya nini, lakini huwezi kuingia kama yeye wala kubadilisha data yake. Kila unapofungua ukurasa huu inarekodiwa.","Sign-up":"Usajili","Email verified":"Barua pepe imethibitishwa","Sign-up method":"Njia ya kujisajili","Last sign-in":"Alipoingia mwisho","What they use":"Anachotumia","Your review":"Ukaguzi wako","Note (only you see it)":"Maelezo (wewe tu unayaona)","Mark approved":"Mkubali","Loading…":"Inapakia…","Messages sent":"Ujumbe uliotumwa","Bulk SMS":"Bulk SMS","Attending":"Wanahudhuria"});
+window.SW_PAT.push(["Bulk SMS · {#0} campaigns","Bulk SMS · kampeni {0}"],["Last seen {0}","Alionekana {0}"],["{#0} min ago","Dakika {0} zilizopita"],["{#0} h ago","Saa {0} zilizopita"],["{#0} days ago","Siku {0} zilizopita"],["{#0} day ago","Siku {0} iliyopita"]);
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
