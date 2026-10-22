@@ -1357,6 +1357,32 @@ button.icon svg.i{width:16px;height:16px}
 .inv-getcard button{width:100%;max-width:340px;padding:13px 16px;font-size:15px;font-weight:700;border-radius:12px}
 .inv-getcard small{color:var(--muted,#64748b);font-size:12px}
 
+/* ---------- V126: contributions phase 1 ---------- */
+.ct-ov{margin-bottom:18px}
+.ct-ov-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;margin:0 0 12px!important}
+.ct-ov-grid .stat b{font-size:20px}
+.ct-ov-counts{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13.5px;color:var(--muted)}
+.ct-ov-counts b{color:var(--ink)}
+@media(max-width:640px){.ct-ov-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ct-ov-grid .stat b{font-size:17px}}
+.ct-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;vertical-align:middle;white-space:nowrap}
+.ct-badge.pend{background:#fff4d6;color:#8a5a00}
+.ct-badge.rev{background:var(--bad-soft);color:var(--bad)}
+.ct-pay2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px;margin-top:8px}
+.ct-chk{display:flex;gap:8px;align-items:flex-start;margin:8px 0 2px;font-size:13px;color:var(--muted);cursor:pointer}
+.ct-chk input{margin-top:2px}
+.ct-pi.is-rev{opacity:.7;background:var(--bg)}
+.ct-pi.is-rev .who b{text-decoration:line-through}
+.ct-pi .who .ct-why,.ct-adji .ct-why{display:block;color:var(--muted);font-style:italic}
+.ct-pi .row-actions{flex-wrap:wrap;justify-content:flex-end}
+.ct-adjf{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:8px}
+.ct-reason{width:100%;margin-top:8px}
+.ct-adjf2{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap}
+.ct-adjlist{display:grid;gap:8px;margin-top:12px}
+.ct-adji{border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px}
+.ct-adji b{display:block;font-size:13.5px}.ct-adji span{display:block;font-size:12px;color:var(--muted)}
+@media(max-width:480px){.ct-pay2,.ct-adjf{grid-template-columns:1fr}}
+.row-actions button.icon.rm:hover:not(:disabled){background:var(--bad-soft);color:var(--bad)}
+
 /* ===================== DESIGN STUDIO (V86) ===================== */
 body.st-open{overflow:hidden}
 .stI{width:18px;height:18px;flex:none;vertical-align:middle}
@@ -2135,7 +2161,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V125</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V126</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2438,6 +2464,7 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="stat stat-green"><span>Cash in hand (collected − expenses)</span><b id="ctCash">TZS 0</b></div>
   </div>
   <div class="panel ct-progress" id="ctProgress"></div>
+  <div id="ctOverview"></div>
   <div class="panel">
     <div class="panel-heading"><div><h2>Add a contributor</h2><p>Record who pledged and how much. If they already paid something, enter it too.</p></div></div>
     <div class="pay-grid">
@@ -2446,6 +2473,7 @@ body.svc-photog #collNavGroup{display:block!important}
       <div class="field"><label for="ctPledge">Pledged amount (TZS)</label><input id="ctPledge" inputmode="numeric" placeholder="e.g. 200,000"></div>
       <div class="field"><label for="ctPaidNow">Paid so far (TZS) <span class="optional">Optional</span></label><input id="ctPaidNow" inputmode="numeric" placeholder="e.g. 50,000"></div>
       <div class="field"><label for="ctDue">Pledge due date <span class="optional">Optional</span></label><input id="ctDue" type="date"></div>
+      <div class="field"><label for="ctRef">Transaction reference <span class="optional">Optional</span></label><input id="ctRef" maxlength="60" placeholder="e.g. M-Pesa code" autocomplete="off"></div>
       <div class="field"><label for="ctMethod">Payment method</label><select id="ctMethod"><option>Cash</option><option>M-Pesa</option><option>Tigo Pesa</option><option>Airtel Money</option><option>Halopesa</option><option>Bank transfer</option></select></div>
     </div>
     <div class="toolbar" style="margin-top:16px"><button class="primary" onclick="saveContributor()"><svg class="i"><use href="#i-check"/></svg>Save contributor</button></div>
@@ -2461,6 +2489,10 @@ body.svc-photog #collNavGroup{display:block!important}
     </div>
     <div id="contribListBox"></div>
     <input type="file" id="ctImportFile" accept=".xlsx,.xls,.csv" hidden onchange="ctImportFileChosen(this)">
+  </div>
+  <div class="panel no-cohost">
+    <div class="panel-heading"><div><h2>Activity log</h2><p>Who recorded, confirmed, reversed or adjusted money, and why. Only the owner and treasurer can see this.</p></div><button class="gray sm" onclick="ctLoadAudit()"><svg class="i"><use href="#i-search"/></svg>Show activity</button></div>
+    <div id="ctAuditBox"></div>
   </div>
   <div class="panel">
     <div class="panel-heading"><div><h2>Budget &amp; expenses</h2><p>Record what was spent. It is subtracted from the money collected, and appears in the report.</p></div></div>
@@ -5170,14 +5202,25 @@ window.sendBulkMessages = async function(){
 const money = n => 'TZS '+Math.round(Number(n||0)).toLocaleString('en-US');
 const numIn = v => { const n=Number(String(v||'').replace(/[^\d.]/g,'')); return isFinite(n)?n:0; };
 const digitsOf = s => String(s||'').replace(/\D/g,'').replace(/^255/,'0');
-const CT = {eventId:null,contributors:[],payments:[],expenses:[],loaded:false,search:'',filter:'all',err:''};
+const CT = {eventId:null,contributors:[],payments:[],adjustments:[],summary:null,expenses:[],loaded:false,search:'',filter:'all',err:''};
 const ctToday = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const fmtDay = s => s? new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
 const ctSpentTotal = () => (CT.expenses||[]).reduce((n,x)=>n+Number(x.amount||0),0);
 function ctPeople(){
-  const paidBy={}, rowsBy={};
-  CT.payments.filter(p=>p.status==='paid' && p.contributor_id).forEach(p=>{ paidBy[p.contributor_id]=(paidBy[p.contributor_id]||0)+Number(p.amount||0); (rowsBy[p.contributor_id]=rowsBy[p.contributor_id]||[]).push(p); });
-  return CT.contributors.slice().sort((a,b)=>nameCmp(a.name,b.name)).map(c=>{ const paid=paidBy[c.id]||0, pledged=Number(c.pledged||0); const left=Math.max(0,pledged-paid), due=c.due_date||null; return {...c,pledged,paid,balance:pledged-paid,left,due,overdue:!!(due&&left>0&&due<ctToday()),rows:(rowsBy[c.id]||[]).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))}; });
+  const paidBy={}, pendBy={}, refBy={}, rowsBy={}, allBy={};
+  CT.payments.filter(p=>p.contributor_id).forEach(p=>{
+    (allBy[p.contributor_id]=allBy[p.contributor_id]||[]).push(p);
+    if(p.status==='paid'){ paidBy[p.contributor_id]=(paidBy[p.contributor_id]||0)+Number(p.amount||0); (rowsBy[p.contributor_id]=rowsBy[p.contributor_id]||[]).push(p); }
+    else if(p.status==='pending'){ pendBy[p.contributor_id]=(pendBy[p.contributor_id]||0)+Number(p.amount||0); }
+  });
+  (CT.adjustments||[]).filter(a=>a.kind==='refund').forEach(a=>{ refBy[a.contributor_id]=(refBy[a.contributor_id]||0)+Number(a.amount||0); });
+  const byDate=(a,b)=>new Date(b.created_at)-new Date(a.created_at);
+  return CT.contributors.filter(c=>!c.archived_at).sort((a,b)=>nameCmp(a.name,b.name)).map(c=>{
+    const gross=paidBy[c.id]||0, refunded=refBy[c.id]||0, paid=gross-refunded, pledged=Number(c.pledged||0);
+    const left=Math.max(0,pledged-paid), due=c.due_date||null;
+    return {...c,pledged,paid,gross,refunded,pending:pendBy[c.id]||0,balance:pledged-paid,left,due,overdue:!!(due&&left>0&&due<ctToday()),
+      rows:(rowsBy[c.id]||[]).sort(byDate), allRows:(allBy[c.id]||[]).slice().sort(byDate), adj:(CT.adjustments||[]).filter(a=>a.contributor_id===c.id).sort(byDate)};
+  });
 }
 function ctTotals(list){
   const collected=list.reduce((n,x)=>n+x.paid,0), pledged=list.reduce((n,x)=>n+x.pledged,0), left=list.reduce((n,x)=>n+x.left,0);
@@ -5185,13 +5228,15 @@ function ctTotals(list){
   return {collected,pledged,left,pct:pledged?Math.round(covered/pledged*100):0,cleared:list.filter(x=>x.pledged>0&&x.left===0).length,owing:list.filter(x=>x.left>0).length};
 }
 async function ctFetch(eventId){
-  const [c,p,x]=await Promise.all([
-    supabaseClient.from('contributors').select('*').eq('event_id',eventId).order('created_at',{ascending:true}),
+  const [c,p,x,a,sm]=await Promise.all([
+    supabaseClient.from('contributors').select('*').eq('event_id',eventId).is('archived_at',null).order('created_at',{ascending:true}),
     supabaseClient.from('contributions').select('*').eq('event_id',eventId).order('created_at',{ascending:false}),
-    supabaseClient.from('expenses').select('*').eq('event_id',eventId).order('spent_on',{ascending:false}).order('created_at',{ascending:false})
+    supabaseClient.from('expenses').select('*').eq('event_id',eventId).order('spent_on',{ascending:false}).order('created_at',{ascending:false}),
+    supabaseClient.from('ct_adjustments').select('*').eq('event_id',eventId).order('created_at',{ascending:false}),
+    supabaseClient.rpc('ct_summary',{p_event:eventId})
   ]);
   if(c.error) throw c.error; if(p.error) throw p.error;
-  return {contributors:c.data||[],payments:p.data||[],expenses:x.error?[]:(x.data||[]),expensesOk:!x.error};
+  return {contributors:c.data||[],payments:p.data||[],adjustments:a.error?[]:(a.data||[]),summary:sm.error?null:sm.data,expenses:x.error?[]:(x.data||[]),expensesOk:!x.error};
 }
 /* payments recorded by older versions have no contributor: group them by person and link them */
 async function ctMigrateLegacy(eventId,payments,contributors){
@@ -5216,7 +5261,7 @@ window.loadContributions = async function(){
   try{
     let d=await ctFetch(ev.id);
     if(d.payments.some(p=>!p.contributor_id)){ try{ if(await ctMigrateLegacy(ev.id,d.payments,d.contributors)) d=await ctFetch(ev.id); }catch(e){ console.warn('contributions upgrade:',e); } }
-    Object.assign(CT,{eventId:ev.id,contributors:d.contributors,payments:d.payments,expenses:d.expenses,expensesOk:d.expensesOk,loaded:true,err:''});
+    Object.assign(CT,{eventId:ev.id,contributors:d.contributors,payments:d.payments,adjustments:d.adjustments,summary:d.summary,expenses:d.expenses,expensesOk:d.expensesOk,loaded:true,err:''});
   }catch(e){
     CT.err=(window.__offlineMode||!navigator.onLine)?'Contributions need an internet connection.':(/contributors|contributor_id|relation|schema cache/i.test(e.message||'')?'The contributors table is not set up yet. Run the contributors SQL file in Supabase.':(e.message||String(e)));
     CT.loaded=false;
@@ -5228,6 +5273,7 @@ function ctRenderTotals(list){
   $('ctCollected').textContent=money(t.collected); $('ctPledged').textContent=money(t.pledged); $('ctLeft').textContent=money(t.left);
   const spent=(CT.loaded&&currentEventId&&CT.eventId===currentEventId)?ctSpentTotal():0, cash=t.collected-spent;
   if($('ctSpent')) $('ctSpent').textContent=money(spent); if($('ctCash')){ $('ctCash').textContent=(cash<0?'− ':'')+money(Math.abs(cash)); $('ctCash').style.color=cash<0?'#b91c1c':''; }
+  ctRenderOverview(t);
   $('ctProgress').innerHTML = list.length
     ? `<div class="ct-prog-head"><b>${t.pct}% of pledges collected</b><span class="muted">${list.length} contributor${list.length===1?'':'s'} · ${t.cleared} fully paid · ${t.owing} still owing</span></div><div class="ne-bar" style="margin-top:10px"><i class="y" style="width:${t.pct}%"></i></div>`
     : `<div class="ct-prog-head"><b>No contributors yet</b><span class="muted">Add the first one below.</span></div>`;
@@ -5251,7 +5297,7 @@ window.renderContributions = function(){
     const bal = x.left>0?`<b class="bal owe">${money(x.left)}</b>`:(x.pledged>0&&x.paid>x.pledged?`<span class="bal ok">Paid · +${money(x.paid-x.pledged)}</span>`:`<span class="bal ok">Cleared</span>`);
     return `<tr><td class="seq" data-l="No.">${ix+1}</td><td data-l="Contributor"><div class="guest-cell"><span class="avatar">${E(initials(x.name))}</span><div style="min-width:0"><span class="cell-name">${E(x.name)}</span><span class="cell-sub">${E(x.phone||'No phone')}${inG?' · in guest list':''}</span>${x.due&&x.left>0?`<span class="cell-sub ${x.overdue?'due-late':''}">${x.overdue?'Overdue · ':'Due '}${E(fmtDay(x.due))}</span>`:''}</div></div></td>
       <td class="num" data-l="Pledged">${money(x.pledged)}</td><td class="num" data-l="Paid">${money(x.paid)}</td><td class="num" data-l="Balance">${bal}</td>
-      <td class="actions"><div class="row-actions"><button class="primary sm" onclick="openContributor('${x.id}',true)">${ic('plus')}Add payment</button><button class="icon" title="Details and history" aria-label="Details and history" onclick="openContributor('${x.id}')">${ic('user')}</button><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteContributor('${x.id}')">${ic('trash')}</button></div></td></tr>`;}).join('')}
+      <td class="actions"><div class="row-actions"><button class="primary sm" onclick="openContributor('${x.id}',true)">${ic('plus')}Add payment</button><button class="icon" title="Details and history" aria-label="Details and history" onclick="openContributor('${x.id}')">${ic('user')}</button>${x.pending>0?`<span class="ct-badge pend" title="Waiting for confirmation">${money(x.pending)} pending</span>`:''}<button class="icon rm no-cohost" title="Remove contributor" aria-label="Remove contributor" onclick="deleteContributor('${x.id}')">${ic('trash')}</button></div></td></tr>`;}).join('')}
     </tbody><tfoot><tr class="ct-total"><td></td><td>Total (${list.length})</td><td class="num" data-l="Pledged">${money(t.pledged)}</td><td class="num" data-l="Paid">${money(t.collected)}</td><td class="num" data-l="Balance"><b>${money(t.left)}</b></td><td></td></tr></tfoot></table></div>`;
 };
 window.ctSearchSet = v => { CT.search=v; renderContributions(); };
@@ -5259,8 +5305,86 @@ window.ctFilterSet = v => { CT.filter=v; renderContributions(); };
 function ctGuestKeys(ev){
   const s=new Set(); ev.guests.forEach(g=>{ const d=digitsOf(g.phone); if(d) s.add('p:'+d); s.add('n:'+String(g.name||'').trim().toLowerCase()); }); return s;
 }
-async function ctAddPayment(contributor,amount,method){
-  const row={event_id:contributor.event_id,contributor_id:contributor.id,payer_name:contributor.name,payer_phone:contributor.phone||null,amount,currency:'TZS',provider:'manual',provider_reference:method,status:'paid'};
+
+/* ----- V126: clear messages for the server's safety rules ----- */
+function ctErr(e){
+  const m=String((e&&e.message)||e||'');
+  const map={payment_locked:'This payment is locked. Reverse it with a reason instead.',use_adjustment:'Change a pledge with "Adjust pledge or money" so it is recorded.',use_archive:'Remove a contributor with the Remove button.',
+    exceeds_outstanding:'That is more than the unpaid balance.',exceeds_received:'That is more than the money received from this person.',reason_required:'Please write a reason (at least 3 letters).',
+    nothing_outstanding:'There is no unpaid balance to waive.',has_money:'This person still has money recorded. Refund or reverse it first.',has_pending:'Confirm or reverse the pending payment first.',
+    already_reversed:'This payment is already reversed.',no_change:'The pledge is already that amount.',bad_amount:'Please enter a valid amount.',bad_status:'This payment cannot be changed.',
+    future_date:'The payment date cannot be in the future.',contributor_unavailable:'This contributor was removed.',contributor_has_records:'This contributor has payment records and cannot be deleted.',
+    not_pending:'This payment is not waiting for confirmation.',archived:'This contributor was removed.',forbidden:'You are not allowed to do this.'};
+  for(const k in map) if(m.includes(k)) return map[k];
+  if(/contributions_txn_ref_uq|duplicate key/i.test(m)) return 'This transaction reference was already used for another payment.';
+  if(/row-level security|permission denied/i.test(m)) return 'You are not allowed to do this.';
+  return m;
+}
+window.__ct={CT,ctPeople:()=>ctPeople(),ctErr};
+const ctPayDate = p => p.paid_on ? fmtDay(p.paid_on) : (p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'');
+function ctRenderOverview(t){
+  const box=$('ctOverview'); if(!box) return;
+  if(!(CT.loaded&&CT.eventId===currentEventId)){ box.innerHTML=''; return; }
+  const m=CT.summary||{}, has=!!CT.summary;
+  const pendRows=CT.payments.filter(p=>p.status==='pending'), pend=pendRows.reduce((n,p)=>n+Number(p.amount||0),0), pendN=pendRows.length;
+  const refunded=(CT.adjustments||[]).filter(a=>a.kind==='refund').reduce((n,a)=>n+Number(a.amount||0),0);
+  const revRows=CT.payments.filter(p=>p.status==='reversed');
+  const reversed=revRows.reduce((n,p)=>n+Number(p.amount||0),0), revN=revRows.length;
+  const target=has&&m.target!=null?Number(m.target):null;
+  const people=ctPeople(); const partly=people.filter(x=>x.paid>0&&x.left>0).length, none=people.filter(x=>x.paid<=0&&x.pledged>0).length;
+  const recv=t.collected;
+  const tpct=target?Math.min(100,Math.round(recv/target*100)):0;
+  const tile=(label,val,sub,cls)=>`<div class="stat ${cls||''}"><span>${label}</span><b>${val}</b>${sub?`<small class="muted">${sub}</small>`:''}</div>`;
+  box.innerHTML=`<div class="panel ct-ov">
+    <div class="panel-heading"><div><h2>Financial overview</h2><p>Only confirmed payments count as money received. Pledges and pending payments are shown separately.</p></div><button class="gray sm no-cohost" onclick="ctSetTarget()">${ic('edit')}${target?'Change target':'Set target'}</button></div>
+    ${target?`<div class="ct-prog-head"><b>${money(recv)} of ${money(target)} target</b><span class="muted">${tpct}%</span></div><div class="stat-bar" style="margin:8px 0 14px"><i style="width:${tpct}%"></i></div>`:`<div class="help" style="margin:0 0 12px">No contribution target set yet.</div>`}
+    <div class="cards ct-ov-grid">
+      ${tile('Received today',has?money(m.today):'—','', 'stat-green')}${tile('Received this week',has?money(m.week):'—','', 'stat-green')}${tile('Received this month',has?money(m.month):'—','', 'stat-green')}
+      ${tile('Waiting for confirmation',money(pend),pendN?pendN+' payment'+(pendN===1?'':'s'):'', pendN?'stat-gold':'')}${tile('Refunded',money(refunded),'', '')}${tile('Reversed payments',money(reversed),revN?revN+' reversed':'', '')}
+    </div>
+    <div class="ct-ov-counts"><span><b>${people.length}</b> contributors</span><span><b>${t.cleared}</b> fully paid</span><span><b>${partly}</b> partly paid</span><span><b>${none}</b> not paid</span></div>
+  </div>`;
+}
+async function ctRefreshSummary(){
+  try{ if(!CT.eventId) return; const r=await supabaseClient.rpc('ct_summary',{p_event:CT.eventId}); if(!r.error){ CT.summary=r.data; ctRenderOverview(ctTotals(ctPeople())); } }catch(e){}
+}
+window.ctSetTarget = async function(){
+  const ev=getEvent(currentEventId); if(!ev) return;
+  const cur=CT.summary&&CT.summary.target!=null?Number(CT.summary.target):'';
+  const ok=await confirmDialog({title:'Contribution target',text:`How much do you want to collect for this event?<br><input id="ctTargetIn" inputmode="numeric" placeholder="Amount (TZS)" value="${cur}" style="margin-top:10px;width:100%"><br><small>Leave it empty to remove the target.</small>`,ok:'Save',tone:'primary',icon:'wallet'});
+  if(!ok) return;
+  const v=numIn((($('ctTargetIn')||{}).value)||'');
+  const r=await supabaseClient.rpc('ct_set_target',{p_event:ev.id,p_target:v>0?v:null});
+  if(r.error) return toast(ctErr(r.error));
+  await loadContributions(); toast(v>0?'Target saved.':'Target removed.');
+};
+
+function ctExtra(){
+  return {refunded:(CT.adjustments||[]).filter(a=>a.kind==='refund').reduce((n,a)=>n+Number(a.amount||0),0),
+    pending:CT.payments.filter(p=>p.status==='pending').reduce((n,p)=>n+Number(p.amount||0),0),
+    reversed:CT.payments.filter(p=>p.status==='reversed').reduce((n,p)=>n+Number(p.amount||0),0)};
+}
+/* ----- V126: activity log (owner and treasurer) ----- */
+const CT_ACT={payment_added:'Payment added',payment_reversed:'Payment reversed',payment_confirmed:'Payment confirmed',adjust_reduce:'Pledge reduced',adjust_waive:'Balance waived',adjust_increase:'Pledge increased',adjust_correct:'Pledge corrected',adjust_refund:'Refund recorded',contributor_archived:'Contributor removed',target_set:'Target changed',pledge_set:'Pledge set'};
+window.ctLoadAudit = async function(){
+  const box=$('ctAuditBox'); if(!box||!currentEventId) return;
+  box.innerHTML='<div class="help">Loading…</div>';
+  const r=await supabaseClient.from('ct_audit').select('*').eq('event_id',currentEventId).order('created_at',{ascending:false}).limit(100);
+  if(r.error){ box.innerHTML='<div class="help">'+E(ctErr(r.error))+'</div>'; return; }
+  const rows=r.data||[];
+  if(!rows.length){ box.innerHTML=emptyState('No activity yet','Payments, reversals and adjustments will appear here.'); return; }
+  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>When</th><th>Action</th><th>Details</th><th>By</th></tr></thead><tbody>${rows.map(a=>{
+    const d=a.detail||{}, bits=[];
+    if(d.name||d.payer_name) bits.push(E(d.name||d.payer_name));
+    if(d.amount!=null) bits.push(money(d.amount));
+    if(d.pledge_before!=null&&d.pledge_after!=null) bits.push('pledge '+money(d.pledge_before)+' → '+money(d.pledge_after));
+    if(d.reason) bits.push('Reason: '+E(d.reason));
+    return `<tr><td data-l="When">${E(new Date(a.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))}</td><td data-l="Action"><b>${E(CT_ACT[a.action]||String(a.action||'').replace(/_/g,' '))}</b></td><td data-l="Details">${bits.join(' · ')||'—'}</td><td data-l="By">${E(a.actor_email||'—')}</td></tr>`;}).join('')}</tbody></table></div>`;
+};
+async function ctAddPayment(contributor,amount,method,o){
+  o=o||{};
+  const row={event_id:contributor.event_id,contributor_id:contributor.id,payer_name:contributor.name,payer_phone:contributor.phone||null,amount,currency:'TZS',provider:'manual',provider_reference:method,status:o.pending?'pending':'paid'};
+  if(o.ref) row.txn_ref=o.ref; if(o.paidOn) row.paid_on=o.paidOn;
   const r=await supabaseClient.from('contributions').insert(row).select('*').single();
   if(r.error) throw r.error; return r.data;
 }
@@ -5279,10 +5403,10 @@ window.saveContributor = async function(){
     const row={id:crypto.randomUUID(),event_id:ev.id,name,phone:phone?normalizeTzPhone(phone):null,pledged}; if($('ctDue')&&$('ctDue').value) row.due_date=$('ctDue').value;
     const r=await supabaseClient.from('contributors').insert(row).select('*').single(); if(r.error) throw r.error;
     CT.contributors.push(r.data);
-    if(paidNow){ CT.payments.unshift(await ctAddPayment(r.data,paidNow,method)); }
-    ['ctName','ctPhone','ctPledge','ctPaidNow','ctDue'].forEach(i=>{ if($(i)) $(i).value=''; });
-    st.textContent=`${name} saved.`; renderContributions();
-  }catch(e){ st.textContent='Not saved: '+(e.message||e); }
+    if(paidNow){ const ref=(($('ctRef')||{}).value||'').trim(); if(ref&&(ref.length<3||ref.length>60)) throw new Error('Reference must be 3 to 60 characters.'); CT.payments.unshift(await ctAddPayment(r.data,paidNow,method,{ref:ref||null})); }
+    ['ctName','ctPhone','ctPledge','ctPaidNow','ctDue','ctRef'].forEach(i=>{ if($(i)) $(i).value=''; });
+    st.textContent=`${name} saved.`; renderContributions(); ctRefreshSummary();
+  }catch(e){ st.textContent='Not saved: '+ctErr(e); if(CT.contributors.length) loadContributions(); }
 };
 /* ----- details / add payment / edit pledge ----- */
 window.openContributor = function(id,focusPay){
@@ -5294,15 +5418,27 @@ window.openContributor = function(id,focusPay){
     <div class="ct-mini"><div><span>Pledged</span><b>${money(x.pledged)}</b></div><div><span>Paid</span><b class="bal ok">${money(x.paid)}</b></div><div><span>Balance</span><b class="bal ${x.left>0?'owe':'ok'}">${x.left>0?money(x.left):'Cleared'}</b></div></div>
     <h3 class="ct-h">Add a payment</h3>
     <div class="ct-pay"><input id="cpAmount" inputmode="numeric" placeholder="Amount (TZS)" aria-label="Amount"><select id="cpMethod" aria-label="Method"><option>Cash</option><option>M-Pesa</option><option>Tigo Pesa</option><option>Airtel Money</option><option>Halopesa</option><option>Bank transfer</option></select><button class="primary" onclick="addPaymentTo('${x.id}')">${ic('check')}Add</button></div>
+    <div class="ct-pay2"><input id="cpRef" placeholder="Transaction reference (optional)" aria-label="Transaction reference" maxlength="60" autocomplete="off"><input id="cpDate" type="date" aria-label="Payment date" max="${ctToday()}" value="${ctToday()}"></div>
+    <label class="ct-chk"><input type="checkbox" id="cpPending"> <span>Not confirmed yet (count it only after it is confirmed)</span></label>
     ${x.left>0?`<button class="text-button" onclick="document.getElementById('cpAmount').value='${x.left}'">Pay the full balance (${money(x.left)})</button>`:''}
     <h3 class="ct-h">Send a statement</h3>
     <div class="ct-send"><button class="green sm" onclick="ctSend('whatsapp','${x.id}')">${ic('whatsapp')}WhatsApp</button><button class="primary sm" onclick="ctSend('sms','${x.id}')">${ic('message')}SMS</button><span class="muted" style="font-size:13px">Sends pledged, paid and balance${x.phone?'':' (add a phone number first)'}.</span></div>
     <h3 class="ct-h">Payment history</h3>
-    ${x.rows.length?`<div class="queue">${x.rows.map(p=>`<div class="queue-item"><div class="who"><b>${money(p.amount)}</b><span>${E(p.provider_reference||p.provider||'')} · ${p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</span></div><div class="row-actions"><button class="icon" title="Receipt (PDF)" aria-label="Receipt PDF" onclick="ctReceiptPdf('${x.id}','${p.id}')">${ic('download')}</button><button class="icon" title="Send receipt on WhatsApp" aria-label="Send receipt on WhatsApp" onclick="ctReceiptSend('${x.id}','${p.id}','whatsapp')">${ic('whatsapp')}</button><button class="icon del" title="Delete payment" aria-label="Delete payment" onclick="deletePayment('${p.id}','${x.id}')">${ic('trash')}</button></div></div>`).join('')}</div>`:'<div class="help">No payments yet.</div>'}
+    ${x.allRows.length?`<div class="queue">${x.allRows.map(p=>{
+      const st=p.status, bad=st==='reversed', pend=st==='pending';
+      return `<div class="queue-item ct-pi ${bad?'is-rev':''}"><div class="who"><b>${money(p.amount)}${pend?' <span class="ct-badge pend">Not confirmed</span>':''}${bad?' <span class="ct-badge rev">Reversed</span>':''}</b><span>${E(p.provider_reference||p.provider||'')}${p.txn_ref?' · Ref '+E(p.txn_ref):''} · ${E(ctPayDate(p))}</span>${bad&&p.reverse_reason?`<span class="ct-why">Reason: ${E(p.reverse_reason)}</span>`:''}</div><div class="row-actions">${st==='paid'?`<button class="icon" title="Receipt (PDF)" aria-label="Receipt PDF" onclick="ctReceiptPdf('${x.id}','${p.id}')">${ic('download')}</button><button class="icon" title="Send receipt on WhatsApp" aria-label="Send receipt on WhatsApp" onclick="ctReceiptSend('${x.id}','${p.id}','whatsapp')">${ic('whatsapp')}</button>`:''}${pend?`<button class="primary sm no-cohost" onclick="ctConfirmPayment('${p.id}','${x.id}')">${ic('check')}Confirm</button>`:''}${st!=='reversed'?`<button class="gray sm no-cohost" onclick="reversePayment('${p.id}','${x.id}')">Reverse</button>`:''}</div></div>`;}).join('')}</div>`:'<div class="help">No payments yet.</div>'}
+    <div class="no-cohost">
+    <h3 class="ct-h">Adjust pledge or money</h3>
+    <p class="help" style="margin:0 0 8px">Every change is saved with a reason and can be seen in the activity log. Money already received is never changed here, except by a recorded refund.</p>
+    <div class="ct-adjf"><select id="caKind" aria-label="Type of adjustment" onchange="ctAdjKind()"><option value="reduce">Reduce the unpaid pledge</option><option value="waive">Waive the whole unpaid balance</option><option value="increase">Increase the pledge</option><option value="correct">Correct the pledge to a new amount</option><option value="refund">Refund money already received</option></select><input id="caAmount" inputmode="numeric" placeholder="Amount (TZS)" aria-label="Adjustment amount"></div>
+    <input id="caReason" class="ct-reason" placeholder="Reason (required)" aria-label="Reason" maxlength="500" autocomplete="off">
+    <div class="ct-adjf2"><span class="muted" id="caHint" style="font-size:13px"></span><button class="primary" onclick="ctApplyAdjust('${x.id}')">${ic('check')}Apply</button></div>
+    ${x.adj.length?`<div class="ct-adjlist">${x.adj.map(a=>`<div class="ct-adji"><b>${E(ctAdjLabel(a.kind))} · ${money(a.amount)}</b><span>${a.kind==='refund'?'Money refunded':'Pledge '+money(a.pledge_before)+' → '+money(a.pledge_after)} · ${E(new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}))}</span><span class="ct-why">Reason: ${E(a.reason||'')}</span></div>`).join('')}</div>`:''}
+    </div>
     <h3 class="ct-h">Edit details</h3>
-    <div class="guest-form-grid"><div class="field full"><label for="ceName">Name</label><input id="ceName" value="${E(x.name)}"></div><div class="field"><label for="cePhone">Phone</label><input id="cePhone" type="tel" value="${E(x.phone||'')}"></div><div class="field"><label for="cePledge">Pledged amount (TZS)</label><input id="cePledge" inputmode="numeric" value="${x.pledged}"></div><div class="field"><label for="ceDue">Due date</label><input id="ceDue" type="date" value="${E(x.due||'')}"></div></div>
+    <div class="guest-form-grid"><div class="field full"><label for="ceName">Name</label><input id="ceName" value="${E(x.name)}"></div><div class="field"><label for="cePhone">Phone</label><input id="cePhone" type="tel" value="${E(x.phone||'')}"></div><div class="field"><label for="ceDue">Due date</label><input id="ceDue" type="date" value="${E(x.due||'')}"></div></div>
     <div class="guest-form-actions">${isGuest?'<span class="muted" style="margin-right:auto;font-size:13px">Already in the guest list</span>':`<button class="gray no-treasurer" style="margin-right:auto" onclick="contributorToGuest('${x.id}')">${ic('users')}Add to guest list</button>`}<button class="gray" onclick="closeContributor()">Close</button><button class="primary" onclick="saveContributorEdit('${x.id}')">Save changes</button></div>`;
-  $('contribModal').classList.add('open');
+  $('contribModal').classList.add('open'); window.__ctCur=x; ctAdjKind();
   if(focusPay) setTimeout(()=>{ const a=$('cpAmount'); if(a) a.focus(); },60);
 };
 window.closeContributor = function(){ $('contribModal').classList.remove('open'); };
@@ -5310,32 +5446,72 @@ window.addPaymentTo = async function(id){
   const c=CT.contributors.find(x=>x.id===id); if(!c) return;
   if(window.__offlineMode||!navigator.onLine) return toast('Saving payments needs an internet connection.');
   const amount=numIn($('cpAmount').value); if(amount<=0) return toast('Please enter the amount paid.');
-  try{ CT.payments.unshift(await ctAddPayment(c,amount,$('cpMethod').value)); renderContributions(); openContributor(id); toast(`${money(amount)} added for ${c.name}.`); }
-  catch(e){ toast('Not saved: '+(e.message||e)); }
+  const ref=(($('cpRef')||{}).value||'').trim(); if(ref&&(ref.length<3||ref.length>60)) return toast('Reference must be 3 to 60 characters.');
+  const paidOn=($('cpDate')||{}).value||null; if(paidOn&&paidOn>ctToday()) return toast(ctErr('future_date'));
+  const pending=!!($('cpPending')&&$('cpPending').checked);
+  try{ CT.payments.unshift(await ctAddPayment(c,amount,$('cpMethod').value,{ref:ref||null,paidOn,pending})); renderContributions(); ctRefreshSummary(); openContributor(id); toast(pending?`${money(amount)} saved as pending for ${c.name}.`:`${money(amount)} added for ${c.name}.`); }
+  catch(e){ toast('Not saved: '+ctErr(e)); }
 };
-window.deletePayment = async function(pid,cid){
-  const ok=await confirmDialog({title:'Delete this payment?',text:'The amount will be removed from what this person has paid.',ok:'Delete payment'}); if(!ok) return;
-  const r=await supabaseClient.from('contributions').delete().eq('id',pid);
-  if(r.error) return toast('Failed: '+r.error.message);
-  CT.payments=CT.payments.filter(p=>p.id!==pid); renderContributions(); openContributor(cid);
+const ctAdjLabel = k => ({reduce:'Pledge reduced',waive:'Balance waived',increase:'Pledge increased',correct:'Pledge corrected',refund:'Refund'})[k]||k;
+window.ctAdjKind = function(){
+  const x=window.__ctCur, k=$('caKind'); if(!x||!k) return;
+  const a=$('caAmount'), h=$('caHint'); if(!a||!h) return;
+  a.disabled = k.value==='waive';
+  a.placeholder = k.value==='correct'?'New pledge amount (TZS)':'Amount (TZS)';
+  if(k.value==='waive'){ a.value=''; h.textContent = x.left>0?`Unpaid balance: ${money(x.left)}`:'There is no unpaid balance.'; }
+  else if(k.value==='reduce') h.textContent = x.left>0?`You can reduce up to ${money(x.left)}.`:'There is no unpaid balance to reduce.';
+  else if(k.value==='refund') h.textContent = x.paid>0?`Received so far: ${money(x.paid)}.`:'No money received yet.';
+  else if(k.value==='correct') h.textContent = `Current pledge: ${money(x.pledged)}.`;
+  else h.textContent = `Current pledge: ${money(x.pledged)}.`;
+};
+window.ctApplyAdjust = async function(id){
+  const c=CT.contributors.find(x=>x.id===id); if(!c) return;
+  if(window.__offlineMode||!navigator.onLine) return toast('This needs an internet connection.');
+  const kind=$('caKind').value, amt=numIn($('caAmount').value), why=($('caReason').value||'').trim();
+  if(kind!=='waive' && kind!=='correct' && amt<=0) return toast('Please enter a valid amount.');
+  if(kind==='correct' && !($('caAmount').value||'').trim()) return toast('Please enter a valid amount.');
+  if(why.length<3) return toast(ctErr('reason_required'));
+  const label=ctAdjLabel(kind);
+  const ok=await confirmDialog({title:({reduce:'Reduce this pledge?',waive:'Waive the unpaid balance?',increase:'Increase this pledge?',correct:'Correct this pledge?',refund:'Record this refund?'})[kind],text:`<b>${E(c.name)}</b><br>${kind==='waive'?'The whole unpaid balance will be removed from the pledge.':(kind==='refund'?`${money(amt)} will be recorded as refunded to this person.`:(kind==='correct'?`The pledge will become ${money(amt)}.`:`${money(amt)} ${kind==='reduce'?'will be removed from':'will be added to'} the pledge.`))}<br><small>Reason: ${E(why)}</small>`,ok:'Apply',tone:kind==='refund'?'danger':'primary',icon:'wallet'});
+  if(!ok) return;
+  const r=await supabaseClient.rpc('ct_adjust',{p_contributor:id,p_kind:kind,p_amount:kind==='waive'?0:amt,p_reason:why});
+  if(r.error) return toast('Not saved: '+ctErr(r.error));
+  await loadContributions(); openContributor(id); toast('Adjustment saved.');
+};
+window.reversePayment = async function(pid,cid){
+  const p=CT.payments.find(x=>x.id===pid); if(!p) return;
+  const ok=await confirmDialog({title:'Reverse this payment?',text:`${money(p.amount)} will no longer count as money received. The record stays in the history.<br><input id="rvReason" class="ct-reason" placeholder="Reason (required)" maxlength="500" style="margin-top:10px;width:100%" autocomplete="off">`,ok:'Reverse payment'});
+  if(!ok) return;
+  const why=(($('rvReason')||{}).value||'').trim(); if(why.length<3) return toast(ctErr('reason_required'));
+  const r=await supabaseClient.rpc('ct_payment_reverse',{p_payment:pid,p_reason:why});
+  if(r.error) return toast('Failed: '+ctErr(r.error));
+  await loadContributions(); openContributor(cid); toast('Payment reversed.');
+};
+window.ctConfirmPayment = async function(pid,cid){
+  const r=await supabaseClient.rpc('ct_payment_confirm',{p_payment:pid});
+  if(r.error) return toast('Failed: '+ctErr(r.error));
+  await loadContributions(); openContributor(cid); toast('Payment confirmed.');
 };
 window.saveContributorEdit = async function(id){
   const c=CT.contributors.find(x=>x.id===id); if(!c) return;
   const name=$('ceName').value.trim(); if(!name) return toast('Name cannot be empty.');
-  const phone=$('cePhone').value.trim(), pledged=numIn($('cePledge').value);
-  const r=await supabaseClient.from('contributors').update({name,phone:phone?normalizeTzPhone(phone):null,pledged,due_date:($('ceDue')&&$('ceDue').value)||null}).eq('id',id).select('*').single();
-  if(r.error) return toast('Not saved: '+r.error.message);
+  const phone=$('cePhone').value.trim();
+  const r=await supabaseClient.from('contributors').update({name,phone:phone?normalizeTzPhone(phone):null,due_date:($('ceDue')&&$('ceDue').value)||null}).eq('id',id).select('*').single();
+  if(r.error) return toast('Not saved: '+ctErr(r.error));
   Object.assign(c,r.data);
   await supabaseClient.from('contributions').update({payer_name:name,payer_phone:r.data.phone}).eq('contributor_id',id);
   CT.payments.forEach(p=>{ if(p.contributor_id===id){ p.payer_name=name; p.payer_phone=r.data.phone; } });
   renderContributions(); closeContributor(); toast('Saved.');
 };
 window.deleteContributor = async function(id){
-  const c=CT.contributors.find(x=>x.id===id); if(!c) return;
-  const ok=await confirmDialog({title:'Delete this contributor?',text:`<b>${E(c.name)}</b> and all their recorded payments will be permanently removed.`,ok:'Delete'}); if(!ok) return;
-  const r=await supabaseClient.from('contributors').delete().eq('id',id);
-  if(r.error) return toast('Failed: '+r.error.message);
-  CT.contributors=CT.contributors.filter(x=>x.id!==id); CT.payments=CT.payments.filter(p=>p.contributor_id!==id); renderContributions(); auditLog('contributor_deleted',c.name);
+  const x=ctPeople().find(c=>c.id===id); if(!x) return;
+  if(x.paid>0) return toast(ctErr('has_money'));
+  if(x.pending>0) return toast(ctErr('has_pending'));
+  const ok=await confirmDialog({title:'Remove this contributor?',text:`<b>${E(x.name)}</b> will be removed from the list. The records stay saved in the activity log.<br><input id="rmReason" class="ct-reason" placeholder="Reason (required)" maxlength="500" style="margin-top:10px;width:100%" autocomplete="off">`,ok:'Remove'}); if(!ok) return;
+  const why=(($('rmReason')||{}).value||'').trim(); if(why.length<3) return toast(ctErr('reason_required'));
+  const r=await supabaseClient.rpc('ct_contributor_archive',{p_contributor:id,p_reason:why});
+  if(r.error) return toast('Failed: '+ctErr(r.error));
+  await loadContributions(); toast('Contributor removed.');
 };
 /* old entry points kept so nothing else breaks */
 window.saveContribution = window.saveContributor; window.startContributionPayment = window.saveContributor;
@@ -5347,7 +5523,7 @@ window.downloadContributors = function(){
   const people=ctPeople(), t=ctTotals(people), spent=ctSpentTotal(), cash=t.collected-spent;
   const status=x=>x.left>0?(x.overdue?'Overdue':'Owing'):(x.pledged>0?'Fully paid':'No pledge');
   const sum=[['CONTRIBUTION REPORT'],['Event',ev.name],['Date',ev.date?fmtDate(ev.date):''],['Report date',new Date().toLocaleDateString('en-GB')],[],
-    ['Total collected (TZS)',t.collected],['Total pledged (TZS)',t.pledged],['Still to collect (TZS)',t.left],['Pledges collected (%)',t.pct],[],
+    ['Total collected, after refunds (TZS)',t.collected],['Refunded (TZS)',ctExtra().refunded],['Waiting for confirmation (TZS)',ctExtra().pending],['Reversed payments (TZS)',ctExtra().reversed],['Total pledged (TZS)',t.pledged],['Still to collect (TZS)',t.left],['Pledges collected (%)',t.pct],[],
     ['Total expenses (TZS)',spent],['Cash in hand (TZS)',cash],[],['Contributors',people.length],['Fully paid',t.cleared],['Still owing',t.owing]];
   const rows=[['No.','Name','Phone','Pledged (TZS)','Paid (TZS)','Balance (TZS)','Due date','Status']];
   people.forEach((x,i)=>rows.push([i+1,x.name,x.phone||'',x.pledged,x.paid,x.left,x.due||'',status(x)]));
@@ -5503,7 +5679,7 @@ function ctReceipt(cid,pid){
   const pays=(x.rows||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   const idx=pays.findIndex(p=>p.id===pid); if(idx<0) return null;
   const p=pays[idx], upTo=pays.slice(0,idx+1).reduce((n,q)=>n+Number(q.amount||0),0);
-  const d=p.created_at?new Date(p.created_at):new Date();
+  const d=p.paid_on?new Date(p.paid_on+'T12:00:00'):(p.created_at?new Date(p.created_at):new Date());
   const no='R-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(p.id).replace(/[^a-z0-9]/gi,'').slice(-4).toUpperCase();
   return {x,p,no,date:d,paidToDate:upTo,balance:Math.max(0,x.pledged-upTo),over:Math.max(0,upTo-x.pledged)};
 }
@@ -14535,6 +14711,14 @@ Object.assign(window.SW_EXACT,{"Event tickets seller (own account)":"Muuzaji wa 
 window.SW_PAT.push(["{0} · own account · registered","{0} · akaunti yake mwenyewe · amejisajili"],["{0} · own account · has not registered yet","{0} · akaunti yake mwenyewe · bado hajajisajili"],["Event tickets seller added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Muuzaji wa tiketi ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kutuma mwaliko (lazima ajisajili kwa {0})."],["Bulk SMS member added. Press the WhatsApp button next to their name to send the invitation (they must register with {0}).","Mtu wa Bulk SMS ameongezwa. Bonyeza kitufe cha WhatsApp kando ya jina lake kutuma mwaliko (lazima ajisajili kwa {0})."],["Could not add member: {0}","Imeshindikana kumwongeza: {0}"],["<b>{0}</b> will no longer be invited. If they have already registered, their own account and service stay as they are.","<b>{0}</b> hatakaribishwa tena. Kama tayari amejisajili, akaunti yake na huduma yake vinabaki kama zilivyo."]);
 
 Object.assign(window.SW_EXACT,{"own account":"akaunti yake mwenyewe","registered":"amejisajili","has not registered yet":"bado hajajisajili"});
+
+/* V126 Contributions phase 1 */
+Object.assign(window.SW_EXACT,{"Financial overview": "Muhtasari wa fedha", "Only confirmed payments count as money received. Pledges and pending payments are shown separately.": "Ni malipo yaliyothibitishwa tu ndiyo yanahesabiwa kama pesa iliyopokelewa. Ahadi na malipo yanayosubiri vinaonyeshwa kando.", "Change target": "Badilisha lengo", "Set target": "Weka lengo", "No contribution target set yet.": "Bado hakuna lengo la michango.", "Received today": "Imepokelewa leo", "Received this week": "Imepokelewa wiki hii", "Received this month": "Imepokelewa mwezi huu", "Waiting for confirmation": "Inasubiri uthibitisho", "Refunded": "Imerudishwa", "Reversed payments": "Malipo yaliyobatilishwa", "contributors": "wachangiaji", "fully paid": "wamemaliza", "partly paid": "wamelipa sehemu", "not paid": "hawajalipa", "Contribution target": "Lengo la michango", "How much do you want to collect for this event?": "Unataka kukusanya kiasi gani kwa tukio hili?", "Leave it empty to remove the target.": "Liache wazi ili kuondoa lengo.", "Target saved.": "Lengo limehifadhiwa.", "Target removed.": "Lengo limeondolewa.", "Reversed": "Imebatilishwa", "Remove contributor": "Mwondoe mchangiaji", "Transaction reference (optional)": "Namba ya muamala (si lazima)", "Transaction reference": "Namba ya muamala", "Payment date": "Tarehe ya malipo", "e.g. M-Pesa code": "mf. namba ya M-Pesa", "Not confirmed yet (count it only after it is confirmed)": "Bado haijathibitishwa (ihesabiwe baada ya kuthibitishwa tu)", "Reverse": "Batilisha", "Adjust pledge or money": "Rekebisha ahadi au pesa", "Every change is saved with a reason and can be seen in the activity log. Money already received is never changed here, except by a recorded refund.": "Kila mabadiliko yanahifadhiwa pamoja na sababu na yanaonekana kwenye historia ya shughuli. Pesa iliyokwisha pokelewa haibadilishwi hapa, isipokuwa kwa kurudishiwa kulikorekodiwa.", "Reduce the unpaid pledge": "Punguza ahadi ambayo haijalipwa", "Waive the whole unpaid balance": "Samehe deni lote lililobaki", "Increase the pledge": "Ongeza ahadi", "Correct the pledge to a new amount": "Sahihisha ahadi iwe kiasi kipya", "Refund money already received": "Rudisha pesa iliyokwisha pokelewa", "Type of adjustment": "Aina ya marekebisho", "Adjustment amount": "Kiasi cha marekebisho", "New pledge amount (TZS)": "Kiasi kipya cha ahadi (TZS)", "Reason (required)": "Sababu (lazima)", "Reason": "Sababu", "Apply": "Tekeleza", "There is no unpaid balance.": "Hakuna deni lililobaki.", "There is no unpaid balance to reduce.": "Hakuna deni lililobaki la kupunguza.", "No money received yet.": "Bado hakuna pesa iliyopokelewa.", "Pledge reduced": "Ahadi imepunguzwa", "Balance waived": "Deni limesamehewa", "Pledge increased": "Ahadi imeongezwa", "Pledge corrected": "Ahadi imesahihishwa", "Refund": "Kurudishiwa pesa", "Money refunded": "Pesa imerudishwa", "Reduce this pledge?": "Kupunguza ahadi hii?", "Waive the unpaid balance?": "Kusamehe deni lililobaki?", "Increase this pledge?": "Kuongeza ahadi hii?", "Correct this pledge?": "Kusahihisha ahadi hii?", "Record this refund?": "Kurekodi kurudishiwa huku?", "The whole unpaid balance will be removed from the pledge.": "Deni lote lililobaki litaondolewa kwenye ahadi.", "Adjustment saved.": "Marekebisho yamehifadhiwa.", "Reverse this payment?": "Kubatilisha malipo haya?", "The record stays in the history.": "Rekodi inabaki kwenye historia.", "Reverse payment": "Batilisha malipo", "Payment reversed.": "Malipo yamebatilishwa.", "Payment confirmed.": "Malipo yamethibitishwa.", "Remove this contributor?": "Kumwondoa mchangiaji huyu?", "will be removed from the list. The records stay saved in the activity log.": "ataondolewa kwenye orodha. Rekodi zinabaki kwenye historia ya shughuli.", "Contributor removed.": "Mchangiaji ameondolewa.", "Who recorded, confirmed, reversed or adjusted money, and why. Only the owner and treasurer can see this.": "Nani aliyerekodi, kuthibitisha, kubatilisha au kurekebisha pesa, na kwa nini. Ni mmiliki na mhazini tu wanaoweza kuona hili.", "Show activity": "Onyesha shughuli", "No activity yet": "Bado hakuna shughuli", "Payments, reversals and adjustments will appear here.": "Malipo, ubatilishaji na marekebisho vitaonekana hapa.", "When": "Lini", "By": "Na", "Payment added": "Malipo yameongezwa", "Payment reversed": "Malipo yamebatilishwa", "Payment confirmed": "Malipo yamethibitishwa", "Contributor removed": "Mchangiaji ameondolewa", "Target changed": "Lengo limebadilishwa", "Pledge set": "Ahadi imewekwa", "Refund recorded": "Kurudishiwa kumerekodiwa", "Reference must be 3 to 60 characters.": "Namba ya muamala iwe na herufi 3 hadi 60.", "This payment is locked. Reverse it with a reason instead.": "Malipo haya yamefungwa. Yabatilishe kwa kutoa sababu.", "Change a pledge with \"Adjust pledge or money\" so it is recorded.": "Badilisha ahadi kupitia \"Rekebisha ahadi au pesa\" ili ihifadhiwe kwenye kumbukumbu.", "Remove a contributor with the Remove button.": "Mwondoe mchangiaji kwa kitufe cha \"Ondoa\".", "That is more than the unpaid balance.": "Hicho ni zaidi ya deni lililobaki.", "That is more than the money received from this person.": "Hicho ni zaidi ya pesa iliyopokelewa kutoka kwa mtu huyu.", "Please write a reason (at least 3 letters).": "Tafadhali andika sababu (angalau herufi 3).", "There is no unpaid balance to waive.": "Hakuna deni lililobaki la kusamehe.", "This person still has money recorded. Refund or reverse it first.": "Mtu huyu bado ana pesa iliyorekodiwa. Mrudishie au batilisha malipo kwanza.", "Confirm or reverse the pending payment first.": "Thibitisha au batilisha malipo yanayosubiri kwanza.", "This payment is already reversed.": "Malipo haya tayari yamebatilishwa.", "The pledge is already that amount.": "Ahadi tayari ni kiasi hicho.", "Please enter a valid amount": "Tafadhali weka kiasi sahihi", "This payment cannot be changed.": "Malipo haya hayawezi kubadilishwa.", "The payment date cannot be in the future.": "Tarehe ya malipo haiwezi kuwa ya baadaye.", "This contributor was removed.": "Mchangiaji huyu ameondolewa.", "This contributor has payment records and cannot be deleted.": "Mchangiaji huyu ana rekodi za malipo na hawezi kufutwa.", "This payment is not waiting for confirmation.": "Malipo haya hayasubiri uthibitisho.", "You are not allowed to do this.": "Huruhusiwi kufanya hili.", "This transaction reference was already used for another payment.": "Namba hii ya muamala tayari imetumika kwa malipo mengine."});
+window.SW_PAT.push(["{0} of {1} target", "{0} kati ya lengo la {1}"],["{#0} payment", "Malipo {0}"],["{#0} payments", "Malipo {0}"],["{#0} reversed", "{0} yamebatilishwa"],["{0} pending", "{0} yanasubiri"],["Reason: {0}", "Sababu: {0}"],["Unpaid balance: {0}", "Deni lililobaki: {0}"],["You can reduce up to {0}.", "Unaweza kupunguza hadi {0}."],["Received so far: {0}.", "Iliyopokelewa hadi sasa: {0}."],["Current pledge: {0}.", "Ahadi ya sasa: {0}."],["Pledge reduced · {0}", "Ahadi imepunguzwa · {0}"],["Balance waived · {0}", "Deni limesamehewa · {0}"],["Pledge increased · {0}", "Ahadi imeongezwa · {0}"],["Pledge corrected · {0}", "Ahadi imesahihishwa · {0}"],["Refund · {0}", "Kurudishiwa pesa · {0}"],["Pledge {0} → {1} · {2}", "Ahadi {0} → {1} · {2}"],["Money refunded · {0}", "Pesa imerudishwa · {0}"],["{0} will be recorded as refunded to this person.", "{0} itarekodiwa kama imerudishwa kwa mtu huyu."],["The pledge will become {0}.", "Ahadi itakuwa {0}."],["{0} will be removed from the pledge.", "{0} itaondolewa kwenye ahadi."],["{0} will be added to the pledge.", "{0} itaongezwa kwenye ahadi."],["{0} will no longer count as money received. The record stays in the history.", "{0} haitahesabiwa tena kama pesa iliyopokelewa. Rekodi inabaki kwenye historia."],["{0} saved as pending for {1}.", "{0} imehifadhiwa kama inasubiri kwa {1}."]);
+
+Object.assign(window.SW_EXACT,{"Not confirmed":"Haijathibitishwa"});
+Object.assign(window.SW_EXACT,{"Sends pledged, paid and balance.":"Inatuma ahadi, kiasi kilicholipwa na salio.","Sends pledged, paid and balance (add a phone number first).":"Inatuma ahadi, kiasi kilicholipwa na salio (weka namba ya simu kwanza)."});
+window.SW_PAT.push(["Pay the full balance ({0})","Lipa salio lote ({0})"]);
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
