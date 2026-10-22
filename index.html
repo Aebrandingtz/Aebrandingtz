@@ -2135,7 +2135,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V120</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V125</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -8528,7 +8528,7 @@ const SVC_INFO={
   sms:{n:'Bulk SMS',d:'Send SMS to guests, parents, members and customers. You only pay for the SMS you send.'}
 };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
-/* V124: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
+/* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
 const SVC_PICK=SVC_ORDER.filter(k=>k!=='host');
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
