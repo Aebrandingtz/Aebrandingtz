@@ -1921,7 +1921,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 body.staff-mode #smNavGroup{display:none!important}
 @media(max-width:760px){.sm-stats{grid-template-columns:1fr 1fr}.sm-row-side{align-items:flex-start;text-align:left;width:100%}.sm-launchbar{flex-direction:column;align-items:stretch}.sm-launchbar button{width:100%}.sm-bubble{max-width:100%}.sm-tabs{margin-left:-4px}}
 #adminCustomers .tag{white-space:nowrap;margin:1px 2px 1px 0;display:inline-block}
-/* V120 — services chooser, pay wall, blocked screen */
+/* V121 — services chooser, pay wall, blocked screen */
 body.svc-no-host .app-sidebar [data-svc="host"]{display:none!important}
 body.svc-no-tickets #tkNavGroup,body.svc-no-sms #smNavGroup,body.svc-no-photog #collNavGroup{display:none!important}
 body.svc-photog #collNavGroup{display:block!important}
@@ -2135,7 +2135,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V120</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V121</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -6239,7 +6239,7 @@ window.renderAdmin = function(){
     if(o.blocked) k.push('<span class="tag" style="background:#fde8e8;color:#b42318">Removed</span>');
     return k.length&&!(k.length===1&&p.role==='admin'&&!evByOwner[p.id])?k.join(' '):(p.role==='admin'?k.join(' '):'<span class="status idle">Just signed up</span>'); };
   const rev=p=>{ if(p.role==='admin') return '<span class="status ok">Owner</span>'; const o=ov[p.id]; if(!o) return '—'; const r=o.review; return r==='approved'?'<span class="status ok">Approved</span>':r==='watch'?'<span class="status warn">Watch</span>':'<span class="status idle">Not reviewed</span>'; };
-  $('adminCustomers').innerHTML = d.profiles.length ? `<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Account type</th><th>Email</th><th>Last seen</th><th>Events</th><th>Guests</th><th>Joined</th><th>Review</th><th></th></tr></thead><tbody>${d.profiles.map(p=>{ const o=ov[p.id]||{}; return `<tr><td><div class="guest-cell"><span class="avatar">${E(initials(p.full_name||p.email))}</span><div style="min-width:0"><span class="cell-name">${E(p.full_name||'(no name)')}</span><span class="cell-sub">${E(p.email||'')}</span></div></div></td><td>${E(p.phone||'—')}</td><td>${kinds(p)}</td><td>${d.ov?(o.confirmed?'<span class="status ok">Verified</span>':'<span class="status warn">Not verified</span>'):'—'}</td><td>${d.ov?E(ago(o.last_sign_in)):'—'}</td><td>${evByOwner[p.id]||0}</td><td>${gByOwner[p.id]||0}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</td><td>${rev(p)}</td><td><button class="gray" onclick="admCustView(${jq(p.id)})">View</button></td></tr>`; }).join('')}</tbody></table></div>${d.ov?'':'<div class="help">Account details could not be loaded. Run the V118 SQL in Supabase.</div>'}` : emptyState('No customers yet','');
+  $('adminCustomers').innerHTML = d.profiles.length ? `<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Account type</th><th>Email</th><th>Last seen</th><th>Events</th><th>Guests</th><th>Joined</th><th>Review</th><th></th></tr></thead><tbody>${d.profiles.map(p=>{ const o=ov[p.id]||{}; return `<tr><td><div class="guest-cell"><span class="avatar">${E(initials(p.full_name||p.email))}</span><div style="min-width:0"><span class="cell-name">${E(p.full_name||'(no name)')}</span><span class="cell-sub">${E(p.email||'')}</span></div></div></td><td>${E(p.phone||'—')}</td><td>${kinds(p)}</td><td>${d.ov?(o.confirmed?'<span class="status ok">Verified</span>':'<span class="status warn">Not verified</span>'):'—'}</td><td>${d.ov?E(ago(o.last_sign_in)):'—'}</td><td>${evByOwner[p.id]||0}</td><td>${gByOwner[p.id]||0}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}</td><td>${rev(p)}</td><td style="white-space:nowrap"><button class="gray" onclick="admCustView(${jq(p.id)})">View</button>${p.role==='admin'?'':` <button class="gray" title="Delete for good" onclick="admMemberDelete(${jq(p.id)},${jq(p.full_name||p.email||'this member')},${jq(p.email||'')})">Delete</button>`}</td></tr>`; }).join('')}</tbody></table></div>${d.ov?'':'<div class="help">Account details could not be loaded. Run the V118 SQL in Supabase.</div>'}` : emptyState('No customers yet','');
   renderAdminSubs(); if(window.renderAdminSvc) renderAdminSvc();
   $('adminTable').innerHTML = d.events.length ? `<div class="table-wrap"><table><thead><tr><th>Event</th><th>Organiser</th><th>Date</th><th>Guests</th><th>Invited</th><th>Attending</th><th>Arrived</th></tr></thead><tbody>${d.events.map(e=>{ const x=byEvent[e.id]||{n:0,sent:0,yes:0,in:0}, o=owner[e.owner_id]; return `<tr><td><span class="cell-name">${E(e.event_name)}</span><span class="cell-sub">${E(e.event_type||'')}</span></td><td><span class="cell-name">${E(o?.full_name||'—')}</span><span class="cell-sub">${E(o?.email||'')}</span></td><td>${e.event_date?E(fmtDate(e.event_date)):'—'}</td><td>${x.n}</td><td><div class="progress" title="${pct(x.sent,x.n)}%"><i style="width:${pct(x.sent,x.n)}%"></i></div></td><td>${x.yes}</td><td>${x.in}</td></tr>`; }).join('')}</tbody></table></div>` : emptyState('No events yet','');
 };
@@ -8498,7 +8498,7 @@ document.addEventListener('keydown',e=>{
 })();
 
 /* =========================================================================
-   V120 — Services: a new customer chooses what they need (Host, Co-host, Treasurer, Photographer, Tickets, Bulk SMS),
+   V121 — Services: a new customer chooses what they need (Host, Co-host, Treasurer, Photographer, Tickets, Bulk SMS),
    sees only that part of the app, and pays a monthly fee for the paid ones. When the fee runs out, access stops
    (the server enforces it for Co-host, Treasurer and Tickets; this screen only explains it).
    An administrator can remove (block) a member from the Admin Console.
@@ -8728,6 +8728,20 @@ window.admMemberRestore=async function(uid){
   if(r.error) return toast('Could not restore: '+r.error.message);
   toast('Member restored.'); await admCustView(uid); if(window.loadAdminData) loadAdminData(true);
 };
+window.admMemberDelete=async function(uid,name,email){
+  const ok=await confirmDialog({title:'Delete this member for good?',text:`<b>${E(name)}</b> (${E(email)}) will be deleted and disappear from the list. They can sign up again later and will get a new confirmation email. This cannot be undone.<br><br>Type their email to confirm:<br><input id="admDelEmail" type="email" autocomplete="off" style="width:100%;margin-top:6px" placeholder="${E(email)}">`,ok:'Delete for good'});
+  if(!ok) return;
+  const typed=(($('admDelEmail')||{}).value||'').trim();
+  if(typed.toLowerCase()!==String(email||'').toLowerCase()) return toast('The email you typed does not match. Nothing was deleted.');
+  const r=await supabaseClient.rpc('admin_member_delete',{p_user:uid,p_email:typed});
+  if(r.error) return toast('Could not delete: '+r.error.message);
+  const d=r.data||{};
+  if(!d.ok){
+    const why={has_events:'This member has events, so they cannot be deleted. Use Remove member instead.',has_galleries:'This member has photo galleries, so they cannot be deleted. Use Remove member instead.',has_ticket_events:'This member has ticket events, so they cannot be deleted. Use Remove member instead.',has_sms_campaigns:'This member has SMS campaigns, so they cannot be deleted. Use Remove member instead.'};
+    return toast(why[d.error]||'Could not delete this member.');
+  }
+  toast('Member deleted.'); admCustClose(); if(window.loadAdminData) loadAdminData(true);
+};
 window.svcAdminSection=function(x,p){
   const svc=x.svc||{}, dt=iso=>iso?new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
   const rows=['cohost','treasurer','photographer','tickets'].filter(k=>svc[k]&&svc[k].chosen).map(k=>{
@@ -8739,7 +8753,7 @@ window.svcAdminSection=function(x,p){
   return `<h3 class="sm-h3">Services and payment</h3>
     ${rows.length?rows.join(''):'<p class="sm-note">No paid service chosen.</p>'}
     ${free.length?`<p class="sm-note"><span>Also chosen:</span> <b>${E(free.join(', '))}</b></p>`:''}
-    ${p.role==='admin'?'':`<h3 class="sm-h3">Account access</h3>${bl?`<p class="sm-note"><b>Removed on ${E(dt(bl.at))}</b>${bl.reason?' <span>· '+E(bl.reason)+'</span>':''}</p><div class="guest-form-actions"><button class="primary" type="button" onclick="admMemberRestore(${jq(p.id)})">Restore member</button></div>`:`<div class="field"><label for="admBlockReason">Reason (only you see it)</label><input id="admBlockReason" maxlength="300" placeholder="e.g. Fake sign-up"></div><div class="guest-form-actions"><button class="danger" type="button" onclick="admMemberBlock(${jq(p.id)},${jq(p.name||p.email||'this member')})">Remove member</button></div>`}`}`;
+    ${p.role==='admin'?'':`<h3 class="sm-h3">Account access</h3>${bl?`<p class="sm-note"><b>Removed on ${E(dt(bl.at))}</b>${bl.reason?' <span>· '+E(bl.reason)+'</span>':''}</p><div class="guest-form-actions"><button class="primary" type="button" onclick="admMemberRestore(${jq(p.id)})">Restore member</button></div>`:`<div class="field"><label for="admBlockReason">Reason (only you see it)</label><input id="admBlockReason" maxlength="300" placeholder="e.g. Fake sign-up"></div><div class="guest-form-actions"><button class="danger" type="button" onclick="admMemberBlock(${jq(p.id)},${jq(p.name||p.email||'this member')})">Remove member</button></div>`}<div class="guest-form-actions" style="margin-top:8px"><button class="gray" type="button" onclick="admMemberDelete(${jq(p.id)},${jq(p.name||p.email||'this member')},${jq(p.email||'')})">Delete for good</button></div><p class="sm-note">Remove stops access but keeps the data. Delete for good removes the account from the list, so the person can sign up again.</p>`}`;
 };
 
 /* =========================================================================
@@ -14486,6 +14500,19 @@ window.SW_PAT.push(
 ["Active until {0}","Umewashwa hadi {0}"],["Ended on {0}","Uliisha {0}"],["Removed on {0}","Ameondolewa {0}"],
 ["Could not send: {0}","Imeshindikana kutuma: {0}"],["Could not remove: {0}","Imeshindikana kumuondoa: {0}"],["Could not restore: {0}","Imeshindikana kumrudisha: {0}"]
 );
+Object.assign(window.SW_EXACT, {
+"Delete this member for good?":"Kumfuta mwanachama huyu kabisa?",
+"Delete for good":"Futa kabisa","Delete":"Futa",
+"Type their email to confirm:":"Andika barua pepe yake kuthibitisha:",
+"The email you typed does not match. Nothing was deleted.":"Barua pepe uliyoandika hailingani. Hakuna kilichofutwa.",
+"Member deleted.":"Mwanachama amefutwa.","Could not delete this member.":"Imeshindikana kumfuta mwanachama huyu.",
+"This member has events, so they cannot be deleted. Use Remove member instead.":"Mwanachama huyu ana matukio, kwa hiyo hawezi kufutwa. Tumia \"Muondoe mwanachama\" badala yake.",
+"This member has photo galleries, so they cannot be deleted. Use Remove member instead.":"Mwanachama huyu ana albamu za picha, kwa hiyo hawezi kufutwa. Tumia \"Muondoe mwanachama\" badala yake.",
+"This member has ticket events, so they cannot be deleted. Use Remove member instead.":"Mwanachama huyu ana matukio ya tiketi, kwa hiyo hawezi kufutwa. Tumia \"Muondoe mwanachama\" badala yake.",
+"This member has SMS campaigns, so they cannot be deleted. Use Remove member instead.":"Mwanachama huyu ana kampeni za SMS, kwa hiyo hawezi kufutwa. Tumia \"Muondoe mwanachama\" badala yake.",
+"Remove stops access but keeps the data. Delete for good removes the account from the list, so the person can sign up again.":"\"Muondoe\" inazuia kuingia lakini data inabaki. \"Futa kabisa\" inaondoa akaunti kwenye orodha, hivyo mtu anaweza kujisajili tena."
+});
+window.SW_PAT.push(["Could not delete: {0}","Imeshindikana kufuta: {0}"],["({0}) will be deleted and disappear from the list. They can sign up again later and will get a new confirmation email. This cannot be undone.","({0}) atafutwa na kutoweka kwenye orodha. Anaweza kujisajili tena baadaye na atapata barua pepe mpya ya uthibitisho. Hili haliwezi kurudishwa."]);
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
