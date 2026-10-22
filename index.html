@@ -1393,6 +1393,15 @@ tr.ex-voided td b{text-decoration:line-through}
 .rp-meta{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;margin-top:4px}.rp-meta b{font-size:15px}
 #ctReportBox .table-wrap{margin-top:6px}
 
+/* V129: finance sub-roles */
+body.nop-pay_add .p-pay_add,body.nop-pay_confirm .p-pay_confirm,body.nop-pay_reverse .p-pay_reverse,body.nop-contributor_edit .p-contributor_edit,body.nop-adjust .p-adjust,body.nop-archive .p-archive,body.nop-target .p-target,body.nop-ex_request .p-ex_request,body.nop-ex_approve .p-ex_approve,body.nop-ex_pay .p-ex_pay,body.nop-ex_void .p-ex_void,body.nop-notify .p-notify,body.nop-reports .p-reports,body.nop-budget .p-budget{display:none!important}
+.ct-dual{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line,#e5e7eb);border-radius:12px;margin-bottom:12px}
+.ct-dual .ct-chk{margin:0}
+.ct-req{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:12px 14px;margin-top:10px}
+.ct-req b{display:block}.ct-req .ct-why{display:block;margin-top:2px}
+.ct-req .row-actions{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.ct-dual .ct-chk span{font-weight:400}.ct-dual .ct-chk b{font-weight:700}
+
 /* ===================== DESIGN STUDIO (V86) ===================== */
 body.st-open{overflow:hidden}
 .stI{width:18px;height:18px;flex:none;vertical-align:middle}
@@ -2171,7 +2180,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V128</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V129</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2382,7 +2391,7 @@ body.svc-photog #collNavGroup{display:block!important}
   </div>
   <div class="panel" id="staffPanel">
     <div class="panel-heading"><div><h2>Team access</h2><p>Give a colleague access to the selected event. They create an account with the email below. A <b>door staff</b> member only sees the Check-in page. A <b>treasurer</b> only sees Contributions (can add and edit payments and expenses, but cannot delete or see guests). A <b>photographer</b> only sees the Photos page: he can upload and delete photos and copy the gallery link to send to clients (the host decides when the gallery is visible). A <b>co-host</b> (the event's host) can manage everything for this one event — guests, cards, messaging, check-in, contributions — but cannot delete the event, delete payment records or add team members. A co-host or photographer must register with a <u>new email</u> that does not already own events. An <b>event tickets seller</b> or <b>Bulk SMS</b> member gets their own account: after they register with the email below they see only that service, sell their own tickets or send their own SMS, and pay their own fee. They do not see this event.</p></div></div>
-    <div class="toolbar"><input id="staffEmail" type="email" placeholder="staff@example.com" style="max-width:300px" onkeydown="if(event.key==='Enter')addStaff()"><select id="staffRoleSel" aria-label="Role" style="max-width:190px"><option value="checkin">Door staff (check-in)</option><option value="treasurer">Treasurer (contributions)</option><option value="cohost">Co-host (full control of this event)</option><option value="photographer">Photographer (photos)</option><option value="tickets">Event tickets seller (own account)</option><option value="sms">Bulk SMS (own account)</option></select><button class="primary" onclick="addStaff()"><svg class="i"><use href="#i-plus"/></svg>Add member</button></div>
+    <div class="toolbar"><input id="staffEmail" type="email" placeholder="staff@example.com" style="max-width:300px" onkeydown="if(event.key==='Enter')addStaff()"><select id="staffRoleSel" aria-label="Role" onchange="staffRoleChanged()" style="max-width:190px"><option value="checkin">Door staff (check-in)</option><option value="treasurer">Treasurer (contributions)</option><option value="cohost">Co-host (full control of this event)</option><option value="photographer">Photographer (photos)</option><option value="tickets">Event tickets seller (own account)</option><option value="sms">Bulk SMS (own account)</option></select><select id="staffFinSel" aria-label="Finance role" style="max-width:230px;display:none"><option value="">Full treasurer</option><option value="accountant">Accountant</option><option value="verifier">Payment verifier</option><option value="approver">Expense approver</option><option value="auditor">Auditor (read-only)</option></select><button class="primary" onclick="addStaff()"><svg class="i"><use href="#i-plus"/></svg>Add member</button></div>
     <div id="staffList"></div>
   </div>
 </section>
@@ -2475,7 +2484,7 @@ body.svc-photog #collNavGroup{display:block!important}
   </div>
   <div class="panel ct-progress" id="ctProgress"></div>
   <div id="ctOverview"></div>
-  <div class="panel">
+  <div class="panel p-contributor_edit">
     <div class="panel-heading"><div><h2>Add a contributor</h2><p>Record who pledged and how much. If they already paid something, enter it too.</p></div></div>
     <div class="pay-grid">
       <div class="field"><label for="ctName">Contributor name</label><input id="ctName" placeholder="e.g. Mzee Kimaro" autocomplete="off"></div>
@@ -2498,7 +2507,7 @@ body.svc-photog #collNavGroup{display:block!important}
   </div>
   <div class="panel">
     <div class="panel-heading"><div><h2>Contributors</h2><p>Pledged, paid and balance for every person.</p></div>
-      <div class="ct-dl"><button class="primary no-treasurer" onclick="goContribMessages()"><svg class="i"><use href="#i-send"/></svg>Send messages</button><button class="gray" onclick="ctImportOpen()"><svg class="i"><use href="#i-upload"/></svg>Import Excel</button><button class="gray" onclick="downloadContributors()"><svg class="i"><use href="#i-download"/></svg>Excel report</button><button class="gray" id="ctPdfBtn" onclick="downloadContributorsPdf()"><svg class="i"><use href="#i-download"/></svg>PDF report</button></div></div>
+      <div class="ct-dl"><button class="primary no-treasurer p-notify" onclick="goContribMessages()"><svg class="i"><use href="#i-send"/></svg>Send messages</button><button class="gray p-contributor_edit" onclick="ctImportOpen()"><svg class="i"><use href="#i-upload"/></svg>Import Excel</button><button class="gray" onclick="downloadContributors()"><svg class="i"><use href="#i-download"/></svg>Excel report</button><button class="gray" id="ctPdfBtn" onclick="downloadContributorsPdf()"><svg class="i"><use href="#i-download"/></svg>PDF report</button></div></div>
     <div class="guest-bar" style="margin-bottom:12px">
       <div class="search"><svg class="i"><use href="#i-search"/></svg><input id="ctSearch" placeholder="Search by name or phone…" oninput="ctSearchSet(this.value)"></div>
       <select id="ctFilter" onchange="ctFilterSet(this.value)" aria-label="Filter"><option value="all">Everyone</option><option value="owing">Still owing</option><option value="cleared">Fully paid</option><option value="overdue">Overdue</option></select>
@@ -2507,37 +2516,42 @@ body.svc-photog #collNavGroup{display:block!important}
     <div id="contribListBox"></div>
     <input type="file" id="ctImportFile" accept=".xlsx,.xls,.csv" hidden onchange="ctImportFileChosen(this)">
   </div>
-  <div class="panel no-cohost">
+  <div class="panel no-cohost p-adjust" id="ctApprovalsPanel">
+    <div class="panel-heading"><div><h2>Approvals &amp; financial settings</h2><p>Changes to a pledge, waivers and refunds can need a second person to approve them. Money already received is never changed by a pledge change.</p></div><button class="gray sm" onclick="ctApprovalsLoad()"><svg class="i"><use href="#i-search"/></svg>Refresh</button></div>
+    <div id="ctDualBox" class="no-treasurer"></div>
+    <div id="ctApprovalsBox"></div>
+  </div>
+  <div class="panel no-cohost p-reports">
     <div class="panel-heading"><div><h2>Transaction ledger</h2><p>Every money movement in order, with the running balance: payments, reversals, refunds and paid expenses.</p></div><div class="ct-dl"><button class="gray sm" onclick="ctLedgerLoad()"><svg class="i"><use href="#i-search"/></svg>Show ledger</button><button class="gray sm" onclick="ctLedgerCsv()"><svg class="i"><use href="#i-download"/></svg>Download CSV</button></div></div>
     <div class="ct-lf"><select id="lgType" aria-label="Type" onchange="ctLedgerRender()"><option value="">All types</option><option value="payment">Payments</option><option value="reversal">Reversals</option><option value="refund">Refunds</option><option value="expense">Expenses</option><option value="expense_void">Voided expenses</option></select><input id="lgQ" placeholder="Search name, reference or method…" oninput="ctLedgerRender()" aria-label="Search"><input id="lgFrom" type="date" onchange="ctLedgerRender()" aria-label="From date"><input id="lgTo" type="date" onchange="ctLedgerRender()" aria-label="To date"><input id="lgMin" inputmode="numeric" placeholder="Min amount" oninput="ctLedgerRender()" aria-label="Minimum amount"></div>
     <div id="ctLedgerBox"></div>
   </div>
-  <div class="panel no-cohost" id="ctReportsPanel">
+  <div class="panel no-cohost p-reports" id="ctReportsPanel">
     <div class="panel-heading"><div><h2>Financial reports</h2><p>Reports use the same confirmed records as the overview. Each one shows who made it and when. Only the owner and treasurer can open them.</p></div></div>
     <div class="ct-lf"><select id="rpKind" aria-label="Report" onchange="ctRepShow()"><option value="register">Contribution register</option><option value="pledges">Pledges vs collections</option><option value="outstanding">Outstanding pledges and debts</option><option value="partial">Partial payments</option><option value="reductions">Reductions and waivers</option><option value="refunds">Refunds and reversals</option><option value="daily">Collections by day</option><option value="weekly">Collections by week</option><option value="monthly">Collections by month</option><option value="cashflow">Cash-flow by month</option><option value="expenses">Expenses: approved and not approved</option><option value="history">Financial transaction history</option><option value="notices">Messages sent to contributors</option><option value="statement">Final event financial statement</option></select><input id="rpFrom" type="date" aria-label="From date" onchange="ctRepShow()"><input id="rpTo" type="date" aria-label="To date" onchange="ctRepShow()"><button class="primary sm" onclick="ctRepShow(true)">Show report</button><button class="gray sm" onclick="ctRepExcel()">Excel</button><button class="gray sm" onclick="ctRepPdf()">PDF</button><button class="gray sm" onclick="ctRepPrint()">Print</button></div>
     <div class="help" style="margin:6px 0 0">Dates apply to money movements. Lists of people (register, pledges, outstanding, partial) show how things stand today.</div>
     <div id="ctReportBox" style="margin-top:12px"></div>
   </div>
-  <div class="panel no-cohost">
+  <div class="panel no-cohost p-reports">
     <div class="panel-heading"><div><h2>Activity log</h2><p>Who recorded, confirmed, reversed or adjusted money, and why. Only the owner and treasurer can see this.</p></div><button class="gray sm" onclick="ctLoadAudit()"><svg class="i"><use href="#i-search"/></svg>Show activity</button></div>
     <div id="ctAuditBox"></div>
   </div>
   <div class="panel">
     <div class="panel-heading"><div><h2>Budget &amp; expenses</h2><p>Request an expense. The owner or treasurer approves it and records the payment; only paid expenses are deducted from the money collected.</p></div></div>
-    <div class="pay-grid">
+    <div class="pay-grid p-ex_request">
       <div class="field"><label for="exDesc">What was it for?</label><input id="exDesc" placeholder="e.g. Hall booking" autocomplete="off"></div>
       <div class="field"><label for="exCat">Category</label><select id="exCat"><option>Venue</option><option>Food &amp; drinks</option><option>Cake</option><option>Decoration</option><option>Flowers</option><option>Photo &amp; Video</option><option>Music / MC</option><option>Tents &amp; chairs</option><option>Attire &amp; makeup</option><option>Transport</option><option>Printing</option><option>Gifts &amp; souvenirs</option><option>Security &amp; ushers</option><option>Accommodation</option><option>Church / offering</option><option>Other</option></select></div>
       <div class="field"><label for="exAmount">Amount (TZS)</label><input id="exAmount" inputmode="numeric" placeholder="e.g. 150,000"></div>
       <div class="field"><label for="exDate">Date</label><input id="exDate" type="date"></div>
       <div class="field"><label for="exPayee">Paid to <span class="optional">Optional</span></label><input id="exPayee" placeholder="e.g. Karimjee Hall" autocomplete="off" maxlength="80"></div>
     </div>
-    <div class="no-cohost" style="margin-top:12px">
+    <div class="no-cohost p-ex_pay" style="margin-top:12px">
       <label class="ct-chk"><input type="checkbox" id="exPaidNow"> <span>Already paid: approve and record the payment now</span></label>
       <div class="pay-grid" style="margin-top:8px"><div class="field"><label for="exMethod">Payment method</label><select id="exMethod"><option>Cash</option><option>M-Pesa</option><option>Tigo Pesa</option><option>Airtel Money</option><option>Halopesa</option><option>Bank transfer</option></select></div><div class="field"><label for="exRef">Transaction reference <span class="optional">Optional</span></label><input id="exRef" maxlength="60" autocomplete="off"></div></div>
     </div>
-    <div class="toolbar" style="margin-top:16px"><button class="primary" onclick="saveExpense()"><svg class="i"><use href="#i-check"/></svg>Request expense</button><span id="exStatus" class="help"></span></div>
+    <div class="toolbar p-ex_request" style="margin-top:16px"><button class="primary" onclick="saveExpense()"><svg class="i"><use href="#i-check"/></svg>Request expense</button><span id="exStatus" class="help"></span></div>
     <div id="expenseListBox" style="margin-top:14px"></div>
-    <div id="budgetPlanBox" style="margin-top:22px"></div>
+    <div id="budgetPlanBox" class="p-budget" style="margin-top:22px"></div>
   </div>
 </section>
 
@@ -3233,12 +3247,12 @@ async function loadEventsFromSupabase(){
     .order("created_at", {ascending:false});
 
   // Door staff: a user who owns no events but was added as staff sees those events (check-in only).
-  window.__staffMode = false; window.__staffRoles = {};
+  window.__staffMode = false; window.__staffRoles = {}; window.__finRoles = {};
   if(!error && !(data || []).length){
     try{
       const mail = String(currentSupabaseUser.email || "").toLowerCase();
-      const {data: st} = await supabaseClient.from("event_staff").select("event_id,role").eq("email", mail);
-      window.__staffRoles = {}; (st || []).forEach(r => { window.__staffRoles[r.event_id] = r.role || "checkin"; });
+      const {data: st} = await supabaseClient.from("event_staff").select("event_id,role,fin_role").eq("email", mail);
+      window.__staffRoles = {}; window.__finRoles = {}; (st || []).forEach(r => { window.__staffRoles[r.event_id] = r.role || "checkin"; if(r.fin_role) window.__finRoles[r.event_id] = r.fin_role; });
       const sids = (st || []).map(r => r.event_id);
       if(sids.length){
         const r2 = await supabaseClient.from("events").select("*").in("id", sids).order("created_at", {ascending:false});
@@ -4382,7 +4396,7 @@ function renderUserChip(){
   const name = PROFILE.name || (currentSupabaseUser?.email||'').split('@')[0] || 'User';
   $('userName').textContent=name;
   $('userAvatar').textContent=initials(name);
-  $('roleLabel').textContent = isAdmin ? 'Administrator' : (window.__staffMode ? (staffRole()==='treasurer'?'Treasurer':(staffRole()==='cohost'?'Co-host':(staffRole()==='photographer'?'Photographer':'Door staff'))) : 'Event organiser');
+  $('roleLabel').textContent = isAdmin ? 'Administrator' : (window.__staffMode ? (staffRole()==='treasurer'?(ctFinLabel()||'Treasurer'):(staffRole()==='cohost'?'Co-host':(staffRole()==='photographer'?'Photographer':'Door staff'))) : 'Event organiser');
   const g=$('dashGreeting'); if(g) g.textContent='Welcome, '+name.split(' ')[0];
 }
 let _adminFlight=null;
@@ -5349,7 +5363,7 @@ window.renderContributions = function(){
     const bal = x.left>0?`<b class="bal owe">${money(x.left)}</b>`:(x.pledged>0&&x.paid>x.pledged?`<span class="bal ok">Paid · +${money(x.paid-x.pledged)}</span>`:`<span class="bal ok">Cleared</span>`);
     return `<tr><td class="seq" data-l="No.">${ix+1}</td><td data-l="Contributor"><div class="guest-cell"><span class="avatar">${E(initials(x.name))}</span><div style="min-width:0"><span class="cell-name">${E(x.name)}${x.is_anonymous?' <span class="ct-badge pend">Anonymous</span>':''}</span><span class="cell-sub">${E(x.phone||'No phone')}${inG?' · in guest list':''}${x.category?' · '+E(x.category):''}${x.kind&&x.kind!=='individual'&&x.kind!=='anonymous'?' · '+E(ctCap(x.kind)):''}</span>${x.due&&x.left>0?`<span class="cell-sub ${x.overdue?'due-late':''}">${x.overdue?'Overdue · ':'Due '}${E(fmtDay(x.due))}</span>`:''}</div></div></td>
       <td class="num" data-l="Pledged">${money(x.pledged)}</td><td class="num" data-l="Paid">${money(x.paid)}</td><td class="num" data-l="Balance">${bal}</td>
-      <td class="actions"><div class="row-actions"><button class="primary sm" onclick="openContributor('${x.id}',true)">${ic('plus')}Add payment</button><button class="icon" title="Details and history" aria-label="Details and history" onclick="openContributor('${x.id}')">${ic('user')}</button>${x.pending>0?`<span class="ct-badge pend" title="Waiting for confirmation">${money(x.pending)} pending</span>`:''}<button class="icon rm no-cohost" title="Remove contributor" aria-label="Remove contributor" onclick="deleteContributor('${x.id}')">${ic('trash')}</button></div></td></tr>`;}).join('')}
+      <td class="actions"><div class="row-actions"><button class="primary sm p-pay_add" onclick="openContributor('${x.id}',true)">${ic('plus')}Add payment</button><button class="icon" title="Details and history" aria-label="Details and history" onclick="openContributor('${x.id}')">${ic('user')}</button>${x.pending>0?`<span class="ct-badge pend" title="Waiting for confirmation">${money(x.pending)} pending</span>`:''}<button class="icon rm no-cohost p-archive" title="Remove contributor" aria-label="Remove contributor" onclick="deleteContributor('${x.id}')">${ic('trash')}</button></div></td></tr>`;}).join('')}
     </tbody><tfoot><tr class="ct-total"><td></td><td>Total (${list.length})</td><td class="num" data-l="Pledged">${money(t.pledged)}</td><td class="num" data-l="Paid">${money(t.collected)}</td><td class="num" data-l="Balance"><b>${money(t.left)}</b></td><td></td></tr></tfoot></table></div>`;
 };
 window.ctSearchSet = v => { CT.search=v; renderContributions(); };
@@ -5372,7 +5386,7 @@ function ctErr(e){
     nothing_outstanding:'There is no unpaid balance to waive.',has_money:'This person still has money recorded. Refund or reverse it first.',has_pending:'Confirm or reverse the pending payment first.',
     already_reversed:'This payment is already reversed.',no_change:'The pledge is already that amount.',bad_amount:'Please enter a valid amount.',bad_status:'This item cannot be changed in its current state.',
     future_date:'The payment date cannot be in the future.',contributor_unavailable:'This contributor was removed.',contributor_has_records:'This contributor has payment records and cannot be deleted.',
-    not_pending:'This payment is not waiting for confirmation.',expense_locked:'This expense is locked. Use Cancel or Void with a reason.',self_approval:'You cannot approve your own request. Ask the event owner.',method_required:'Please choose how it was paid.',bad_ref:'Reference must be 3 to 60 characters.',description_required:'Please say what the money is for.',archived:'This contributor was removed.',forbidden:'You are not allowed to do this.'};
+    not_pending:'This payment is not waiting for confirmation.',expense_locked:'This expense is locked. Use Cancel or Void with a reason.',self_approval:'You cannot approve your own request. Ask the event owner.',method_required:'Please choose how it was paid.',bad_ref:'Reference must be 3 to 60 characters.',description_required:'Please say what the money is for.',archived:'This contributor was removed.',forbidden:'You are not allowed to do this.',approval_required:'A second person must approve this change. It was sent for approval.',approval_not_needed:'Approval is not switched on for this event.',too_many_requests:'There are already 50 requests waiting. Decide some of them first.',bad_kind:'Please choose a valid type of change.'};
   for(const k in map) if(m.includes(k)) return map[k];
   if(/contributions_txn_ref_uq|duplicate key/i.test(m)) return 'This transaction reference was already used for another payment.';
   if(/row-level security|permission denied/i.test(m)) return 'You are not allowed to do this.';
@@ -5395,7 +5409,7 @@ function ctRenderOverview(t){
   const tpct=target?Math.min(100,Math.round(recv/target*100)):0;
   const tile=(label,val,sub,cls)=>`<div class="stat ${cls||''}"><span>${label}</span><b>${val}</b>${sub?`<small class="muted">${sub}</small>`:''}</div>`;
   box.innerHTML=`<div class="panel ct-ov">
-    <div class="panel-heading"><div><h2>Financial overview</h2><p>Only confirmed payments count as money received. Pledges and pending payments are shown separately.</p></div><button class="gray sm no-cohost" onclick="ctSetTarget()">${ic('edit')}${target?'Change target':'Set target'}</button></div>
+    <div class="panel-heading"><div><h2>Financial overview</h2><p>Only confirmed payments count as money received. Pledges and pending payments are shown separately.</p></div><button class="gray sm no-cohost p-target" onclick="ctSetTarget()">${ic('edit')}${target?'Change target':'Set target'}</button></div>
     ${target?`<div class="ct-prog-head"><b>${money(recv)} of ${money(target)} target</b><span class="muted">${tpct}%</span></div><div class="stat-bar" style="margin:8px 0 14px"><i style="width:${tpct}%"></i></div>`:`<div class="help" style="margin:0 0 12px">No contribution target set yet.</div>`}
     <div class="cards ct-ov-grid">
       ${tile('Received today',has?money(m.today):'—','', 'stat-green')}${tile('Received this week',has?money(m.week):'—','', 'stat-green')}${tile('Received this month',has?money(m.month):'—','', 'stat-green')}
@@ -5604,8 +5618,57 @@ window.ctRepPdf = async function(){
   }catch(e){ console.warn('rp pdf',e); toast('Could not create the PDF. Check your internet connection and try again.'); }
 };
 
+
+/* ----- V129: second-person approval of pledge changes ----- */
+CT.dual=false; CT.reqs=[]; CT.dualFor=null;
+window.staffRoleChanged = function(){
+  const r=($('staffRoleSel')||{}).value, f=$('staffFinSel'); if(f) f.style.display = r==='treasurer'?'':'none';
+};
+const CT_REQ_ST={requested:'Waiting for approval',approved:'Approved',rejected:'Rejected',cancelled:'Cancelled'};
+window.ctApprovalsLoad = async function(){
+  const ev=getEvent(currentEventId), box=$('ctApprovalsBox'), dbx=$('ctDualBox'); if(!ev||!box||!ctPerm('adjust')) return;
+  CT.dualFor=ev.id;
+  try{
+    const [s,q]=await Promise.all([supabaseClient.from('ct_settings').select('dual_control').eq('event_id',ev.id).maybeSingle(),supabaseClient.from('ct_adjust_requests').select('*').eq('event_id',ev.id).order('requested_at',{ascending:false}).limit(50)]);
+    if(s.error) throw s.error; if(q.error) throw q.error;
+    CT.dual=!!(s.data&&s.data.dual_control); CT.reqs=q.data||[];
+  }catch(e){ box.innerHTML='<div class="help">'+E(ctErr(e))+'</div>'; return; }
+  if(dbx) dbx.innerHTML=`<div class="ct-dual"><label class="ct-chk"><input type="checkbox" id="ctDualChk" ${CT.dual?'checked':''} onchange="ctDualSet(this.checked)"> <span><b>Ask for a second approval</b><br>When on, a treasurer cannot change a pledge, waive a balance or record a refund alone. They send a request and you approve or reject it.</span></label></div>`;
+  const me=currentSupabaseUser&&currentSupabaseUser.id, owner=!window.__staffMode;
+  const nm=id=>{ const c=(CT.contributors||[]).find(x=>x.id===id); return c?c.name:'Contributor'; };
+  const rows=CT.reqs.filter(r=>r.status==='requested'), done=CT.reqs.filter(r=>r.status!=='requested').slice(0,8);
+  const row=r=>`<div class="ct-req"><b>${E(ctAdjLabel(r.kind))}${Number(r.amount)>0?' · '+money(r.amount):''} · ${E(nm(r.contributor_id))}</b><span class="muted" style="font-size:13px"><span>${E(new Date(r.requested_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}))}</span> · <span>${r.requested_by===me?'You asked':'A team member asked'}</span> · <em>${E(CT_REQ_ST[r.status]||r.status)}</em></span><span class="ct-why">Reason: ${E(r.reason||'')}</span>${r.decision_note?`<span class="ct-why">Decision: ${E(r.decision_note)}</span>`:''}${r.status==='requested'?`<div class="row-actions">${(r.requested_by!==me||owner)?`<button class="primary sm" onclick="ctReqDecide('${r.id}',true)">${ic('check')}Approve</button><button class="gray sm" onclick="ctReqDecide('${r.id}',false)">Reject</button>`:''}${(r.requested_by===me||owner)?`<button class="gray sm" onclick="ctReqCancel('${r.id}')">Cancel request</button>`:''}</div>`:''}</div>`;
+  box.innerHTML=(rows.length?`<h3 class="ct-h">Waiting for approval (${rows.length})</h3>${rows.map(row).join('')}`:`<div class="help">No change is waiting for approval.</div>`)+(done.length?`<h3 class="ct-h">Recent decisions</h3>${done.map(row).join('')}`:'');
+};
+window.ctDualSet = async function(on){
+  const ev=getEvent(currentEventId); if(!ev) return;
+  const r=await supabaseClient.rpc('ct_set_dual',{p_event:ev.id,p_on:!!on});
+  if(r.error){ toast('Not saved: '+ctErr(r.error)); return ctApprovalsLoad(); }
+  CT.dual=!!on; toast(on?'Second approval is ON. Treasurers must send pledge changes for approval.':'Second approval is OFF.'); ctApprovalsLoad();
+};
+window.ctReqDecide = async function(id,approve){
+  let note=null;
+  if(!approve){ note=await exReasonDialog('Reject this change?','The pledge stays as it is. The reason is saved in the activity log.','Reject'); if(!note) return; }
+  else { const ok=await confirmDialog({title:'Approve this change?',text:'The pledge will be changed now and the change is saved in the activity log.',ok:'Approve',tone:'primary',icon:'check'}); if(!ok) return; }
+  const r=await supabaseClient.rpc('ct_adjust_decide',{p_request:id,p_approve:!!approve,p_note:note});
+  if(r.error) return toast('Failed: '+ctErr(r.error));
+  await loadContributions(); ctApprovalsLoad(); toast(approve?'Change approved and applied.':'Change rejected.');
+};
+window.ctReqCancel = async function(id){
+  const ok=await confirmDialog({title:'Cancel this request?',text:'Nothing will change on the pledge.',ok:'Cancel request'}); if(!ok) return;
+  const r=await supabaseClient.rpc('ct_adjust_cancel',{p_request:id});
+  if(r.error) return toast('Failed: '+ctErr(r.error));
+  ctApprovalsLoad(); toast('Request cancelled.');
+};
+const _rcV129 = window.renderContributions;
+window.renderContributions = function(){
+  const o=_rcV129.apply(this,arguments);
+  try{ ctApplyPerms(); const ev=getEvent(currentEventId); if(ev && CT.dualFor!==ev.id && ctPerm('adjust')) ctApprovalsLoad(); }catch(e){}
+  return o;
+};
+
 /* ----- V126: activity log (owner and treasurer) ----- */
-const CT_ACT={payment_added:'Payment added',payment_reversed:'Payment reversed',payment_confirmed:'Payment confirmed',adjust_reduce:'Pledge reduced',adjust_waive:'Balance waived',adjust_increase:'Pledge increased',adjust_correct:'Pledge corrected',adjust_refund:'Refund recorded',contributor_archived:'Contributor removed',expense_requested:'Expense requested',expense_approved:'Expense approved',expense_paid:'Expense paid',expense_rejected:'Expense rejected',expense_cancelled:'Expense cancelled',expense_voided:'Expense voided',expense_added:'Expense added',target_set:'Target changed',pledge_set:'Pledge set'};
+const CT_ACT={payment_added:'Payment added',payment_reversed:'Payment reversed',payment_confirmed:'Payment confirmed',adjust_reduce:'Pledge reduced',adjust_waive:'Balance waived',adjust_increase:'Pledge increased',adjust_correct:'Pledge corrected',adjust_refund:'Refund recorded',contributor_archived:'Contributor removed',expense_requested:'Expense requested',expense_approved:'Expense approved',expense_paid:'Expense paid',expense_rejected:'Expense rejected',expense_cancelled:'Expense cancelled',expense_voided:'Expense voided',expense_added:'Expense added',target_set:'Target changed',adjust_requested:'Change sent for approval',adjust_request_approved:'Change approved',adjust_request_rejected:'Change rejected',adjust_request_cancelled:'Change request cancelled',dual_control_set:'Approval setting changed',pledge_set:'Pledge set'};
 window.ctLoadAudit = async function(){
   const box=$('ctAuditBox'); if(!box||!currentEventId) return;
   box.innerHTML='<div class="help">Loading…</div>';
@@ -5663,33 +5726,33 @@ window.openContributor = function(id,focusPay){
   $('contribModalBox').innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
     <div class="guest-modal-head"><div class="guest-modal-icon">${ic('wallet')}</div><div><h2>${E(x.name)}</h2><p>${E(x.phone||'No phone number')}</p></div></div>
     <div class="ct-mini"><div><span>Pledged</span><b>${money(x.pledged)}</b></div><div><span>Paid</span><b class="bal ok">${money(x.paid)}</b></div><div><span>Balance</span><b class="bal ${x.left>0?'owe':'ok'}">${x.left>0?money(x.left):'Cleared'}</b></div></div>
-    <h3 class="ct-h">Add a payment</h3>
+    <div class="p-pay_add"><h3 class="ct-h">Add a payment</h3>
     <div class="ct-pay"><input id="cpAmount" inputmode="numeric" placeholder="Amount (TZS)" aria-label="Amount"><select id="cpMethod" aria-label="Method"><option>Cash</option><option>M-Pesa</option><option>Tigo Pesa</option><option>Airtel Money</option><option>Halopesa</option><option>Bank transfer</option></select><button class="primary" onclick="addPaymentTo('${x.id}')">${ic('check')}Add</button></div>
     <div class="ct-pay2"><input id="cpRef" placeholder="Transaction reference (optional)" aria-label="Transaction reference" maxlength="60" autocomplete="off"><input id="cpDate" type="date" aria-label="Payment date" max="${ctToday()}" value="${ctToday()}"></div>
     <label class="ct-chk"><input type="checkbox" id="cpPending"> <span>Not confirmed yet (count it only after it is confirmed)</span></label>
-    ${x.left>0?`<button class="text-button" onclick="document.getElementById('cpAmount').value='${x.left}'">Pay the full balance (${money(x.left)})</button>`:''}
-    <h3 class="ct-h">Send a statement</h3>
-    <div class="ct-send"><button class="green sm" onclick="ctSend('whatsapp','${x.id}')">${ic('whatsapp')}WhatsApp</button><button class="primary sm" onclick="ctSend('sms','${x.id}')">${ic('message')}SMS</button><span class="muted" style="font-size:13px">Sends pledged, paid and balance${x.phone?'':' (add a phone number first)'}.</span></div>
+    ${x.left>0?`<button class="text-button" onclick="document.getElementById('cpAmount').value='${x.left}'">Pay the full balance (${money(x.left)})</button>`:''}</div>
+    <div class="p-notify"><h3 class="ct-h">Send a statement</h3>
+    <div class="ct-send"><button class="green sm" onclick="ctSend('whatsapp','${x.id}')">${ic('whatsapp')}WhatsApp</button><button class="primary sm" onclick="ctSend('sms','${x.id}')">${ic('message')}SMS</button><span class="muted" style="font-size:13px">Sends pledged, paid and balance${x.phone?'':' (add a phone number first)'}.</span></div></div>
     <h3 class="ct-h">Payment history</h3>
     ${x.allRows.length?`<div class="queue">${x.allRows.map(p=>{
       const st=p.status, bad=st==='reversed', pend=st==='pending';
-      return `<div class="queue-item ct-pi ${bad?'is-rev':''}"><div class="who"><b>${money(p.amount)}${pend?' <span class="ct-badge pend">Not confirmed</span>':''}${bad?' <span class="ct-badge rev">Reversed</span>':''}</b><span>${E(p.provider_reference||p.provider||'')}${p.txn_ref?' · Ref '+E(p.txn_ref):''} · ${E(ctPayDate(p))}</span>${bad&&p.reverse_reason?`<span class="ct-why">Reason: ${E(p.reverse_reason)}</span>`:''}</div><div class="row-actions">${st==='paid'?`<button class="icon" title="Receipt (PDF)" aria-label="Receipt PDF" onclick="ctReceiptPdf('${x.id}','${p.id}')">${ic('download')}</button><button class="icon" title="Send receipt on WhatsApp" aria-label="Send receipt on WhatsApp" onclick="ctReceiptSend('${x.id}','${p.id}','whatsapp')">${ic('whatsapp')}</button>`:''}${pend?`<button class="primary sm no-cohost" onclick="ctConfirmPayment('${p.id}','${x.id}')">${ic('check')}Confirm</button>`:''}${st!=='reversed'?`<button class="gray sm no-cohost" onclick="reversePayment('${p.id}','${x.id}')">Reverse</button>`:''}</div></div>`;}).join('')}</div>`:'<div class="help">No payments yet.</div>'}
-    <div class="no-cohost">
+      return `<div class="queue-item ct-pi ${bad?'is-rev':''}"><div class="who"><b>${money(p.amount)}${pend?' <span class="ct-badge pend">Not confirmed</span>':''}${bad?' <span class="ct-badge rev">Reversed</span>':''}</b><span>${E(p.provider_reference||p.provider||'')}${p.txn_ref?' · Ref '+E(p.txn_ref):''} · ${E(ctPayDate(p))}</span>${bad&&p.reverse_reason?`<span class="ct-why">Reason: ${E(p.reverse_reason)}</span>`:''}</div><div class="row-actions">${st==='paid'?`<button class="icon" title="Receipt (PDF)" aria-label="Receipt PDF" onclick="ctReceiptPdf('${x.id}','${p.id}')">${ic('download')}</button><button class="icon" title="Send receipt on WhatsApp" aria-label="Send receipt on WhatsApp" onclick="ctReceiptSend('${x.id}','${p.id}','whatsapp')">${ic('whatsapp')}</button>`:''}${pend?`<button class="primary sm no-cohost p-pay_confirm" onclick="ctConfirmPayment('${p.id}','${x.id}')">${ic('check')}Confirm</button>`:''}${st!=='reversed'?`<button class="gray sm no-cohost p-pay_reverse" onclick="reversePayment('${p.id}','${x.id}')">Reverse</button>`:''}</div></div>`;}).join('')}</div>`:'<div class="help">No payments yet.</div>'}
+    <div class="no-cohost p-adjust">
     <h3 class="ct-h">Adjust pledge or money</h3>
     <p class="help" style="margin:0 0 8px">Every change is saved with a reason and can be seen in the activity log. Money already received is never changed here, except by a recorded refund.</p>
     <div class="ct-adjf"><select id="caKind" aria-label="Type of adjustment" onchange="ctAdjKind()"><option value="reduce">Reduce the unpaid pledge</option><option value="waive">Waive the whole unpaid balance</option><option value="increase">Increase the pledge</option><option value="correct">Correct the pledge to a new amount</option><option value="refund">Refund money already received</option></select><input id="caAmount" inputmode="numeric" placeholder="Amount (TZS)" aria-label="Adjustment amount"></div>
     <input id="caReason" class="ct-reason" placeholder="Reason (required)" aria-label="Reason" maxlength="500" autocomplete="off">
-    <div class="ct-adjf2"><span class="muted" id="caHint" style="font-size:13px"></span><button class="primary" onclick="ctApplyAdjust('${x.id}')">${ic('check')}Apply</button></div>
+    <div class="ct-adjf2"><span class="muted" id="caHint" style="font-size:13px"></span><button class="primary" onclick="ctApplyAdjust('${x.id}')">${ic('check')}${CT.dual&&window.__staffMode?'Send for approval':'Apply'}</button></div>
     ${x.adj.length?`<div class="ct-adjlist">${x.adj.map(a=>`<div class="ct-adji"><b>${E(ctAdjLabel(a.kind))} · ${money(a.amount)}</b><span>${a.kind==='refund'?'Money refunded':'Pledge '+money(a.pledge_before)+' → '+money(a.pledge_after)} · ${E(new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}))}</span><span class="ct-why">Reason: ${E(a.reason||'')}</span></div>`).join('')}</div>`:''}
     </div>
-    <h3 class="ct-h">Edit details</h3>
+    <div class="p-contributor_edit"><h3 class="ct-h">Edit details</h3>
     <div class="guest-form-grid"><div class="field full"><label for="ceName">Name</label><input id="ceName" value="${E(x.name)}"></div><div class="field"><label for="cePhone">Phone</label><input id="cePhone" type="tel" value="${E(x.phone||'')}"></div><div class="field"><label for="ceDue">Due date</label><input id="ceDue" type="date" value="${E(x.due||'')}"></div>
       <div class="field"><label for="ceKind">Type</label><select id="ceKind">${['individual','family','company','institution','group'].map(k=>`<option value="${k}"${(x.kind===k)?' selected':''}>${k[0].toUpperCase()+k.slice(1)}</option>`).join('')}</select></div>
       <div class="field"><label for="ceCat">Group / category</label><input id="ceCat" list="ctCatList" maxlength="60" value="${E(x.category||'')}"></div>
       <div class="field"><label for="ceEmail">Email</label><input id="ceEmail" type="email" maxlength="120" value="${E(x.email||'')}"></div>
       <div class="field"><label for="ceAddr">Address / city</label><input id="ceAddr" maxlength="200" value="${E(x.address||'')}"></div>
-      <div class="field full"><label for="ceNote">Notes</label><input id="ceNote" maxlength="1000" value="${E(x.note||'')}"></div></div>
-    <div class="guest-form-actions">${isGuest?'<span class="muted" style="margin-right:auto;font-size:13px">Already in the guest list</span>':`<button class="gray no-treasurer" style="margin-right:auto" onclick="contributorToGuest('${x.id}')">${ic('users')}Add to guest list</button>`}<button class="gray" onclick="closeContributor()">Close</button><button class="primary" onclick="saveContributorEdit('${x.id}')">Save changes</button></div>`;
+      <div class="field full"><label for="ceNote">Notes</label><input id="ceNote" maxlength="1000" value="${E(x.note||'')}"></div></div></div>
+    <div class="guest-form-actions">${isGuest?'<span class="muted" style="margin-right:auto;font-size:13px">Already in the guest list</span>':`<button class="gray no-treasurer" style="margin-right:auto" onclick="contributorToGuest('${x.id}')">${ic('users')}Add to guest list</button>`}<button class="gray" onclick="closeContributor()">Close</button><button class="primary p-contributor_edit" onclick="saveContributorEdit('${x.id}')">Save changes</button></div>`;
   $('contribModal').classList.add('open'); window.__ctCur=x; ctAdjKind();
   if(focusPay) setTimeout(()=>{ const a=$('cpAmount'); if(a) a.focus(); },60);
 };
@@ -5723,10 +5786,17 @@ window.ctApplyAdjust = async function(id){
   if(kind!=='waive' && kind!=='correct' && amt<=0) return toast('Please enter a valid amount.');
   if(kind==='correct' && !($('caAmount').value||'').trim()) return toast('Please enter a valid amount.');
   if(why.length<3) return toast(ctErr('reason_required'));
-  const label=ctAdjLabel(kind);
-  const ok=await confirmDialog({title:({reduce:'Reduce this pledge?',waive:'Waive the unpaid balance?',increase:'Increase this pledge?',correct:'Correct this pledge?',refund:'Record this refund?'})[kind],text:`<b>${E(c.name)}</b><br>${kind==='waive'?'The whole unpaid balance will be removed from the pledge.':(kind==='refund'?`${money(amt)} will be recorded as refunded to this person.`:(kind==='correct'?`The pledge will become ${money(amt)}.`:`${money(amt)} ${kind==='reduce'?'will be removed from':'will be added to'} the pledge.`))}<br><small>Reason: ${E(why)}</small>`,ok:'Apply',tone:kind==='refund'?'danger':'primary',icon:'wallet'});
+  const label=ctAdjLabel(kind), viaReq=!!(CT.dual&&window.__staffMode);
+  const ok=await confirmDialog({title:({reduce:'Reduce this pledge?',waive:'Waive the unpaid balance?',increase:'Increase this pledge?',correct:'Correct this pledge?',refund:'Record this refund?'})[kind],text:`<b>${E(c.name)}</b><br>${kind==='waive'?'The whole unpaid balance will be removed from the pledge.':(kind==='refund'?`${money(amt)} will be recorded as refunded to this person.`:(kind==='correct'?`The pledge will become ${money(amt)}.`:`${money(amt)} ${kind==='reduce'?'will be removed from':'will be added to'} the pledge.`))}<br><small>Reason: ${E(why)}</small>${viaReq?'<br><small>A second person must approve this before anything changes.</small>':''}`,ok:viaReq?'Send for approval':'Apply',tone:kind==='refund'?'danger':'primary',icon:'wallet'});
   if(!ok) return;
-  const r=await supabaseClient.rpc('ct_adjust',{p_contributor:id,p_kind:kind,p_amount:kind==='waive'?0:amt,p_reason:why});
+  const args={p_contributor:id,p_kind:kind,p_amount:kind==='waive'?0:amt,p_reason:why};
+  let r=viaReq?{error:{message:'approval_required'}}:await supabaseClient.rpc('ct_adjust',args);
+  if(r.error && /approval_required/.test(String(r.error.message||''))){
+    CT.dual=true;
+    const q=await supabaseClient.rpc('ct_adjust_request',args);
+    if(q.error) return toast('Not saved: '+ctErr(q.error));
+    closeContributor(); ctApprovalsLoad(); toast('Sent for approval. Nothing changes until the owner approves it.'); return;
+  }
   if(r.error) return toast('Not saved: '+ctErr(r.error));
   await loadContributions(); openContributor(id); toast('Adjustment saved.');
   try{
@@ -5827,10 +5897,10 @@ function renderExpenses(){
   const rows=list.slice().sort((a,b)=>(rank[a.status]-rank[b.status])||String(b.spent_on).localeCompare(String(a.spent_on)));
   const act=x=>{
     const mine=x.requested_by&&x.requested_by===CT.uid, b=[];
-    if(x.status==='requested') b.push(`<button class="primary sm no-cohost" onclick="exApprove('${x.id}')">${ic('check')}Approve</button><button class="gray sm no-cohost" onclick="exReject('${x.id}')">Reject</button>`);
-    if(x.status==='approved') b.push(`<button class="primary sm no-cohost" onclick="exPay('${x.id}')">${ic('wallet')}Pay</button>`);
+    if(x.status==='requested') b.push(`<button class="primary sm no-cohost p-ex_approve" onclick="exApprove('${x.id}')">${ic('check')}Approve</button><button class="gray sm no-cohost p-ex_approve" onclick="exReject('${x.id}')">Reject</button>`);
+    if(x.status==='approved') b.push(`<button class="primary sm no-cohost p-ex_pay" onclick="exPay('${x.id}')">${ic('wallet')}Pay</button>`);
     if(x.status==='requested'||x.status==='approved') b.push(`<button class="gray sm ${x.status==='requested'&&mine?'':'no-cohost'}" onclick="exCancel('${x.id}')">Cancel</button>`);
-    if(x.status==='paid') b.push(`<button class="gray sm no-cohost" onclick="exVoid('${x.id}')">Void</button>`);
+    if(x.status==='paid') b.push(`<button class="gray sm no-cohost p-ex_void" onclick="exVoid('${x.id}')">Void</button>`);
     if(x.status==='requested'||x.status==='rejected'||x.status==='cancelled') b.push(`<button class="icon del" title="Delete" aria-label="Delete expense" onclick="deleteExpense('${x.id}')">${ic('trash')}</button>`);
     return `<div class="row-actions">${b.join('')}</div>`; };
   box.innerHTML=`<div class="ex-chips">${Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="ex-chip">${E(k)} <b>${money(v)}</b><button type="button" class="ex-plus" title="Add expense to ${E(k)}" aria-label="Add expense to ${E(k)}" onclick="openExpenseFor(${jq(k)})">+</button></span>`).join('')}</div>
@@ -7096,10 +7166,25 @@ window.onAudienceChange = function(){
   renderMessagingHelp();
 };
 
+
+/* ---------- V129: finance sub-roles (the server enforces; this only hides what would be refused) ---------- */
+const CT_PERMS={accountant:['pay_add','contributor_edit','ex_request','ex_pay','notify','reports','budget'],verifier:['pay_add','pay_confirm'],approver:['ex_request','ex_approve'],auditor:['reports']};
+const CT_ALLPERMS=['pay_add','pay_confirm','pay_reverse','contributor_edit','adjust','archive','target','ex_request','ex_approve','ex_pay','ex_void','notify','reports','budget'];
+const CT_FINLBL={accountant:'Accountant',verifier:'Payment verifier',approver:'Expense approver',auditor:'Auditor (read-only)'};
+window.ctFinRole = () => (window.__staffMode && staffRole()==='treasurer') ? ((window.__finRoles||{})[currentEventId]||null) : null;
+window.ctFinLabel = () => CT_FINLBL[ctFinRole()]||'';
+window.ctPerm = p => { const r=ctFinRole(); return !r || (CT_PERMS[r]||[]).includes(p); };
+window.ctApplyPerms = function(){
+  const b=document.body; if(!b) return;
+  CT_ALLPERMS.forEach(p=>b.classList.toggle('nop-'+p,!ctPerm(p)));
+  b.dataset.finRole=ctFinRole()||'';
+};
+
 /* ---------- door staff ---------- */
 window.evOwner = id => ((db.events||[]).find(e=>e.id===id)||{}).owner_id || currentSupabaseUser.id;
 window.staffRole = () => !window.__staffMode ? null : (window.__photoOnly ? 'photographer' : ((window.__staffRoles||{})[currentEventId]||'checkin'));
 window.applyStaffMode = function(){
+  try{ ctApplyPerms(); }catch(e){}
   const role=staffRole(), door=role==='checkin', tre=role==='treasurer', host=role==='cohost', pho=role==='photographer', b=document.body;
   if(b.classList.contains('staff-mode')!==door || b.classList.contains('treasurer-mode')!==tre || b.classList.contains('cohost-mode')!==host || b.classList.contains('photographer-mode')!==pho){
     b.classList.toggle('staff-mode',door); b.classList.toggle('treasurer-mode',tre); b.classList.toggle('cohost-mode',host); b.classList.toggle('photographer-mode',pho);
@@ -7111,11 +7196,11 @@ window.renderStaff = async function(){
   const box=$('staffList'); if(!box||window.__staffMode) return;
   const ev=getEvent(currentEventId); if(!ev){ box.innerHTML=''; return; }
   try{
-    const {data,error}=await supabaseClient.from('event_staff').select('id,email,role,created_at').eq('event_id',ev.id).order('created_at');
+    const {data,error}=await supabaseClient.from('event_staff').select('id,email,role,fin_role,created_at').eq('event_id',ev.id).order('created_at');
     if(error) throw error;
     let inv=[]; try{ const ri=await supabaseClient.rpc('svc_invite_list'); if(!ri.error&&Array.isArray(ri.data)) inv=ri.data; }catch(e){}
     const invHtml=inv.map(r=>`<div class="queue-item"><div class="who"><b>${E(r.email)}</b><span><em>${r.service==='tickets'?'Event tickets seller':'Bulk SMS'}</em> · <em>own account</em> · <em>${r.joined?'registered':'has not registered yet'}</em></span></div><button class="gray icon" title="Send invitation on WhatsApp" aria-label="Send invitation on WhatsApp" onclick="inviteStaff(${jq(r.email)},${jq(r.service)},'wa')">${ic('whatsapp')}</button><button class="gray icon" title="Copy invitation message" aria-label="Copy invitation message" onclick="inviteStaff(${jq(r.email)},${jq(r.service)},'copy')">${ic('copy')}</button><button class="icon del" title="Remove" aria-label="Remove" onclick="removeSvcInvite(${jq(r.email)},${jq(r.service)})">${ic('trash')}</button></div>`).join('');
-    box.innerHTML=((data||[]).length||inv.length)?`<div class="queue">${(data||[]).map(r=>`<div class="queue-item"><div class="who"><b>${E(r.email)}</b><span>${r.role==='treasurer'?'Treasurer · can record contributions and expenses':(r.role==='cohost'?'Co-host · full control of this event (cannot delete it or add team members)':(r.role==='photographer'?'Photographer · can upload and manage photos':'Door staff · can check in guests'))} for ${E(ev.name)}</span></div><button class="gray icon" title="Send invitation on WhatsApp" aria-label="Send invitation on WhatsApp" onclick="inviteStaff(${jq(r.email)},${jq(r.role)},'wa')">${ic('whatsapp')}</button><button class="gray icon" title="Copy invitation message" aria-label="Copy invitation message" onclick="inviteStaff(${jq(r.email)},${jq(r.role)},'copy')">${ic('copy')}</button><button class="icon del" title="Remove" aria-label="Remove" onclick="removeStaff('${r.id}',${jq(r.email)})">${ic('trash')}</button></div>`).join('')}${invHtml}</div>`:'<div class="help" style="margin-top:10px">No door staff added for this event yet.</div>';
+    box.innerHTML=((data||[]).length||inv.length)?`<div class="queue">${(data||[]).map(r=>`<div class="queue-item"><div class="who"><b>${E(r.email)}</b><span>${r.role==='treasurer'?(r.fin_role&&CT_FINLBL[r.fin_role]?CT_FINLBL[r.fin_role]+' · '+({accountant:'records payments and expenses, edits contributors, sends reminders, sees reports',verifier:'confirms pending payments only',approver:'approves or rejects expense requests only',auditor:'can view everything, changes nothing'})[r.fin_role]:'Treasurer · full control of contributions and expenses'):(r.role==='cohost'?'Co-host · full control of this event (cannot delete it or add team members)':(r.role==='photographer'?'Photographer · can upload and manage photos':'Door staff · can check in guests'))} for ${E(ev.name)}</span></div><button class="gray icon" title="Send invitation on WhatsApp" aria-label="Send invitation on WhatsApp" onclick="inviteStaff(${jq(r.email)},${jq(r.role)},'wa')">${ic('whatsapp')}</button><button class="gray icon" title="Copy invitation message" aria-label="Copy invitation message" onclick="inviteStaff(${jq(r.email)},${jq(r.role)},'copy')">${ic('copy')}</button><button class="icon del" title="Remove" aria-label="Remove" onclick="removeStaff('${r.id}',${jq(r.email)})">${ic('trash')}</button></div>`).join('')}${invHtml}</div>`:'<div class="help" style="margin-top:10px">No door staff added for this event yet.</div>';
   }catch(e){ box.innerHTML=`<div class="help">Door staff could not be loaded: ${E(e.message||e)}</div>`; }
 };
 window.addStaff = async function(){
@@ -7129,9 +7214,10 @@ window.addStaff = async function(){
     if(r.error){ const m=String(r.error.message||''); return toast(/exists|duplicate/i.test(m)?'This email is already added for this service.':(/too_many/.test(m)?'You have reached the limit of 30 invited members.':(/self/.test(m)?'You can choose this service for yourself under My services.':(/bad_email/.test(m)?'Please enter a valid email address.':'Could not add member: '+m)))); }
     $('staffEmail').value=''; toast((role==='tickets'?'Event tickets seller':'Bulk SMS member')+' added. Press the WhatsApp button next to their name to send the invitation (they must register with '+email+').'); renderStaff(); auditLog('team_added',email+' ('+role+')'); return;
   }
-  const {error}=await supabaseClient.from('event_staff').insert({event_id:ev.id,email,role});
+  const fin=(role==='treasurer'&&($('staffFinSel')||{}).value)||null;
+  const {error}=await supabaseClient.from('event_staff').insert(fin?{event_id:ev.id,email,role,fin_role:fin}:{event_id:ev.id,email,role});
   if(error) return toast(/duplicate|unique/i.test(error.message)?'This person already has access to this event. Remove them first to change the role.':'Could not add staff: '+error.message);
-  $('staffEmail').value=''; toast((role==='treasurer'?'Treasurer':(role==='cohost'?'Co-host':(role==='photographer'?'Photographer':'Door staff')))+' added. Press the WhatsApp button next to their name to send the invitation (they must register with '+email+').'); renderStaff(); auditLog('team_added',email+' ('+role+')');
+  $('staffEmail').value=''; toast((role==='treasurer'?'Treasurer':(role==='cohost'?'Co-host':(role==='photographer'?'Photographer':'Door staff')))+' added. Press the WhatsApp button next to their name to send the invitation (they must register with '+email+').'); renderStaff(); auditLog('team_added',email+' ('+role+(fin?'/'+fin:'')+')');
 };
 window.inviteStaff = async function(email,role,how){
   const ev=getEvent(currentEventId); if(!ev) return;
@@ -7418,7 +7504,7 @@ const OFFLINE = (function(){
     if(!currentSupabaseUser || currentSupabaseUser.offline) return;
     const events=db.events.map(e=>({id:e.id,owner_id:e.owner_id,name:e.name,type:e.type,date:e.date,venue:e.venue,maps:e.maps,message:e.message,galleryOpen:!!e.galleryOpen,showTable:e.showTable!==false,rsvpDeadline:e.rsvpDeadline||null,mealOptions:e.mealOptions||[],publicPage:!!e.publicPage,poster:e.poster,posterDouble:e.posterDouble,namePos:e.namePos,namePosDouble:e.namePosDouble,
       guests:e.guests.map(g=>({id:g.id,name:g.name,phone:g.phone,type:g.type,label:g.label||'',party:g.party||0,table:g.table,group:g.group,rsvp:g.rsvp,rsvpAttendees:g.rsvpAttendees,meal:g.meal||'',checkedIn:!!g.checkedIn,pending:!!g.pending,sent:!!g.sent,sent_whatsapp:!!g.sent_whatsapp,sent_sms:!!g.sent_sms}))}));
-    wr(SNAP,{v:1,at:Date.now(),user:{id:currentSupabaseUser.id,email:currentSupabaseUser.email||''},staff:!!window.__staffMode,roles:window.__staffRoles||{},events});
+    wr(SNAP,{v:1,at:Date.now(),user:{id:currentSupabaseUser.id,email:currentSupabaseUser.email||''},staff:!!window.__staffMode,roles:window.__staffRoles||{},fin:window.__finRoles||{},events});
   }
   function applyQueue(){
     const q=mine(); if(!q.length) return;
@@ -7432,7 +7518,7 @@ const OFFLINE = (function(){
     }catch(e){ return true; }
   }
   function enterOffline(snap){
-    window.__offlineMode=true; window.__staffMode=!!snap.staff; window.__staffRoles=snap.roles||{}; isAdmin=false;
+    window.__offlineMode=true; window.__staffMode=!!snap.staff; window.__staffRoles=snap.roles||{}; window.__finRoles=snap.fin||{}; isAdmin=false;
     currentSupabaseUser=Object.assign({},currentSupabaseUser||{},{id:snap.user.id,email:snap.user.email,offline:true});
     db.events=snap.events.map(e=>Object.assign({},e,{guests:e.guests.map(g=>Object.assign({},g))}));
     applyQueue();
@@ -15064,6 +15150,11 @@ window.SW_PAT.push(["{0} was requested but not paid. {1}","{0} imeombwa lakini h
 Object.assign(window.SW_EXACT,{"Individual": "Mtu binafsi", "Company": "Kampuni", "Institution": "Taasisi", "Group / category": "Kundi / aina", "e.g. Family, Church, Friends": "mf. Familia, Kanisa, Marafiki", "name@example.com": "jina@mfano.com", "Address / city": "Anwani / mji", "e.g. Arusha": "mf. Arusha", "Notes": "Maelezo", "Anything to remember": "Chochote cha kukumbuka", "Anonymous donor (name and phone can stay empty)": "Mchangiaji asiyejulikana (jina na simu vinaweza kubaki wazi)", "Anonymous donor": "Mchangiaji asiyejulikana", "Anonymous": "Asiyejulikana", "All groups": "Makundi yote", "That email address does not look right.": "Anwani hiyo ya barua pepe haionekani sahihi.", "Same phone number": "Namba ya simu ileile", "Add anyway": "Ongeza hata hivyo", "Contributors due in the next 7 days (reminder)": "Wachangiaji wenye tarehe ya mwisho siku 7 zijazo (ukumbusho)", "Already messaged": "Tayari amepewa ujumbe", "Send again": "Tuma tena", "Everyone in this group was already messaged in the last 24 hours.": "Wote katika kundi hili walishatumiwa ujumbe ndani ya saa 24 zilizopita.", "Tell the contributor?": "Kumjulisha mchangiaji?", "Financial reports": "Ripoti za fedha", "Reports use the same confirmed records as the overview. Each one shows who made it and when. Only the owner and treasurer can open them.": "Ripoti hutumia kumbukumbu zilezile zilizothibitishwa za muhtasari. Kila moja inaonyesha aliyeitoa na lini. Ni mmiliki na mhazini tu wanaoweza kuzifungua.", "Dates apply to money movements. Lists of people (register, pledges, outstanding, partial) show how things stand today.": "Tarehe zinatumika kwa mienendo ya pesa. Orodha za watu (orodha ya michango, ahadi, zilizobaki, sehemu) zinaonyesha hali ya leo.", "Show report": "Onyesha ripoti", "PDF": "PDF", "Contribution register": "Orodha ya michango", "Pledges vs collections": "Ahadi dhidi ya makusanyo", "Outstanding pledges and debts": "Ahadi zilizobaki na madeni", "Partial payments": "Malipo ya sehemu", "Reductions and waivers": "Punguzo na misamaha", "Refunds and reversals": "Marejesho na ubatilishaji", "Collections by day": "Makusanyo kwa siku", "Collections by week": "Makusanyo kwa wiki", "Collections by month": "Makusanyo kwa mwezi", "Cash-flow by month": "Mtiririko wa pesa kwa mwezi", "Expenses: approved and not approved": "Matumizi: yaliyoidhinishwa na yasiyoidhinishwa", "Financial transaction history": "Historia ya miamala ya fedha", "Messages sent to contributors": "Ujumbe uliotumwa kwa wachangiaji", "Final event financial statement": "Taarifa ya mwisho ya fedha za tukio", "Registered": "Alisajiliwa", "Collected %": "Zilizokusanywa %", "Paid %": "Zilizolipwa %", "Pledge before": "Ahadi kabla", "Pledge after": "Ahadi baada", "Change": "Badiliko", "Reason / details": "Sababu / maelezo", "Net": "Halisi", "Month": "Mwezi", "Day": "Siku", "Week": "Wiki", "Approved, not paid": "Yameidhinishwa, hayajalipwa", "Waiting for approval": "Yanasubiri idhini", "Rejected / cancelled": "Yamekataliwa / yamefutwa", "Kind": "Aina", "Result": "Matokeo", "Item": "Kipengele", "All contributors, as of today.": "Wachangiaji wote, hadi leo.", "Collected means confirmed payments minus refunds, as of today. Pledges and pending payments are not money received.": "Zilizokusanywa ni malipo yaliyothibitishwa ukitoa marejesho, hadi leo. Ahadi na malipo yanayosubiri si pesa zilizopokelewa.", "People who still owe money, as of today.": "Watu wanaodaiwa bado, hadi leo.", "People who paid part of their pledge, as of today.": "Watu waliolipa sehemu ya ahadi yao, hadi leo.", "Changes to pledges. These are not cash received and not refunds.": "Mabadiliko ya ahadi. Hizi si pesa zilizopokelewa wala marejesho.", "Payments reversed and money refunded.": "Malipo yaliyobatilishwa na pesa zilizorudishwa.", "Confirmed payments only (before reversals and refunds).": "Malipo yaliyothibitishwa tu (kabla ya ubatilishaji na marejesho).", "Money in minus money out, from confirmed payments and paid expenses. Voided expenses cancel out.": "Pesa zilizoingia ukitoa zilizotoka, kutokana na malipo yaliyothibitishwa na matumizi yaliyolipwa. Matumizi yaliyobatilishwa hufutwa.", "Only “Paid out” reduces the money in hand. Waiting or approved requests are not deducted.": "Ni “Yaliyolipwa” tu ndiyo yanapunguza pesa mkononi. Maombi yanayosubiri au yaliyoidhinishwa hayakatwi.", "Every money movement in order, with the running balance.": "Kila mwendo wa pesa kwa mpangilio, pamoja na salio linaloendelea.", "“Opened on your phone” means the message was prepared; delivery is not confirmed.": "“Imefunguliwa kwenye simu yako” inamaanisha ujumbe uliandaliwa; kufika kwake hakujathibitishwa.", "Prepared from confirmed records only, as of today.": "Imeandaliwa kwa kumbukumbu zilizothibitishwa tu, hadi leo.", "Reminder": "Ukumbusho", "Due-date reminder": "Ukumbusho wa tarehe ya mwisho", "Statement": "Taarifa", "Thank-you": "Shukrani", "Receipt": "Risiti", "Change confirmation": "Uthibitisho wa mabadiliko", "Request": "Ombi", "Sent by the system": "Imetumwa na mfumo", "Opened on your phone": "Imefunguliwa kwenye simu yako", "Failed": "Imeshindwa", "MONEY RECEIVED": "PESA ZILIZOPOKELEWA", "Not set": "Halijawekwa", "Confirmed payments received": "Malipo yaliyothibitishwa yaliyopokelewa", "Less: refunds": "Toa: marejesho", "Net money collected": "Pesa halisi zilizokusanywa", "Still to collect (unpaid pledges)": "Bado kukusanya (ahadi ambazo hazijalipwa)", "MONEY SPENT": "PESA ZILIZOTUMIKA", "Expenses paid out": "Matumizi yaliyolipwa", "MONEY IN HAND": "PESA MKONONI", "Net collected − expenses paid": "Zilizokusanywa − matumizi yaliyolipwa", "NOT COUNTED AS MONEY": "HAZIHESABIWI KAMA PESA", "Payments waiting for confirmation": "Malipo yanayosubiri uthibitisho", "Pledges reduced or waived": "Ahadi zilizopunguzwa au kusamehewa", "Approved expenses not yet paid": "Matumizi yaliyoidhinishwa ambayo hayajalipwa", "Expenses waiting for approval": "Matumizi yanayosubiri idhini", "PEOPLE": "WATU", "Anonymous donors": "Wachangiaji wasiojulikana", "Nothing to show": "Hakuna cha kuonyesha", "There are no records for this report and period.": "Hakuna kumbukumbu za ripoti hii na kipindi hiki.", "Press \"Show report\" first.": "Bonyeza \"Onyesha ripoti\" kwanza.", "CSV report downloaded.": "Ripoti ya CSV imepakuliwa.", "Allow pop-ups to print.": "Ruhusu madirisha ibukizi ili kuchapisha.", "Contributions could not be loaded.": "Michango haikuweza kupakiwa."});
 window.SW_PAT.push(["{0} already uses this phone number. Add {1} as a separate person?", "{0} tayari anatumia namba hii ya simu. Ongeza {1} kama mtu tofauti?"],["{0} was already sent a message of this kind in the last 24 hours. Send it again?", "{0} alishatumiwa ujumbe wa aina hii ndani ya saa 24 zilizopita. Utume tena?"],["Send {0} a short message about this change?", "Kumtumia {0} ujumbe mfupi kuhusu mabadiliko haya?"],["{#0} skipped: already messaged in the last 24 hours.", "{0} wameruka: walishatumiwa ujumbe ndani ya saa 24 zilizopita."],["Generated {0} by {1}", "Imetolewa {0} na {1}"],["Generated {0}", "Imetolewa {0}"],["Week of {0}", "Wiki ya {0}"],["Total ({#0})", "Jumla ({0})"],["{#0} anonymous ({1})", "{0} wasiojulikana ({1})"]);
 window.SW_PAT.push(["January {#0}", "Januari {0}"],["February {#0}", "Februari {0}"],["March {#0}", "Machi {0}"],["April {#0}", "Aprili {0}"],["May {#0}", "Mei {0}"],["June {#0}", "Juni {0}"],["July {#0}", "Julai {0}"],["August {#0}", "Agosti {0}"],["September {#0}", "Septemba {0}"],["October {#0}", "Oktoba {0}"],["November {#0}", "Novemba {0}"],["December {#0}", "Desemba {0}"]);
+
+/* V129 finance roles + second approval */
+Object.assign(window.SW_EXACT,{"Full treasurer": "Mhazini kamili", "Accountant": "Mhasibu", "Payment verifier": "Mthibitishaji wa malipo", "Expense approver": "Mwidhinishaji wa matumizi", "Auditor (read-only)": "Mkaguzi (kusoma tu)", "Approvals & financial settings": "Idhini na mipangilio ya fedha", "Changes to a pledge, waivers and refunds can need a second person to approve them. Money already received is never changed by a pledge change.": "Mabadiliko ya ahadi, misamaha na marejesho yanaweza kuhitaji mtu wa pili kuyaidhinisha. Pesa zilizokwisha pokelewa hazibadilishwi na mabadiliko ya ahadi.", "Ask for a second approval": "Omba idhini ya mtu wa pili", "When on, a treasurer cannot change a pledge, waive a balance or record a refund alone. They send a request and you approve or reject it.": "Ikiwa imewashwa, mhazini hawezi kubadilisha ahadi, kusamehe salio wala kurekodi marejesho peke yake. Anatuma ombi nawe unaliidhinisha au kulikataa.", "Recent decisions": "Maamuzi ya hivi karibuni", "No change is waiting for approval.": "Hakuna badiliko linalosubiri idhini.", "You asked": "Uliomba", "A team member asked": "Mjumbe wa timu aliomba", "Send for approval": "Tuma kwa idhini", "Sent for approval. Nothing changes until the owner approves it.": "Imetumwa kwa idhini. Hakuna kinachobadilika hadi mmiliki aidhinishe.", "Second approval is ON. Treasurers must send pledge changes for approval.": "Idhini ya pili IMEWASHWA. Wahazini lazima watume mabadiliko ya ahadi kwa idhini.", "Second approval is OFF.": "Idhini ya pili IMEZIMWA.", "Change approved and applied.": "Badiliko limeidhinishwa na kutekelezwa.", "Change rejected.": "Badiliko limekataliwa.", "Request cancelled.": "Ombi limefutwa.", "Reject this change?": "Kukataa badiliko hili?", "The pledge stays as it is. The reason is saved in the activity log.": "Ahadi inabaki kama ilivyo. Sababu inahifadhiwa kwenye kumbukumbu ya shughuli.", "Approve this change?": "Kuidhinisha badiliko hili?", "The pledge will be changed now and the change is saved in the activity log.": "Ahadi itabadilishwa sasa na badiliko litahifadhiwa kwenye kumbukumbu ya shughuli.", "Cancel this request?": "Kufuta ombi hili?", "Nothing will change on the pledge.": "Hakuna kitakachobadilika kwenye ahadi.", "A second person must approve this before anything changes.": "Mtu wa pili lazima aidhinishe hili kabla chochote hakijabadilika.", "A second person must approve this change. It was sent for approval.": "Mtu wa pili lazima aidhinishe badiliko hili. Limetumwa kwa idhini.", "Approval is not switched on for this event.": "Idhini ya pili haijawashwa kwa tukio hili.", "There are already 50 requests waiting. Decide some of them first.": "Tayari kuna maombi 50 yanayosubiri. Amua baadhi yake kwanza.", "Please choose a valid type of change.": "Tafadhali chagua aina sahihi ya badiliko.", "Change sent for approval": "Badiliko limetumwa kwa idhini", "Change approved": "Badiliko limeidhinishwa", "Change rejected": "Badiliko limekataliwa", "Change request cancelled": "Ombi la badiliko limefutwa", "Approval setting changed": "Mpangilio wa idhini umebadilishwa", "Treasurer · full control of contributions and expenses": "Mhazini · udhibiti kamili wa michango na matumizi"});
+window.SW_PAT.push(["Waiting for approval ({#0})", "Yanasubiri idhini ({0})"],["Accountant · records payments and expenses, edits contributors, sends reminders, sees reports for {0}", "Mhasibu · anarekodi malipo na matumizi, anahariri wachangiaji, anatuma vikumbusho, anaona ripoti kwa {0}"],["Payment verifier · confirms pending payments only for {0}", "Mthibitishaji wa malipo · anathibitisha malipo yanayosubiri tu kwa {0}"],["Expense approver · approves or rejects expense requests only for {0}", "Mwidhinishaji wa matumizi · anaidhinisha au kukataa maombi ya matumizi tu kwa {0}"],["Auditor (read-only) · can view everything, changes nothing for {0}", "Mkaguzi (kusoma tu) · anaweza kuona kila kitu, habadilishi chochote kwa {0}"],["Treasurer · full control of contributions and expenses for {0}", "Mhazini · udhibiti kamili wa michango na matumizi kwa {0}"]);
+window.SW_PAT.push(["Decision: {0}","Uamuzi: {0}"]);
 
 /* ===== Language switch (English / Kiswahili) =====
    The app is written in English. In Kiswahili mode every visible text is translated at runtime with the
