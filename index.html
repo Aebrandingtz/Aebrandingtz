@@ -1921,7 +1921,7 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 body.staff-mode #smNavGroup{display:none!important}
 @media(max-width:760px){.sm-stats{grid-template-columns:1fr 1fr}.sm-row-side{align-items:flex-start;text-align:left;width:100%}.sm-launchbar{flex-direction:column;align-items:stretch}.sm-launchbar button{width:100%}.sm-bubble{max-width:100%}.sm-tabs{margin-left:-4px}}
 #adminCustomers .tag{white-space:nowrap;margin:1px 2px 1px 0;display:inline-block}
-/* V122 — services chooser, pay wall, blocked screen */
+/* V120 — services chooser, pay wall, blocked screen */
 body.svc-no-host .app-sidebar [data-svc="host"]{display:none!important}
 body.svc-no-tickets #tkNavGroup,body.svc-no-sms #smNavGroup,body.svc-no-photog #collNavGroup{display:none!important}
 body.svc-photog #collNavGroup{display:block!important}
@@ -2135,7 +2135,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V122</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V120</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -8498,7 +8498,7 @@ document.addEventListener('keydown',e=>{
 })();
 
 /* =========================================================================
-   V122 — Services: a new customer chooses what they need (Host, Co-host, Treasurer, Photographer, Tickets, Bulk SMS),
+   V120 — Services: a new customer chooses what they need (Host, Co-host, Treasurer, Photographer, Tickets, Bulk SMS),
    sees only that part of the app, and pays a monthly fee for the paid ones. When the fee runs out, access stops
    (the server enforces it for Co-host, Treasurer and Tickets; this screen only explains it).
    An administrator can remove (block) a member from the Admin Console.
@@ -8513,6 +8513,8 @@ const SVC_INFO={
   sms:{n:'Bulk SMS',d:'Send SMS to guests, parents, members and customers. You only pay for the SMS you send.'}
 };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
+/* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='host');
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -8593,10 +8595,10 @@ function svcShowChooser(first){
   let el=$('svcChooser'); if(!el){ el=document.createElement('div'); el.id='svcChooser'; el.className='svc-screen'; document.body.appendChild(el); }
   el.dataset.first=first?'1':'0';
   if(first) SVC.picked=new Set(SVC.picked.size?SVC.picked:[]);
-  else SVC.picked=new Set(SVC_ORDER.filter(k=>svcSt(k).chosen));
+  else SVC.picked=new Set(SVC_PICK.filter(k=>svcSt(k).chosen));
   el.innerHTML=`<div class="svc-box"><h1>${first?'What do you need SHEREHE HUB for?':'My services'}</h1>
     <p>${first?'Choose the service you need. You will only see that part of the app. You can add another service later.':'Add or remove services. Paid services need an active subscription.'}</p>
-    <div class="svc-grid">${SVC_ORDER.map(k=>svcCardHtml(k,SVC.picked.has(k))).join('')}</div>
+    <div class="svc-grid">${SVC_PICK.map(k=>svcCardHtml(k,SVC.picked.has(k))).join('')}</div>
     <div class="svc-actions"><button class="primary" id="svcGo" type="button" onclick="svcSave()" ${SVC.picked.size?'':'disabled'}>${first?'Continue':'Save'}</button>${first?'':'<button class="gray" type="button" onclick="svcCloseChooser()">Cancel</button>'}<button class="gray" type="button" onclick="logout()">Sign out</button></div></div>`;
 }
 window.svcPick=function(k){
@@ -8611,7 +8613,7 @@ window.svcSave=async function(){
   const g=$('svcGo'); if(g){ g.disabled=true; g.textContent='Saving…'; }
   try{
     const now=SVC.me&&SVC.me.state||{};
-    for(const k of SVC_ORDER){
+    for(const k of SVC_PICK){
       const had=!!(now[k]&&now[k].chosen), want=SVC.picked.has(k);
       if(want&&!had){ const r=await supabaseClient.rpc('svc_choose',{p_service:k}); if(r.error) throw r.error; }
       if(!want&&had){ const r=await supabaseClient.rpc('svc_unchoose',{p_service:k}); if(r.error) throw r.error; }
@@ -8693,7 +8695,7 @@ window.renderAdminSvc=async function(){
   const box=$('adminSvc'); if(!box) return;
   let me=SVC.me; if(!me||!me.plans){ const r=await supabaseClient.rpc('svc_me'); if(!r.error) me=r.data; }
   if(!me||!me.plans){ box.innerHTML='<div class="help">Services could not be loaded.</div>'; return; }
-  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Service</th><th>How it is paid</th><th>Fee (TZS)</th><th></th></tr></thead><tbody>${me.plans.map(p=>`<tr><td><b>${E(SVC_INFO[p.key]?SVC_INFO[p.key].n:p.name)}</b></td><td>${p.kind==='free'?'—':(p.kind==='per_sms'?'Per SMS sent':'Per month')}</td><td>${p.kind==='free'?'—':`<input id="svcFee_${p.key}" type="number" min="0" step="1" value="${p.fee}" style="max-width:130px" aria-label="Fee for ${E(p.name)}">`}</td><td>${p.kind==='free'?'':`<button class="gray" type="button" onclick="admSvcFee('${p.key}')">Save</button>`}</td></tr>`).join('')}</tbody></table></div>
+  box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Service</th><th>How it is paid</th><th>Fee (TZS)</th><th></th></tr></thead><tbody>${me.plans.filter(p=>p.key!=='host').map(p=>`<tr><td><b>${E(SVC_INFO[p.key]?SVC_INFO[p.key].n:p.name)}</b></td><td>${p.kind==='free'?'—':(p.kind==='per_sms'?'Per SMS sent':'Per month')}</td><td>${p.kind==='free'?'—':`<input id="svcFee_${p.key}" type="number" min="0" step="1" value="${p.fee}" style="max-width:130px" aria-label="Fee for ${E(p.name)}">`}</td><td>${p.kind==='free'?'':`<button class="gray" type="button" onclick="admSvcFee('${p.key}')">Save</button>`}</td></tr>`).join('')}</tbody></table></div>
     <div class="field" style="margin-top:12px"><label for="svcPayText">Payment instructions shown to customers</label><div class="toolbar"><input id="svcPayText" maxlength="300" value="${E(me.pay_text||'')}" style="max-width:420px"><button class="gray" type="button" onclick="admSvcSetting('pay_text','svcPayText')">Save</button></div></div>
     <div class="field"><label for="svcWaNum">WhatsApp number (with country code, digits only)</label><div class="toolbar"><input id="svcWaNum" maxlength="20" value="${E(me.wa||'')}" style="max-width:220px"><button class="gray" type="button" onclick="admSvcSetting('wa_number','svcWaNum')">Save</button></div></div>
     <div class="help">The Bulk SMS fee is the price your customer pays per SMS. NextSMS charges you TZS 16 per SMS, so your profit is the difference.</div>`;
