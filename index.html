@@ -2727,13 +2727,15 @@ let currentSupabaseUser = null;
 let isAdmin = false;
 
 async function loadAdminFlag(){
-  isAdmin = false;
   const btn = document.getElementById("adminNavBtn");
-  if(!supabaseClient || !currentSupabaseUser){ if(btn) btn.style.display="none"; return; }
+  if(!supabaseClient || !currentSupabaseUser){ isAdmin = false; if(btn) btn.style.display="none"; return; }
+  /* V127.2: the answer replaces the old value only when it arrives (no "not admin" flash while waiting) */
+  let next = false, known = false;
   try{
     const {data,error} = await supabaseClient.from("profiles").select("is_admin").eq("id", currentSupabaseUser.id).maybeSingle();
-    if(!error && data) isAdmin = data.is_admin === true;
+    if(!error){ next = !!(data && data.is_admin === true); known = true; }
   }catch(err){ console.warn("SHEREHE HUB loadAdminFlag:", err?.message||err); }
+  if(known) isAdmin = next;
   if(btn) btn.style.display = isAdmin ? "" : "none";
 }
 
@@ -2764,15 +2766,20 @@ function initSupabaseAuth(){
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   supabaseClient.auth.onAuthStateChange((_event, session)=>{
     if(window.__offlineMode && !session) return;
+    const prevUid = currentSupabaseUser ? currentSupabaseUser.id : null;
     currentSupabaseUser = session ? session.user : null;
     updateAuthUI();
     if(_event === "PASSWORD_RECOVERY"){
       openResetPasswordModal();
     }
     if(currentSupabaseUser){
+      /* V127.2: a token refresh or a tab coming back into focus is not a new sign-in. Reloading everything then made the page jump between roles. */
+      if(_event === "TOKEN_REFRESHED" || _event === "USER_UPDATED") return;
+      if(_event === "SIGNED_IN" && prevUid === currentSupabaseUser.id && window.__loadedUid === currentSupabaseUser.id) return;
       loadAdminFlag();
       loadEventsFromSupabase();
     }else{
+      window.__loadedUid = null;
       isAdmin = false;
       const btn=document.getElementById("adminNavBtn"); if(btn) btn.style.display="none";
       db.events = [];
@@ -3207,8 +3214,19 @@ async function fetchAllGuests(ids){
   }
   return {data:out,error:null};
 }
-async function loadEventsFromSupabase(){
+/* V127.2: only one load runs at a time; extra requests wait and trigger exactly one fresh load afterwards */
+let _leFlight = null, _lePending = false;
+function loadEventsFromSupabase(){
+  if(_leFlight){ _lePending = true; return _leFlight; }
+  _leFlight = (async () => {
+    try{ do{ _lePending = false; await _loadEventsOnce(); }while(_lePending); }
+    finally{ _leFlight = null; }
+  })();
+  return _leFlight;
+}
+async function _loadEventsOnce(){
   if(!supabaseClient || !currentSupabaseUser) return;
+  const _uid = currentSupabaseUser.id;
 
   let {data, error} = await supabaseClient
     .from("events")
@@ -3217,16 +3235,16 @@ async function loadEventsFromSupabase(){
     .order("created_at", {ascending:false});
 
   // Door staff: a user who owns no events but was added as staff sees those events (check-in only).
-  window.__staffMode = false; window.__staffRoles = {};
+  let _sm = false, _sr = {};   /* V127.2: the role is decided here and only applied when everything has loaded */
   if(!error && !(data || []).length){
     try{
       const mail = String(currentSupabaseUser.email || "").toLowerCase();
       const {data: st} = await supabaseClient.from("event_staff").select("event_id,role").eq("email", mail);
-      window.__staffRoles = {}; (st || []).forEach(r => { window.__staffRoles[r.event_id] = r.role || "checkin"; });
+      (st || []).forEach(r => { _sr[r.event_id] = r.role || "checkin"; });
       const sids = (st || []).map(r => r.event_id);
       if(sids.length){
         const r2 = await supabaseClient.from("events").select("*").in("id", sids).order("created_at", {ascending:false});
-        if(!r2.error){ data = r2.data; window.__staffMode = true; }
+        if(!r2.error){ data = r2.data; _sm = true; }
       }
     }catch(e){ console.warn("staff lookup:", e); }
   }
@@ -3237,6 +3255,8 @@ async function loadEventsFromSupabase(){
     return;
   }
 
+  if(!currentSupabaseUser || currentSupabaseUser.id !== _uid) return;   /* signed out or switched user while loading */
+  window.__staffMode = _sm; window.__staffRoles = _sr; window.__loadedUid = _uid;
   db.events = (data || []).map(e => ({
     id: e.id,
     owner_id: e.owner_id,
