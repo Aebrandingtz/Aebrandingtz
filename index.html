@@ -1845,8 +1845,8 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 .tk-tl h3{font-size:19px;margin-bottom:10px;line-height:1.2}
 .tk-tl dl{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:0}.tk-tl dt{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}.tk-tl dd{margin:1px 0 0;font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
 .tk-tr{padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:linear-gradient(180deg,#fff,var(--line-2))}
-.tk-qr{width:200px;height:200px;background:#fff;padding:0;border-radius:8px}.tk-qr img,.tk-qr canvas{display:block;width:200px!important;height:200px!important}
-.tk-qr.dead{background:repeating-linear-gradient(45deg,var(--line-2),var(--line-2) 8px,#fff 8px,#fff 16px);border:1px solid var(--line)}
+.tk-qr{box-sizing:border-box;width:236px;height:236px;background:#fff;padding:18px;border-radius:14px;border:1px solid var(--line);box-shadow:0 6px 18px -12px rgba(20,32,90,.45)}.tk-qr img,.tk-qr canvas{display:block;width:200px!important;height:200px!important;image-rendering:pixelated}
+.tk-qr.dead{box-sizing:border-box;background:repeating-linear-gradient(45deg,var(--line-2),var(--line-2) 8px,#fff 8px,#fff 16px);border:1px solid var(--line)}
 .tk-tr p{margin:0;font-size:12px;color:var(--muted)}
 .tk-foot{text-align:center;padding:24px 16px 34px;color:var(--faint);font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}.tk-foot .brand-mark{width:20px;height:20px}
 .tk-foot a{color:var(--muted)}
@@ -2172,7 +2172,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.8</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.9</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9453,8 +9453,9 @@ function tkWrap(ctx,text,x,y,w,lh){
   for(const wd of words){ const t=line?line+' '+wd:wd; if(ctx.measureText(t).width>w&&line){ ctx.fillText(line,x,y); y+=lh; line=wd; n++; } else line=t; }
   if(line) ctx.fillText(line,x,y); return y+lh;
 }
-async function tkTicketCanvas(o,t){
-  const ev=o.event, W=900, H=1480, c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+async function tkTicketCanvas(o,t,Hin){
+  if(!Hin){ const probe=await tkTicketCanvas(o,t,3000); return tkTicketCanvas(o,t,Math.max(1480,probe._qy+520+150)); }
+  const ev=o.event, W=900, H=Hin, c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
   x.fillStyle='#ffffff'; x.fillRect(0,0,W,H); x.fillStyle='#1d2f7a'; x.fillRect(0,0,W,120);
   x.fillStyle='#ffc933'; x.font='700 40px Poppins,Arial,sans-serif'; x.textBaseline='middle'; x.fillText('SHEREHE HUB',40,60);
   x.fillStyle='#ffffff'; x.font='600 26px Poppins,Arial,sans-serif'; x.textAlign='right'; x.fillText((invLang()==='en'?'E-TICKET':'TIKETI'),W-40,60); x.textAlign='left'; x.textBaseline='alphabetic';
@@ -9464,10 +9465,11 @@ async function tkTicketCanvas(o,t){
   const rows=[[tkt('date'),tkDate(ev.starts_at)],[tkt('venue'),ev.venue],[tkt('t_type'),t.type+(t.admits>1?' · '+tkt('admits',t.admits):'')]];
   if(t.attendee_name) rows.push([tkt('t_holder'),t.attendee_name]); rows.push([tkt('t_no'),t.number+'   ·   '+o.ref]);
   y+=8; rows.forEach(([k,v])=>{ x.fillStyle='#5f6b82'; x.font='500 22px Poppins,Arial,sans-serif'; x.fillText(k.toUpperCase(),40,y); y+=32; x.fillStyle='#1b2336'; x.font='600 28px Poppins,Arial,sans-serif'; y=tkWrap(x,v,40,y,W-80,36,2)+8; });
-  const qs=520, qx=(W-qs)/2, qy=Math.max(y+10,H-qs-170);
+  const qs=520, qx=(W-qs)/2, qy=(Hin===3000)?(y+10):Math.max(y+10,H-qs-170); c._qy=qy;
   x.strokeStyle='#dde3ec'; x.setLineDash([10,8]); x.lineWidth=2; x.beginPath(); x.moveTo(30,qy-24); x.lineTo(W-30,qy-24); x.stroke(); x.setLineDash([]);
-  const q=await tkMakeQr(t.qr,qs); if(q) x.drawImage(q,qx,qy,qs,qs);
-  x.textAlign='center'; x.fillStyle='#5f6b82'; x.font='500 22px Poppins,Arial,sans-serif'; x.fillText(tkt('enter_p').slice(0,70),W/2,qy+qs+44); x.fillText(tkt('enter_p').slice(70,150),W/2,qy+qs+74);
+  x.fillStyle='#ffffff'; x.fillRect(qx,qy,qs,qs); x.strokeStyle='#dde3ec'; x.lineWidth=2; x.setLineDash([]); x.strokeRect(qx+1,qy+1,qs-2,qs-2);
+  const qpad=44, qin=qs-qpad*2; const q=await tkMakeQr(t.qr,qin); if(q) x.drawImage(q,qx+qpad,qy+qpad,qin,qin);
+  x.textAlign='center'; x.fillStyle='#5f6b82'; x.font='500 22px Poppins,Arial,sans-serif'; { const words=String(tkt('enter_p')).split(' '); let line='', ly=qy+qs+44, n=0; for(const w of words){ const tryL=line?line+' '+w:w; if(x.measureText(tryL).width>W-120&&line){ x.fillText(line,W/2,ly); ly+=32; line=w; n++; } else line=tryL; } if(line) x.fillText(line,W/2,ly); }
   return c;
 }
 window.tkDownload=async function(i,btn){
