@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.5</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.6</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9722,7 +9722,7 @@ window.taDup=async function(){ const r=await supabaseClient.rpc('tk_duplicate_ev
 window.taPreview=async function(){
   const f=await taFetchFull(TKA.cur).catch(()=>null); if(!f) return; const t=(TKA.types||[]).filter(x=>x.status==='active');
   const data={id:f.id,title:f.title,description:f.description,category:f.category,venue:f.venue,address:f.address,maps_url:f.maps_url,starts_at:f.starts_at,ends_at:f.ends_at,poster_url:f.poster_url,status:'published',refund_policy:f.refund_policy,
-    organizer:(TKA.me&&TKA.me.display_name)||'',sales_state:'open',payments_enabled:false,fee_pct:0,tax_pct:0,
+    organizer:(TKA.me&&TKA.me.display_name)||'',sales_state:'open',payments_enabled:false,manual_pay:!!(f.manual_pay_enabled&&String(f.manual_pay_number||'').trim().length>=5),fee_pct:0,tax_pct:0,
     types:t.map(x=>({id:x.id,name:x.name,kind:x.kind,price_tzs:x.price_tzs,description:x.description,admits:x.admits,max_per_order:Math.min(x.max_per_order,Math.max(x.quantity-x.sold-x.reserved,0)),available:Math.max(x.quantity-x.sold-x.reserved,0),state:(x.quantity-x.sold-x.reserved)<=0?'sold_out':'on_sale'}))};
   tkPreview(data);
 };
