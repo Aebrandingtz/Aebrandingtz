@@ -14890,6 +14890,16 @@ window.SW_PAT.push(["{0} was requested but not paid. {1}","{0} imeombwa lakini h
 
   /* ----- lookup tables ----- */
   const EXACT=Object.assign({}, window.SW_EXACT||{}, window.SW_MSG||{});
+  Object.assign(EXACT,{
+    'Feedback':'Maoni','Send feedback':'Tuma maoni','Your feedback':'Maoni yako','Subject (optional)':'Mada (si lazima)',
+    'Tell us what you like or what we should improve…':'Tuambie unachopenda au tunachopaswa kuboresha…',
+    'Send':'Tuma','Close':'Funga','Thank you! Your feedback was sent.':'Asante! Maoni yako yametumwa.',
+    'Please write a little more.':'Tafadhali andika zaidi kidogo.','You have sent a lot of feedback. Please try again later.':'Umetuma maoni mengi. Jaribu tena baadaye.',
+    'Could not send. Please try again.':'Imeshindikana kutuma. Jaribu tena.','Feedback inbox':'Kikasha cha maoni','No feedback yet.':'Hakuna maoni bado.',
+    'Mark all as read':'Weka yote yamesomwa','Mark as read':'Weka limesomwa','Done':'Imekamilika','Reopen':'Fungua tena','Reply by email':'Jibu kwa barua pepe',
+    'New':'Mpya','Read':'Imesomwa','From the app':'Kutoka kwenye app','From email':'Kutoka barua pepe','New feedback received.':'Maoni mapya yamepokelewa.',
+    'Notifications':'Arifa','Could not load feedback.':'Imeshindikana kupakia maoni.'
+  });
   const EXACT_N={}; Object.keys(EXACT).forEach(k=>{ EXACT_N[norm(k)]=EXACT[k]; });
   const HTML_N={}; Object.keys(window.SW_HTML||{}).forEach(k=>{ if(window.SW_HTML[k]!=null) HTML_N[norm(k)]=window.SW_HTML[k]; });
   const PATS=(window.SW_PAT||[]).slice().sort((a,b)=>b[0].replace(/\{#?\d\}/g,'').length-a[0].replace(/\{#?\d\}/g,'').length).map(([en,sw])=>{
@@ -15068,6 +15078,96 @@ window.SW_PAT.push(["{0} was requested but not paid. {1}","{0} imeombwa lakini h
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
 
+</script>
+<script>
+/* V128: Feedback. Every signed-in user can send feedback; the administrator sees it under the bell at the top. */
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const css=document.createElement('style'); css.textContent=`
+  .fb-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;font-size:13px}
+  .fb-btn svg,.fb-bell svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .fb-bell{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:8px 10px}
+  .fb-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+  .fb-bell[hidden],.fb-badge[hidden]{display:none!important}
+  .fb-item{border:1px solid var(--line,#e2e8f0);border-radius:12px;padding:12px 14px;margin-top:10px;background:var(--surface,#fff)}
+  .fb-item.new{border-color:#2563eb;box-shadow:0 0 0 1px #2563eb inset}
+  .fb-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--muted,#64748b)}
+  .fb-tag{padding:2px 8px;border-radius:999px;background:#e0e7ff;color:#1e3a8a;font-weight:600;font-size:11px}
+  .fb-tag.email{background:#fef3c7;color:#92400e}.fb-tag.done{background:#dcfce7;color:#166534}
+  .fb-msg{white-space:pre-wrap;word-break:break-word;margin:8px 0;font-size:14px}
+  .fb-acts{display:flex;flex-wrap:wrap;gap:8px}.fb-acts button,.fb-acts a{padding:6px 10px;font-size:12px}
+  @media (max-width:640px){.fb-btn span{display:none}}`;
+  document.head.appendChild(css);
+  const ICON_CHAT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+  const ICON_BELL='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
+  function modal(){ let m=$('fbModal'); if(!m){ m=document.createElement('div'); m.id='fbModal'; m.className='modal'; m.innerHTML='<div class="modal-box" id="fbBox" style="max-width:600px"></div>'; m.addEventListener('mousedown',e=>{ if(e.target===m) m.classList.remove('open'); }); document.body.appendChild(m); } return m; }
+  const closeFb=()=>{ const m=$('fbModal'); if(m) m.classList.remove('open'); };
+  window.fbClose=closeFb;
+  window.fbOpenForm=function(){
+    const m=modal(); $('fbBox').innerHTML=`<h2 style="margin:0 0 4px">Send feedback</h2>
+      <div class="field" style="margin-top:12px"><label for="fbSubject">Subject (optional)</label><input id="fbSubject" maxlength="160"></div>
+      <div class="field"><label for="fbText">Your feedback</label><textarea id="fbText" rows="6" maxlength="4000" placeholder="Tell us what you like or what we should improve…"></textarea></div>
+      <div class="toolbar" style="margin-top:12px;justify-content:flex-end"><button class="gray" type="button" onclick="fbClose()">Close</button><button class="primary" type="button" id="fbSend" onclick="fbSubmit()">Send</button></div>`;
+    m.classList.add('open'); setTimeout(()=>{ const t=$('fbText'); if(t) t.focus(); },50);
+  };
+  window.fbSubmit=async function(){
+    const t=$('fbText'), s=$('fbSubject'), b=$('fbSend'); if(!t||typeof supabaseClient==='undefined'||!supabaseClient) return;
+    if(String(t.value).trim().length<3) return toast('Please write a little more.');
+    if(b) b.disabled=true;
+    try{
+      const act=document.querySelector('.view.active');
+      const r=await supabaseClient.rpc('fb_submit',{p_message:t.value,p_subject:s?s.value:null,p_page:act?act.id:null});
+      if(r.error) throw r.error;
+      const d=r.data||{};
+      if(d.ok){ closeFb(); toast('Thank you! Your feedback was sent.'); }
+      else if(d.error==='rate_limited') toast('You have sent a lot of feedback. Please try again later.');
+      else toast('Please write a little more.');
+    }catch(e){ toast('Could not send. Please try again.'); }
+    finally{ if(b) b.disabled=false; }
+  };
+  const ago=iso=>{ try{ return new Date(iso).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } };
+  async function loadList(){
+    const box=$('fbList'); if(!box) return;
+    const r=await supabaseClient.rpc('fb_admin_list',{p_limit:60});
+    if(r.error){ box.innerHTML='<div class="help">Could not load feedback.</div>'; return; }
+    const rows=r.data||[];
+    box.innerHTML=rows.length?rows.map(x=>`<div class="fb-item ${x.status==='new'?'new':''}">
+      <div class="fb-meta"><span class="fb-tag ${x.source==='email'?'email':''}">${x.source==='email'?'From email':'From the app'}</span>${x.status==='new'?'<span class="fb-tag">New</span>':(x.status==='done'?'<span class="fb-tag done">Done</span>':'')}<b>${esc(x.from_name||x.from_email||'—')}</b><span>${esc(x.from_email||'')}</span><span>${esc(ago(x.created_at))}</span></div>
+      ${x.subject?`<div style="font-weight:700;margin-top:6px">${esc(x.subject)}</div>`:''}
+      <div class="fb-msg">${esc(x.message)}</div>
+      <div class="fb-acts">${x.status==='new'?`<button class="gray" type="button" onclick="fbMark('${esc(x.id)}','read')">Mark as read</button>`:''}${x.status!=='done'?`<button class="gray" type="button" onclick="fbMark('${esc(x.id)}','done')">Done</button>`:`<button class="gray" type="button" onclick="fbMark('${esc(x.id)}','read')">Reopen</button>`}${x.from_email?`<a class="gray" style="text-decoration:none;border-radius:10px;border:1px solid var(--line,#cbd5e1)" href="mailto:${esc(x.from_email)}?subject=${encodeURIComponent('Re: '+(x.subject||'Your feedback'))}">Reply by email</a>`:''}</div></div>`).join(''):'<div class="help" style="margin-top:12px">No feedback yet.</div>';
+  }
+  window.fbOpenInbox=async function(){
+    if(!window.isAdmin && typeof isAdmin!=='undefined' && !isAdmin) return;
+    const m=modal(); $('fbBox').innerHTML=`<div class="toolbar" style="justify-content:space-between"><h2 style="margin:0">Feedback inbox</h2><div class="toolbar"><button class="gray" type="button" onclick="fbMarkAll()">Mark all as read</button><button class="gray" type="button" onclick="fbClose()">Close</button></div></div><div id="fbList"></div>`;
+    m.classList.add('open'); await loadList();
+  };
+  window.fbMark=async function(id,st){ const r=await supabaseClient.rpc('fb_set_status',{p_id:id,p_status:st}); if(r.error) return toast('Could not save: '+r.error.message); await loadList(); fbTick(); };
+  window.fbMarkAll=async function(){ const r=await supabaseClient.rpc('fb_mark_all_read'); if(r.error) return toast('Could not save: '+r.error.message); await loadList(); fbTick(); };
+  let last=null;
+  async function fbTick(){
+    const bell=$('fbBell'); if(!bell) return;
+    let admin=false; try{ admin=(typeof isAdmin!=='undefined')&&!!isAdmin; }catch(e){}
+    if(!admin||typeof supabaseClient==='undefined'||!supabaseClient||!currentSupabaseUser||document.hidden){ if(!admin) bell.hidden=true; return; }
+    bell.hidden=false;
+    try{
+      const r=await supabaseClient.rpc('fb_unread_count'); if(r.error) return;
+      const n=Number(r.data)||0, bd=$('fbBadge'); bd.textContent=n>99?'99+':String(n); bd.hidden=n===0;
+      if(last!==null&&n>last) toast('New feedback received.');
+      last=n;
+    }catch(e){}
+  }
+  window.fbTick=fbTick;
+  function mount(){
+    const hr=document.querySelector('.app-header .header-right'); if(!hr||$('fbOpenBtn')) return;
+    const f=document.createElement('button'); f.type='button'; f.id='fbOpenBtn'; f.className='gray fb-btn'; f.title='Send feedback'; f.setAttribute('aria-label','Send feedback'); f.innerHTML=ICON_CHAT+'<span>Feedback</span>'; f.onclick=fbOpenForm;
+    const b=document.createElement('button'); b.type='button'; b.id='fbBell'; b.className='gray fb-bell'; b.hidden=true; b.title='Notifications'; b.setAttribute('aria-label','Notifications'); b.innerHTML=ICON_BELL+'<span class="fb-badge" id="fbBadge" hidden>0</span>'; b.onclick=fbOpenInbox;
+    hr.insertBefore(b,hr.firstChild); hr.insertBefore(f,hr.firstChild);
+  }
+  function init(){ mount(); setTimeout(fbTick,3000); setTimeout(fbTick,8000); setInterval(fbTick,30000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) fbTick(); }); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
 </script>
 </body>
 </html>
