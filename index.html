@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.6</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.7</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9570,7 +9570,9 @@ window.renderTickets=function(){
   const box=$('tkBox'); if(!box) return;
   if(!TKA.loaded){ box.innerHTML=`<div class="empty"><b>${A_('Inapakia…','Loading…')}</b></div>`; return; }
   const body=TKA.tab==='scan'?taScanHtml():TKA.tab==='admin'?taAdminHtml():(TKA.form?taFormHtml():TKA.cur&&taEv(TKA.cur)?taDetailHtml():taListHtml());
+  const keepCam=(TKA.tab==='scan'&&TKA.scan&&TKA.scan.camOn)?document.getElementById('tkReader'):null;
   box.innerHTML=`${taTabs()}${TKA.err?`<div class="hint-box">${ic('alert')}<span>${E(TKA.err)}</span></div>`:''}${body}`;
+  if(keepCam){ const fresh=document.getElementById('tkReader'); if(fresh&&fresh!==keepCam) fresh.replaceWith(keepCam); }
 };
 
 /* ---------- organizer status / application ---------- */
@@ -9850,14 +9852,27 @@ const taOwnsScan=()=>{ const e=taEv(TKA.scan.ev); return !!e&&(e.role==='owner'|
 window.taScanEvent=function(id){ TKA.scan.ev=id; TKA.scan.res=null; TKA.scan.results=[]; TKA.scan.live=null; renderTickets(); taScanLive(); if(TKA.scan.camOn){ TKA.scan.msg=''; } };
 async function taScanLive(){ const S=TKA.scan; if(!S.ev) return; const id=S.ev; const r=await supabaseClient.rpc('tk_event_live',{p_event:id}); if(!r.error&&S.ev===id){ S.live=r.data; if(TKA.tab==='scan') taPatchLive(); } }
 function taPatchLive(){ const keep=document.activeElement&&document.activeElement.id==='taLook'; if(keep) return; const c=document.querySelector('.ta-live'); if(c&&TKA.scan.live) c.innerHTML=`<b>${TKA.scan.live.checked_in}</b><span>/ ${TKA.scan.live.issued}</span>${TKA.scan.live.rejected?`<small>${TKA.scan.live.rejected} ${A_('zimekataliwa','rejected')}</small>`:''}`; }
+const taCamErr=e=>{
+  const m=String((e&&(e.name||''))+' '+(e&&e.message||e||'')); const ua=navigator.userAgent||'';
+  const inApp=/FBAN|FBAV|Instagram|WhatsApp|Line\/|MicroMessenger|; wv\)|TikTok/i.test(ua);
+  if(/NotAllowed|Permission|denied/i.test(m)) return A_('Kivinjari kimezuia kamera. Bonyeza ikoni ya kufuli karibu na anwani, chagua Kamera > Ruhusu, kisha ujaribu tena.','The browser blocked the camera. Tap the lock icon next to the address, set Camera to Allow, then try again.')+(inApp?A_(' Ukurasa huu umefunguliwa ndani ya programu nyingine (mfano WhatsApp); fungua kwenye Chrome au Safari.',' This page is open inside another app (e.g. WhatsApp); open it in Chrome or Safari.'):'');
+  if(/NotReadable|TrackStart|Could not start video|in use/i.test(m)) return A_('Kamera inatumiwa na programu au kichupo kingine. Kifunge, kisha ujaribu tena.','The camera is in use by another app or tab. Close it and try again.');
+  if(/NotFound|DevicesNotFound|no camera/i.test(m)) return A_('Hakuna kamera iliyopatikana kwenye kifaa hiki.','No camera was found on this device.');
+  if(/Secure|https/i.test(m)||!window.isSecureContext) return A_('Kamera inafanya kazi kwenye https tu. Tumia anwani ya https://www.sherehehubtz.com.','The camera only works on https. Use https://www.sherehehubtz.com.');
+  return A_('Kamera haikuwaka. Ruhusu kamera kwenye kivinjari, au tumia utafutaji wa mkono hapa chini.','The camera could not start. Allow camera access in the browser, or use the manual lookup below.')+(inApp?A_(' Fungua ukurasa kwenye Chrome au Safari.',' Open the page in Chrome or Safari.'):'');
+};
 window.taStartCam=async function(){
   const S=TKA.scan; S.msg='';
   if(!window.Html5Qrcode){ S.msg=A_('Maktaba ya scanner haijapakia. Onyesha ukurasa upya kisha ujaribu.','The scanner library has not loaded. Refresh the page and try again.'); renderTickets(); return; }
-  if(S.camOn) return; renderTickets();
-  try{ S.cam=new Html5Qrcode('tkReader'); await S.cam.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:240}},taOnDecode,()=>{}); S.camOn=true; renderTickets(); taReattach(); }
-  catch(e){ S.cam=null; S.camOn=false; S.msg=A_('Kamera haikuwaka. Ruhusu kamera kwenye kivinjari (ikoni ya kufuli karibu na anwani), au tumia utafutaji wa mkono hapa chini. ','The camera could not start. Allow camera access in your browser (lock icon next to the address), or use the manual lookup below. ')+(e&&e.message?'('+e.message+')':''); renderTickets(); }
+  if(S.camOn||S.starting) return; S.starting=true; renderTickets();
+  const cfg={fps:10,qrbox:{width:240,height:240}};
+  try{
+    try{ S.cam=new Html5Qrcode('tkReader'); await S.cam.start({facingMode:'environment'},cfg,taOnDecode,()=>{}); }
+    catch(e1){ if(/NotAllowed|Permission|denied/i.test(String(e1&&(e1.name||'')+' '+(e1&&e1.message||e1)))) throw e1; try{ await S.cam.stop(); }catch(_){} S.cam=new Html5Qrcode('tkReader'); await S.cam.start({facingMode:'user'},cfg,taOnDecode,()=>{}); }
+    S.camOn=true; S.starting=false; renderTickets();
+  }catch(e){ S.cam=null; S.camOn=false; S.starting=false; S.msg=taCamErr(e); renderTickets(); }
 };
-function taReattach(){ /* renderTickets rebuilt the reader div; restart the stream into the new node */ const S=TKA.scan; if(!S.camOn||!S.cam) return; const old=S.cam; S.camOn=false; old.stop().catch(()=>{}).then(async()=>{ try{ S.cam=new Html5Qrcode('tkReader'); await S.cam.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:240}},taOnDecode,()=>{}); S.camOn=true; }catch(e){ S.cam=null; S.msg=A_('Kamera haikuwaka.','The camera could not start.'); renderTickets(); } }); }
+function taReattach(){ /* the camera node is kept alive by renderTickets, so no restart is needed */ }
 window.taStopCam=function(redraw){ const S=TKA.scan; const c=S.cam; S.cam=null; S.camOn=false; if(c){ c.stop().catch(()=>{}).then(()=>{ try{ c.clear(); }catch(e){} }); } if(redraw) renderTickets(); };
 function taOnDecode(text){ const S=TKA.scan, now=Date.now(); if(S.busy) return; if(text===S.last&&now-S.lastAt<4000) return; S.last=text; S.lastAt=now; taScanCode(text); }
 async function taScanCode(code){
