@@ -1789,6 +1789,11 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 .tk-msg h2{font-size:19px;margin-bottom:6px}.tk-msg p{color:var(--muted);margin:0 0 14px}
 .tk-banner{border-radius:var(--r-md);padding:12px 14px;margin:0 0 14px;background:var(--blue-soft);color:var(--blue-d);font-size:14px}
 .tk-banner.warn{background:var(--warn-soft);color:var(--warn)}.tk-banner.bad{background:var(--bad-soft);color:var(--bad)}
+.tk-banner.ok{background:var(--ok-soft,#e7f6ec);color:var(--ok,#14693a)}
+.tk-manual{background:var(--blue-soft);color:var(--ink,#1b2440);border:1px solid var(--line)}.tk-manual>b{font-size:16px}
+.tk-mdl{display:grid;gap:8px;margin:10px 0}.tk-mdl>div{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.tk-mdl dt{color:var(--muted);font-size:13px}.tk-mdl dd{margin:0;font-size:15px}
+.tk-msteps{margin:0 0 10px;padding-left:20px;font-size:14px}.tk-msteps li{margin:3px 0}
+.tk-mform input{width:100%;text-transform:uppercase;letter-spacing:.06em}
 .tk-prevbar{position:sticky;top:0;z-index:6;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--gold-l);color:#3a2b00;padding:10px 16px;font-weight:650;font-size:14px}
 .tk-prevbar button{background:#3a2b00;color:#fff}
 .tk-evgrid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:26px;align-items:start}
@@ -9115,6 +9120,11 @@ const TKT={
     admits:n=>`Anaingia ${n}`, your:'Taarifa zako', name:'Jina kamili', email:'Barua pepe', phone:'Namba ya kulipia (simu)', contact_note:'Weka namba ya simu utakayolipia (M-Pesa, Tigo Pesa, Airtel Money). Tiketi itaonekana kwenye ukurasa utakaofunguka na unaweza kuipata tena.',
     att_on:'Weka majina ya kila mhudhuriaji', att_ph:n=>`Jina la mhudhuriaji ${n}`, summary:'Muhtasari wa oda', empty_cart:'Chagua idadi ya tiketi hapo juu.', subtotal:'Jumla ya tiketi', fee:p=>`Ada ya huduma (${p}%)`, tax:p=>`Kodi (${p}%)`, total:'Jumla ya kulipa',
     get_free:'Pata tiketi (bure)', pay_now:'Lipa sasa', pay_with:'Lipa kwa M-Pesa, Tigo Pesa, Airtel Money au kadi. Utapelekwa kwenye ukurasa salama wa Pesapal.', pay_going:'Inakupeleka kwenye malipo…', pay_contact:'Weka namba ya simu utakayolipia.', pay_wait:'Tunathibitisha malipo yako…', pay_wait_p:'Ukimaliza kulipa, ukurasa huu utasasishwa wenyewe. Usilipe mara mbili.', pay_cancel:'Malipo yalighairiwa. Hujakatwa pesa. Unaweza kujaribu tena.', pay_retry:'Lipa sasa', pay_failed:'Malipo hayakukamilika. Jaribu tena.', pay_ok:'Malipo yamethibitishwa. Tiketi zako ziko tayari.', pay_hold:'Tiketi zimehifadhiwa hadi', e_not_configured:'Malipo ya mtandaoni hayapo kwa sasa. Jaribu baadaye.', e_provider_error:'Huduma ya malipo haipatikani sasa. Jaribu tena baada ya dakika chache.', e_already_paid:'Oda hii imeshalipwa.', e_not_payable:'Oda hii haiwezi kulipwa tena (muda umeisha au imeghairiwa). Chagua tiketi upya.', e_contact_required:'Weka namba ya simu au barua pepe.', pay_find_h:'Tafuta oda yako', pay_find_p:'Malipo yakikamilika, tiketi zitaonekana ukitumia namba ya oda na simu/barua pepe uliyotumia.', pay_off:'Malipo ya mtandaoni bado hayajafunguliwa', pay_off_p:'Tiketi za kulipia zitaanza kuuzwa hivi karibuni. Tiketi za bure zinapatikana sasa.', placing:'Inaandaa tiketi…',
+    m_order:'Agiza tiketi', m_note:'Utalipa moja kwa moja kwa mwenyeji kwa simu (M-Pesa, Tigo Pesa, Airtel Money). Baada ya kuagiza utaona namba ya kulipia, kisha utatuma kodi ya muamala.',
+    m_h:'Lipa kwa simu', m_amount:'Kiasi cha kulipa', m_network:'Mtandao', m_number:'Namba ya kulipia', m_name:'Jina la akaunti', m_steps:'Fanya hivi:', m_s1:n=>`Lipa kiasi kamili (${n}) kwa namba iliyo hapo juu.`, m_s2:'Utapata ujumbe wa uthibitisho wenye kodi ya muamala (transaction ID).', m_s3:'Andika kodi hiyo hapa chini kisha bonyeza "Nimelipa".',
+    m_code:'Kodi ya muamala', m_code_ph:'mfano 8H3K2L9PQ4', m_paid:'Nimelipa', m_sending:'Inatuma…', m_sent_h:'Tumepokea kodi yako', m_sent_p:n=>`Kodi: ${n}. Mwenyeji atahakiki malipo, kisha tiketi zako zitaonekana hapa kiotomatiki. Hifadhi link ya ukurasa huu.`,
+    m_hold:'Tiketi zimewekwa kwa ajili yako hadi', m_copy:'Nakili namba', m_exp:'Muda wa kushikilia tiketi umeisha. Kama ulishalipa, tuma kodi ya muamala hapa chini na mwenyeji atakagua.',
+    e_bad_code:'Kodi si sahihi (herufi au namba 6 hadi 24).', e_code_used:'Kodi hii tayari imetumika kwenye oda nyingine.', e_not_pending:'Oda hii haisubiri malipo tena. Pakia ukurasa upya.', e_not_found:'Oda haikupatikana.',
     terms_p:'Kwa kuendelea unakubali', terms:'Masharti', privacy:'Faragha', and:'na', share:'Shiriki', copied:'Link imenakiliwa.', preview_note:'Hii ni onyesho la kujaribu. Wateja hawaoni bado.', exit_prev:'Funga onyesho', prev_buy:'Kununua kumezimwa kwenye onyesho',
     e_bad_items:'Chagua tiketi kwanza.', e_bad_name:'Weka jina kamili (herufi 2 au zaidi).', e_bad_email:'Barua pepe si sahihi.', e_bad_phone:'Namba ya simu si sahihi.', e_contact_required:'Weka barua pepe au namba ya simu.',
     e_event_closed:'Mauzo ya tukio hili yamefungwa.', e_event_ended:'Tukio hili limeisha.', e_sales_not_open:'Mauzo hayajaanza.', e_sales_closed:'Mauzo yamefungwa.', e_type_unavailable:'Aina hii ya tiketi haipatikani tena.',
@@ -9132,6 +9142,11 @@ const TKT={
     admits:n=>`Admits ${n}`, your:'Your details', name:'Full name', email:'Email', phone:'Number to pay with (phone)', contact_note:'Enter the phone number you will pay from (M-Pesa, Tigo Pesa, Airtel Money). Your ticket appears on the next page and you can open it again later.',
     att_on:'Enter a name for each attendee', att_ph:n=>`Attendee ${n} name`, summary:'Order summary', empty_cart:'Choose how many tickets you want above.', subtotal:'Tickets subtotal', fee:p=>`Service fee (${p}%)`, tax:p=>`Tax (${p}%)`, total:'Total to pay',
     get_free:'Get my tickets (free)', pay_now:'Pay now', pay_with:'Pay with M-Pesa, Tigo Pesa, Airtel Money or card. You will be taken to Pesapal\'s secure payment page.', pay_going:'Taking you to payment…', pay_contact:'Enter the phone number you will pay from.', pay_wait:'Confirming your payment…', pay_wait_p:'Once you finish paying, this page updates by itself. Do not pay twice.', pay_cancel:'Payment was cancelled. You have not been charged. You can try again.', pay_retry:'Pay now', pay_failed:'The payment did not complete. Please try again.', pay_ok:'Payment confirmed. Your tickets are ready.', pay_hold:'Tickets are held until', e_not_configured:'Online payments are unavailable right now. Please try later.', e_provider_error:'The payment service is unavailable right now. Try again in a few minutes.', e_already_paid:'This order has already been paid.', e_not_payable:'This order can no longer be paid (time ran out or it was cancelled). Please choose your tickets again.', e_contact_required:'Enter a phone number or email.', pay_find_h:'Find your order', pay_find_p:'Once payment completes, your tickets show up using your order number and the phone/email you used.', pay_off:'Online payments are not open yet', pay_off_p:'Paid tickets will go on sale soon. Free tickets are available now.', placing:'Preparing your tickets…',
+    m_order:'Place order', m_note:'You pay the organiser directly from your phone (M-Pesa, Tigo Pesa, Airtel Money). After ordering you will see the number to pay, then you send the transaction code.',
+    m_h:'Pay by phone', m_amount:'Amount to pay', m_network:'Network', m_number:'Number to pay', m_name:'Account name', m_steps:'Do this:', m_s1:n=>`Pay the exact amount (${n}) to the number above.`, m_s2:'You will get a confirmation message with a transaction ID.', m_s3:'Type that code below and press "I have paid".',
+    m_code:'Transaction code', m_code_ph:'e.g. 8H3K2L9PQ4', m_paid:'I have paid', m_sending:'Sending…', m_sent_h:'We received your code', m_sent_p:n=>`Code: ${n}. The organiser will check the payment, then your tickets appear here automatically. Keep this page link.`,
+    m_hold:'Your tickets are held until', m_copy:'Copy number', m_exp:'The hold on your tickets has ended. If you already paid, send the transaction code below and the organiser will check.',
+    e_bad_code:'The code looks wrong (6 to 24 letters or numbers).', e_code_used:'This code was already used on another order.', e_not_pending:'This order is no longer waiting for payment. Reload the page.', e_not_found:'Order not found.',
     terms_p:'By continuing you accept the', terms:'Terms', privacy:'Privacy', and:'and', share:'Share', copied:'Link copied.', preview_note:'This is a preview. Customers cannot see it yet.', exit_prev:'Close preview', prev_buy:'Buying is turned off in preview',
     e_bad_items:'Choose tickets first.', e_bad_name:'Enter your full name (2+ letters).', e_bad_email:'The email looks wrong.', e_bad_phone:'The phone number looks wrong.', e_contact_required:'Enter an email or a phone number.',
     e_event_closed:'Sales for this event are closed.', e_event_ended:'This event has ended.', e_sales_not_open:'Sales have not started.', e_sales_closed:'Sales are closed.', e_type_unavailable:'This ticket type is no longer available.',
@@ -9270,7 +9285,7 @@ window.tkQty=function(id,d){
 const tkCanBuy=()=>{ const ev=TP.ev; return !!ev&&ev.status==='published'&&ev.sales_state==='open'; };
 function tkpBuy(){
   const box=$('tkBuy'); if(!box||!TP.ev) return;
-  const ev=TP.ev, c=tkCalc(), canBuy=tkCanBuy(), payOff=c.total>0&&!ev.payments_enabled, b=TP.buyer;
+  const ev=TP.ev, c=tkCalc(), canBuy=tkCanBuy(), manualOn=c.total>0&&!ev.payments_enabled&&!!ev.manual_pay, payOff=c.total>0&&!ev.payments_enabled&&!ev.manual_pay, b=TP.buyer;
   while(TP.names.length<c.n) TP.names.push(''); TP.names.length=c.n;
   const rows=c.n?`<div class="tk-sum">${(ev.types||[]).filter(t=>TP.qty[t.id]).map(t=>`<div><span>${TP.qty[t.id]} × ${E(t.name)}</span><b>${Number(t.price_tzs)===0?tkt('free'):tkMoney(TP.qty[t.id]*t.price_tzs)}</b></div>`).join('')}
     ${c.sub>0?`<div class="sub"><span>${tkt('subtotal')}</span><span>${tkMoney(c.sub)}</span></div>${c.fee?`<div class="sub"><span>${tkt('fee',Number(ev.fee_pct))}</span><span>${tkMoney(c.fee)}</span></div>`:''}${c.tax?`<div class="sub"><span>${tkt('tax',Number(ev.tax_pct))}</span><span>${tkMoney(c.tax)}</span></div>`:''}`:''}
@@ -9283,8 +9298,8 @@ function tkpBuy(){
     <h3 style="margin-top:18px">${tkt('summary')}</h3>${rows}
     ${payOff?`<div class="tk-banner warn"><b>${tkt('pay_off')}</b><br>${tkt('pay_off_p')}</div>`:''}
     ${TP.msg?`<div class="tk-banner bad" role="alert">${E(TP.msg)}</div>`:''}
-    <button type="button" class="primary tk-go" ${(!canBuy||!c.n||payOff||TP.busy||TP.preview)?'disabled':''} onclick="tkSubmit()">${TP.busy?tkt(TP.paying?'pay_going':'placing'):(TP.preview?tkt('prev_buy'):(c.total>0?tkt('pay_now')+' · '+tkMoney(c.total):tkt('get_free')))}</button>
-    ${c.total>0&&!payOff?`<p class="tk-note sm">${tkt('pay_with')}</p>`:''}
+    <button type="button" class="primary tk-go" ${(!canBuy||!c.n||payOff||TP.busy||TP.preview)?'disabled':''} onclick="tkSubmit()">${TP.busy?tkt(TP.paying?'pay_going':'placing'):(TP.preview?tkt('prev_buy'):(c.total>0?tkt(manualOn?'m_order':'pay_now')+' · '+tkMoney(c.total):tkt('get_free')))}</button>
+    ${c.total>0&&!payOff?`<p class="tk-note sm">${tkt(manualOn?'m_note':'pay_with')}</p>`:''}
     <p class="tk-note sm">${tkt('terms_p')} <a href="#terms" class="legal-link" onclick="openLegal('terms');return false">${tkt('terms')}</a> ${tkt('and')} <a href="#privacy" class="legal-link" onclick="openLegal('privacy');return false">${tkt('privacy')}</a>.</p>`;
 }
 window.tkAtt=function(on){ TP.att=on; tkpBuy(); };
@@ -9298,6 +9313,7 @@ window.tkSubmit=async function(){
     if(r.error) throw r.error; const d=r.data||{};
     if(!d.ok){ TP.busy=false; TP.msg=tkt('e_'+(d.error||'unknown')); if(TP.msg==='e_'+d.error) TP.msg=tkt('e_unknown'); if(d.error==='sold_out'){ tkpEventRefresh(); } tkpBuy(); return; }
     tkSaveOrder(d.ref,d.secret,ev.title);
+    if(d.status==='pending_payment'&&ev.manual_pay&&!ev.payments_enabled){ TP.busy=false; location.hash='#tk-order='+d.ref+'.'+d.secret; return; }
     if(d.status==='pending_payment'){ TP.paying=true; tkpBuy(); const pr=await tkPayStart(d.ref,d.secret); if(pr.ok){ location.href=pr.url; return; } TP.paying=false; TP.busy=false; TP.payErr=pr.error; location.hash='#tk-order='+d.ref+'.'+d.secret; return; }
     TP.busy=false; location.hash='#tk-order='+d.ref+'.'+d.secret;
   }catch(e){ TP.busy=false; TP.msg=(!navigator.onLine)?(invLang()==='en'?'You are offline. Your order was not placed.':'Huna mtandao. Oda haijatumwa.'):tkt('e_unknown'); tkpBuy(); }
@@ -9366,7 +9382,7 @@ async function tkpOrderLoad(ref,secret,fromPay,quiet){
     if(!r.data||!r.data.ok){ TP.state=(r.data&&r.data.error==='rate_limited')?'rate':'missing'; } else { TP.order=r.data.order; TP.state='ready'; try{ document.title=r.data.order.event.title+' — '+tkt('t_no'); }catch(e){} }
   }catch(e){ TP.state='error'; TP.err=e.message||String(e); }
   tkpRender();
-  if(TP.state==='ready'&&TP.order&&TP.order.status==='pending_payment') tkPoll(ref,secret); else if(TP.state==='ready'&&TP.order&&TP.order.status==='paid'&&(fromPay||quiet)) toast(tkt('pay_ok'));
+  if(TP.state==='ready'&&TP.order&&TP.order.status==='pending_payment'&&TP.order.pay_method==='manual') tkPollManual(ref,secret); else if(TP.state==='ready'&&TP.order&&TP.order.status==='pending_payment') tkPoll(ref,secret); else if(TP.state==='ready'&&TP.order&&TP.order.status==='paid'&&(fromPay||quiet)) toast(tkt('pay_ok'));
 }
 const tkStatusLbl=s=>({free_confirmed:'o_ok',paid:'o_ok',pending_payment:'o_pending',cancelled:'o_cancelled',expired:'o_expired',refunded:'o_refunded'}[s]||'o_ok');
 const tkTStatus=s=>({valid:'t_valid',used:'t_used',cancelled:'t_cancelled',refunded:'t_refunded'}[s]||'t_valid');
@@ -9381,13 +9397,46 @@ function tkTicketHtml(o,t,i){
     <div class="tk-tr">${t.qr?`<div class="tk-qr" data-qr="${E(t.qr)}"></div>`:`<div class="tk-qr dead"></div>`}<p>${live?tkt('enter_p'):''}</p>
       <div class="tk-tact no-print">${t.qr?`<button type="button" class="gray sm" onclick="tkDownload(${i},this)">${ic('download')}${tkt('dl')}</button>`:''}</div></div></article>`;
 }
+function tkManualHtml(o){
+  if(o.pay_method!=='manual'||!o.manual||!(o.status==='pending_payment'||o.status==='expired')) return '';
+  const m=o.manual, row=(k,v)=>v?`<div><dt>${tkt(k)}</dt><dd>${E(v)}</dd></div>`:'';
+  const hold=(o.status==='pending_payment'&&o.reserved_until)?`<p class="tk-note sm">${tkt('m_hold')} ${E(tkDate(o.reserved_until,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</p>`:'';
+  const sent=o.pay_ref?`<div class="tk-banner ok" role="status"><b>${tkt('m_sent_h')}</b><br>${tkt('m_sent_p',E(o.pay_ref))}</div>`:'';
+  const form=(!o.pay_ref&&TP.cred)?`<div class="tk-mform"><label for="tkMCode">${tkt('m_code')}</label><input id="tkMCode" type="text" maxlength="30" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${E(tkt('m_code_ph'))}" oninput="TP.mcode=this.value" value="${E(TP.mcode||'')}">
+      ${TP.mErr?`<div class="tk-banner bad" role="alert" style="margin-top:8px">${E(TP.mErr)}</div>`:''}
+      <button type="button" class="primary" style="margin-top:10px" ${TP.mBusy?'disabled':''} onclick="tkManualSubmit(this)">${TP.mBusy?tkt('m_sending'):tkt('m_paid')}</button></div>`:'';
+  return `<section class="tk-banner warn tk-manual" aria-label="${E(tkt('m_h'))}"><b>${tkt('m_h')}</b>${o.status==='expired'?`<p class="tk-note sm">${tkt('m_exp')}</p>`:''}
+    <dl class="tk-mdl"><div><dt>${tkt('m_amount')}</dt><dd><b>${tkMoney(o.total_tzs)}</b></dd></div>${row('m_network',m.network)}<div><dt>${tkt('m_number')}</dt><dd><b class="mono">${E(m.number)}</b> <button type="button" class="gray sm" onclick="tkCopy(${jq(m.number)})">${tkt('m_copy')}</button></dd></div>${row('m_name',m.name)}</dl>
+    ${m.note?`<p class="tk-note sm">${E(m.note)}</p>`:''}
+    ${o.pay_ref?'':`<p class="tk-note"><b>${tkt('m_steps')}</b></p><ol class="tk-msteps"><li>${tkt('m_s1',tkMoney(o.total_tzs))}</li><li>${tkt('m_s2')}</li><li>${tkt('m_s3')}</li></ol>`}
+    ${sent}${form}${hold}</section>`;
+}
+window.tkManualSubmit=async function(btn){
+  const cr=TP.cred; if(!cr||TP.mBusy) return; TP.mErr=''; const code=(TP.mcode||'').replace(/\s/g,'').toUpperCase();
+  if(!/^[A-Z0-9]{6,24}$/.test(code)){ TP.mErr=tkt('e_bad_code'); tkpRender(); return; }
+  TP.mBusy=true; tkpRender();
+  try{ const r=await supabaseClient.rpc('tk_manual_submit',{p_ref:cr.ref,p_secret:cr.secret,p_code:code}); if(r.error) throw r.error; const d=r.data||{};
+    if(!d.ok){ TP.mBusy=false; TP.mErr=tkt('e_'+(d.error==='bad_code'||d.error==='code_used'||d.error==='not_pending'||d.error==='not_found'?d.error:'unknown')); tkpRender(); return; }
+    TP.mBusy=false; TP.mcode=''; await tkpOrderLoad(cr.ref,cr.secret,false,true);
+  }catch(e){ TP.mBusy=false; TP.mErr=(!navigator.onLine)?(invLang()==='en'?'You are offline.':'Huna mtandao.'):tkt('e_unknown'); tkpRender(); }
+};
+function tkPollManual(ref,secret){
+  clearTimeout(TP.timer); let n=0; const id=ref; TP.pollId=id;
+  const step=async()=>{
+    if(TP.pollId!==id||TP.view!=='order'||!TP.order||TP.order.pay_method!=='manual'||TP.order.status!=='pending_payment'||!document.getElementById('tkPublic')||document.getElementById('tkPublic').style.display==='none') return;
+    n++; try{ const r=await supabaseClient.rpc('tk_get_order',{p_ref:ref,p_secret:secret}); const o=r.data&&r.data.ok&&r.data.order; if(TP.pollId!==id) return; if(o&&o.status!=='pending_payment'){ tkpOrderLoad(ref,secret,false,true); return; } }catch(e){}
+    if(n<120) TP.timer=setTimeout(step,20000);
+  };
+  TP.timer=setTimeout(step,20000);
+}
 function tkOrderHtml(){
   const o=TP.order, live=o.status==='paid'||o.status==='free_confirmed', link=location.origin+location.pathname+'#tk-order='+(TP.cred?TP.cred.ref+'.'+TP.cred.secret:'');
   return `${tkTop()}<main class="tk-wrap tk-orderwrap">
     <div class="tk-ohead"><div><h1>${tkt('o_h')}</h1><p>${tkt('o_ref')}: <b class="mono">${E(o.ref)}</b></p></div><span class="tk-st ${live?'ok':o.status==='pending_payment'?'warn':'bad'}">${tkt(tkStatusLbl(o.status))}</span></div>
     ${TP.cred?`<div class="tk-banner no-print">${tkt('o_save')}<div class="tk-linkrow"><input readonly value="${E(link)}" onclick="this.select()"><button type="button" class="gray sm" onclick="tkCopy(${jq(link)})">${ic('copy')}${tkt('copy_link')}</button></div></div>`:''}
     ${live&&o.tickets.length?`<div class="tk-oact no-print"><button type="button" class="primary" onclick="tkDownloadAll(this)">${ic('download')}${tkt('dl_all')}</button><button type="button" class="gray" onclick="window.print()">${ic('download')}${tkt('print')}</button></div>`:''}
-    ${o.status==='pending_payment'?`<div class="tk-banner warn" role="status"><b>${tkt(TP.payCancel?'pay_cancel':'pay_wait')}</b>${TP.payCancel?'':`<br>${tkt('pay_wait_p')}`}${o.reserved_until?`<br><small>${tkt('pay_hold')} ${E(tkDate(o.reserved_until,{hour:'2-digit',minute:'2-digit'}))}</small>`:''}${TP.payErr?`<div class="tk-banner bad" role="alert" style="margin-top:8px">${E(tkPayErrText(TP.payErr))}</div>`:''}${TP.cred?`<div style="margin-top:10px"><button type="button" class="primary" ${TP.paying?'disabled':''} onclick="tkPayRetry(this)">${tkt('pay_retry')} · ${tkMoney(o.total_tzs)}</button></div>`:''}</div>`:''}
+    ${tkManualHtml(o)}
+    ${o.status==='pending_payment'&&o.pay_method!=='manual'?`<div class="tk-banner warn" role="status"><b>${tkt(TP.payCancel?'pay_cancel':'pay_wait')}</b>${TP.payCancel?'':`<br>${tkt('pay_wait_p')}`}${o.reserved_until?`<br><small>${tkt('pay_hold')} ${E(tkDate(o.reserved_until,{hour:'2-digit',minute:'2-digit'}))}</small>`:''}${TP.payErr?`<div class="tk-banner bad" role="alert" style="margin-top:8px">${E(tkPayErrText(TP.payErr))}</div>`:''}${TP.cred?`<div style="margin-top:10px"><button type="button" class="primary" ${TP.paying?'disabled':''} onclick="tkPayRetry(this)">${tkt('pay_retry')} · ${tkMoney(o.total_tzs)}</button></div>`:''}</div>`:''}
     <div class="tk-tickets">${o.tickets.map((t,i)=>tkTicketHtml(o,t,i)).join('')}</div>
   </main>${tkFoot()}`;
 }
@@ -9563,11 +9612,11 @@ window.taBack=function(){ TKA.cur=null; TKA.form=null; TKA.tform=null; renderTic
 /* ---------- create / edit event ---------- */
 window.taNew=function(){
   const d=new Date(Date.now()+7*86400e3+3*3600e3); d.setUTCHours(18,0,0,0);
-  TKA.form={id:null,title:'',category:'music',venue:'',address:'',maps_url:'',starts_at:d.toISOString().slice(0,16),ends_at:'',capacity:'',sales_open_at:'',sales_close_at:'',description:'',refund_policy:'',poster_url:''};
+  TKA.form={id:null,title:'',category:'music',venue:'',address:'',maps_url:'',starts_at:d.toISOString().slice(0,16),ends_at:'',capacity:'',sales_open_at:'',sales_close_at:'',description:'',refund_policy:'',poster_url:'',manual_pay_enabled:false,manual_pay_network:'',manual_pay_number:'',manual_pay_name:'',manual_pay_note:''};
   renderTickets();
 };
 window.taEdit=function(){
-  taFetchFull(TKA.cur).then(f=>{ TKA.form={id:f.id,title:f.title,category:f.category,venue:f.venue,address:f.address||'',maps_url:f.maps_url||'',starts_at:taLocal(f.starts_at),ends_at:taLocal(f.ends_at),capacity:f.capacity||'',sales_open_at:taLocal(f.sales_open_at),sales_close_at:taLocal(f.sales_close_at),description:f.description||'',refund_policy:f.refund_policy||'',poster_url:f.poster_url||''}; renderTickets(); });
+  taFetchFull(TKA.cur).then(f=>{ TKA.form={id:f.id,title:f.title,category:f.category,venue:f.venue,address:f.address||'',maps_url:f.maps_url||'',starts_at:taLocal(f.starts_at),ends_at:taLocal(f.ends_at),capacity:f.capacity||'',sales_open_at:taLocal(f.sales_open_at),sales_close_at:taLocal(f.sales_close_at),description:f.description||'',refund_policy:f.refund_policy||'',poster_url:f.poster_url||'',manual_pay_enabled:!!f.manual_pay_enabled,manual_pay_network:f.manual_pay_network||'',manual_pay_number:f.manual_pay_number||'',manual_pay_name:f.manual_pay_name||'',manual_pay_note:f.manual_pay_note||''}; renderTickets(); });
 };
 async function taFetchFull(id){ const r=await supabaseClient.from('tk_events').select('*').eq('id',id).single(); if(r.error){ toast(taErr(r.error)); throw r.error; } TKA.full=r.data; return r.data; }
 function taFormHtml(){
@@ -9586,6 +9635,12 @@ function taFormHtml(){
       <div class="field"><label for="tfSC">${A_('Mauzo yanafungwa (hiari)','Sales close (optional)')}</label><input id="tfSC" type="datetime-local" value="${v('sales_close_at')}" oninput="TKA.form.sales_close_at=this.value"></div>
       <div class="field full"><label for="tfDesc">${A_('Maelezo ya tukio','Description')}</label><textarea id="tfDesc" maxlength="4000" oninput="TKA.form.description=this.value">${v('description')}</textarea></div>
       <div class="field full"><label for="tfRef">${A_('Sera ya kughairi / kurudisha pesa','Cancellation / refund policy')}</label><textarea id="tfRef" maxlength="2000" oninput="TKA.form.refund_policy=this.value">${v('refund_policy')}</textarea></div>
+      <div class="field full"><label class="tk-chk"><input type="checkbox" ${f.manual_pay_enabled?'checked':''} onchange="TKA.form.manual_pay_enabled=this.checked;renderTickets()"> ${A_('Pokea malipo kwa simu (mteja analipa kwa namba yako, wewe unathibitisha)','Accept phone payments (buyer pays your number, you confirm)')}</label>
+        <small class="muted">${A_('Pesa zinaingia moja kwa moja kwako. Tiketi inatoka baada ya wewe kuthibitisha kwenye "Mauzo".','Money goes straight to you. The ticket is issued after you confirm it under "Sales".')}</small></div>
+      ${f.manual_pay_enabled?`<div class="field"><label for="tfMN">${A_('Mtandao','Network')}</label><input id="tfMN" maxlength="40" placeholder="M-Pesa / Tigo Pesa / Airtel Money" value="${E(f.manual_pay_network||'')}" oninput="TKA.form.manual_pay_network=this.value"></div>
+      <div class="field"><label for="tfMP">${A_('Namba ya kulipia (simu au Lipa namba)','Number to pay (phone or Lipa number)')}</label><input id="tfMP" maxlength="30" inputmode="tel" placeholder="0712 345 678" value="${E(f.manual_pay_number||'')}" oninput="TKA.form.manual_pay_number=this.value"></div>
+      <div class="field"><label for="tfMA">${A_('Jina la akaunti','Account name')}</label><input id="tfMA" maxlength="80" value="${E(f.manual_pay_name||'')}" oninput="TKA.form.manual_pay_name=this.value"></div>
+      <div class="field"><label for="tfMT">${A_('Maelezo ya ziada (hiari)','Extra note (optional)')}</label><input id="tfMT" maxlength="300" value="${E(f.manual_pay_note||'')}" oninput="TKA.form.manual_pay_note=this.value"></div>`:''}
       <div class="field full"><label>${A_('Poster ya tukio','Event poster')}</label>
         <div class="ta-poster">${safeUrl(f.poster_url)?`<img src="${E(safeUrl(f.poster_url))}" alt="">`:`<span class="co-noimg">${ic('image')}</span>`}
         <div><input type="file" id="tfFile" accept="image/jpeg,image/png,image/webp" onchange="taPoster(this)"><small class="muted">${A_('JPG, PNG au WebP. Inapunguzwa ukubwa kiotomatiki.','JPG, PNG or WebP. It is resized automatically.')}</small>${f.poster_url?`<br><button class="danger sm" type="button" onclick="TKA.form.poster_url='';renderTickets()">${A_('Ondoa','Remove')}</button>`:''}</div></div></div>
@@ -9610,8 +9665,9 @@ window.taSaveEvent=async function(btn){
   if(f.title.trim().length<3) return toast(A_('Weka jina la tukio (herufi 3+).','Enter an event title (3+ letters).'));
   if(f.venue.trim().length<2) return toast(A_('Weka ukumbi.','Enter the venue.'));
   if(!f.starts_at) return toast(A_('Weka tarehe na saa ya kuanza.','Enter the start date and time.'));
+  if(f.manual_pay_enabled&&(f.manual_pay_number||'').replace(/\s/g,'').length<5) return toast(A_('Weka namba ya kulipia (angalau tarakimu 5).','Enter the number to pay (at least 5 characters).'));
   const row={title:f.title.trim(),category:f.category,venue:f.venue.trim(),address:f.address.trim()||null,maps_url:(f.maps_url.trim()?normalizeUrl(f.maps_url.trim()):null),starts_at:taIso(f.starts_at),ends_at:taIso(f.ends_at),capacity:f.capacity?parseInt(f.capacity,10):null,
-    sales_open_at:taIso(f.sales_open_at),sales_close_at:taIso(f.sales_close_at),description:f.description.trim()||null,refund_policy:f.refund_policy.trim()||null,poster_url:f.poster_url||null};
+    sales_open_at:taIso(f.sales_open_at),sales_close_at:taIso(f.sales_close_at),description:f.description.trim()||null,refund_policy:f.refund_policy.trim()||null,poster_url:f.poster_url||null,manual_pay_enabled:!!f.manual_pay_enabled,manual_pay_network:(f.manual_pay_network||'').trim()||null,manual_pay_number:(f.manual_pay_number||'').trim()||null,manual_pay_name:(f.manual_pay_name||'').trim()||null,manual_pay_note:(f.manual_pay_note||'').trim()||null};
   btn.disabled=true; let r;
   if(f.id) r=await supabaseClient.from('tk_events').update(row).eq('id',f.id).select('id').single();
   else r=await supabaseClient.from('tk_events').insert(Object.assign({organizer_id:taUid()},row)).select('id').single();
@@ -9714,11 +9770,23 @@ window.taTypeDel=async function(id){
 /* ---------- sales, attendees, export ---------- */
 function taSales(e){
   const o=TKA.orders||[];
-  const rows=o.map(x=>`<tr><td class="mono">${E(x.order)}</td><td>${E(x.buyer)}<br><small class="muted">${E(x.email||'')} ${E(x.phone||'')}</small></td><td>${x.tickets}</td><td>${x.total_tzs?taMoney(x.total_tzs):A_('Bure','Free')}</td><td><span class="status ${x.status==='paid'||x.status==='free_confirmed'?'ok':x.status==='pending_payment'?'warn':'bad'}">${E(x.status)}</span></td><td>${E(tkDate(x.created_at,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</td>
-    <td>${(x.status==='paid'||x.status==='free_confirmed')?`<button class="danger sm" type="button" onclick="taCancelOrder(${jq(x.id)},${jq(x.order)})">${A_('Ghairi','Cancel')}</button>`:''}</td></tr>`).join('');
+  const rows=o.map(x=>`<tr><td class="mono">${E(x.order)}</td><td>${E(x.buyer)}<br><small class="muted">${E(x.email||'')} ${E(x.phone||'')}</small></td><td>${x.tickets}</td><td>${x.total_tzs?taMoney(x.total_tzs):A_('Bure','Free')}</td><td><span class="status ${x.status==='paid'||x.status==='free_confirmed'?'ok':x.status==='pending_payment'?'warn':'bad'}">${E(x.status)}</span>${x.pay_method==='manual'?`<br><small class="muted">${A_('Simu','Phone pay')}${x.pay_ref?': <b class="mono">'+E(x.pay_ref)+'</b>':': '+A_('hakuna kodi bado','no code yet')}</small>`:''}</td><td>${E(tkDate(x.created_at,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</td>
+    <td>${(x.status==='paid'||x.status==='free_confirmed')?`<button class="danger sm" type="button" onclick="taCancelOrder(${jq(x.id)},${jq(x.order)})">${A_('Ghairi','Cancel')}</button>`:''}${(x.pay_method==='manual'&&(x.status==='pending_payment'||(x.status==='expired'&&x.pay_ref)))?`<button class="primary sm" type="button" onclick="taManualConfirm(${jq(x.id)},${jq(x.order)},${x.total_tzs})">${A_('Thibitisha malipo','Confirm payment')}</button>${x.status==='pending_payment'?` <button class="danger sm" type="button" onclick="taManualReject(${jq(x.id)},${jq(x.order)})">${A_('Kataa','Reject')}</button>`:''}`:''}</td></tr>`).join('');
   return `<div class="toolbar"><button class="gray" type="button" onclick="taExport('csv')">${ic('download')}CSV</button><button class="gray" type="button" onclick="taExport('xlsx')">${ic('sheet')}Excel</button><button class="gray" type="button" onclick="loadTickets()">${ic('refresh')}${A_('Onyesha upya','Refresh')}</button></div>
     <div class="table-wrap"><table><thead><tr><th>${A_('Oda','Order')}</th><th>${A_('Mnunuzi','Buyer')}</th><th>${A_('Tiketi','Tickets')}</th><th>${A_('Jumla','Total')}</th><th>${A_('Hali','Status')}</th><th>${A_('Muda','Time')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="7">${A_('Bado hakuna oda.','No orders yet.')}</td></tr>`}</tbody></table></div>`;
 }
+window.taManualConfirm=async function(oid,ref,total){
+  const ok=await confirmDialog({title:A_('Thibitisha malipo '+ref,'Confirm payment '+ref),text:A_('Hakikisha umepokea '+taMoney(total)+' kwenye simu yako kwa kodi hii. Ukithibitisha, tiketi zinatolewa mara moja.','Make sure you received '+taMoney(total)+' on your phone for this code. Once confirmed, the tickets are issued immediately.'),ok:A_('Thibitisha','Confirm'),tone:'primary'}); if(!ok) return;
+  const r=await supabaseClient.rpc('tk_manual_confirm',{p_order:oid}); const d=r.data||{};
+  if(r.error||!d.ok){ toast(r.error?taErr(r.error):({sold_out:A_('Tiketi zimeisha.','Sold out.'),refund_required:A_('Tiketi zimeisha, rudisha pesa kwa mteja.','Tickets are gone; refund the buyer.'),expired:A_('Oda imeisha muda.','Order expired.'),not_pending:A_('Oda haisubiri malipo.','Order is not waiting for payment.')}[d.error]||d.error)); loadTickets(); return; }
+  toast(A_('Malipo yamethibitishwa, tiketi zimetolewa.','Payment confirmed, tickets issued.')); loadTickets();
+};
+window.taManualReject=async function(oid,ref){
+  const reason=await taAsk({title:A_('Kataa malipo ya oda '+ref,'Reject payment for order '+ref),label:A_('Sababu (mteja ataiona akiangalia oda)','Reason'),ok:A_('Kataa na uachilie tiketi','Reject and release tickets'),area:true}); if(!reason) return;
+  const r=await supabaseClient.rpc('tk_manual_reject',{p_order:oid,p_reason:reason}); const d=r.data||{};
+  if(r.error||!d.ok){ toast(r.error?taErr(r.error):(d.error==='reason_required'?A_('Andika sababu.','Write a reason.'):A_('Oda haisubiri malipo.','Order is not waiting for payment.'))); loadTickets(); return; }
+  toast(A_('Oda imekataliwa, tiketi zimeachiliwa.','Order rejected; tickets released.')); loadTickets();
+};
 window.taCancelOrder=async function(oid,ref){
   const reason=await taAsk({title:A_('Ghairi oda '+ref,'Cancel order '+ref),label:A_('Sababu (itahifadhiwa kwenye kumbukumbu)','Reason (kept in the audit log)'),ok:A_('Ghairi oda','Cancel order'),area:true}); if(!reason) return;
   const r=await supabaseClient.rpc('tk_cancel_order',{p_order:oid,p_reason:reason}); const d=r.data||{};
