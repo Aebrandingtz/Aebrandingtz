@@ -1882,7 +1882,6 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 .ta-tform{background:var(--line-2);margin:12px 0;border:1px solid var(--line)}
 .ta-cam{margin:14px 0}
 #tkReader{width:100%;max-width:420px;min-height:0;border-radius:12px;overflow:hidden;background:#000}
-#tkReader:empty{display:none}
 .ta-live{display:flex;align-items:baseline;gap:6px;min-height:40px}
 .ta-live b{font-size:30px;font-family:var(--font-display);color:var(--navy)}.ta-live span{font-size:18px;color:var(--muted)}.ta-live small{color:var(--bad);margin-left:8px}
 .ta-res{border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:4px;margin:12px 0;text-align:center;border:2px solid var(--line);background:var(--line-2);color:var(--muted);font-size:15px}
@@ -2173,7 +2172,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.7</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.8</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9874,7 +9873,7 @@ window.taStartCam=async function(){
 };
 function taReattach(){ /* the camera node is kept alive by renderTickets, so no restart is needed */ }
 window.taStopCam=function(redraw){ const S=TKA.scan; const c=S.cam; S.cam=null; S.camOn=false; if(c){ c.stop().catch(()=>{}).then(()=>{ try{ c.clear(); }catch(e){} }); } if(redraw) renderTickets(); };
-function taOnDecode(text){ const S=TKA.scan, now=Date.now(); if(S.busy) return; if(text===S.last&&now-S.lastAt<4000) return; S.last=text; S.lastAt=now; taScanCode(text); }
+function taOnDecode(text){ const S=TKA.scan, now=Date.now(); const gap=now-(S.seenAt||0); S.seenAt=now; if(S.busy) return; if(text===S.last&&gap<2500) return; /* same QR still in front of the camera: keep the first answer (Admit) on screen */ S.last=text; S.lastAt=now; taScanCode(text); }
 async function taScanCode(code){
   const S=TKA.scan; if(!S.ev||S.busy) return; S.busy=true;
   try{
