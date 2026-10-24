@@ -2172,7 +2172,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.10</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.11</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2974,7 +2974,8 @@ function moveDrag(e,variant){
   b.style.left=Math.max(5,Math.min(95,x))+"%";b.style.top=Math.max(5,Math.min(95,y))+"%";
 }
 
-function persistState(){try{localStorage.setItem(KEY+"_cur",currentEventId||"")}catch(e){}}
+window.__evNone=(function(){try{return localStorage.getItem(KEY+"_none")==="1"}catch(e){return false}})();
+function persistState(){try{localStorage.setItem(KEY+"_cur",currentEventId||"");localStorage.setItem(KEY+"_none",(!currentEventId&&window.__evNone)?"1":"0")}catch(e){}}
 function saveDB(){persistState();refreshAll()}
 function toast(m){let t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
 function showView(id,btn){if(id==="admin"&&!isAdmin){toast("You do not have access to the Admin Console.");return}document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("aside button").forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active");if(id==="guests"||id==="cards"||id==="reports")populateEventSelects();refreshAll()}
@@ -3326,9 +3327,9 @@ async function _loadEventsOnce(){
   }
 
   if(currentEventId && !db.events.some(e => e.id === currentEventId)){
-    currentEventId = db.events[0]?.id || null;
+    currentEventId = window.__evNone ? null : (db.events[0]?.id || null);
   }
-  if(!currentEventId && db.events[0]){
+  if(!currentEventId && db.events[0] && !window.__evNone){
     currentEventId = db.events[0].id;
   }
 
@@ -4316,7 +4317,9 @@ function pct(n,d){ return d?Math.round(n/d*100):0; }
 function emptyState(title,text,btn){
   return `<div class="empty"><b>${E(title)}</b>${E(text)}${btn?`<br>${btn}`:''}</div>`;
 }
-const NEED_EVENT = emptyState('Create an event first','This page needs an event. Start by creating your first one.',`<button class="primary" onclick="showView('create')">${ic('plus')}Create event</button>`);
+const NEED_EVENT_CREATE = emptyState('Create an event first','This page needs an event. Start by creating your first one.',`<button class="primary" onclick="showView('create')">${ic('plus')}Create event</button>`);
+const NEED_EVENT_PICK = emptyState('Choose an event','Pick an event from the list above to see this page.','');
+const NEED_EVENT = { toString(){ return (db&&db.events&&db.events.length)?NEED_EVENT_PICK:NEED_EVENT_CREATE; } };
 window.fmtDate = fmtDate;
 
 /* ---------- boot splash ---------- */
@@ -4456,8 +4459,9 @@ window.showView = function(id,btn){
 };
 window.openEventHub = function(id,view){ setCurrentEvent(id); showView(view); };
 window.setCurrentEvent = function(id){
-  if(!id || !getEvent(id)) return;
-  currentEventId=id; persistState(); doRefresh();
+  if(!id){ if(!db.events.length) return; window.__evNone=true; currentEventId=null; }
+  else { if(!getEvent(id)) return; window.__evNone=false; currentEventId=id; }
+  persistState(); doRefresh();
   if(isActive('contributions')) loadContributions();
   if(isActive('wishes')) loadWishes();
 };
@@ -4488,8 +4492,10 @@ document.addEventListener('mousedown',e=>{
 /* ---------- selects ---------- */
 window.populateEventSelects = function(){
   if(currentEventId && !getEvent(currentEventId)) currentEventId=null;
-  if(!currentEventId && db.events[0]) currentEventId=db.events[0].id;
-  const opts = db.events.map(e=>`<option value="${e.id}" ${e.id===currentEventId?'selected':''}>${E(e.name)} — ${E(e.type)}</option>`).join('') || '<option value="">No events yet</option>';
+  if(currentEventId) window.__evNone=false;
+  if(!currentEventId && !window.__evNone && db.events[0]) currentEventId=db.events[0].id;
+  const noneLbl=(typeof invLang==='function'&&invLang()==='en')?'None':'Hakuna';
+  const opts = db.events.length ? (`<option value=""${currentEventId?'':' selected'}>${noneLbl}</option>`+db.events.map(e=>`<option value="${e.id}" ${e.id===currentEventId?'selected':''}>${E(e.name)} — ${E(e.type)}</option>`).join('')) : '<option value="">No events yet</option>';
   ['guestEventSelect','cardEventSelect','reportEventSelect','messageEventSelect','contributionEventSelect','checkinEventSelect','photoEventSelect','seatEventSelect','wishEventSelect','taskEventSelect'].forEach(id=>{
     const s=$(id); if(s && s.innerHTML!==opts) s.innerHTML=opts;
   });
@@ -7247,7 +7253,7 @@ const OFFLINE = (function(){
     currentSupabaseUser=Object.assign({},currentSupabaseUser||{},{id:snap.user.id,email:snap.user.email,offline:true});
     db.events=snap.events.map(e=>Object.assign({},e,{guests:e.guests.map(g=>Object.assign({},g))}));
     applyQueue();
-    if(!currentEventId || !getEvent(currentEventId)) currentEventId=db.events[0]?.id||null;
+    if(!window.__evNone && (!currentEventId || !getEvent(currentEventId))) currentEventId=db.events[0]?.id||null;
     try{ updateAuthUI(); }catch(e){}
     const as=$('authScreen'); if(as) as.style.display='none';
     document.body.classList.add('offline-mode');
@@ -9566,7 +9572,7 @@ function taTabs(){
   return `<div class="co-tabs ta-tabs">${t('events',A_('Matukio yangu','My events'))}${t('scan',A_('Scanner ya mlangoni','Gate scanner'),taCanScan())}${t('admin',A_('Msimamizi (Admin)','Admin'),isAdmin)}
     <a class="ta-pub" href="#tickets" target="_blank" rel="noopener">${ic('external')}${A_('Fungua soko la umma','Open public marketplace')}</a></div>`;
 }
-window.taTab=function(t){ TKA.tab=t; if(t!=='scan') taStopCam(); if(t==='admin') taLoadAdmin(); renderTickets(); if(t==='scan') taScanInit(); };
+window.taTab=function(t){ TKA.tab=t; if(t!=='scan') taStopCam(); if(t==='admin') taLoadAdmin(); if(t==='scan') taScanInit(); renderTickets(); };
 window.renderTickets=function(){
   const box=$('tkBox'); if(!box) return;
   if(!TKA.loaded){ box.innerHTML=`<div class="empty"><b>${A_('Inapakia…','Loading…')}</b></div>`; return; }
@@ -9827,17 +9833,18 @@ const TA_REASON={invalid:['Tiketi si halali','Invalid ticket','Hii si tiketi ya 
 window.taScanThis=function(){ TKA.scan.ev=TKA.cur; TKA.tab='scan'; renderTickets(); taScanInit(); };
 function taScanEvents(){ return (TKA.events||[]).filter(e=>e.status!=='cancelled'); }
 function taScanInit(){
-  const S=TKA.scan; const l=taScanEvents(); if(!S.ev||!l.find(e=>e.id===S.ev)) S.ev=l[0]&&l[0].id||null;
+  const S=TKA.scan; const l=taScanEvents(); if(S.none&&!S.ev){} else if(!S.ev||!l.find(e=>e.id===S.ev)){ S.ev=l[0]&&l[0].id||null; }
   if(S.ev) taScanLive(); clearInterval(S.timer); S.timer=setInterval(()=>{ if(TKA.tab==='scan'&&S.ev&&!document.hidden) taScanLive(); },20000);
 }
 function taScanHtml(){
   const S=TKA.scan, l=taScanEvents();
   if(!l.length) return `<div class="panel"><div class="empty"><b>${A_('Hakuna tukio la kuscan','No event to scan')}</b>${A_('Utaonekana hapa ukiongezwa kama msaidizi wa mlangoni au ukitengeneza tukio.','You appear here when added as gate staff or after you create an event.')}</div></div>`;
+  if(!S.ev) return `<div class="panel"><div class="panel-heading"><div><h2>${A_('Scanner ya mlangoni','Gate scanner')}</h2><p>${A_('Chagua tukio ili kuanza kuscan.','Choose an event to start scanning.')}</p></div></div><div class="form-grid"><div class="field"><label for="taScanEv">${A_('Tukio','Event')}</label><select id="taScanEv" onchange="taScanEvent(this.value)"><option value="" selected>${A_('Hakuna','None')}</option>${l.map(e=>`<option value="${e.id}">${E(e.title)} · ${E(tkDay(e.starts_at))}</option>`).join('')}</select></div></div></div>`;
   const lv=S.live, res=S.res;
   const banner=res?(res.ok?`<div class="ta-res ok" role="status"><b>${ic('check')} ${A_('Ruhusu kuingia','Admit')}</b><span>${E(res.attendee||'')}</span><small>${E(res.type||'')} · ${E(res.number||'')}</small></div>`
     :`<div class="ta-res bad" role="alert"><b>${ic('x')} ${E(taReasonTitle(res.reason))}</b><span>${E(taReasonText(res))}</span>${res.number?`<small>${E(res.type||'')} · ${E(res.number)}${res.attendee?' · '+E(res.attendee):''}</small>`:''}</div>`):`<div class="ta-res idle">${A_('Elekeza kamera kwenye QR ya tiketi.','Point the camera at the ticket QR.')}</div>`;
   return `<div class="panel"><div class="panel-heading"><div><h2>${A_('Scanner ya mlangoni','Gate scanner')}</h2><p>${A_('Inahitaji mtandao: kila tiketi inakaguliwa kwenye seva ili isiingie mara mbili.','Needs a connection: every ticket is checked on the server so it cannot enter twice.')}</p></div></div>
-    <div class="form-grid"><div class="field"><label for="taScanEv">${A_('Tukio','Event')}</label><select id="taScanEv" onchange="taScanEvent(this.value)">${l.map(e=>`<option value="${e.id}"${e.id===S.ev?' selected':''}>${E(e.title)} · ${E(tkDay(e.starts_at))}</option>`).join('')}</select></div>
+    <div class="form-grid"><div class="field"><label for="taScanEv">${A_('Tukio','Event')}</label><select id="taScanEv" onchange="taScanEvent(this.value)"><option value=""${S.ev?'':' selected'}>${A_('Hakuna','None')}</option>${l.map(e=>`<option value="${e.id}"${e.id===S.ev?' selected':''}>${E(e.title)} · ${E(tkDay(e.starts_at))}</option>`).join('')}</select></div>
     <div class="field"><label>${A_('Walioingia','Checked in')}</label><div class="ta-live"><b>${lv?lv.checked_in:'–'}</b><span>/ ${lv?lv.issued:'–'}</span>${lv&&lv.rejected?`<small>${lv.rejected} ${A_('zimekataliwa','rejected')}</small>`:''}</div></div></div>
     ${banner}
     <div class="ta-cam"><div id="tkReader"></div>${S.msg?`<p class="hint-box" style="margin-top:8px">${ic('alert')}<span>${E(S.msg)}</span></p>`:''}
@@ -9850,7 +9857,7 @@ function taScanHtml(){
 const taReasonTitle=r=>{ const m=TA_REASON[r]; return m?m[invLang()==='en'?1:0]:r; };
 const taReasonText=res=>{ let t=(TA_REASON[res.reason]||[])[invLang()==='en'?3:2]||''; if(res.reason==='already_used'&&res.used_at) t+=' '+A_('Iliingia saa ','Scanned at ')+tkTime(res.used_at)+(res.used_by?' ('+res.used_by+')':''); return t; };
 const taOwnsScan=()=>{ const e=taEv(TKA.scan.ev); return !!e&&(e.role==='owner'||e.role==='admin'); };
-window.taScanEvent=function(id){ TKA.scan.ev=id; TKA.scan.res=null; TKA.scan.results=[]; TKA.scan.live=null; renderTickets(); taScanLive(); if(TKA.scan.camOn){ TKA.scan.msg=''; } };
+window.taScanEvent=function(id){ if(!id&&TKA.scan.camOn&&window.taStopCam){ try{ taStopCam(true); }catch(e){} } TKA.scan.none=!id; TKA.scan.ev=id||null; TKA.scan.res=null; TKA.scan.results=[]; TKA.scan.live=null; renderTickets(); taScanLive(); if(TKA.scan.camOn){ TKA.scan.msg=''; } };
 async function taScanLive(){ const S=TKA.scan; if(!S.ev) return; const id=S.ev; const r=await supabaseClient.rpc('tk_event_live',{p_event:id}); if(!r.error&&S.ev===id){ S.live=r.data; if(TKA.tab==='scan') taPatchLive(); } }
 function taPatchLive(){ const keep=document.activeElement&&document.activeElement.id==='taLook'; if(keep) return; const c=document.querySelector('.ta-live'); if(c&&TKA.scan.live) c.innerHTML=`<b>${TKA.scan.live.checked_in}</b><span>/ ${TKA.scan.live.issued}</span>${TKA.scan.live.rejected?`<small>${TKA.scan.live.rejected} ${A_('zimekataliwa','rejected')}</small>`:''}`; }
 const taCamErr=e=>{
@@ -14440,7 +14447,7 @@ window.SW_EXACT = {
 "Guests should reply before":"Wageni wanapaswa kujibu kabla ya","Hide":"Ficha","Import contributors":"Ingiza wachangiaji","Include":"Jumuisha",
 "Invitation could not be opened":"Mwaliko haukuweza kufunguliwa","Invitation not found":"Mwaliko haupatikani","Invitations Sent":"Mialiko iliyotumwa","Method":"Njia",
 "Name (A–Z)":"Jina (A–Z)","No contributions yet.":"Bado hakuna michango.","No contributors yet":"Bado hakuna wachangiaji","No data.":"Hakuna data.","No events":"Hakuna matukio",
-"No events to report yet.":"Bado hakuna matukio ya kuripoti.","No events yet. Create an event first.":"Bado hakuna matukio. Tengeneza tukio kwanza.",
+"No events to report yet.":"Bado hakuna matukio ya kuripoti.","Choose an event":"Chagua tukio","Pick an event from the list above to see this page.":"Chagua tukio kwenye orodha iliyo juu ili kuona ukurasa huu.","No events yet. Create an event first.":"Bado hakuna matukio. Tengeneza tukio kwanza.",
 "No guests match this search or filter.":"Hakuna wageni wanaolingana na utafutaji au kichujio hiki.","No guests yet":"Bado hakuna wageni","No guests yet.":"Bado hakuna wageni.",
 "No payments yet.":"Bado hakuna malipo.","No tables yet":"Bado hakuna meza","Nothing new to import from this file.":"Hakuna kipya cha kuingiza kutoka faili hii.","Offline.":"Nje ya mtandao.",
 "Open Invitation":"Fungua mwaliko","Opens your printer, or choose “Save as PDF”.":"Inafungua printa yako, au chagua “Save as PDF”.","Paid so far":"Kilicholipwa hadi sasa",
