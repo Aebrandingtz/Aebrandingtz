@@ -849,6 +849,7 @@ tr.ct-total td{font-weight:700;background:var(--line-2);border-top:2px solid var
 }
 
 .ct-dl{display:flex;gap:8px;flex-wrap:wrap}
+.ct-more{margin:0 0 16px}.ct-more>summary,.ct-opt>summary{cursor:pointer;font-weight:700;color:var(--blue,#2a3a9e);padding:12px 16px;background:var(--panel,#fff);border:1px solid var(--line,#e3e7ef);border-radius:12px;list-style:none}.ct-opt>summary{padding:8px 12px;font-size:13.5px}.ct-more[open]>summary,.ct-opt[open]>summary{margin-bottom:12px}.ct-more>summary::-webkit-details-marker,.ct-opt>summary::-webkit-details-marker{display:none}.ct-more>summary::before,.ct-opt>summary::before{content:"+ ";font-weight:800}.ct-more[open]>summary::before,.ct-opt[open]>summary::before{content:"\2212 "}
 @media(max-width:640px){.ct-dl{width:100%}.ct-dl button{flex:1;white-space:nowrap}}
 
 .ct-send{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -2172,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.11</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.12</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2309,10 +2310,11 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="guest-bar">
       <div class="search"><svg class="i"><use href="#i-search"/></svg><input id="guestSearchBox" placeholder="Search by name or phone…" oninput="guestSearch=this.value;renderGuests()"></div>
       <select id="guestFilterBox" onchange="guestFilter=this.value;renderGuests()" aria-label="Filter">
-        <option value="All">All guests</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option>
+        <option value="All">All guests</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option><option value="NotSent">Card not sent yet</option>
       </select>
       <span class="spacer"></span>
       <button class="green no-cohost" onclick="openSendCards()"><svg class="i"><use href="#i-send"/></svg>Send cards</button>
+      <button class="primary no-cohost" id="guestResendBtn" onclick="openSendCards('pending')" hidden><svg class="i"><use href="#i-send"/></svg><span id="guestResendTxt">Send to not sent</span></button>
       <button class="gray no-cohost" onclick="openMeals()"><svg class="i"><use href="#i-gift"/></svg>Meal choices</button>
       <button class="gray no-cohost" onclick="openEventPage()"><svg class="i"><use href="#i-eye"/></svg>Event page</button>
       <button class="gray no-cohost" onclick="exportGuestsExcel()"><svg class="i"><use href="#i-download"/></svg>Export</button>
@@ -2397,7 +2399,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <div class="panel">
     <div class="channel-pick">
       <div class="field"><label for="messageChannel">Channel</label><select id="messageChannel" onchange="renderMessagingHelp()"><option value="whatsapp">WhatsApp</option><option value="sms">SMS</option></select></div>
-      <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Guests not yet invited</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="attending">Said Yes, not arrived yet (event-day reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
+      <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Not sent yet (includes those it did not reach)</option><option value="sms_unsent">SMS did not go through / not sent by SMS</option><option value="wa_unsent">Not sent by WhatsApp</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="attending">Said Yes, not arrived yet (event-day reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
     </div>
     <div class="field"><label for="bulkMessage">Message</label><textarea id="bulkMessage" rows="6" oninput="this.dataset.dirty='1'"></textarea></div>
     <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{day}}</code> <code>{{time}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{map}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
@@ -2483,8 +2485,10 @@ body.svc-photog #collNavGroup{display:block!important}
       <div class="field"><label for="ctPhone">Phone <span class="optional">Optional</span></label><input id="ctPhone" type="tel" placeholder="0712 345 678"></div>
       <div class="field"><label for="ctPledge">Pledged amount (TZS)</label><input id="ctPledge" inputmode="numeric" placeholder="e.g. 200,000"></div>
       <div class="field"><label for="ctPaidNow">Paid so far (TZS) <span class="optional">Optional</span></label><input id="ctPaidNow" inputmode="numeric" placeholder="e.g. 50,000"></div>
+      <details class="ct-opt full" style="grid-column:1/-1"><summary>More options (due date, payment reference)</summary><div class="pay-grid" style="margin-top:10px">
       <div class="field"><label for="ctDue">Pledge due date <span class="optional">Optional</span></label><input id="ctDue" type="date"></div>
       <div class="field"><label for="ctRef">Transaction reference <span class="optional">Optional</span></label><input id="ctRef" maxlength="60" placeholder="e.g. M-Pesa code" autocomplete="off"></div>
+      </div></details>
       <div class="field"><label for="ctMethod">Payment method</label><select id="ctMethod"><option>Cash</option><option>M-Pesa</option><option>Tigo Pesa</option><option>Airtel Money</option><option>Halopesa</option><option>Bank transfer</option></select></div>
     </div>
     <div class="toolbar" style="margin-top:16px"><button class="primary" onclick="saveContributor()"><svg class="i"><use href="#i-check"/></svg>Save contributor</button></div>
@@ -2501,6 +2505,7 @@ body.svc-photog #collNavGroup{display:block!important}
     <div id="contribListBox"></div>
     <input type="file" id="ctImportFile" accept=".xlsx,.xls,.csv" hidden onchange="ctImportFileChosen(this)">
   </div>
+  <details class="ct-more no-cohost"><summary>Advanced: transaction ledger and activity log</summary>
   <div class="panel no-cohost">
     <div class="panel-heading"><div><h2>Transaction ledger</h2><p>Every money movement in order, with the running balance: payments, reversals, refunds and paid expenses.</p></div><div class="ct-dl"><button class="gray sm" onclick="ctLedgerLoad()"><svg class="i"><use href="#i-search"/></svg>Show ledger</button><button class="gray sm" onclick="ctLedgerCsv()"><svg class="i"><use href="#i-download"/></svg>Download CSV</button></div></div>
     <div class="ct-lf"><select id="lgType" aria-label="Type" onchange="ctLedgerRender()"><option value="">All types</option><option value="payment">Payments</option><option value="reversal">Reversals</option><option value="refund">Refunds</option><option value="expense">Expenses</option><option value="expense_void">Voided expenses</option></select><input id="lgQ" placeholder="Search name, reference or method…" oninput="ctLedgerRender()" aria-label="Search"><input id="lgFrom" type="date" onchange="ctLedgerRender()" aria-label="From date"><input id="lgTo" type="date" onchange="ctLedgerRender()" aria-label="To date"><input id="lgMin" inputmode="numeric" placeholder="Min amount" oninput="ctLedgerRender()" aria-label="Minimum amount"></div>
@@ -2510,8 +2515,9 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="panel-heading"><div><h2>Activity log</h2><p>Who recorded, confirmed, reversed or adjusted money, and why. Only the owner and treasurer can see this.</p></div><button class="gray sm" onclick="ctLoadAudit()"><svg class="i"><use href="#i-search"/></svg>Show activity</button></div>
     <div id="ctAuditBox"></div>
   </div>
+  </details>
   <div class="panel">
-    <div class="panel-heading"><div><h2>Budget &amp; expenses</h2><p>Request an expense. The owner or treasurer approves it and records the payment; only paid expenses are deducted from the money collected.</p></div></div>
+    <div class="panel-heading"><div><h2>Budget &amp; expenses</h2><p>Record what was spent. Expenses marked as paid are deducted from the money collected and appear in every report.</p></div></div>
     <div class="pay-grid">
       <div class="field"><label for="exDesc">What was it for?</label><input id="exDesc" placeholder="e.g. Hall booking" autocomplete="off"></div>
       <div class="field"><label for="exCat">Category</label><select id="exCat"><option>Venue</option><option>Food &amp; drinks</option><option>Cake</option><option>Decoration</option><option>Flowers</option><option>Photo &amp; Video</option><option>Music / MC</option><option>Tents &amp; chairs</option><option>Attire &amp; makeup</option><option>Transport</option><option>Printing</option><option>Gifts &amp; souvenirs</option><option>Security &amp; ushers</option><option>Accommodation</option><option>Church / offering</option><option>Other</option></select></div>
@@ -2520,10 +2526,10 @@ body.svc-photog #collNavGroup{display:block!important}
       <div class="field"><label for="exPayee">Paid to <span class="optional">Optional</span></label><input id="exPayee" placeholder="e.g. Karimjee Hall" autocomplete="off" maxlength="80"></div>
     </div>
     <div class="no-cohost" style="margin-top:12px">
-      <label class="ct-chk"><input type="checkbox" id="exPaidNow"> <span>Already paid: approve and record the payment now</span></label>
+      <label class="ct-chk"><input type="checkbox" id="exPaidNow" checked> <span>Already paid (deduct it from the money collected now). Untick only if it is just a request.</span></label>
       <div class="pay-grid" style="margin-top:8px"><div class="field"><label for="exMethod">Payment method</label><select id="exMethod"><option>Cash</option><option>M-Pesa</option><option>Tigo Pesa</option><option>Airtel Money</option><option>Halopesa</option><option>Bank transfer</option></select></div><div class="field"><label for="exRef">Transaction reference <span class="optional">Optional</span></label><input id="exRef" maxlength="60" autocomplete="off"></div></div>
     </div>
-    <div class="toolbar" style="margin-top:16px"><button class="primary" onclick="saveExpense()"><svg class="i"><use href="#i-check"/></svg>Request expense</button><span id="exStatus" class="help"></span></div>
+    <div class="toolbar" style="margin-top:16px"><button class="primary" onclick="saveExpense()"><svg class="i"><use href="#i-check"/></svg>Save expense</button><span id="exStatus" class="help"></span></div>
     <div id="expenseListBox" style="margin-top:14px"></div>
     <div id="budgetPlanBox" style="margin-top:22px"></div>
   </div>
@@ -4744,12 +4750,13 @@ window.renderGuests = function(){ sortGuests();
   const sum=$('guestSummary');
   if(!ev){ tb.innerHTML=`<tr><td colspan="6" class="empty">${db.events.length?'Choose an event.':'Create an event first, then add guests here.'}</td></tr>`; if(sum) sum.textContent=''; return; }
   cardFilterFill(ev);
+  { const rb=$('guestResendBtn'); if(rb){ const nn=ev.guests.filter(g=>!g.sent&&normalizeTzPhone(g.phone).replace(/\D/g,'').length>=9).length; rb.hidden=!nn; const t=$('guestResendTxt'); if(t) t.textContent='Send cards to those not sent ('+nn+')'; } }
   const st=reportStats(ev);
   if(sum) sum.textContent = st.total ? `${st.total} guests · ${st.sent} invited · ${st.att} attending · ${st.checked} arrived` : 'No guests in this event yet.';
   const q=(window.guestSearch||'').trim().toLowerCase(), f=window.guestFilter||'All';
   const list=ev.guests.filter(g=>{
     const m=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.table||'').toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q);
-    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn);
+    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn)||(f==='NotSent'&&!g.sent);
     return m&&ok;
   });
   if(!list.length){
@@ -5098,7 +5105,7 @@ window.buildGuestMessage = function(ev,g){ return fillTemplate(buildBulkTemplate
 function audienceList(ev){ sortGuests();
   const a=$('messageAudience')?.value||'pending';
   if(a.startsWith('ct_')) return ctAudience(ev,a);
-  return ev.guests.filter(g=>a==='arrived'?g.checkedIn:a==='absent'?(g.sent&&!g.checkedIn):a==='pending'?!g.sent:a==='noreply'?(g.sent&&(!g.rsvp||g.rsvp==='Pending')):a==='attending'?(g.rsvp==='Yes'&&!g.checkedIn):a==='single'?cardLabel(g)==='Single':a==='double'?cardLabel(g)==='Double':a.startsWith('card:')?cardLabel(g)===a.slice(5):true);
+  return ev.guests.filter(g=>a==='arrived'?g.checkedIn:a==='absent'?(g.sent&&!g.checkedIn):a==='pending'?!g.sent:a==='sms_unsent'?!g.sent_sms:a==='wa_unsent'?!g.sent_whatsapp:a==='noreply'?(g.sent&&(!g.rsvp||g.rsvp==='Pending')):a==='attending'?(g.rsvp==='Yes'&&!g.checkedIn):a==='single'?cardLabel(g)==='Single':a==='double'?cardLabel(g)==='Double':a.startsWith('card:')?cardLabel(g)===a.slice(5):true);
 }
 window.renderMessagingHelp = function(){
   window.messageProviderStatus();
@@ -5126,9 +5133,9 @@ window.renderMessaging = function(){
   if(isCtAud()) ctEnsure(ev.id).then(()=>{ if(isCtAud()){ renderMessagingHelp(); const m=$('bulkMessage'); if(m&&!m.dataset.dirty) m.value=buildBulkTemplate(ev); } });
 };
 window.messageProviderStatus = function(){ const el=document.getElementById('messageProviderStatus'); if(el) el.textContent='Choose a channel, review the message, then send it to the selected guests.'; };
-window.logGuestMessage = async function(ev,g,channel,message,status='Sent',providerMessageId=null){
+window.logGuestMessage = async function(ev,g,channel,message,status='Sent',providerMessageId=null,errorMessage=null){
   if(!supabaseClient||!currentSupabaseUser||(g&&g._ct)) return;
-  try{ const {error}=await supabaseClient.from('message_logs').insert({event_id:ev.id,guest_id:g.id,channel,status,provider_message_id:providerMessageId,message}); if(error) throw error; }
+  try{ const {error}=await supabaseClient.from('message_logs').insert({event_id:ev.id,guest_id:g.id,channel,status,provider_message_id:providerMessageId,message,error_message:errorMessage?String(errorMessage).slice(0,300):null}); if(error) throw error; }
   catch(err){ console.warn('message_logs:',err?.message||err); }
 };
 const _sendViaApi = window.sendViaApi;
@@ -5178,16 +5185,16 @@ window.manualSend = function(channel,gid,btn){
   refreshAll();
 };
 /* ----- V103: send every guest their card from the Guests page ----- */
-const SC_AUD=[['all','All guests'],['pending','Guests not yet invited'],['noreply','Invited, no reply yet']];
+const SC_AUD=[['pending','Not sent yet (includes those it did not reach)'],['all','All guests'],['noreply','Invited, no reply yet']];
 function scValid(g){ return normalizeTzPhone(g.phone).replace(/\D/g,'').length>=9; }
 function scCount(ev,a){ return ev.guests.filter(g=>scValid(g)&&(a==='all'||(a==='pending'&&!g.sent)||(a==='noreply'&&g.sent&&(!g.rsvp||g.rsvp==='Pending')))).length; }
-window.openSendCards=function(){
+window.openSendCards=function(pre){
   const ev=getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
   if(!ev.guests.length) return toast('Add guests first.');
   const nop=ev.guests.filter(g=>!scValid(g)).length;
   $('contribModalBox').innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
     <div class="guest-modal-head"><div class="guest-modal-icon">${ic('send')}</div><div><h2>Send cards to guests</h2><p>${E(ev.name)}</p></div></div>
-    <div class="field"><label for="scAud">Who should receive their card?</label><select id="scAud" onchange="scRefresh()">${SC_AUD.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></div>
+    <div class="field"><label for="scAud">Who should receive their card?</label><select id="scAud" onchange="scRefresh()">${SC_AUD.map(([v,l])=>`<option value="${v}"${v===(pre||(scCount(ev,'pending')>0?'pending':'all'))?' selected':''}>${l}</option>`).join('')}</select></div>
     <div id="scInfo" class="help" style="margin:10px 0 14px"></div>
     <div class="hint-box">${ic('info')}<span>Each guest gets a message with their own card link (it shows the invitation, their name and the QR code for the door). If automatic sending is not connected, WhatsApp or the SMS app opens on your phone for each guest.</span></div>
     <div class="guest-form-actions"><button class="gray" onclick="closeContributor()">Cancel</button><button class="green" onclick="scGo('whatsapp')">${ic('whatsapp')}WhatsApp</button><button class="primary" onclick="scGo('sms')">${ic('message')}SMS</button></div>`;
@@ -5223,7 +5230,7 @@ window.sendBulkMessages = async function(){
   if(!ok) return;
   const btn=$('sendBulkBtn'), progress=$('messageProgress'), results=$('messageResults');
   btn.disabled=true; results.innerHTML='';
-  let sentOk=0; const pending=[]; let lastErr='';
+  let sentOk=0; const pending=[]; let lastErr=''; const whyBy={};
   for(let i=0;i<list.length;i++){
     const g=list[i];
     if(window.__apiOff){ pending.push(g); continue; }
@@ -5231,7 +5238,7 @@ window.sendBulkMessages = async function(){
     const message=fillTemplate(tpl,ev,g);
     const r=await sendViaApi(channel,ev,g,normalizeTzPhone(g.phone),message);
     if(r.ok){ sentOk++; markSent(g,channel); logGuestMessage(ev,g,label,message,'Sent',r.provider_message_id); }
-    else{ pending.push(g); lastErr=String(r.error?.message||r.error||''); }
+    else{ pending.push(g); lastErr=String(r.error?.message||r.error||''); whyBy[g.id]=lastErr; if(!g._ct) logGuestMessage(ev,g,label,message,'Failed',null,lastErr); }
     await new Promise(r=>setTimeout(r,150));
   }
   btn.disabled=false; doRefresh();
@@ -5241,7 +5248,8 @@ window.sendBulkMessages = async function(){
     progress.textContent='';
     const why = window.__apiOff ? `Automatic ${label} sending is not connected in this system.` : `${pending.length} ${isCtAud()?'contributors':'guests'} could not be sent automatically (${lastErr||'provider error'}).`;
     html+=`<div class="result-note warn">${ic('info')} ${E(why)} Click <b>Open ${label}</b> for each ${isCtAud()?'person':'guest'} — the message is pre-written on your phone and you only press Send.</div>
-      <div class="queue">${pending.map(g=>`<div class="queue-item"><div class="who"><b>${E(g.name)}</b><span>${E(g.phone)}</span></div><button class="${channel==='whatsapp'?'green':'primary'} sm" onclick="manualSend('${channel}','${g.id}',this)">${ic(channel==='whatsapp'?'whatsapp':'message')}Open ${label}</button></div>`).join('')}</div>`;
+      <div class="queue">${pending.map(g=>`<div class="queue-item"><div class="who"><b>${E(g.name)}</b><span>${E(g.phone)}</span>${whyBy[g.id]?`<span style="color:#b45309;font-size:12px">${E(whyBy[g.id])}</span>`:''}</div><button class="${channel==='whatsapp'?'green':'primary'} sm" onclick="manualSend('${channel}','${g.id}',this)">${ic(channel==='whatsapp'?'whatsapp':'message')}Open ${label}</button></div>`).join('')}</div>`;
+    if(sentOk&&!isCtAud()) html+=`<div class="help" style="margin-top:8px">To try again only for the people it did not reach, choose <b>Not sent yet</b> in Recipients and send again.</div>`;
   }else progress.textContent=`Done: ${sentOk} sent.`;
   results.innerHTML=html;
 };
@@ -5621,7 +5629,9 @@ window.downloadContributors = function(){
   people.forEach(x=>x.rows.slice().reverse().forEach(p=>pay.push([pay.length,p.created_at?new Date(p.created_at).toLocaleDateString('en-GB'):'',x.name,x.phone||'',Number(p.amount),p.provider_reference||p.provider||''])));
   const exp=[['No.','Date','Description','Category','Amount (TZS)']];
   ctPaidExp().slice().sort((a,b)=>String(a.spent_on).localeCompare(String(b.spent_on))).forEach(e=>exp.push([exp.length,e.spent_on||'',e.description,e.category||'',Number(e.amount)]));
-  exp.push([]); exp.push(['','','TOTAL EXPENSES','',spent]);
+  exp.push([]); exp.push(['','','TOTAL EXPENSES (paid)','',spent]);
+  const waitX=(CT.expenses||[]).filter(x=>x.status==='requested'||x.status==='approved');
+  if(waitX.length){ exp.push([]); exp.push(['','','NOT YET PAID (not counted above)','','']); waitX.forEach(e=>exp.push(['',e.spent_on||'',e.description,e.category||'',Number(e.amount)])); }
   const base=(ev.name||'event').replace(/[^\w.-]+/g,'_')+'-contribution-report';
   if(window.XLSX){
     const wb=XLSX.utils.book_new(), add=(aoa,name,cols)=>{ const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=cols.map(w=>({wch:w})); XLSX.utils.book_append_sheet(wb,ws,name); };
@@ -5640,7 +5650,7 @@ function renderExpenses(){
   if(!ev||!CT.loaded||CT.eventId!==ev.id){ box.innerHTML=''; return; }
   if(CT.expensesOk===false){ box.innerHTML=`<div class="hint-box">${ic('alert')}<span>The expenses table is not set up yet. Run the expenses SQL file in Supabase.</span></div>`; return; }
   const list=CT.expenses||[];
-  if(!list.length){ box.innerHTML=emptyState('No expenses yet','Request an expense: the owner or treasurer approves it, then it is paid and deducted from the money collected.'); return; }
+  if(!list.length){ box.innerHTML=emptyState('No expenses yet','Add what was spent above. It is deducted from the money collected and appears in the reports.'); return; }
   const paid=ctPaidExp(), waiting=list.filter(x=>x.status==='requested'||x.status==='approved');
   const by={}; paid.forEach(x=>{ const k=x.category||'Other'; by[k]=(by[k]||0)+Number(x.amount||0); });
   const rank={requested:0,approved:1,paid:2,rejected:3,cancelled:3,voided:3};
@@ -5709,12 +5719,12 @@ window.saveExpense = async function(){
   const description=$('exDesc').value.trim(), amount=numIn($('exAmount').value);
   if(!description) return toast('Please say what the money was spent on.'); if(amount<=0) return toast('Please enter the amount spent.');
   const ref=(($('exRef')||{}).value||'').trim(); if(ref&&(ref.length<3||ref.length>60)) return toast(ctErr('bad_ref'));
-  const payNow=!!($('exPaidNow')&&$('exPaidNow').checked);
+  const payNow=!!($('exPaidNow')&&$('exPaidNow').checked)&&!(typeof isCoHost==='function'&&isCoHost());
   const st=$('exStatus'); st.textContent='Saving…';
   const res=await exCreate({event_id:ev.id,description,category:$('exCat').value,amount,payee:(($('exPayee')||{}).value||'').trim()||null,spent_on:$('exDate').value||ctToday()},payNow,($('exMethod')||{}).value||'Cash',ref);
   if(res.error){ st.textContent='Not saved: '+ctErr(res.error); return; }
-  ['exDesc','exAmount','exPayee','exRef'].forEach(i=>{ if($(i)) $(i).value=''; }); if($('exPaidNow')) $('exPaidNow').checked=false;
-  st.textContent=res.note?`${description} was requested but not paid. ${res.note}`:(payNow?`${description} paid.`:`${description} requested.`);
+  ['exDesc','exAmount','exPayee','exRef'].forEach(i=>{ if($(i)) $(i).value=''; }); if($('exPaidNow')) $('exPaidNow').checked=true;
+  st.textContent=res.note?`${description} was saved but not marked as paid. ${res.note}`:(payNow?`${description} saved and counted.`:`${description} requested (not counted until it is paid).`);
   await loadContributions();
 };
 /* ----- V98: add a payment (expense) straight into one category ----- */
@@ -5724,12 +5734,12 @@ window.openExpenseFor = function(cat){
   const spent=ctPaidExp().filter(x=>(x.category||'Other')===cat).reduce((n,x)=>n+Number(x.amount||0),0);
   const plan=(typeof BUD!=='undefined'&&BUD.rows&&BUD.rows[cat])||0;
   $('contribModalBox').innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
-    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('wallet')}</div><div><h2>Request expense · ${E(cat)}</h2><p>${plan?`Planned ${money(plan)} · Spent so far ${money(spent)}`:`Spent so far ${money(spent)}`}</p></div></div>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('wallet')}</div><div><h2>Add expense · ${E(cat)}</h2><p>${plan?`Planned ${money(plan)} · Spent so far ${money(spent)}`:`Spent so far ${money(spent)}`}</p></div></div>
     <div class="guest-form-grid"><div class="field full"><label for="xfDesc">What was it for?</label><input id="xfDesc" placeholder="e.g. Deposit" autocomplete="off"></div>
     <div class="field"><label for="xfAmount">Amount (TZS)</label><input id="xfAmount" inputmode="numeric" placeholder="e.g. 150,000"></div>
     <div class="field"><label for="xfDate">Date</label><input id="xfDate" type="date" value="${ctToday()}"></div></div>
-    <div class="no-cohost"><div class="ct-pay2" style="margin-top:8px"><select id="xfMethod" aria-label="Method">${EX_METHODS.map(m=>`<option>${m}</option>`).join('')}</select></div><label class="ct-chk"><input type="checkbox" id="xfPaidNow"> <span>Already paid: approve and record the payment now</span></label></div>
-    <div class="guest-form-actions"><span id="xfStatus" class="muted" style="margin-right:auto;font-size:13px"></span><button class="gray" onclick="closeContributor()">Cancel</button><button class="primary" onclick="saveExpenseFor(${jq(cat)})">${ic('check')}Request expense</button></div>`;
+    <div class="no-cohost"><div class="ct-pay2" style="margin-top:8px"><select id="xfMethod" aria-label="Method">${EX_METHODS.map(m=>`<option>${m}</option>`).join('')}</select></div><label class="ct-chk"><input type="checkbox" id="xfPaidNow" checked> <span>Already paid (deduct it from the money collected now). Untick only if it is just a request.</span></label></div>
+    <div class="guest-form-actions"><span id="xfStatus" class="muted" style="margin-right:auto;font-size:13px"></span><button class="gray" onclick="closeContributor()">Cancel</button><button class="primary" onclick="saveExpenseFor(${jq(cat)})">${ic('check')}Save expense</button></div>`;
   $('contribModal').classList.add('open'); setTimeout(()=>{ const a=$('xfDesc'); if(a) a.focus(); },60);
 };
 window.saveExpenseFor = async function(cat){
@@ -5738,10 +5748,10 @@ window.saveExpenseFor = async function(cat){
   const description=$('xfDesc').value.trim()||cat, amount=numIn($('xfAmount').value);
   if(amount<=0) return toast('Please enter the amount spent.');
   const st=$('xfStatus'); st.textContent='Saving…';
-  const payNow=!!($('xfPaidNow')&&$('xfPaidNow').checked);
+  const payNow=!!($('xfPaidNow')&&$('xfPaidNow').checked)&&!(typeof isCoHost==='function'&&isCoHost());
   const res=await exCreate({event_id:ev.id,description,category:cat,amount,spent_on:$('xfDate').value||ctToday()},payNow,($('xfMethod')||{}).value||'Cash','');
   if(res.error){ st.textContent='Not saved: '+ctErr(res.error); return; }
-  closeContributor(); await loadContributions(); toast(res.note?`${money(amount)} requested for ${cat}, but not paid. ${res.note}`:(payNow?`${money(amount)} paid for ${cat}.`:`${money(amount)} requested for ${cat}.`));
+  closeContributor(); await loadContributions(); toast(res.note?`${money(amount)} saved for ${cat}, but not marked as paid. ${res.note}`:(payNow?`${money(amount)} saved for ${cat} and counted.`:`${money(amount)} requested for ${cat} (not counted until it is paid).`));
 };
 window.deleteExpense = async function(id){
   const x=CT.expenses.find(e=>e.id===id); if(!x) return;
@@ -5937,6 +5947,15 @@ window.downloadContributorsPdf = async function(){
         styles:{font:'helvetica',fontSize:9,cellPadding:4.5,textColor:[30,35,50]}, headStyles:{fillColor:[120,53,15],textColor:255,fontStyle:'bold'}, footStyles:{fillColor:[245,232,222],textColor:[20,25,40],fontStyle:'bold'}, alternateRowStyles:{fillColor:[252,249,246]},
         columnStyles:{0:{cellWidth:22,halign:'center'},4:{halign:'right'}}, didParseCell:d=>{ if(d.section!=='body'&&d.column.index===4) d.cell.styles.halign='right'; } });
       y=doc.lastAutoTable.finalY+26;
+    }
+    const waitX=(CT.expenses||[]).filter(x=>x.status==='requested'||x.status==='approved');
+    if(waitX.length){
+      if(y>H-150){ doc.addPage(); y=50; }
+      doc.setTextColor(160,100,10); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+      doc.text(pdfTxt(`Not yet paid (not counted above): ${waitX.length} expense${waitX.length===1?'':'s'}, TZS ${n(waitX.reduce((a,e)=>a+Number(e.amount||0),0))}`),M,y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,110,130);
+      waitX.slice(0,6).forEach((e,i)=>doc.text(pdfTxt(`- ${e.description} (${e.category||'Other'}) TZS ${n(e.amount)}`),M+8,y+14+i*12));
+      y+=18+Math.min(waitX.length,6)*12+10;
     }
     if(y>H-130){ doc.addPage(); y=60; }
     doc.setFillColor(243,245,250); doc.roundedRect(M,y,W-2*M,56,6,6,'F'); doc.setTextColor(30,35,50); doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
@@ -6909,6 +6928,8 @@ window.saveAccount = async function(){
 /* ---------- onAudienceChange (reminder template) ---------- */
 window.onAudienceChange = function(){
   const msg=$('bulkMessage'), ev=getEvent(currentEventId);
+  const au=$('messageAudience')?.value, chn=$('messageChannel');
+  if(chn&&au==='sms_unsent') chn.value='sms'; if(chn&&au==='wa_unsent') chn.value='whatsapp';
   if(msg && ev && !msg.dataset.dirty) msg.value=buildBulkTemplate(ev);
   renderMessagingHelp();
 };
@@ -14953,7 +14974,7 @@ Object.assign(window.SW_EXACT,{"Sends pledged, paid and balance.":"Inatuma ahadi
 window.SW_PAT.push(["Pay the full balance ({0})","Lipa salio lote ({0})"]);
 
 /* V127 expenses workflow + ledger */
-Object.assign(window.SW_EXACT,{"Expenses waiting": "Matumizi yanasubiri", "Available balance": "Salio lililopo", "Collected − paid expenses": "Zilizokusanywa − matumizi yaliyolipwa", "Request an expense. The owner or treasurer approves it and records the payment; only paid expenses are deducted from the money collected.": "Omba matumizi. Mmiliki au mhazini anayaidhinisha na kurekodi malipo; ni matumizi yaliyolipwa tu ndiyo yanayokatwa kwenye pesa iliyokusanywa.", "Request expense": "Omba matumizi", "Paid to": "Amelipwa", "e.g. Karimjee Hall": "mf. Ukumbi wa Karimjee", "Already paid: approve and record the payment now": "Tayari yamelipwa: idhinisha na rekodi malipo sasa", "Request an expense: the owner or treasurer approves it, then it is paid and deducted from the money collected.": "Omba matumizi: mmiliki au mhazini anayaidhinisha, kisha yanalipwa na kukatwa kwenye pesa iliyokusanywa.", "Requested": "Yameombwa", "Rejected": "Yamekataliwa", "Cancelled": "Yamefutwa", "Voided": "Yamebatilishwa", "Reject": "Kataa", "Pay": "Lipa", "Void": "Batilisha", "Reject this expense?": "Kukataa matumizi haya?", "Cancel this expense?": "Kughairi matumizi haya?", "Void this paid expense?": "Kubatilisha matumizi haya yaliyolipwa?", "Cancel expense": "Ghairi matumizi", "Void expense": "Batilisha matumizi", "will not be paid.": "hayatalipwa.", "Record payment": "Rekodi malipo", "Mark as paid": "Weka kama yamelipwa", "Expense approved. Press Pay when it has been paid.": "Matumizi yameidhinishwa. Bonyeza \"Lipa\" yakishalipwa.", "Expense rejected.": "Matumizi yamekataliwa.", "Expense cancelled.": "Matumizi yamefutwa.", "Expense voided.": "Matumizi yamebatilishwa.", "Expense paid and deducted.": "Matumizi yamelipwa na kukatwa.", "Transaction ledger": "Daftari la miamala", "Every money movement in order, with the running balance: payments, reversals, refunds and paid expenses.": "Kila mwendo wa pesa kwa mpangilio, pamoja na salio linaloendelea: malipo, ubatilishaji, marejesho na matumizi yaliyolipwa.", "Show ledger": "Onyesha daftari", "Download CSV": "Pakua CSV", "All types": "Aina zote", "Payments": "Malipo", "Reversals": "Ubatilishaji", "Refunds": "Marejesho", "Voided expenses": "Matumizi yaliyobatilishwa", "Search name, reference or method…": "Tafuta jina, namba au njia…", "Min amount": "Kiasi cha chini", "From date": "Kuanzia tarehe", "To date": "Hadi tarehe", "Received": "Imepokelewa", "Reversed / refunded": "Imebatilishwa / imerudishwa", "Reference": "Namba ya muamala", "Payment": "Malipo", "Reversal": "Ubatilishaji", "Expense": "Matumizi", "Expense voided": "Matumizi yamebatilishwa", "No transactions yet": "Bado hakuna miamala", "Payments, refunds and paid expenses will appear here.": "Malipo, marejesho na matumizi yaliyolipwa yataonekana hapa.", "No matches": "Hakuna zinazolingana", "Change the filters.": "Badilisha vichujio.", "Press \"Show ledger\" first.": "Bonyeza \"Onyesha daftari\" kwanza.", "verified": "imethibitishwa", "pending": "inasubiri", "reversed": "imebatilishwa", "recorded": "imerekodiwa", "paid": "imelipwa", "voided": "imebatilishwa", "Contribution received": "Mchango uliopokelewa", "Expense requested": "Matumizi yameombwa", "Expense approved": "Matumizi yameidhinishwa", "Expense paid": "Matumizi yamelipwa", "Expense rejected": "Matumizi yamekataliwa", "Expense cancelled": "Matumizi yamefutwa", "Expense added": "Matumizi yameongezwa", "This expense is locked. Use Cancel or Void with a reason.": "Matumizi haya yamefungwa. Tumia \"Ghairi\" au \"Batilisha\" pamoja na sababu.", "You cannot approve your own request. Ask the event owner.": "Huwezi kuidhinisha ombi lako mwenyewe. Mwombe mmiliki wa tukio.", "Please choose how it was paid.": "Tafadhali chagua njia ya malipo.", "Please say what the money is for.": "Tafadhali eleza pesa ni ya nini.", "This item cannot be changed in its current state.": "Hili haliwezi kubadilishwa katika hali yake ya sasa."});
+Object.assign(window.SW_EXACT,{"Save expense":"Hifadhi matumizi","Not sent yet (includes those it did not reach)":"Hazijatumwa bado (pamoja na ambao haikuwafikia)","SMS did not go through / not sent by SMS":"SMS haikufika / haijatumwa kwa SMS","Not sent by WhatsApp":"Haijatumwa kwa WhatsApp","Card not sent yet":"Kadi haijatumwa bado","More options (due date, payment reference)":"Zaidi (tarehe ya mwisho, kumbukumbu ya malipo)","Advanced: transaction ledger and activity log":"Zaidi: leja ya miamala na kumbukumbu ya shughuli","Add what was spent above. It is deducted from the money collected and appears in the reports.":"Andika matumizi hapo juu. Yanapunguzwa kwenye pesa zilizokusanywa na yanaonekana kwenye ripoti.","Record what was spent. Expenses marked as paid are deducted from the money collected and appear in every report.":"Andika matumizi. Yaliyowekwa kama yamelipwa yanapunguzwa kwenye pesa zilizokusanywa na yanaonekana kwenye kila ripoti.","Already paid (deduct it from the money collected now). Untick only if it is just a request.":"Tayari yamelipwa (yapunguzwe sasa kwenye pesa zilizokusanywa). Ondoa tiki kama ni ombi tu.","Expenses waiting": "Matumizi yanasubiri", "Available balance": "Salio lililopo", "Collected − paid expenses": "Zilizokusanywa − matumizi yaliyolipwa", "Request an expense. The owner or treasurer approves it and records the payment; only paid expenses are deducted from the money collected.": "Omba matumizi. Mmiliki au mhazini anayaidhinisha na kurekodi malipo; ni matumizi yaliyolipwa tu ndiyo yanayokatwa kwenye pesa iliyokusanywa.", "Request expense": "Omba matumizi", "Paid to": "Amelipwa", "e.g. Karimjee Hall": "mf. Ukumbi wa Karimjee", "Already paid: approve and record the payment now": "Tayari yamelipwa: idhinisha na rekodi malipo sasa", "Request an expense: the owner or treasurer approves it, then it is paid and deducted from the money collected.": "Omba matumizi: mmiliki au mhazini anayaidhinisha, kisha yanalipwa na kukatwa kwenye pesa iliyokusanywa.", "Requested": "Yameombwa", "Rejected": "Yamekataliwa", "Cancelled": "Yamefutwa", "Voided": "Yamebatilishwa", "Reject": "Kataa", "Pay": "Lipa", "Void": "Batilisha", "Reject this expense?": "Kukataa matumizi haya?", "Cancel this expense?": "Kughairi matumizi haya?", "Void this paid expense?": "Kubatilisha matumizi haya yaliyolipwa?", "Cancel expense": "Ghairi matumizi", "Void expense": "Batilisha matumizi", "will not be paid.": "hayatalipwa.", "Record payment": "Rekodi malipo", "Mark as paid": "Weka kama yamelipwa", "Expense approved. Press Pay when it has been paid.": "Matumizi yameidhinishwa. Bonyeza \"Lipa\" yakishalipwa.", "Expense rejected.": "Matumizi yamekataliwa.", "Expense cancelled.": "Matumizi yamefutwa.", "Expense voided.": "Matumizi yamebatilishwa.", "Expense paid and deducted.": "Matumizi yamelipwa na kukatwa.", "Transaction ledger": "Daftari la miamala", "Every money movement in order, with the running balance: payments, reversals, refunds and paid expenses.": "Kila mwendo wa pesa kwa mpangilio, pamoja na salio linaloendelea: malipo, ubatilishaji, marejesho na matumizi yaliyolipwa.", "Show ledger": "Onyesha daftari", "Download CSV": "Pakua CSV", "All types": "Aina zote", "Payments": "Malipo", "Reversals": "Ubatilishaji", "Refunds": "Marejesho", "Voided expenses": "Matumizi yaliyobatilishwa", "Search name, reference or method…": "Tafuta jina, namba au njia…", "Min amount": "Kiasi cha chini", "From date": "Kuanzia tarehe", "To date": "Hadi tarehe", "Received": "Imepokelewa", "Reversed / refunded": "Imebatilishwa / imerudishwa", "Reference": "Namba ya muamala", "Payment": "Malipo", "Reversal": "Ubatilishaji", "Expense": "Matumizi", "Expense voided": "Matumizi yamebatilishwa", "No transactions yet": "Bado hakuna miamala", "Payments, refunds and paid expenses will appear here.": "Malipo, marejesho na matumizi yaliyolipwa yataonekana hapa.", "No matches": "Hakuna zinazolingana", "Change the filters.": "Badilisha vichujio.", "Press \"Show ledger\" first.": "Bonyeza \"Onyesha daftari\" kwanza.", "verified": "imethibitishwa", "pending": "inasubiri", "reversed": "imebatilishwa", "recorded": "imerekodiwa", "paid": "imelipwa", "voided": "imebatilishwa", "Contribution received": "Mchango uliopokelewa", "Expense requested": "Matumizi yameombwa", "Expense approved": "Matumizi yameidhinishwa", "Expense paid": "Matumizi yamelipwa", "Expense rejected": "Matumizi yamekataliwa", "Expense cancelled": "Matumizi yamefutwa", "Expense added": "Matumizi yameongezwa", "This expense is locked. Use Cancel or Void with a reason.": "Matumizi haya yamefungwa. Tumia \"Ghairi\" au \"Batilisha\" pamoja na sababu.", "You cannot approve your own request. Ask the event owner.": "Huwezi kuidhinisha ombi lako mwenyewe. Mwombe mmiliki wa tukio.", "Please choose how it was paid.": "Tafadhali chagua njia ya malipo.", "Please say what the money is for.": "Tafadhali eleza pesa ni ya nini.", "This item cannot be changed in its current state.": "Hili haliwezi kubadilishwa katika hali yake ya sasa."});
 window.SW_PAT.push(["{#0} request", "Ombi {0}"],["{#0} requests", "Maombi {0}"],["Paid expenses ({#0}) · waiting {1}", "Matumizi yaliyolipwa ({0}) · yanasubiri {1}"],["Paid expenses ({#0})", "Matumizi yaliyolipwa ({0})"],["({0}) will not be paid.", "({0}) hayatalipwa."],["({0}) will be cancelled.", "({0}) yatafutwa."],["({0}) will no longer be deducted from the money collected. The record stays in the history.", "({0}) hayatakatwa tena kwenye pesa iliyokusanywa. Rekodi inabaki kwenye historia."],["{0} was requested. {1}", "{0} imeombwa. {1}"],["{0} paid.", "{0} imelipwa."],["{0} requested.", "{0} imeombwa."],["{0} requested for {1}. {2}", "{0} imeombwa kwa {1}. {2}"],["{0} requested for {1}.", "{0} imeombwa kwa {1}."],["{0} paid for {1}.", "{0} imelipwa kwa {1}."],["Approved: {0}", "Imeidhinishwa na: {0}"]);
 Object.assign(window.SW_EXACT,{"Approved to pay":"Yameidhinishwa kulipwa","Paid out":"Yamelipwa"});
 window.SW_PAT.push(["{0} was requested but not paid. {1}","{0} imeombwa lakini haijalipwa. {1}"],["{0} requested for {1}, but not paid. {2}","{0} imeombwa kwa {1}, lakini haijalipwa. {2}"]);
