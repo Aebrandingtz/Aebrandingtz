@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.12</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.13</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -5140,14 +5140,15 @@ window.logGuestMessage = async function(ev,g,channel,message,status='Sent',provi
 };
 const _sendViaApi = window.sendViaApi;
 window.sendViaApi = async function(channel,ev,g,phone,message){
-  if(window.__apiOff) return {ok:false,error:'API is not enabled'};
+  window.__apiOffCh=window.__apiOffCh||{};
+  if(window.__apiOffCh[channel]) return {ok:false,error:'API is not enabled'};
   let r;
   if(g&&g._ct){
     try{ const {data,error}=await supabaseClient.functions.invoke('send-guest-message',{body:{channel,to:phone,message,event_id:ev.id}});
       r = error?{ok:false,error}:(data&&data.ok?{ok:true,provider:data.provider,provider_message_id:data.provider_message_id}:{ok:false,error:data?.error||'Provider failed'}); }
     catch(err){ r={ok:false,error:err}; }
   } else r=await _sendViaApi(channel,ev,g,phone,message);
-  if(!r.ok){ const t=String(r.error?.message||r.error||''); if(/haijawekwa|not configured|not set|credential|secret/i.test(t)) window.__apiOff=true; }
+  if(!r.ok){ const t=String(r.error?.message||r.error||''); if(/haijawekwa|not configured|not set|credential|secret/i.test(t)) window.__apiOffCh[channel]=true; }
   return r;
 };
 function markSent(g,channel){ g.sent=true; if(channel==='whatsapp') g.sent_whatsapp=true; else g.sent_sms=true; g.lastChannel=channel; g.lastSentAt=new Date().toISOString(); }
@@ -5163,7 +5164,7 @@ async function sendOne(channel,gid){
   const phone=normalizeTzPhone(g.phone);
   if(phone.replace(/\D/g,'').length<9){ toast('This guest does not have a valid phone number.'); return; }
   const message=buildGuestMessage(ev,g), label=channel==='whatsapp'?'WhatsApp':'SMS';
-  if(window.__apiOff){ openLink(manualLink(channel,phone,message),channel); markSent(g,channel); logGuestMessage(ev,g,label,message,'Manual'); doRefresh(); toast(label+' opened for '+g.name+'.'); return; }
+  if((window.__apiOffCh||{})[channel]){ openLink(manualLink(channel,phone,message),channel); markSent(g,channel); logGuestMessage(ev,g,label,message,'Manual'); doRefresh(); toast(label+' opened for '+g.name+'.'); return; }
   toast('Sending '+label+' to '+g.name+'…');
   const api=await sendViaApi(channel,ev,g,phone,message);
   if(api.ok){ markSent(g,channel); logGuestMessage(ev,g,label,message,'Sent',api.provider_message_id); doRefresh(); toast(label+' sent to '+g.name+'.'); }
@@ -5233,7 +5234,7 @@ window.sendBulkMessages = async function(){
   let sentOk=0; const pending=[]; let lastErr=''; const whyBy={};
   for(let i=0;i<list.length;i++){
     const g=list[i];
-    if(window.__apiOff){ pending.push(g); continue; }
+    if((window.__apiOffCh||{})[channel]){ pending.push(g); continue; }
     progress.textContent=`Sending ${i+1}/${list.length}: ${g.name}`;
     const message=fillTemplate(tpl,ev,g);
     const r=await sendViaApi(channel,ev,g,normalizeTzPhone(g.phone),message);
@@ -5246,7 +5247,7 @@ window.sendBulkMessages = async function(){
   if(sentOk) html+=`<div class="result-note ok">${ic('check')} Messages sent automatically to ${sentOk} ${isCtAud()?'contributors':'guests'}.</div>`;
   if(pending.length){
     progress.textContent='';
-    const why = window.__apiOff ? `Automatic ${label} sending is not connected in this system.` : `${pending.length} ${isCtAud()?'contributors':'guests'} could not be sent automatically (${lastErr||'provider error'}).`;
+    const why = (window.__apiOffCh||{})[channel] ? `Automatic ${label} sending is not connected in this system.` : `${pending.length} ${isCtAud()?'contributors':'guests'} could not be sent automatically (${lastErr||'provider error'}).`;
     html+=`<div class="result-note warn">${ic('info')} ${E(why)} Click <b>Open ${label}</b> for each ${isCtAud()?'person':'guest'} — the message is pre-written on your phone and you only press Send.</div>
       <div class="queue">${pending.map(g=>`<div class="queue-item"><div class="who"><b>${E(g.name)}</b><span>${E(g.phone)}</span>${whyBy[g.id]?`<span style="color:#b45309;font-size:12px">${E(whyBy[g.id])}</span>`:''}</div><button class="${channel==='whatsapp'?'green':'primary'} sm" onclick="manualSend('${channel}','${g.id}',this)">${ic(channel==='whatsapp'?'whatsapp':'message')}Open ${label}</button></div>`).join('')}</div>`;
     if(sentOk&&!isCtAud()) html+=`<div class="help" style="margin-top:8px">To try again only for the people it did not reach, choose <b>Not sent yet</b> in Recipients and send again.</div>`;
@@ -5873,7 +5874,7 @@ async function ctDeliver(channel,x,message){
   const phone=normalizeTzPhone(x.phone||''); if(phone.replace(/\D/g,'').length<9) return toast('Add a valid phone number for this person first (Edit details).');
   if(!navigator.onLine) return toast('Sending needs an internet connection.');
   const g=ctPseudo(x), label=channel==='whatsapp'?'WhatsApp':'SMS';
-  if(window.__apiOff){ openLink(manualLink(channel,phone,message),channel); toast(label+' opened for '+x.name+'.'); return; }
+  if((window.__apiOffCh||{})[channel]){ openLink(manualLink(channel,phone,message),channel); toast(label+' opened for '+x.name+'.'); return; }
   toast('Sending '+label+' to '+x.name+'…');
   const api=await sendViaApi(channel,ev,g,phone,message);
   if(api.ok) toast(label+' sent to '+x.name+'.'); else { openLink(manualLink(channel,phone,message),channel); toast(label+' opened for '+x.name+' (send it from your phone).'); }
