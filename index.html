@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.16</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.17</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3661,7 +3661,7 @@ async function sendSMS(gid){
   renderGuests();
 }
 
-function renderGuests(){let ev=getEvent(currentEventId),tb=document.getElementById("guestRows");if(!tb)return;if(!ev){tb.innerHTML='<tr><td colspan="6" class="empty">Choose an event.</td></tr>';return}tb.innerHTML=ev.guests.map(g=>`<tr><td><b>${escapeHtml(g.name)}</b></td><td>${escapeHtml(g.phone)}</td><td><span class="tag">${escapeHtml(g.type)}</span></td><td><span class="tag">Unique</span></td><td><span class="status ${g.sent?"sent":"pending"}">${g.sent?"SENT":"PENDING"}</span></td><td><button class="green" onclick="sendWA('${g.id}')">WhatsApp</button> <button class="light" onclick="sendSMS('${g.id}')">SMS</button> <button class="gray" onclick="openGuestDetails('${g.id}')">View</button> <button class="light" onclick="openEditGuest('${g.id}')">Edit</button> <button class="danger" onclick="deleteGuest('${g.id}')">Delete</button></td></tr>`).join("")}
+function renderGuests(){let ev=getEvent(currentEventId),tb=document.getElementById("guestRows");if(!tb)return;if(!ev){tb.innerHTML='<tr><td colspan="6" class="empty">Choose an event.</td></tr>';return}tb.innerHTML=ev.guests.map(g=>`<tr><td><b>${escapeHtml(g.name)}</b></td><td>${escapeHtml(g.phone)}</td><td><span class="tag">${escapeHtml(g.type)}</span></td><td><span class="tag">Unique</span></td><td><span class="status ${g.sent?"sent":"pending"}">${g.sent?"SENT":"PENDING"}</span></td><td><button class="green no-cohost" onclick="sendWA('${g.id}')">WhatsApp</button> <button class="light no-cohost" onclick="sendSMS('${g.id}')">SMS</button> <button class="gray" onclick="openGuestDetails('${g.id}')">View</button> <button class="light" onclick="openEditGuest('${g.id}')">Edit</button> <button class="danger" onclick="deleteGuest('${g.id}')">Delete</button></td></tr>`).join("")}
 function posterFor(ev,g){
   const isDouble = String(g?.type||"").toLowerCase()==="double";
   if(isDouble && ev.posterDouble) return {url: ev.posterDouble, pos: ev.namePosDouble};
@@ -4056,7 +4056,7 @@ document.addEventListener('keydown',e=>{
       const mf=f==='All'||g.type===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn);
       return match&&mf;
     });
-    tb.innerHTML=list.length?list.map(g=>`<tr><td><b>${escapeHtml(g.name)}</b></td><td>${escapeHtml(g.phone)}</td><td><span class="tag">${escapeHtml(g.type)}</span></td><td><span class="tag">Unique</span></td><td><span class="status ${g.sent?'sent':'pending'}">${g.sent?'SENT':'PENDING'}</span></td><td><button class="green" onclick="sendWA('${g.id}')">WhatsApp</button> <button class="light" onclick="sendSMS('${g.id}')">SMS</button> <button class="gray" onclick="openGuestDetails('${g.id}')">View</button> <button class="light" onclick="openEditGuest('${g.id}')">Edit</button> <button class="danger" onclick="deleteGuest('${g.id}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">No guests match this search or filter.</td></tr>';
+    tb.innerHTML=list.length?list.map(g=>`<tr><td><b>${escapeHtml(g.name)}</b></td><td>${escapeHtml(g.phone)}</td><td><span class="tag">${escapeHtml(g.type)}</span></td><td><span class="tag">Unique</span></td><td><span class="status ${g.sent?'sent':'pending'}">${g.sent?'SENT':'PENDING'}</span></td><td><button class="green no-cohost" onclick="sendWA('${g.id}')">WhatsApp</button> <button class="light no-cohost" onclick="sendSMS('${g.id}')">SMS</button> <button class="gray" onclick="openGuestDetails('${g.id}')">View</button> <button class="light" onclick="openEditGuest('${g.id}')">Edit</button> <button class="danger" onclick="deleteGuest('${g.id}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">No guests match this search or filter.</td></tr>';
   };
 
   window.exportGuestsExcel=function(){
