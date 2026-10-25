@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.17</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.18</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3327,7 +3327,8 @@ async function _loadEventsOnce(){
         rsvp: g.rsvp_status || "Pending",
         checkedIn: !!g.checked_in,
         table: g.table_no || "",
-        group: g.guest_group || ""
+        group: g.guest_group || "",
+        code: g.guest_code || ""
       });
     });
   }
@@ -3359,6 +3360,27 @@ async function insertGuestToSupabase(ev,g){
   };
   const {error} = await supabaseClient.from("guests").insert(row);
   if(error) throw new Error(cardDbError(error));
+  try{ syncGuestCodes(ev,true); }catch(e){}
+}
+/* V127.18: each guest has a gate code (letter + 5 digits) made by the database; fetch the ones this page has not seen yet */
+let _gcBusy=null;
+async function syncGuestCodes(ev,force){
+  if(!ev||!supabaseClient) return;
+  if(!force&&!ev.guests.some(g=>!g.code)) return;
+  if(!force&&ev._gcAt&&Date.now()-ev._gcAt<4000) return;
+  if(_gcBusy) return _gcBusy;
+  ev._gcAt=Date.now();
+  _gcBusy=(async()=>{
+    try{
+      let out=[], from=0; const size=1000;
+      for(;;){ const {data,error}=await supabaseClient.from('guests').select('id,guest_code').eq('event_id',ev.id).order('id').range(from,from+size-1); if(error||!data) break; out=out.concat(data); if(data.length<size) break; from+=size; }
+      const m=new Map(out.map(r=>[String(r.id),r.guest_code||'']));
+      ev.guests.forEach(g=>{ if(!g.code&&m.get(String(g.id))) g.code=m.get(String(g.id)); });
+      try{ if(typeof renderGuests==='function') renderGuests(); }catch(e){}
+    }catch(e){ console.warn('guest codes not loaded',e); }
+    finally{ _gcBusy=null; }
+  })();
+  return _gcBusy;
 }
 
 function parseCsvText(text){
@@ -4052,7 +4074,7 @@ document.addEventListener('keydown',e=>{
     if(!ev){tb.innerHTML='<tr><td colspan="6" class="empty">Choose an event.</td></tr>';return;}
     const q=(window.guestSearch||'').trim().toLowerCase(); const f=window.guestFilter||'All';
     const list=ev.guests.filter(g=>{
-      const match=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q);
+      const match=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.code||'').toLowerCase().includes(q);
       const mf=f==='All'||g.type===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn);
       return match&&mf;
     });
@@ -4742,10 +4764,11 @@ function inviteBadge(g){
   return `<span class="status sent">Sent${via}</span>`;
 }
 function guestCell(g){
-  return `<div class="guest-cell"><span class="avatar">${E(initials(g.name))}</span><div style="min-width:0"><span class="cell-name">${E(g.name)}</span><span class="cell-sub">${E([g.phone||'No phone number',g.table,g.group].filter(Boolean).join(' · '))}</span></div></div>`;
+  return `<div class="guest-cell"><span class="avatar">${E(initials(g.name))}</span><div style="min-width:0"><span class="cell-name">${E(g.name)}</span><span class="cell-sub">${E([g.phone||'No phone number',g.code,g.table,g.group].filter(Boolean).join(' · '))}</span></div></div>`;
 }
 window.renderGuests = function(){ sortGuests();
   const tb=$('guestRows'); if(!tb) return;
+  try{ const _e=getEvent(currentEventId); if(_e&&_e.guests.some(g=>!g.code)) syncGuestCodes(_e); }catch(e){}
   const ev=getEvent(currentEventId);
   const sum=$('guestSummary');
   if(!ev){ tb.innerHTML=`<tr><td colspan="6" class="empty">${db.events.length?'Choose an event.':'Create an event first, then add guests here.'}</td></tr>`; if(sum) sum.textContent=''; return; }
@@ -4755,7 +4778,7 @@ window.renderGuests = function(){ sortGuests();
   if(sum) sum.textContent = st.total ? `${st.total} guests · ${st.sent} invited · ${st.att} attending · ${st.checked} arrived` : 'No guests in this event yet.';
   const q=(window.guestSearch||'').trim().toLowerCase(), f=window.guestFilter||'All';
   const list=ev.guests.filter(g=>{
-    const m=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.table||'').toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q);
+    const m=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.table||'').toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q)||String(g.code||'').toLowerCase().includes(q);
     const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn)||(f==='NotSent'&&!g.sent);
     return m&&ok;
   });
@@ -4783,7 +4806,7 @@ window.openGuestDetails = function(gid){
   if(!ev||!g){ toast('Guest not found.'); return; }
   $('guestDetailTitle').textContent=g.name;
   $('guestDetailSubtitle').textContent=ev.name+' · '+ev.type;
-  const items=[['Phone',g.phone||'—'],['Card type',cardLabel(g)+' card'+(cardParty(g)>1?' · '+cardParty(g)+' people':'')],['Invitation',g.sent?('Sent'+(g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'')):'Not sent'],['RSVP',g.rsvp==='Yes'?'Attending'+(g.rsvpAttendees?` (${g.rsvpAttendees})`:''):g.rsvp==='No'?'Declined':'Awaiting'],['Check-in',g.checkedIn?'Arrived':'Not yet'],...(g.meal?[['Meal',g.meal]]:[]),['Invitation link',guestInviteUrl(ev,g)]];
+  const items=[['Phone',g.phone||'—'],...(g.code?[['Guest code',g.code]]:[]),['Card type',cardLabel(g)+' card'+(cardParty(g)>1?' · '+cardParty(g)+' people':'')],['Invitation',g.sent?('Sent'+(g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'')):'Not sent'],['RSVP',g.rsvp==='Yes'?'Attending'+(g.rsvpAttendees?` (${g.rsvpAttendees})`:''):g.rsvp==='No'?'Declined':'Awaiting'],['Check-in',g.checkedIn?'Arrived':'Not yet'],...(g.meal?[['Meal',g.meal]]:[]),['Invitation link',guestInviteUrl(ev,g)]];
   $('guestDetailBody').innerHTML=`<div class="guest-detail-grid">${items.map(([k,v])=>`<div class="detail-item" ${k==='Invitation link'?'style="grid-column:1/-1"':''}><span>${k}</span><b ${k==='Invitation link'?'style="font-size:12.5px;font-weight:500"':''}>${E(v)}</b></div>`).join('')}</div>
     <div class="guest-detail-actions"><button class="gray" onclick="copyInviteLink('${g.id}')">Copy link</button><button class="gray" onclick="openEditGuest('${g.id}')">${ic('edit')}Edit</button><button class="primary" onclick="openInvite('${g.id}')">${ic('external')}Open invitation</button></div>`;
   $('guestDetailModal').classList.add('open');
@@ -5062,7 +5085,7 @@ window.renderRsvp = function(){ sortGuests();
   const st=reportStats(ev);
   stats.innerHTML=`<div class="stat"><span>Invited</span><b>${st.total}</b></div><div class="stat stat-blue"><span>Expected (RSVP yes)</span><b>${st.att}</b></div><div class="stat stat-green"><span>Arrived</span><b>${st.checked}</b></div>`;
   const q=($('checkinSearch').value||'').trim().toLowerCase(), f=$('checkinFilter').value;
-  const list=ev.guests.filter(g=>(!q||g.name.toLowerCase().includes(q)||String(g.phone||'').includes(q)) && (f==='all'||(f==='in'&&g.checkedIn)||(f==='waiting'&&!g.checkedIn)));
+  const list=ev.guests.filter(g=>(!q||g.name.toLowerCase().includes(q)||String(g.phone||'').includes(q)||String(g.code||'').toLowerCase().includes(q)) && (f==='all'||(f==='in'&&g.checkedIn)||(f==='waiting'&&!g.checkedIn)));
   if(!list.length){ box.innerHTML=emptyState(ev.guests.length?'No matches':'No guests yet',ev.guests.length?'Change the search or filter.':'Add guests first.'); return; }
   box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Guest</th><th>Card</th><th>RSVP</th><th>Status</th><th class="actions">Action</th></tr></thead><tbody>${list.map(g=>`<tr><td>${guestCell(g)}</td><td>${cardTag(g)}</td><td>${rsvpBadge(g)}</td><td>${g.checkedIn?(g.pending?'<span class="status pending">Arrived · syncing</span>':'<span class="status ok">Arrived</span>'+(g.arrivedAt?' <span class="muted" style="font-size:12px">'+arrTime(g.arrivedAt)+'</span>':'')):'<span class="status pending">Waiting</span>'}</td><td class="actions"><div class="row-actions">${g.checkedIn?(isDoorStaff()?'':`<button class="gray sm" onclick="undoCheckin('${ev.id}','${g.id}')">Undo</button>`):`<button class="green sm" onclick="checkin('${ev.id}','${g.id}')">${ic('check')}Check in</button>`}</div></td></tr>`).join('')}</tbody></table></div>`;
 };
@@ -5076,14 +5099,15 @@ window.buildBulkTemplate = function(ev){
   if(aud==='arrived') return 'Habari {{name}}, asante sana kwa kuhudhuria {{event}}. Uwepo wako uliongeza furaha yetu.'+photosLine;
   if(aud==='absent') return 'Habari {{name}}, tulikukumbuka kwenye {{event}}. Asante kwa kuwa sehemu ya wapendwa wetu.'+photosLine;
   const dl = ev && ev.rsvpDeadline, tail = '\n\nUkumbi: {{venue}}'+(ev && ev.maps ? '\n{{map}}' : '');
-  if(aud==='attending') return 'Habari {{name}}, tunakukumbusha kuhusu {{event}}.\nTarehe: {{date}}\n\nTunakusubiri! Leta kadi yako ya QR ili uingie kwa haraka:\n{{link}}'+tail;
+  if(aud==='attending') return 'Habari {{name}}, tunakukumbusha kuhusu {{event}}.\nTarehe: {{date}}\n\nTunakusubiri! Leta kadi yako ya QR ili uingie kwa haraka:\n{{link}}\nNamba yako ya mlangoni: {{code}}'+tail;
   if(aud==='noreply') return 'Habari {{name}}, tunakukumbusha mwaliko wako wa {{event}}.\nTarehe: {{date}}\n\nBado hatujapata jibu lako.'+(dl?' Tafadhali jibu kabla ya {{deadline}} hapa:':' Tafadhali thibitisha kuhudhuria hapa:')+'\n{{link}}'+tail;
-  return 'Habari {{name}}, tunafurahi kukukaribisha kwenye {{event}}.\nTarehe: {{date}}\n\nTafadhali fungua mwaliko wako (kadi {{card_type}}) na uthibitishe kuhudhuria'+(dl?' kabla ya {{deadline}}':'')+':\n{{link}}'+tail;
+  return 'Habari {{name}}, tunafurahi kukukaribisha kwenye {{event}}.\nTarehe: {{date}}\n\nTafadhali fungua mwaliko wako (kadi {{card_type}}) na uthibitishe kuhudhuria'+(dl?' kabla ya {{deadline}}':'')+':\n{{link}}\nNamba yako ya mlangoni: {{code}}'+tail;
 };
 function daySw(iso){ const d=new Date(iso); if(isNaN(d)) return ''; try{ return d.toLocaleDateString('sw-TZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }catch(e){ return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); } }
 function timeSw(iso){ const d=new Date(iso); if(isNaN(d)) return ''; const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes()); }
 function fillTemplate(tpl,ev,g){
-  return tpl.replaceAll('{{name}}',g.name).replaceAll('{{event}}',ev.name)
+  if(!g.code) tpl=tpl.replace(/\n*[^\n]*\{\{code\}\}[^\n]*/g,'');
+  return tpl.replaceAll('{{code}}',g.code||'').replaceAll('{{name}}',g.name).replaceAll('{{event}}',ev.name)
     .replaceAll('{{day}}',ev.date?daySw(ev.date):'itatangazwa').replaceAll('{{time}}',ev.date?timeSw(ev.date):'itatangazwa').replaceAll('{{date}}',ev.date?fmtDate(ev.date):'tarehe itatangazwa').replaceAll('{{venue}}',ev.venue||'ukumbi utatangazwa')
     .replaceAll('{{deadline}}',ev.rsvpDeadline?dlFmt(new Date(ev.rsvpDeadline),'sw-TZ'):'').replaceAll('{{photos}}',galleryUrl(ev)).replaceAll('{{card_type}}',cardLabel(g)).replaceAll('{{table}}',g.table||'').replaceAll('{{group}}',g.group||'').replaceAll('{{link}}',g._ct?'':guestInviteUrl(ev,g)).replaceAll('{{map}}',mapShareUrl(ev))
     .replaceAll('{{pledged}}',g._ct?money(g._ct.pledged):'').replaceAll('{{paid}}',g._ct?money(g._ct.paid):'').replaceAll('{{balance}}',g._ct?money(g._ct.left):'').replaceAll('{{due}}',g._ct&&g._ct.due?fmtDay(g._ct.due):'');
@@ -5163,6 +5187,7 @@ async function sendOne(channel,gid){
   const ev=getEvent(currentEventId), g=ev?.guests.find(x=>String(x.id)===String(gid)); if(!ev||!g) return;
   const phone=normalizeTzPhone(g.phone);
   if(phone.replace(/\D/g,'').length<9){ toast('This guest does not have a valid phone number.'); return; }
+  if(!g.code) await syncGuestCodes(ev);
   const message=buildGuestMessage(ev,g), label=channel==='whatsapp'?'WhatsApp':'SMS';
   if((window.__apiOffCh||{})[channel]){ openLink(manualLink(channel,phone,message),channel); markSent(g,channel); logGuestMessage(ev,g,label,message,'Manual'); doRefresh(); toast(label+' opened for '+g.name+'.'); return; }
   toast('Sending '+label+' to '+g.name+'…');
@@ -5226,6 +5251,7 @@ window.sendBulkMessages = async function(){
   }
   const list=audienceList(ev).filter(g=>normalizeTzPhone(g.phone).replace(/\D/g,'').length>=9);
   if(!list.length) return toast(isCtAud()?'No contributors with valid phone numbers match this selection.':'No guests with valid phone numbers match this selection.');
+  if(!isCtAud()) await syncGuestCodes(ev);
   const tpl=$('bulkMessage').value.trim()||buildBulkTemplate(ev);
   const ok=await confirmDialog({title:window.__scMode?'Send cards?':isCtAud()?'Send contribution messages?':['arrived','absent'].includes($('messageAudience')?.value)?'Send thank-you messages?':'Send invitations?',text:`The message will be sent to <b>${list.length}</b> ${isCtAud()?'contributors':'guests'} via <b>${label}</b>.`,ok:'Send now',tone:'primary',icon:'send'});
   if(!ok) return;
@@ -6791,6 +6817,7 @@ function renderInvite(){
   if(ev.rsvp_deadline){ const dd=new Date(ev.rsvp_deadline), left=dd.getTime()-Date.now(); if(!isNaN(dd)){
     const past=left<0, soon=!past&&left<3*86400000, ds=dlFmt(dd,T.locale), label=past?`${T.dl_past} ${ds}. ${T.dl_pastn}`:`${soon?T.dl_soon:T.dl} ${ds}`;
     rows.push(`<div class="inv-dl ${past?'past':soon?'soon':''}">${ic('clock')}<div><b>${E(label)}</b></div></div>`); } }
+  if(g.code) rows.push(`<div class="inv-table inv-code">${ic('check')}<div><span>${L==='sw'?'Namba yako ya mlangoni':'Your gate code'}</span><b>${E(g.code)}</b><small>${L==='sw'?'Itaje mlangoni kama huna simu kubwa.':'Say it at the door if you do not have a smartphone.'}</small></div></div>`);
   if(g.table) rows.push(`<div class="inv-table">${ic('users')}<div><span>${T.tbl}</span><b>${E(g.table)}</b><small>${T.tblh}</small></div></div>`);
   invShell(`${ev.poster_url?`<img class="inv-poster" src="${E(ev.poster_url)}" alt="${T.alt}">`:''}
     <div class="inv-getcard"><button class="primary" type="button" onclick="downloadMyCard(this)">${T.dlcard}</button><small>${T.dlcard_h}</small></div>
