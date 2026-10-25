@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.19</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.20</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -4121,7 +4121,7 @@ document.addEventListener('keydown',e=>{
         supabaseClient.from('message_logs').select('*').in('event_id',ids).order('created_at',{ascending:false})
       ]);
       (rsvps||[]).forEach(r=>{const e=getEvent(r.event_id),g=e?.guests.find(x=>String(x.id)===String(r.guest_id));if(g){g.rsvp=r.status||'Pending';g.rsvpAuto=false;g.rsvpAttendees=Number(r.attendees||1)}});
-      (checks||[]).forEach(c=>{const e=getEvent(c.event_id),g=e?.guests.find(x=>String(x.id)===String(c.guest_id));if(g){g.checkedIn=true;if(!g.arrivedAt)g.arrivedAt=c.checked_in_at}});
+      (checks||[]).forEach(c=>{const e=getEvent(c.event_id),g=e?.guests.find(x=>String(x.id)===String(c.guest_id));if(g){g.checkedIn=true;g.scannedBy=c.scanned_by||c.checked_in_by||g.scannedBy||null;if(!g.arrivedAt)g.arrivedAt=c.checked_in_at}});
       (logs||[]).forEach(l=>{const e=getEvent(l.event_id),g=e?.guests.find(x=>String(x.id)===String(l.guest_id));if(g&&l.channel)g.sent=true});
       persistState();refreshAll();
     }catch(e){console.warn('remote state load:',e?.message||e)}
@@ -5037,7 +5037,7 @@ window.checkin = async function(eid,gid){
     if(scannedGuest&&scannedGuest.guestId===gid) $('scanResult').innerHTML=scanBox('ok',g.name+' welcomed',(saved||'Check-in saved.')+((g.table||g.group)?' Seat: '+[g.table,g.group].filter(Boolean).join(' · '):''))+`<div class="guest-detail-actions"><button class="primary" onclick="scanNext()">Scan next guest</button></div>`;
   };
   const offlineSave=()=>{
-    OFFLINE.enqueue(eid,gid); g.checkedIn=true; g.pending=true; g.checking=false; g.arrivedAt=new Date().toISOString(); OFFLINE.snapshot(); doRefresh();
+    OFFLINE.enqueue(eid,gid); g.checkedIn=true; g.pending=true; g.checking=false; g.arrivedAt=new Date().toISOString(); g.scannedBy=(currentSupabaseUser&&currentSupabaseUser.id)||g.scannedBy||null; OFFLINE.snapshot(); doRefresh();
     done('Saved on this phone. It will upload when the internet is back.'); toast(g.name+' checked in (offline).');
   };
   if(window.__offlineMode || !navigator.onLine){ offlineSave(); return; }
@@ -5046,7 +5046,7 @@ window.checkin = async function(eid,gid){
     const now=new Date().toISOString();
     const {error}=await supabaseClient.from('check_ins').insert({event_id:eid,guest_id:gid,checked_in_at:now,scanned_at:now,checked_in_by:user?.id||null,scanned_by:user?.id||null});
     if(error) throw error;
-    g.checkedIn=true; g.checking=false; g.arrivedAt=now; OFFLINE.snapshot(); doRefresh(); if(isActive('rsvp')) renderRsvp();
+    g.checkedIn=true; g.checking=false; g.arrivedAt=now; g.scannedBy=user?.id||null; OFFLINE.snapshot(); doRefresh(); if(isActive('rsvp')) renderRsvp();
     done(); toast(g.name+' has checked in.');
   }catch(err){
     if(OFFLINE.isNetworkError(err)){ offlineSave(); return; }
@@ -5059,12 +5059,14 @@ window.checkin = async function(eid,gid){
 function renderScanLog(ev){
   const box=$('scanLog'); if(!box) return;
   if(!ev){ box.innerHTML=''; return; }
-  const ins=ev.guests.filter(g=>g.checkedIn).sort((a,b)=>String(b.arrivedAt||'').localeCompare(String(a.arrivedAt||'')));
+  /* door staff see only the guests they scanned themselves; owner / co-host see everyone */
+  const meId=(currentSupabaseUser&&currentSupabaseUser.id)||null, mineOnly=isDoorStaff();
+  const ins=ev.guests.filter(g=>g.checkedIn && (!mineOnly || !meId || g.scannedBy===meId)).sort((a,b)=>String(b.arrivedAt||'').localeCompare(String(a.arrivedAt||'')));
   const people=ins.reduce((n,g)=>n+cardParty(g),0);
-  box.innerHTML=`<div class="sl-head"><b>Scanned at the door</b><span class="sl-m"><i>${ins.length} arrived</i>${ins.length?`<i>${people} ${people===1?'person':'people'}</i>`:''}</span></div>`+
+  box.innerHTML=`<div class="sl-head"><b>${mineOnly?'Scanned by you':'Scanned at the door'}</b><span class="sl-m"><i>${ins.length} arrived</i>${ins.length?`<i>${people} ${people===1?'person':'people'}</i>`:''}</span></div>`+
     (ins.length?`<div class="sl-list">${ins.slice(0,60).map(g=>{ const p=cardParty(g), seat=[g.table,g.group].filter(Boolean).join(' · ');
       return `<div class="sl-row"><span class="sl-ic">${ic('check')}</span><div class="sl-t"><b>${E(g.name)}</b><span class="sl-m"><i>${E(cardLabel(g))}</i>${p>1?`<i>${p} people</i>`:''}${seat?`<i>${E(seat)}</i>`:''}</span></div><span class="sl-time">${g.pending?'Syncing…':(g.arrivedAt?E(arrTime(g.arrivedAt)):'')}</span></div>`; }).join('')}</div>`
-      :`<div class="help" style="margin-top:6px">Nobody has been scanned yet. Guests appear here as soon as they are checked in.</div>`);
+      :`<div class="help" style="margin-top:6px">${mineOnly?'You have not scanned anyone yet. Guests you check in appear here.':'Nobody has been scanned yet. Guests appear here as soon as they are checked in.'}</div>`);
 }
 const arrTime = iso => { try{ return new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } };
 /* live arrivals: the owner / co-host / door staff all see who has arrived, within a few seconds, on any device */
@@ -5072,11 +5074,11 @@ window.syncArrivals = async function(){
   try{
     if(!supabaseClient||!currentSupabaseUser||window.__offlineMode||!navigator.onLine||document.hidden) return;
     const ev=getEvent(currentEventId); if(!ev) return;
-    const rows=await fetchAll(()=>supabaseClient.from('check_ins').select('guest_id,checked_in_at').eq('event_id',ev.id).order('guest_id'));
-    const m=new Map((rows||[]).map(r=>[String(r.guest_id),r.checked_in_at])); let changed=false;
+    const rows=await fetchAll(()=>supabaseClient.from('check_ins').select('guest_id,checked_in_at,scanned_by,checked_in_by').eq('event_id',ev.id).order('guest_id'));
+    const m=new Map((rows||[]).map(r=>[String(r.guest_id),r.checked_in_at])); const by=new Map((rows||[]).map(r=>[String(r.guest_id),r.scanned_by||r.checked_in_by||null])); let changed=false;
     ev.guests.forEach(g=>{
       const at=m.get(String(g.id));
-      if(at){ if(!g.checkedIn){ g.checkedIn=true; changed=true; } if(g.arrivedAt!==at){ g.arrivedAt=at; changed=true; } }
+      if(at){ const sb=by.get(String(g.id)); if(sb&&g.scannedBy!==sb){ g.scannedBy=sb; changed=true; } if(!g.checkedIn){ g.checkedIn=true; changed=true; } if(g.arrivedAt!==at){ g.arrivedAt=at; changed=true; } }
       else if(g.checkedIn && !g.pending && !g.checking){ g.checkedIn=false; g.arrivedAt=null; changed=true; }
     });
     if(changed){ OFFLINE.snapshot(); doRefresh(); if(isActive('rsvp')) renderRsvp(); }
@@ -14495,7 +14497,7 @@ window.SW_EXACT = {
 "e.g. Amina & John Wedding":"mf. Harusi ya Amina na John","Hall or location":"Ukumbi au mahali",
 "Paste the Google Maps link":"Bandika kiungo cha Google Maps",
 "e.g. We would love to celebrate with you. Dress code: blue.":"mf. Tungependa kusherehekea nawe. Mavazi: rangi ya bluu.",
-"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
+"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","Scanned by you":"Uliowapitisha wewe","You have not scanned anyone yet. Guests you check in appear here.":"Bado hujampitisha mtu. Wageni unaowaingiza wataonekana hapa.","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
 "e.g. Table 7, VIP, Family":"mf. Meza 7, VIP, Familia","e.g. Mzee Kimaro":"mf. Mzee Kimaro","e.g. Hall booking":"mf. Malipo ya ukumbi",
 "Legal":"Kisheria","8+ characters, letters and numbers":"Herufi 8+, herufi na namba","Repeat the password":"Rudia nenosiri",
 "e.g. Table 5":"mf. Meza 5","e.g. Family, VIP":"mf. Familia, VIP","e.g. Amina Juma":"mf. Amina Juma",

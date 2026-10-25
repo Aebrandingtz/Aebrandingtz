@@ -1,5 +1,5 @@
 /* SHEREHE HUB service worker: lets the app open and run check-in with no internet. */
-const VERSION = 'sherehe-v127-19';
+const VERSION = 'sherehe-v127-20';
 const CDN = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
