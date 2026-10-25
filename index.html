@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.22</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.23</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2403,7 +2403,8 @@ body.svc-photog #collNavGroup{display:block!important}
   <div class="panel">
     <div class="channel-pick">
       <div class="field"><label for="messageChannel">Channel</label><select id="messageChannel" onchange="renderMessagingHelp()"><option value="whatsapp">WhatsApp</option><option value="sms">SMS</option></select></div>
-      <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Not sent yet (includes those it did not reach)</option><option value="sms_unsent">SMS did not go through / not sent by SMS</option><option value="wa_unsent">Not sent by WhatsApp</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="attending">Said Yes, not arrived yet (event-day reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
+      <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Not sent yet (includes those it did not reach)</option><option value="sms_unsent">SMS did not go through / not sent by SMS</option><option value="wa_unsent">Not sent by WhatsApp</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="attending">Said Yes, not arrived yet (event-day reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_partial">Paid part, balance remaining (progress)</option><option value="ct_nopay">Pledged but not paid yet (gentle reminder)</option><option value="ct_final">Final call before the event (balance due)</option><option value="ct_thanks">Everyone who gave (thank-you)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
+      <div class="field" id="ctToneBox" style="display:none"><label for="ctTone">Message style</label><select id="ctTone" onchange="onCtToneChange()"><option value="friendly">Friendly</option><option value="formal">Formal</option><option value="short">Short (saves SMS)</option></select></div>
     </div>
     <div class="field"><label for="bulkMessage">Message</label><textarea id="bulkMessage" rows="6" oninput="this.dataset.dirty='1'"></textarea></div>
     <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{day}}</code> <code>{{time}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{map}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
@@ -5160,8 +5161,13 @@ window.renderRsvp = function(){ sortGuests();
 /* ---------- messaging ---------- */
 window.buildBulkTemplate = function(ev){
   const aud=$('messageAudience')?.value, photosLine = ev && ev.galleryOpen ? ' Tazama na pakua picha za sherehe hapa: {{photos}}' : '';
-  if(aud==='ct_owing'||aud==='ct_overdue') return ctTemplate('owing');
+  if(aud==='ct_owing') return ctTemplate('owing');
+  if(aud==='ct_overdue') return ctTemplate('overdue');
   if(aud==='ct_all') return ctTemplate('all');
+  if(aud==='ct_partial') return ctTemplate('partial');
+  if(aud==='ct_nopay') return ctTemplate('nopay');
+  if(aud==='ct_final') return ctTemplate('final');
+  if(aud==='ct_thanks') return ctTemplate('thanks');
   if(aud==='ct_cleared') return ctTemplate('cleared');
   if(aud==='arrived') return 'Habari {{name}}, asante sana kwa kuhudhuria {{event}}. Uwepo wako uliongeza furaha yetu.'+photosLine;
   if(aud==='absent') return 'Habari {{name}}, tulikukumbuka kwenye {{event}}. Asante kwa kuwa sehemu ya wapendwa wetu.'+photosLine;
@@ -5180,17 +5186,46 @@ function fillTemplate(tpl,ev,g){
     .replaceAll('{{pledged}}',g._ct?money(g._ct.pledged):'').replaceAll('{{paid}}',g._ct?money(g._ct.paid):'').replaceAll('{{balance}}',g._ct?money(g._ct.left):'').replaceAll('{{due}}',g._ct&&g._ct.due?fmtDay(g._ct.due):'');
 }
 /* contributors as message recipients (built from the Contributions page data) */
-function ctTemplate(kind){
-  if(kind==='owing') return 'Habari {{name}}, asante kwa mchango wako wa {{event}}. Ahadi yako: {{pledged}}. Ulichotoa hadi sasa: {{paid}}. Kiasi kilichobaki: {{balance}}. Tafadhali kamilisha mchango wako. Asante sana.';
-  if(kind==='gift') return 'Habari {{name}}, asante sana kwa mchango wako wa {{paid}} kwa {{event}}. Mungu akubariki.';
-  if(kind==='cleared') return 'Habari {{name}}, asante sana! Umekamilisha mchango wako kwa {{event}} (ahadi {{pledged}}, umetoa {{paid}}). Mungu akubariki.';
-  return 'Habari {{name}}, hii ni kumbukumbu ya mchango wako kwa {{event}}. Ahadi: {{pledged}}. Ulichotoa: {{paid}}. Salio: {{balance}}. Asante kwa mchango wako.';
-}
+const CT_TPL={
+ friendly:{
+  all:'Habari {{name}}, hii ni taarifa ya mchango wako kwa {{event}}.\nAhadi: {{pledged}}\nUlichotoa: {{paid}}\nSalio: {{balance}}\nAsante kwa moyo wako wa kujitolea. Mungu akubariki.',
+  owing:'Habari {{name}}, asante kwa mchango wako wa {{event}}. Ahadi yako ni {{pledged}}, umetoa {{paid}}, kilichobaki ni {{balance}}. Ukipata nafasi tafadhali kamilisha. Asante sana.',
+  overdue:'Habari {{name}}, tunakukumbusha kwa upole mchango wako wa {{event}}. Salio ni {{balance}} na tarehe ya kukamilisha ilikuwa {{due}}. Tafadhali tukamilishie. Asante sana.',
+  partial:'Habari {{name}}, asante kwa kuchangia {{paid}} kwa {{event}}. Umebakiza {{balance}} kati ya ahadi ya {{pledged}}. Tupo karibu! Ukipata nafasi, kamilisha. Mungu akubariki.',
+  nopay:'Habari {{name}}, tunakukumbusha kwa upendo ahadi yako ya {{pledged}} kwa {{event}}. Bado hatujapokea mchango wako. Tafadhali tuma ukiwa tayari. Asante sana.',
+  final:'Habari {{name}}, {{event}} inakaribia ({{date}}). Salio la mchango wako ni {{balance}}. Tafadhali tukamilishie kabla ya siku hiyo. Asante sana kwa ushirikiano wako.',
+  thanks:'Habari {{name}}, asante sana kwa mchango wako wa {{paid}} kwa {{event}}. Umetupa nguvu kubwa. Mungu akubariki sana.',
+  cleared:'Habari {{name}}, asante sana! Umekamilisha mchango wako wa {{event}} (ahadi {{pledged}}, umetoa {{paid}}). Mungu akubariki.',
+  gift:'Habari {{name}}, asante sana kwa mchango wako wa {{paid}} kwa {{event}}. Mungu akubariki.'},
+ formal:{
+  all:'Ndugu {{name}}, tunakujulisha taarifa ya mchango wako kwa {{event}}.\nAhadi: {{pledged}}\nKiasi ulichotoa: {{paid}}\nSalio: {{balance}}\nTunashukuru kwa mchango wako.',
+  owing:'Ndugu {{name}}, tunashukuru kwa ahadi yako ya mchango kwa {{event}}. Ahadi: {{pledged}}; ulichotoa: {{paid}}; salio: {{balance}}. Tunakuomba ukamilishe salio hilo. Tunashukuru.',
+  overdue:'Ndugu {{name}}, tunakukumbusha kuwa salio la mchango wako kwa {{event}} ni {{balance}}, na tarehe ya kukamilisha ilikuwa {{due}}. Tunakuomba ukamilishe haraka iwezekanavyo. Tunashukuru.',
+  partial:'Ndugu {{name}}, tunashukuru kwa kuchangia {{paid}} kwa {{event}}. Kutokana na ahadi ya {{pledged}}, salio ni {{balance}}. Tunakuomba ukamilishe salio hilo. Tunashukuru.',
+  nopay:'Ndugu {{name}}, tunakukumbusha ahadi yako ya mchango wa {{pledged}} kwa {{event}}, ambao bado haujapokelewa. Tunakuomba utume mchango wako. Tunashukuru.',
+  final:'Ndugu {{name}}, {{event}} itafanyika tarehe {{date}}. Salio la mchango wako ni {{balance}}. Tunakuomba ukamilishe kabla ya tarehe hiyo ili maandalizi yakamilike. Tunashukuru.',
+  thanks:'Ndugu {{name}}, tunakushukuru kwa dhati kwa mchango wako wa {{paid}} kwa {{event}}. Mungu akubariki.',
+  cleared:'Ndugu {{name}}, tunakushukuru kwa kukamilisha mchango wako kwa {{event}} (ahadi {{pledged}}, umetoa {{paid}}). Mungu akubariki.',
+  gift:'Ndugu {{name}}, tunakushukuru kwa mchango wako wa {{paid}} kwa {{event}}. Mungu akubariki.'},
+ short:{
+  all:'{{name}}: {{event}}. Ahadi {{pledged}}, umetoa {{paid}}, salio {{balance}}. Asante.',
+  owing:'{{name}}, salio lako la {{event}} ni {{balance}} (ahadi {{pledged}}). Tafadhali kamilisha. Asante.',
+  overdue:'{{name}}, salio la {{event}} ni {{balance}}; tarehe ilikuwa {{due}}. Tafadhali kamilisha. Asante.',
+  partial:'{{name}}, asante kwa {{paid}}. Salio la {{event}}: {{balance}}. Tafadhali kamilisha.',
+  nopay:'{{name}}, ahadi yako ya {{pledged}} kwa {{event}} bado haijalipwa. Tafadhali tuma. Asante.',
+  final:'{{name}}, {{event}} ni {{date}}. Salio lako: {{balance}}. Tafadhali kamilisha kabla. Asante.',
+  thanks:'{{name}}, asante kwa mchango wa {{paid}} kwa {{event}}. Mungu akubariki.',
+  cleared:'{{name}}, umekamilisha mchango wa {{event}}. Asante sana!',
+  gift:'{{name}}, asante kwa mchango wa {{paid}} kwa {{event}}. Mungu akubariki.'}
+};
+const ctTone = () => { const t=$('ctTone')?.value; return CT_TPL[t]?t:'friendly'; };
+function ctTemplate(kind){ const t=CT_TPL[ctTone()]; return t[kind]||t.all; }
+window.onCtToneChange = function(){ const m=$('bulkMessage'), ev=getEvent(currentEventId); if(m&&ev){ delete m.dataset.dirty; m.value=buildBulkTemplate(ev); } renderMessagingHelp(); };
 const isCtAud = () => String($('messageAudience')?.value||'').startsWith('ct_');
 function ctPseudo(x){ return {id:x.id,name:x.name,phone:x.phone||'',type:'Single',table:'',group:'',sent:false,_ct:{pledged:x.pledged,paid:x.paid,left:x.left,due:x.due}}; }
 function ctAudience(ev,a){
   if(!(CT.loaded&&CT.eventId===ev.id)) return [];
-  return ctPeople().filter(x=>a==='ct_overdue'?x.overdue:a==='ct_owing'?x.left>0:a==='ct_cleared'?(x.pledged>0&&x.left===0):true).map(ctPseudo);
+  return ctPeople().filter(x=>a==='ct_overdue'?x.overdue:a==='ct_owing'||a==='ct_final'?x.left>0:a==='ct_partial'?(x.paid>0&&x.left>0):a==='ct_nopay'?(x.pledged>0&&x.paid<=0):a==='ct_thanks'?x.paid>0:a==='ct_cleared'?(x.pledged>0&&x.left===0):true).map(ctPseudo);
 }
 window.buildGuestMessage = function(ev,g){ return fillTemplate(buildBulkTemplate(ev),ev,g); };
 function audienceList(ev){ sortGuests();
@@ -5215,6 +5250,7 @@ window.renderMessagingHelp = function(){
   }
   const sb=$('sendBulkBtn'); if(sb && !sb.disabled){ const th=['arrived','absent'].includes($('messageAudience')?.value); sb.innerHTML=ic('send')+(ct?'Send contribution messages':th?'Send thank-you messages':'Send invitations'); }
   const ph=$('ctPlaceholders'); if(ph) ph.style.display=ct?'':'none';
+  const tb=$('ctToneBox'); if(tb) tb.style.display=ct?'':'none';
 };
 window.renderMessaging = function(){
   const ev=getEvent(currentEventId), msg=$('bulkMessage');
@@ -14545,7 +14581,7 @@ window.SW_EXACT = {
 "e.g. Amina & John Wedding":"mf. Harusi ya Amina na John","Hall or location":"Ukumbi au mahali",
 "Paste the Google Maps link":"Bandika kiungo cha Google Maps",
 "e.g. We would love to celebrate with you. Dress code: blue.":"mf. Tungependa kusherehekea nawe. Mavazi: rangi ya bluu.",
-"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","New contribution list":"Orodha mpya ya michango","Give your contribution a name and start recording. You do not need the host to create an event first.":"Pa mchango wako jina kisha anza kurekodi. Hauhitaji mwenyeji atengeneze tukio kwanza.","Name of the contribution":"Jina la mchango","Create list":"Tengeneza orodha","Write the name of the contribution, e.g. \"Harusi ya Amina\".":"Andika jina la mchango, mf. \"Harusi ya Amina\".","You already have a list with this name.":"Tayari una orodha yenye jina hili.","Contribution list created: ":"Orodha ya michango imetengenezwa: ","Scanned by you":"Uliowapitisha wewe","You have not scanned anyone yet. Guests you check in appear here.":"Bado hujampitisha mtu. Wageni unaowaingiza wataonekana hapa.","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
+"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","Paid part, balance remaining (progress)":"Alilipa sehemu, salio limebaki (maendeleo)","Pledged but not paid yet (gentle reminder)":"Aliahidi lakini hajalipa (kikumbusho kwa upole)","Final call before the event (balance due)":"Wito wa mwisho kabla ya tukio (salio)","Everyone who gave (thank-you)":"Wote waliotoa (shukrani)","Message style":"Mtindo wa ujumbe","Friendly":"Kirafiki","Formal":"Rasmi","Short (saves SMS)":"Fupi (inapunguza gharama ya SMS)","New contribution list":"Orodha mpya ya michango","Give your contribution a name and start recording. You do not need the host to create an event first.":"Pa mchango wako jina kisha anza kurekodi. Hauhitaji mwenyeji atengeneze tukio kwanza.","Name of the contribution":"Jina la mchango","Create list":"Tengeneza orodha","Write the name of the contribution, e.g. \"Harusi ya Amina\".":"Andika jina la mchango, mf. \"Harusi ya Amina\".","You already have a list with this name.":"Tayari una orodha yenye jina hili.","Contribution list created: ":"Orodha ya michango imetengenezwa: ","Scanned by you":"Uliowapitisha wewe","You have not scanned anyone yet. Guests you check in appear here.":"Bado hujampitisha mtu. Wageni unaowaingiza wataonekana hapa.","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
 "e.g. Table 7, VIP, Family":"mf. Meza 7, VIP, Familia","e.g. Mzee Kimaro":"mf. Mzee Kimaro","e.g. Hall booking":"mf. Malipo ya ukumbi",
 "Legal":"Kisheria","8+ characters, letters and numbers":"Herufi 8+, herufi na namba","Repeat the password":"Rudia nenosiri",
 "e.g. Table 5":"mf. Meza 5","e.g. Family, VIP":"mf. Familia, VIP","e.g. Amina Juma":"mf. Amina Juma",
