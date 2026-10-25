@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.21</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.22</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3273,7 +3273,7 @@ async function _loadEventsOnce(){
   }
 
   /* V127.21: someone who owns only contribution lists (made by themselves as treasurer) works in treasurer mode; invited events are shown too */
-  if(!error && (data||[]).length && data.every(e => e.event_type === "Contribution")){
+  if(!error && !isAdmin && (data||[]).length && data.every(e => e.event_type === "Contribution")){
     _sm = true; data.forEach(e => { _sr[e.id] = "treasurer"; });
     try{
       const mail2 = String(currentSupabaseUser.email || "").toLowerCase();
@@ -5016,6 +5016,7 @@ window.startQrScanner = async function(){
 /* V127.21: a treasurer makes their own contribution list (a light event owned by them); no host needed */
 window.ctCanCreateList = function(){
   if(!currentSupabaseUser) return false;
+  if(isAdmin) return true;
   if(window.__staffMode && staffRole()==='treasurer') return true;
   const evs=(db&&db.events)||[];
   return !evs.length && !!(typeof svcSt==='function' && svcSt('treasurer').chosen);
