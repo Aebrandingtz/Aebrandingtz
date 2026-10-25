@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.20</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.21</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2470,6 +2470,14 @@ body.svc-photog #collNavGroup{display:block!important}
   <div class="topline">
     <div><h1>Contributions</h1><p class="muted">Track what each person pledged, what they have paid and what they still owe.</p></div>
     <div class="topline-actions"><select id="contributionEventSelect" aria-label="Event"></select></div>
+  </div>
+  <div class="panel" id="ctNewList" style="display:none">
+    <div class="panel-heading"><div><h2>New contribution list</h2><p>Give your contribution a name and start recording. You do not need the host to create an event first.</p></div></div>
+    <div class="pay-grid">
+      <div class="field"><label for="ctListName">Name of the contribution</label><input id="ctListName" maxlength="120" placeholder="e.g. Harusi ya Amina – Kamati" autocomplete="off" onkeydown="if(event.key==='Enter')createContributionList()"></div>
+      <div class="field"><label for="ctListDate">Date <span class="optional">Optional</span></label><input id="ctListDate" type="date"></div>
+    </div>
+    <div class="toolbar" style="margin-top:14px"><button class="primary" onclick="createContributionList()"><svg class="i"><use href="#i-check"/></svg>Create list</button></div>
   </div>
   <div class="cards" style="grid-template-columns:repeat(3,minmax(0,1fr))">
     <div class="stat stat-green"><span>Total collected</span><b id="ctCollected">TZS 0</b></div>
@@ -3262,6 +3270,18 @@ async function _loadEventsOnce(){
         if(!r2.error){ data = r2.data; _sm = true; }
       }
     }catch(e){ console.warn("staff lookup:", e); }
+  }
+
+  /* V127.21: someone who owns only contribution lists (made by themselves as treasurer) works in treasurer mode; invited events are shown too */
+  if(!error && (data||[]).length && data.every(e => e.event_type === "Contribution")){
+    _sm = true; data.forEach(e => { _sr[e.id] = "treasurer"; });
+    try{
+      const mail2 = String(currentSupabaseUser.email || "").toLowerCase();
+      const {data: st2} = await supabaseClient.from("event_staff").select("event_id,role").eq("email", mail2);
+      const have = new Set(data.map(e => e.id)), ids2 = [];
+      (st2 || []).forEach(r => { if(!have.has(r.event_id)){ _sr[r.event_id] = r.role || "checkin"; ids2.push(r.event_id); } });
+      if(ids2.length){ const r3 = await supabaseClient.from("events").select("*").in("id", ids2); if(!r3.error) data = data.concat(r3.data || []); }
+    }catch(e){ console.warn("list-owner staff lookup:", e); }
   }
 
   if(error){
@@ -4993,6 +5013,31 @@ window.startQrScanner = async function(){
     status.textContent='Camera is on. Point it at the QR code.';
   }catch(err){ qrScanner=null; status.textContent='The camera could not start: '+(err.message||err)+'. Make sure camera access is allowed in your browser.'; }
 };
+/* V127.21: a treasurer makes their own contribution list (a light event owned by them); no host needed */
+window.ctCanCreateList = function(){
+  if(!currentSupabaseUser) return false;
+  if(window.__staffMode && staffRole()==='treasurer') return true;
+  const evs=(db&&db.events)||[];
+  return !evs.length && !!(typeof svcSt==='function' && svcSt('treasurer').chosen);
+};
+window.ctShowNewList = function(){ const p=$('ctNewList'); if(p) p.style.display = ctCanCreateList() ? '' : 'none'; };
+window.createContributionList = async function(){
+  if(!currentSupabaseUser){ toast('Please sign in first.',true); return; }
+  const nm=String(($('ctListName')||{}).value||'').trim().replace(/\s+/g,' ');
+  if(nm.length<2){ toast('Write the name of the contribution, e.g. "Harusi ya Amina".',true); return; }
+  if(((db&&db.events)||[]).some(e=>String(e.name||'').trim().toLowerCase()===nm.toLowerCase() && e.type==='Contribution')){ toast('You already have a list with this name.',true); return; }
+  const dt=($('ctListDate')||{}).value, id=crypto.randomUUID();
+  const row={id,owner_id:currentSupabaseUser.id,event_type:'Contribution',event_name:nm.slice(0,120)};
+  if(dt) row.event_date=new Date(dt+'T12:00:00').toISOString();
+  const r=await supabaseClient.from('events').insert(row);
+  if(r.error){ console.error(r.error); toast('The list could not be created: '+(r.error.message||r.error),true); return; }
+  try{ await loadEventsFromSupabase(); }catch(e){}
+  try{ setCurrentEvent(id); }catch(e){ currentEventId=id; }
+  if($('ctListName')) $('ctListName').value=''; if($('ctListDate')) $('ctListDate').value='';
+  showView('contributions'); try{ renderContributions(); }catch(e){}
+  toast('Contribution list created: '+nm);
+};
+
 /* V127.19: door staff can type the guest code (letter + 5 digits) instead of scanning a QR */
 window.lookupGateCode = async function(){
   const inp=$('gateCode'); if(!inp) return;
@@ -8029,6 +8074,7 @@ window.budSave = async function(cat, input){
   renderBudget();
 };
 (function(){ const f = window.renderContributions; window.renderContributions = function(){ const o = f.apply(this, arguments); renderBudget(); return o; }; })();
+(function(){ const f=window.renderContributions; window.renderContributions=function(){ const o=f.apply(this,arguments); try{ ctShowNewList(); }catch(e){} return o; }; })();
 
 /* ----- committee tasks ----- */
 const TK = {eventId:null, list:[], ok:true, loading:false, edit:null, filter:''};
@@ -8934,7 +8980,7 @@ const svcPlan=k=>((SVC.me&&SVC.me.plans)||[]).find(p=>p.key===k)||{key:k,name:SV
 const svcSt=k=>((SVC.me&&SVC.me.state)||{})[k]||{};
 const svcPriceText=k=>{ const p=svcPlan(k); return p.kind==='free'?'Free':(p.kind==='per_sms'?`TZS ${svcMoney(p.fee)} per SMS`:`TZS ${svcMoney(p.fee)} / month`); };
 const svcOn=()=>!!(SVC.me&&!SVC.me.admin&&!isAdmin);
-const svcHostish=()=>{ const m=SVC.me; return !!(m&&(svcSt('host').chosen||m.has_events||m.is_staff||((db&&db.events)||[]).length)); };
+const svcHostish=()=>{ const m=SVC.me; return !!(m&&(svcSt('host').chosen||svcSt('treasurer').chosen||m.has_events||m.is_staff||((db&&db.events)||[]).length)); };
 const svcBad=k=>{ const s=svcSt(k); return !!(s.chosen&&s.kind==='monthly'&&!s.active); };
 
 function svcAllowed(id){
@@ -8947,6 +8993,7 @@ function svcAllowed(id){
   return true;
 }
 function svcHome(){
+  if(svcSt('treasurer').chosen && !svcSt('host').chosen && !((db&&db.events)||[]).some(e=>e.type!=='Contribution')) return 'contributions';
   if(svcHostish()) return 'dashboard';
   for(const k of ['tickets','sms','photographer']) if(svcSt(k).chosen) return SVC_HOME[k];
   return 'dashboard';
@@ -14497,7 +14544,7 @@ window.SW_EXACT = {
 "e.g. Amina & John Wedding":"mf. Harusi ya Amina na John","Hall or location":"Ukumbi au mahali",
 "Paste the Google Maps link":"Bandika kiungo cha Google Maps",
 "e.g. We would love to celebrate with you. Dress code: blue.":"mf. Tungependa kusherehekea nawe. Mavazi: rangi ya bluu.",
-"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","Scanned by you":"Uliowapitisha wewe","You have not scanned anyone yet. Guests you check in appear here.":"Bado hujampitisha mtu. Wageni unaowaingiza wataonekana hapa.","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
+"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","New contribution list":"Orodha mpya ya michango","Give your contribution a name and start recording. You do not need the host to create an event first.":"Pa mchango wako jina kisha anza kurekodi. Hauhitaji mwenyeji atengeneze tukio kwanza.","Name of the contribution":"Jina la mchango","Create list":"Tengeneza orodha","Write the name of the contribution, e.g. \"Harusi ya Amina\".":"Andika jina la mchango, mf. \"Harusi ya Amina\".","You already have a list with this name.":"Tayari una orodha yenye jina hili.","Contribution list created: ":"Orodha ya michango imetengenezwa: ","Scanned by you":"Uliowapitisha wewe","You have not scanned anyone yet. Guests you check in appear here.":"Bado hujampitisha mtu. Wageni unaowaingiza wataonekana hapa.","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
 "e.g. Table 7, VIP, Family":"mf. Meza 7, VIP, Familia","e.g. Mzee Kimaro":"mf. Mzee Kimaro","e.g. Hall booking":"mf. Malipo ya ukumbi",
 "Legal":"Kisheria","8+ characters, letters and numbers":"Herufi 8+, herufi na namba","Repeat the password":"Rudia nenosiri",
 "e.g. Table 5":"mf. Meza 5","e.g. Family, VIP":"mf. Familia, VIP","e.g. Amina Juma":"mf. Amina Juma",
