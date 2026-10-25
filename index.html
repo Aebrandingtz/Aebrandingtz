@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.18</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.19</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2370,6 +2370,10 @@ body.svc-photog #collNavGroup{display:block!important}
     </div>
     <div class="panel">
       <div class="panel-heading"><div><h2>Verification</h2><p>Scan results appear here.</p></div></div>
+      <div class="gate-code" style="display:flex;gap:8px;align-items:center;margin:0 0 14px;flex-wrap:wrap">
+        <input id="gateCode" type="text" placeholder="Guest code, e.g. T34120" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Guest code" style="flex:1 1 180px;min-width:0;text-transform:uppercase;font-weight:700;letter-spacing:.06em" onkeydown="if(event.key==='Enter')lookupGateCode()">
+        <button class="primary" type="button" onclick="lookupGateCode()"><svg class="i"><use href="#i-search"/></svg>Find guest</button>
+      </div>
       <div id="scanResult"><div class="empty"><b>No scans yet</b>Scan a guest's QR code to verify them.</div></div>
       <div id="scanLog"></div>
     </div>
@@ -4989,8 +4993,23 @@ window.startQrScanner = async function(){
     status.textContent='Camera is on. Point it at the QR code.';
   }catch(err){ qrScanner=null; status.textContent='The camera could not start: '+(err.message||err)+'. Make sure camera access is allowed in your browser.'; }
 };
+/* V127.19: door staff can type the guest code (letter + 5 digits) instead of scanning a QR */
+window.lookupGateCode = async function(){
+  const inp=$('gateCode'); if(!inp) return;
+  const code=String(inp.value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const out=$('scanResult');
+  if(code.length<4){ out.innerHTML=scanBox('warn','Enter the guest code','Type the code from the guest\'s SMS, for example T34120.'); return; }
+  const ev=getEvent(currentEventId);
+  if(!ev){ out.innerHTML=scanBox('bad','Choose an event first',''); return; }
+  let g=ev.guests.find(x=>String(x.code||'').toUpperCase()===code);
+  if(!g){ try{ await syncGuestCodes(ev,true); }catch(e){} g=ev.guests.find(x=>String(x.code||'').toUpperCase()===code); }
+  if(!g){ out.innerHTML=scanBox('bad','Code not found','No guest in this event has the code '+code+'. Check the letters and digits.')+`<button class="primary" onclick="$('gateCode').select()">Try again</button>`; return; }
+  try{ stopQrScanner(); }catch(e){}
+  await verifyScannedQr('invite='+encodeURIComponent(ev.id)+'&guest='+encodeURIComponent(g.id)+'&type='+encodeURIComponent(g.type),true);
+  inp.value='';
+};
 window.scanNext = function(){ lastScannedText=''; $('scanResult').innerHTML='<div class="empty"><b>Ready for the next guest</b>Point the camera at their QR code.</div>'; startQrScanner(); };
-window.verifyScannedQr = async function(text){
+window.verifyScannedQr = async function(text,manual){
   const out=$('scanResult');
   const m=String(text).match(/invite=([^&\s]+)&guest=([^&\s]+)(?:&type=([^&\s]+))?/);
   if(!m){ out.innerHTML=scanBox('bad','Not a SHEREHE HUB QR','This is not an invitation QR code from this system.')+`<button class="primary" onclick="scanNext()">Scan again</button>`; return; }
@@ -4999,12 +5018,12 @@ window.verifyScannedQr = async function(text){
   if(!ev||!g){ out.innerHTML=scanBox('bad','Guest not found','This QR code does not belong to any event in your account.')+`<button class="primary" onclick="scanNext()">Scan again</button>`; return; }
   if(type && String(g.type).toLowerCase()!==type.toLowerCase()){ out.innerHTML=scanBox('bad','Card type mismatch','This card was altered or is not valid.')+`<button class="primary" onclick="scanNext()">Scan again</button>`; return; }
   scannedGuest={eventId,guestId};
-  if(!g.checkedIn && ev.id===currentEventId && !g.checking){
+  if(!g.checkedIn && ev.id===currentEventId && !g.checking && !manual){
     out.innerHTML=scanBox('ok',g.name,'Valid QR code — checking in…');
     await checkin(eventId,guestId); return;
   }
   const other = ev.id!==currentEventId ? scanBox('warn','Guest of another event',ev.name) : '';
-  const head = g.checkedIn ? scanBox('warn','Already checked in',g.name+' has already checked in.'+(g.arrivedAt?' ('+arrTime(g.arrivedAt)+')':'')) : scanBox('ok',g.name,'Valid QR code — confirm entry.');
+  const head = g.checkedIn ? scanBox('warn','Already checked in',g.name+' has already checked in.'+(g.arrivedAt?' ('+arrTime(g.arrivedAt)+')':'')) : scanBox('ok',g.name,manual?'Code matches — check the name, then confirm entry.':'Valid QR code — confirm entry.');
   const seat=(g.table||g.group)?`<div class="seat-callout">${g.table?`<b>${E(g.table)}</b>`:''}${g.group?`<span>${E(g.group)}</span>`:''}</div>`:'';
   out.innerHTML=other+head+seat+`<div class="guest-detail-grid"><div class="detail-item"><span>Event</span><b>${E(ev.name)}</b></div><div class="detail-item"><span>Guest</span><b>${E(g.name)}</b></div><div class="detail-item"><span>Card</span><b>${E(cardLabel(g))} card${cardParty(g)>1?' · '+cardParty(g)+' people':''}</b></div><div class="detail-item"><span>RSVP</span><b>${g.rsvp==='Yes'?'Attending':g.rsvp==='No'?'Declined':'Awaiting'}</b></div></div>
     <div class="guest-detail-actions">${g.checkedIn?'':`<button class="green" onclick="checkin('${eventId}','${guestId}')">${ic('check')}Confirm check-in</button>`}<button class="gray" onclick="scanNext()">Scan next</button></div>`;
@@ -14476,7 +14495,7 @@ window.SW_EXACT = {
 "e.g. Amina & John Wedding":"mf. Harusi ya Amina na John","Hall or location":"Ukumbi au mahali",
 "Paste the Google Maps link":"Bandika kiungo cha Google Maps",
 "e.g. We would love to celebrate with you. Dress code: blue.":"mf. Tungependa kusherehekea nawe. Mavazi: rangi ya bluu.",
-"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…",
+"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
 "e.g. Table 7, VIP, Family":"mf. Meza 7, VIP, Familia","e.g. Mzee Kimaro":"mf. Mzee Kimaro","e.g. Hall booking":"mf. Malipo ya ukumbi",
 "Legal":"Kisheria","8+ characters, letters and numbers":"Herufi 8+, herufi na namba","Repeat the password":"Rudia nenosiri",
 "e.g. Table 5":"mf. Meza 5","e.g. Family, VIP":"mf. Familia, VIP","e.g. Amina Juma":"mf. Amina Juma",
