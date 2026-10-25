@@ -1045,7 +1045,7 @@ body.treasurer-mode #contributions .icon.del,body.treasurer-mode #contribModal .
 /* Co-host (Mwenyeji): everything for one event, but no delete-event / team / create / admin */
 body.cohost-mode .no-cohost,body.cohost-mode #staffPanel,body.cohost-mode #adminNavGroup,body.cohost-mode #create{display:none!important}
 body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.del{display:none!important}
-body.cohost-mode [data-view="contributions"],body.cohost-mode [data-view="messaging"],body.cohost-mode #contributions,body.cohost-mode #auditBox,body.cohost-mode [data-view="rsvp"],body.cohost-mode [data-view="cards"],body.cohost-mode #rsvp,body.cohost-mode #cards{display:none!important}
+body.cohost-mode [data-view="contributions"],body.cohost-mode [data-view="messaging"],body.cohost-mode #contributions,body.cohost-mode #auditBox,body.cohost-mode [data-view="reports"],body.cohost-mode #reports,body.cohost-mode [data-view="rsvp"],body.cohost-mode [data-view="cards"],body.cohost-mode #rsvp,body.cohost-mode #cards{display:none!important}
 /* V80 tasks / budget / audit */
 .tk-row{display:flex;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line,#e6e9f0)}
 .tk-row:last-child{border-bottom:0}
@@ -2159,7 +2159,7 @@ body.svc-photog #collNavGroup{display:block!important}
     <button class="nav" data-view="sms" onclick="showView('sms',this)"><svg class="i"><use href="#i-send"/></svg>Bulk SMS</button>
   </div>
 
-  <div class="side-label" data-svc="host">Insights</div>
+  <div class="side-label no-cohost" data-svc="host">Insights</div>
   <button class="nav" data-svc="host" data-view="reports" onclick="showView('reports',this)"><svg class="i"><use href="#i-chart"/></svg>Reports</button>
   <button class="nav" data-svc="host" data-view="contributions" onclick="showView('contributions',this)"><svg class="i"><use href="#i-wallet"/></svg>Contributions</button>
 
@@ -2173,7 +2173,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.15</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.16</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -4443,7 +4443,7 @@ const VIEW_META = {
 };
 window.showView = function(id,btn){
   if(id==='studio') id='dashboard'; /* Design Studio is switched off for now */
-  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging'||id==='rsvp'||id==='cards') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?(window.__photoOnly?'collections':'photos'):'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
+  if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging'||id==='rsvp'||id==='cards'||id==='reports') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?(window.__photoOnly?'collections':'photos'):'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
   if(!$(id)) return;
   if(id==='admin' && !isAdmin){ toast('You do not have access to the Admin Console.'); return; }
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
@@ -4769,8 +4769,8 @@ window.renderGuests = function(){ sortGuests();
     <td>${rsvpBadge(g)}</td>
     <td>${g.checkedIn?'<span class="status ok">Arrived</span>':'<span class="status idle">—</span>'}</td>
     <td class="actions"><div class="row-actions">
-      <button class="icon wa" title="Send WhatsApp" aria-label="Send WhatsApp" onclick="sendWA('${g.id}')">${ic('whatsapp')}</button>
-      <button class="icon" title="Send SMS" aria-label="Send SMS" onclick="sendSMS('${g.id}')">${ic('message')}</button>
+      <button class="icon wa no-cohost" title="Send WhatsApp" aria-label="Send WhatsApp" onclick="sendWA('${g.id}')">${ic('whatsapp')}</button>
+      <button class="icon no-cohost" title="Send SMS" aria-label="Send SMS" onclick="sendSMS('${g.id}')">${ic('message')}</button>
       <button class="icon" title="View details" aria-label="View details" onclick="openGuestDetails('${g.id}')">${ic('user')}</button>
       <button class="icon" title="Edit" aria-label="Edit" onclick="openEditGuest('${g.id}')">${ic('edit')}</button>
       <button class="icon del no-cohost" title="Delete" aria-label="Delete" onclick="deleteGuest('${g.id}')">${ic('trash')}</button>
