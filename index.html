@@ -679,6 +679,16 @@ h1,h2,h3,.page-h1,.topline h1{font-weight:600}
 .seat-callout span{font-size:13px;font-weight:600;background:#fff;border-radius:99px;padding:4px 12px;color:var(--ink-2)}
 body.staff-mode .app-sidebar .nav:not([data-view="rsvp"]),body.staff-mode .app-sidebar .side-label,body.staff-mode #staffPanel,body.staff-mode .side-foot{display:none!important}
 body.staff-mode #adminNavGroup{display:none!important}
+.ms-sum{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 16px;align-items:center}
+.ms-chip{border:1px solid #e3e8f5;background:#fff;border-radius:12px;padding:10px 16px;display:flex;flex-direction:column;align-items:flex-start;min-width:104px;cursor:pointer;font:inherit;color:inherit}
+.ms-chip b{font-size:22px;line-height:1.1}.ms-chip span{font-size:12.5px;opacity:.75}
+.ms-chip.on{outline:2px solid #2a45b4}
+.ms-chip.ms-ok b{color:#157347}.ms-chip.ms-bad b{color:#b42318}.ms-chip.ms-warn b{color:#a15c00}.ms-chip.ms-info b{color:#2a45b4}
+.ms-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:#eef1ff;color:#2a45b4}
+.ms-badge.ms-ok{background:#e3f6ea;color:#157347}.ms-badge.ms-bad{background:#fde8e6;color:#b42318}.ms-badge.ms-warn{background:#fff1d6;color:#a15c00}.ms-badge.ms-idle{background:#f0f1f5;color:#5b6377}
+.ms-table td,.ms-table th{vertical-align:top}
+body.treasurer-mode #msgStatusPanel,body.cohost-mode #msgStatusPanel{display:none!important}
+
 .user-chip{cursor:pointer}
 
 /* ---- v48: legal pages, offline bar, print sheet, language switch ---- */
@@ -2173,7 +2183,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.24</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.25</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2412,6 +2422,12 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="toolbar" style="margin-top:6px"><button class="primary" id="sendBulkBtn" onclick="sendBulkMessages()"><svg class="i"><use href="#i-send"/></svg>Send invitations</button><span id="messageCount" class="muted"></span></div>
     <div id="messageProgress" class="help"></div>
     <div id="messageResults" style="margin-top:14px"></div>
+  </div>
+  <div class="panel" id="msgStatusPanel">
+    <div class="panel-heading"><div><h2>Message status</h2><p>See which messages reached your guests, which are still on the way and which failed.</p></div>
+      <div class="toolbar"><select id="msFilter" onchange="renderMsgStatus()" aria-label="Filter"><option value="all">All guests</option><option value="Delivered">Delivered</option><option value="Sent">On its way</option><option value="Failed">Failed</option><option value="Manual">Opened on my phone</option><option value="none">Not sent</option></select><button class="gray" type="button" onclick="loadMsgStatus(true)">Refresh</button></div></div>
+    <div id="msSummary" class="ms-sum"></div>
+    <div id="msList"></div>
   </div>
   <div class="panel">
     <div class="panel-heading"><div><h2>How sending works</h2><p id="messageProviderStatus"></p></div></div>
@@ -5014,6 +5030,41 @@ window.startQrScanner = async function(){
     status.textContent='Camera is on. Point it at the QR code.';
   }catch(err){ qrScanner=null; status.textContent='The camera could not start: '+(err.message||err)+'. Make sure camera access is allowed in your browser.'; }
 };
+/* V127.25: message status panel: delivered / on its way / failed / opened on phone / not sent */
+const MS_LBL={Delivered:['ok','Delivered'],Sent:['info','On its way'],Failed:['bad','Failed'],Manual:['warn','Opened on my phone'],Pending:['info','On its way'],Read:['ok','Read'],none:['idle','Not sent']};
+window.__ms={eventId:null,logs:[],at:0};
+window.loadMsgStatus=async function(force){
+  const ev=getEvent(currentEventId), box=$('msList'); if(!box) return;
+  if(!ev||!supabaseClient||!currentSupabaseUser){ box.innerHTML=''; $('msSummary').innerHTML=''; return; }
+  if(!force && __ms.eventId===ev.id && Date.now()-__ms.at<8000){ renderMsgStatus(); return; }
+  try{
+    const {data,error}=await supabaseClient.from('message_logs').select('guest_id,channel,status,error_message,created_at,delivered_at,delivery_status').eq('event_id',ev.id).order('created_at',{ascending:false}).limit(4000);
+    if(error) throw error;
+    __ms={eventId:ev.id,logs:data||[],at:Date.now()};
+    /* a guest whose latest SMS failed can be sent to again */
+    const seen=new Set(); (data||[]).forEach(l=>{ if(l.channel!=='SMS') return; const k=String(l.guest_id); if(seen.has(k)) return; seen.add(k); if(l.status==='Failed'){ const g=ev.guests.find(x=>String(x.id)===k); if(g&&g.sent_sms){ g.sent_sms=false; g.sent=!!g.sent_whatsapp; } } });
+  }catch(e){ console.warn('message status:',e&&e.message||e); box.innerHTML='<div class="help">The message status could not be loaded. Check your internet connection and press Refresh.</div>'; return; }
+  renderMsgStatus();
+};
+function msRows(ev){
+  const latest=new Map(); (__ms.logs||[]).forEach(l=>{ const k=String(l.guest_id); if(!latest.has(k)) latest.set(k,l); });
+  return ev.guests.map(g=>({g,l:latest.get(String(g.id))||null,st:(latest.get(String(g.id))||{}).status||'none'})).map(r=>({...r,st:r.st==='Pending'?'Sent':r.st==='Read'?'Delivered':r.st}));
+}
+window.renderMsgStatus=function(){
+  const ev=getEvent(currentEventId), sum=$('msSummary'), box=$('msList'); if(!ev||!sum||!box||__ms.eventId!==ev.id) return;
+  const rows=msRows(ev), n=k=>rows.filter(r=>r.st===k).length;
+  const chip=(k,c)=>`<button type="button" class="ms-chip ms-${MS_LBL[k][0]}${$('msFilter').value===k?' on':''}" onclick="$('msFilter').value='${k}';renderMsgStatus()"><b>${c}</b><span>${MS_LBL[k][1]}</span></button>`;
+  sum.innerHTML=['Delivered','Sent','Failed','Manual','none'].map(k=>chip(k,n(k))).join('')+(n('Failed')?`<button type="button" class="primary" onclick="msRetryFailed()">${ic('send')}Send again to failed</button>`:'');
+  const f=$('msFilter').value, list=rows.filter(r=>f==='all'||r.st===f);
+  const order={Failed:0,Sent:1,Manual:2,none:3,Delivered:4};
+  list.sort((a,b)=>(order[a.st]-order[b.st])||String(b.l?.created_at||'').localeCompare(String(a.l?.created_at||'')));
+  box.innerHTML=list.length?`<div class="table-wrap"><table class="ms-table"><thead><tr><th>Guest</th><th>Phone</th><th>Channel</th><th>Status</th><th>Time</th><th>Note</th></tr></thead><tbody>${list.slice(0,300).map(r=>{ const lb=MS_LBL[r.st]||MS_LBL.none, l=r.l; const t=l?(l.delivered_at||l.created_at):''; const note=l?(l.status==='Failed'?(l.error_message||''):(l.status==='Manual'?(l.error_message||'The message was opened on your phone; the system cannot see if it was sent.'):(l.status==='Sent'?'Waiting for the network to confirm.':''))):'';
+    return `<tr><td><b>${E(r.g.name)}</b></td><td>${E(r.g.phone||'')}</td><td>${l?E(l.channel):'—'}</td><td><span class="ms-badge ms-${lb[0]}">${lb[1]}</span></td><td>${t?E(new Date(t).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})):''}</td><td class="muted">${E(note)}</td></tr>`; }).join('')}</tbody></table></div>`:'<div class="help">No guests match this filter.</div>';
+};
+window.msRetryFailed=function(){ const ch=$('messageChannel'), au=$('messageAudience'); if(ch) ch.value='sms'; if(au) au.value='sms_unsent'; onAudienceChange(); toast('Recipients set to the guests whose SMS did not go through. Press Send to try again.'); try{ $('sendBulkBtn').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} };
+(function(){ const f=window.renderMessaging; window.renderMessaging=function(){ const o=f.apply(this,arguments); try{ loadMsgStatus(); }catch(e){} return o; }; })();
+if(!window.__msTimer) window.__msTimer=setInterval(()=>{ try{ if(isActive('messaging')&&!document.hidden) loadMsgStatus(true); }catch(e){} },20000);
+
 /* V127.21: a treasurer makes their own contribution list (a light event owned by them); no host needed */
 window.ctCanCreateList = function(){
   if(!currentSupabaseUser) return false;
@@ -14581,7 +14632,7 @@ window.SW_EXACT = {
 "e.g. Amina & John Wedding":"mf. Harusi ya Amina na John","Hall or location":"Ukumbi au mahali",
 "Paste the Google Maps link":"Bandika kiungo cha Google Maps",
 "e.g. We would love to celebrate with you. Dress code: blue.":"mf. Tungependa kusherehekea nawe. Mavazi: rangi ya bluu.",
-"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","Paid part, balance remaining (progress)":"Alilipa sehemu, salio limebaki (maendeleo)","Pledged but not paid yet (gentle reminder)":"Aliahidi lakini hajalipa (kikumbusho kwa upole)","Final call before the event (balance due)":"Wito wa mwisho kabla ya tukio (salio)","Everyone who gave (thank-you)":"Wote waliotoa (shukrani)","Message style":"Mtindo wa ujumbe","Friendly":"Kirafiki","Formal":"Rasmi","Short (saves SMS)":"Fupi (inapunguza gharama ya SMS)","New contribution list":"Orodha mpya ya michango","Give your contribution a name and start recording. You do not need the host to create an event first.":"Pa mchango wako jina kisha anza kurekodi. Hauhitaji mwenyeji atengeneze tukio kwanza.","Name of the contribution":"Jina la mchango","Create list":"Tengeneza orodha","Write the name of the contribution, e.g. \"Harusi ya Amina\".":"Andika jina la mchango, mf. \"Harusi ya Amina\".","You already have a list with this name.":"Tayari una orodha yenye jina hili.","Contribution list created: ":"Orodha ya michango imetengenezwa: ","Scanned by you":"Uliowapitisha wewe","You have not scanned anyone yet. Guests you check in appear here.":"Bado hujampitisha mtu. Wageni unaowaingiza wataonekana hapa.","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
+"Search by name or phone…":"Tafuta kwa jina au simu…","Filter":"Chuja","Search guests…":"Tafuta wageni…","Message status":"Hali ya ujumbe","See which messages reached your guests, which are still on the way and which failed.":"Angalia ujumbe upi umefika kwa wageni, upi bado njiani na upi umeshindwa.","All guests":"Wageni wote","Delivered":"Imefika","On its way":"Iko njiani","Failed":"Imeshindwa","Opened on my phone":"Imefunguliwa kwenye simu yangu","Not sent":"Haijatumwa","Refresh":"Onyesha upya","Send again to failed":"Tuma tena kwa walioshindwa","Guest":"Mgeni","Channel":"Njia","Time":"Muda","Note":"Maelezo","Waiting for the network to confirm.":"Inasubiri mtandao uthibitishe.","The message was opened on your phone; the system cannot see if it was sent.":"Ujumbe ulifunguliwa kwenye simu yako; mfumo hauwezi kuona kama ulitumwa.","No guests match this filter.":"Hakuna mgeni anayelingana na kichujio hiki.","The message status could not be loaded. Check your internet connection and press Refresh.":"Hali ya ujumbe haikuweza kupakiwa. Angalia mtandao kisha bonyeza Onyesha upya.","Recipients set to the guests whose SMS did not go through. Press Send to try again.":"Wapokeaji ni wale ambao SMS haikufika. Bonyeza Tuma kujaribu tena.","Paid part, balance remaining (progress)":"Alilipa sehemu, salio limebaki (maendeleo)","Pledged but not paid yet (gentle reminder)":"Aliahidi lakini hajalipa (kikumbusho kwa upole)","Final call before the event (balance due)":"Wito wa mwisho kabla ya tukio (salio)","Everyone who gave (thank-you)":"Wote waliotoa (shukrani)","Message style":"Mtindo wa ujumbe","Friendly":"Kirafiki","Formal":"Rasmi","Short (saves SMS)":"Fupi (inapunguza gharama ya SMS)","New contribution list":"Orodha mpya ya michango","Give your contribution a name and start recording. You do not need the host to create an event first.":"Pa mchango wako jina kisha anza kurekodi. Hauhitaji mwenyeji atengeneze tukio kwanza.","Name of the contribution":"Jina la mchango","Create list":"Tengeneza orodha","Write the name of the contribution, e.g. \"Harusi ya Amina\".":"Andika jina la mchango, mf. \"Harusi ya Amina\".","You already have a list with this name.":"Tayari una orodha yenye jina hili.","Contribution list created: ":"Orodha ya michango imetengenezwa: ","Scanned by you":"Uliowapitisha wewe","You have not scanned anyone yet. Guests you check in appear here.":"Bado hujampitisha mtu. Wageni unaowaingiza wataonekana hapa.","Guest code, e.g. T34120":"Namba ya mgeni, mf. T34120","Guest code":"Namba ya mgeni","Find guest":"Tafuta mgeni","Enter the guest code":"Weka namba ya mgeni","Code not found":"Namba haipo","Choose an event first":"Chagua tukio kwanza",
 "e.g. Table 7, VIP, Family":"mf. Meza 7, VIP, Familia","e.g. Mzee Kimaro":"mf. Mzee Kimaro","e.g. Hall booking":"mf. Malipo ya ukumbi",
 "Legal":"Kisheria","8+ characters, letters and numbers":"Herufi 8+, herufi na namba","Repeat the password":"Rudia nenosiri",
 "e.g. Table 5":"mf. Meza 5","e.g. Family, VIP":"mf. Familia, VIP","e.g. Amina Juma":"mf. Amina Juma",
