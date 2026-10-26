@@ -2185,7 +2185,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.28</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.29</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2633,6 +2633,15 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="panel-heading"><div><h2>Photographer subscriptions</h2><p>Photographers pay a monthly fee to upload photos. After a payment arrives, activate their email here.</p></div></div>
     <div class="toolbar"><input id="subEmail" type="email" placeholder="photographer@example.com" style="max-width:300px" aria-label="Photographer email" onkeydown="if(event.key==='Enter')photogSubAdd()"><select id="subDays" aria-label="Duration" style="max-width:190px"><option value="7">Trial (7 days)</option><option value="30" selected>1 month</option><option value="90">3 months</option><option value="180">6 months</option><option value="365">12 months</option></select><button class="primary" onclick="photogSubAdd()"><svg class="i"><use href="#i-check"/></svg>Activate / extend</button></div>
     <div id="adminSubs"></div>
+  </div>
+  <div class="panel" id="adminPkgPanel">
+    <div class="panel-heading"><div><h2>Packages and prices</h2><p>Your packages. Change a price or name any time and press Save. The new price is used for all new quotes; events already agreed keep the limit you set for them.</p></div>
+      <div class="toolbar"><button class="primary" type="button" onclick="admPkgAdd()"><svg class="i"><use href="#i-plus"/></svg>Add package</button></div></div>
+    <div id="adminPkgs"></div>
+  </div>
+  <div class="panel" id="adminLimitPanel">
+    <div class="panel-heading"><div><h2>Guest limits per event</h2><p>Choose the package the customer bought and the number of guests you agreed. You see at once who has added more than agreed. Customers cannot change these settings.</p></div></div>
+    <div id="adminLimits"></div>
   </div>
   <div class="panel">
     <div class="panel-heading"><div><h2>All events</h2><p>Events from all customers.</p></div></div>
@@ -3328,6 +3337,7 @@ async function _loadEventsOnce(){
     maps: normalizeUrl(e.google_maps_url || e.maps_url || ""),
     message: e.message || "",
     galleryOpen: !!e.gallery_open,
+    guestLimit: (e.guest_limit==null?null:Number(e.guest_limit)), limitMode: e.limit_mode||'warn',
     showTable: e.show_table!==false,
     rsvpDeadline: e.rsvp_deadline || null,
     mealOptions: Array.isArray(e.meal_options) ? e.meal_options.filter(Boolean) : [],
@@ -6779,13 +6789,14 @@ window.loadAdminData = async function(force){
   if(window.__admin && !force && Date.now()-window.__admin.at<30000){ renderAdmin(); return; }
   try{
     const [events,profiles,guests]=await Promise.all([
-      fetchAll(()=>supabaseClient.from('events').select('id,owner_id,event_name,event_type,event_date,venue,created_at').order('created_at',{ascending:false})),
+      fetchAll(()=>supabaseClient.from('events').select('id,owner_id,event_name,event_type,event_date,venue,created_at,package_id,guest_limit,limit_mode').order('created_at',{ascending:false})),
       fetchAll(()=>supabaseClient.from('profiles').select('id,full_name,email,phone,role,created_at').order('created_at',{ascending:false})),
       fetchAll(()=>supabaseClient.from('guests').select('id,event_id,rsvp_status,checked_in,sent_whatsapp,sent_sms').order('id'))
     ]);
     let subs=[]; try{ subs=await fetchAll(()=>supabaseClient.from('photographer_subscriptions').select('email,active_until,note,updated_at').order('active_until',{ascending:false})); }catch(e){ subs=null; }
     let ov=null; try{ const r=await supabaseClient.rpc('admin_customer_overview'); if(!r.error&&Array.isArray(r.data)) ov=Object.fromEntries(r.data.map(x=>[x.id,x])); }catch(e){ ov=null; }
-    window.__admin={events,profiles,guests,subs,ov,at:Date.now()}; renderAdmin();
+    let pkgs=[]; try{ const r=await supabaseClient.from('service_packages').select('*').order('sort',{ascending:true}).order('name'); if(!r.error) pkgs=r.data||[]; }catch(e){}
+    window.__admin={events,profiles,guests,subs,ov,pkgs,at:Date.now()}; renderAdmin();
   }catch(e){ $('adminTable').innerHTML=emptyState('Data could not be loaded',String(e.message||e)); }
 };
 window.renderAdmin = function(){
@@ -8235,6 +8246,83 @@ window.ctRemovePerson=async function(id,email){
   toast('Access removed.'); ctRenderShare(); try{ auditLog('team_removed',email); }catch(e){}
 };
 (function(){ const f=window.renderContributions; window.renderContributions=function(){ const o=f.apply(this,arguments); try{ ctRenderShare(); }catch(e){} return o; }; })();
+/* V127.29: editable packages, guest limits per event, over-limit warning for the admin */
+const PK_N=v=>Number(v||0).toLocaleString('en-US');
+window.pkgTotal=function(p,n){ n=Number(n)||0; if(!p) return 0; const bulk=p.bulk_after&&p.bulk_price!=null&&n>Number(p.bulk_after); return n*Number(bulk?p.bulk_price:p.price_per_guest); };
+window.renderAdminPkgs=function(){
+  const d=window.__admin; if(!d||!isAdmin) return; const box=$('adminPkgs'); if(!box) return;
+  const P=d.pkgs||[];
+  const inp=(id,f,v,w,t)=>`<input class="pk-in" id="pk_${id}_${f}" ${t==='text'?'':'type="number" min="0" inputmode="numeric"'} value="${E(v==null?'':v)}" style="width:${w}px" oninput="this.dataset.d=1">`;
+  box.innerHTML=P.length?`<div class="table-wrap"><table><thead><tr><th>Package</th><th>Price per guest (TZS)</th><th>After this many guests</th><th>Price per guest then (TZS)</th><th>What is included</th><th>On</th><th></th></tr></thead><tbody>${P.map(p=>`<tr><td>${inp(p.id,'name',p.name,130,'text')}</td><td>${inp(p.id,'price',p.price_per_guest,100)}</td><td>${inp(p.id,'after',p.bulk_after,90)}</td><td>${inp(p.id,'bulk',p.bulk_price,100)}</td><td><textarea class="pk-in" id="pk_${p.id}_inc" rows="2" style="width:300px" oninput="this.dataset.d=1">${E(p.includes||'')}</textarea></td><td><input type="checkbox" id="pk_${p.id}_on" ${p.active?'checked':''}></td><td style="white-space:nowrap"><button class="primary" type="button" onclick="admPkgSave('${E(p.id)}')">Save</button> <button class="gray icon del" type="button" title="Delete" aria-label="Delete" onclick="admPkgDel('${E(p.id)}')">${ic('trash')}</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="help">No packages yet. Press Add package.</div>';
+};
+window.admPkgSave=async function(id){
+  const g=f=>$('pk_'+id+'_'+f), num=el=>{ const v=String(el.value||'').trim(); return v===''?null:Math.round(Number(v)); };
+  const name=String(g('name').value||'').trim(), price=num(g('price'));
+  if(!name) return toast('Write the package name.',true); if(price==null||isNaN(price)||price<0) return toast('Write the price per guest.',true);
+  const after=num(g('after')), bulk=num(g('bulk'));
+  if((after==null)!==(bulk==null)) return toast('Fill both "after this many guests" and its price, or leave both empty.',true);
+  const row={name:name.slice(0,60),price_per_guest:price,bulk_after:after,bulk_price:bulk,includes:String(g('inc').value||'').trim()||null,active:!!g('on').checked,updated_at:new Date().toISOString()};
+  const r=await supabaseClient.from('service_packages').update(row).eq('id',id);
+  if(r.error) return toast('Could not save: '+r.error.message,true);
+  toast('Package saved.'); try{ auditLog('package_saved',name+' '+price); }catch(e){} loadAdminData(true);
+};
+window.admPkgAdd=async function(){
+  const P=(window.__admin&&window.__admin.pkgs)||[];
+  const r=await supabaseClient.from('service_packages').insert({name:'New package',sort:P.length+1,price_per_guest:0,bulk_after:150,bulk_price:0,active:true});
+  if(r.error) return toast('Could not add: '+r.error.message,true);
+  toast('Package added. Fill in the name and price, then Save.'); loadAdminData(true);
+};
+window.admPkgDel=async function(id){
+  const ok=await confirmDialog({title:'Delete this package?',text:'Events that use it keep their guest limit; only the package name link is removed.',ok:'Delete'}); if(!ok) return;
+  const r=await supabaseClient.from('service_packages').delete().eq('id',id);
+  if(r.error) return toast('Could not delete: '+r.error.message,true);
+  toast('Package deleted.'); loadAdminData(true);
+};
+window.renderAdminLimits=function(){
+  const d=window.__admin; if(!d||!isAdmin) return; const box=$('adminLimits'); if(!box) return;
+  const P=d.pkgs||[], pm=Object.fromEntries(P.map(p=>[p.id,p])), owner=Object.fromEntries(d.profiles.map(p=>[p.id,p]));
+  const cnt={}; d.guests.forEach(g=>{ cnt[g.event_id]=(cnt[g.event_id]||0)+1; });
+  const ev=d.events.filter(e=>e.event_type!=='Contribution');
+  if(!ev.length){ box.innerHTML='<div class="help">No events yet.</div>'; return; }
+  const rows=ev.map(e=>{ const n=cnt[e.id]||0, lim=e.guest_limit, p=pm[e.package_id], over=lim!=null&&n>lim, full=lim!=null&&n===lim&&e.limit_mode!=='off';
+    const agreed=p&&lim!=null?pkgTotal(p,lim):null, now=p?pkgTotal(p,n):null, extra=(over&&p)?(now-agreed):null;
+    const st=lim==null?'<span class="status idle">No limit set</span>':(over?`<span class="status bad">+${n-lim} more than agreed</span>`:(full?'<span class="status warn">At the limit</span>':'<span class="status ok">Within limit</span>'));
+    return {over,tr:`<tr${over?' style="background:#fff5f4"':''}><td><b>${E(e.event_name||'')}</b><div class="muted" style="font-size:12px">${E((owner[e.owner_id]||{}).full_name||(owner[e.owner_id]||{}).email||'')}</div></td>
+      <td><select id="lm_${e.id}_pkg" style="max-width:150px"><option value="">— none —</option>${P.filter(x=>x.active||x.id===e.package_id).map(x=>`<option value="${E(x.id)}" ${x.id===e.package_id?'selected':''}>${E(x.name)}</option>`).join('')}</select></td>
+      <td><input type="number" min="0" inputmode="numeric" id="lm_${e.id}_lim" value="${lim==null?'':lim}" placeholder="e.g. 120" style="width:90px"></td>
+      <td><b${over?' style="color:#b42318"':''}>${n}</b></td>
+      <td><select id="lm_${e.id}_mode" style="max-width:150px"><option value="warn" ${e.limit_mode==='warn'?'selected':''}>Warn only</option><option value="block" ${e.limit_mode==='block'?'selected':''}>Block extra guests</option><option value="off" ${e.limit_mode==='off'?'selected':''}>No limit</option></select></td>
+      <td>${st}</td>
+      <td>${agreed!=null?'TZS '+PK_N(agreed):'—'}${extra!=null?`<div style="color:#b42318;font-size:12.5px;font-weight:700">+ TZS ${PK_N(extra)} to collect</div>`:''}</td>
+      <td><button class="primary" type="button" onclick="admLimitSave('${E(e.id)}')">Save</button></td></tr>`}; });
+  const nOver=rows.filter(r=>r.over).length;
+  box.innerHTML=(nOver?`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('info')}<span><b>${nOver}</b> ${nOver===1?'event has':'events have'} more guests than agreed. Ask for the extra payment before sending the invitations.</span></div>`:'')+`<div class="table-wrap"><table><thead><tr><th>Event</th><th>Package</th><th>Agreed guests</th><th>Guests now</th><th>When the limit is reached</th><th>Status</th><th>Agreed total</th><th></th></tr></thead><tbody>${rows.map(r=>r.tr).join('')}</tbody></table></div>`;
+};
+window.admLimitSave=async function(eid){
+  const pk=$('lm_'+eid+'_pkg').value||null, ls=String($('lm_'+eid+'_lim').value||'').trim(), mode=$('lm_'+eid+'_mode').value;
+  const lim=ls===''?null:Math.round(Number(ls));
+  if(lim!=null&&(isNaN(lim)||lim<0)) return toast('Write a valid number of guests.',true);
+  if(lim==null&&mode==='block') return toast('To block extra guests you must write the agreed number of guests.',true);
+  const r=await supabaseClient.rpc('admin_set_event_limit',{p_event:eid,p_package:pk,p_limit:lim,p_mode:mode});
+  if(r.error) return toast('Could not save: '+r.error.message,true);
+  toast('Saved.'); try{ auditLog('limit_saved',eid+' '+lim+' '+mode); }catch(e){} loadAdminData(true);
+};
+(function(){ const f=window.renderAdmin; window.renderAdmin=function(){ const o=f.apply(this,arguments); try{ renderAdminPkgs(); renderAdminLimits(); }catch(e){ console.warn('admin limits',e); } return o; }; })();
+
+/* the customer sees how many guests the package covers */
+window.renderGuestLimitNote=function(){
+  const sec=$('guests'); if(!sec) return; let box=$('guestLimitNote');
+  if(!box){ box=document.createElement('div'); box.id='guestLimitNote'; const tl=sec.querySelector('.topline'); if(tl&&tl.parentNode) tl.parentNode.insertBefore(box,tl.nextSibling); else return; }
+  const ev=getEvent(currentEventId);
+  if(!ev||ev.guestLimit==null||ev.limitMode==='off'||isAdmin){ box.innerHTML=''; return; }
+  const n=ev.guests.length, lim=ev.guestLimit, sw=(typeof invLang==='function'&&invLang()!=='en');
+  const over=n>lim, full=n>=lim;
+  const msg=over?(sw?`Umezidi wageni wa kifurushi chako: ${n} kati ya ${lim}. Wasiliana na SHEREHE HUB kuongeza.`:`You have more guests than your package covers: ${n} of ${lim}. Contact SHEREHE HUB to add more.`)
+    :full?(sw?`Umefikia kikomo cha kifurushi chako: wageni ${n} kati ya ${lim}. Kuongeza wageni, wasiliana na SHEREHE HUB.`:`You have reached your package limit: ${n} of ${lim} guests. Contact SHEREHE HUB to add more.`)
+    :(sw?`Kifurushi chako kinahusu wageni ${lim}. Umeongeza ${n}.`:`Your package covers ${lim} guests. You have added ${n}.`);
+  box.innerHTML=`<div class="hint-box" style="margin:0 0 12px;${full?'border-color:#f0d9a8;background:#fff8e8':''}">${ic('info')}<span>${E(msg)}</span></div>`;
+};
+(function(){ const f=window.renderGuests; window.renderGuests=function(){ const o=f.apply(this,arguments); try{ renderGuestLimitNote(); }catch(e){} return o; }; })();
 
 /* ----- committee tasks ----- */
 const TK = {eventId:null, list:[], ok:true, loading:false, edit:null, filter:''};
