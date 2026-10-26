@@ -2185,7 +2185,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.30</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.31</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9234,7 +9234,7 @@ const SVC_INFO={
 };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER; /* V127.30: the host card is back; choosing it asks for a package and the number of guests */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.31: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9243,6 +9243,7 @@ const svcSt=k=>((SVC.me&&SVC.me.state)||{})[k]||{};
 const svcPriceText=k=>{ const p=svcPlan(k); return p.kind==='free'?'Free':(p.kind==='per_sms'?`TZS ${svcMoney(p.fee)} per SMS`:`TZS ${svcMoney(p.fee)} / month`); };
 const svcOn=()=>!!(SVC.me&&!SVC.me.admin&&!isAdmin);
 const svcHostish=()=>{ const m=SVC.me; return !!(m&&(svcSt('host').chosen||svcSt('treasurer').chosen||m.has_events||m.is_staff||((db&&db.events)||[]).length)); };
+const pkgPending=()=>{ const a=SVC.pkgMine; return !!(a&&a.length&&!a.some(x=>x.status==='approved')); };
 const svcBad=k=>{ const s=svcSt(k); return !!(s.chosen&&s.kind==='monthly'&&!s.active); };
 
 function svcAllowed(id){
@@ -9265,6 +9266,7 @@ function svcGate(id){
   if(id==='tickets') return svcBad('tickets')?'tickets':null;
   if(id==='collections') return svcBad('photographer')?'photographer':null;
   if(SVC_HOST_VIEWS.has(id)){
+    if(pkgPending()) return 'pkg';
     if(svcSt('host').chosen||SVC.me.has_events) return null;
     return svcBad('cohost')?'cohost':(svcBad('treasurer')?'treasurer':null);
   }
@@ -9277,7 +9279,9 @@ window.svcRefresh=async function(){
   try{
     const r=await supabaseClient.rpc('svc_me');
     if(r.error) throw r.error;
-    SVC.me=r.data; svcApply();
+    SVC.me=r.data;
+    try{ await pkgLoadMine(); }catch(e){}
+    svcApply();
     try{ pkgBannerLoad(); }catch(e){}
   }catch(e){ console.warn('svc_me:',e); }
   return SVC.me;
@@ -9356,7 +9360,7 @@ window.svcSave=async function(){
     svcCloseChooser();
     await svcRefresh();
     if(first&&window.loadEventsFromSupabase){ try{ await window.loadEventsFromSupabase(); }catch(e){} }
-    if(req){ window.showView(svcHome()); svcShowPkgPay(req); return; }
+    if(req){ SVC.pkgMine=[req].concat((SVC.pkgMine||[]).filter(x=>x.id!==req.id&&x.status!=='requested')); window.showView(svcHome()); return; }
     window.showView(svcHome());
   }catch(e){ toast('Could not save: '+(e.message||e)); const g2=$('svcGo'); if(g2){ g2.disabled=false; g2.textContent='Save'; } }
   finally{ SVC.busy=false; }
@@ -9370,6 +9374,7 @@ function svcWaLink(k){
 function svcGuard(id){
   const k=svcGate(id), w=$('svcWall');
   if(!k){ if(w) w.remove(); return; }
+  if(k==='pkg') return pkgWall();
   const st=svcSt(k), nm=svcPlan(k).name, fee=svcPlan(k).fee;
   const until=st.until&&new Date(st.until)<=new Date()?new Date(st.until).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
   const mail=String((currentSupabaseUser&&currentSupabaseUser.email)||'');
@@ -9478,6 +9483,36 @@ window.pkgBannerLoad=async function(){
   if(st==='approved'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#bfe3cf;background:#effaf3">${ic('check')}<span>${S_('Kifurushi chako kimethibitishwa','Your package is confirmed')}: ${info}</span></div>`; return; }
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
+};
+/* V127.31: the customer cannot use the app until the package payment is confirmed */
+window.pkgLoadMine=async function(){
+  SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
+  try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
+};
+function pkgWall(){
+  const q=(SVC.pkgMine||[])[0]; if(!q) return;
+  let el=$('svcWall'); if(!el){ el=document.createElement('div'); el.id='svcWall'; el.className='svc-wall'; document.body.appendChild(el); }
+  const info=`${E(q.package_name)} · ${q.guests} ${S_('wageni','guests')}`, rej=q.status==='rejected', paid=q.status==='paid';
+  el.innerHTML=`<div class="svc-box"><div class="panel"><div class="panel-heading"><div><h2>${rej?S_('Ombi lako halikukubaliwa','Your request was not accepted'):S_('Subiri uthibitisho wa malipo','Waiting for payment confirmation')}</h2><p>${rej?S_('Tuandikie WhatsApp tukusaidie.','Message us on WhatsApp and we will help you.'):S_('Utaingia kwenye mfumo mara tu tutakapothibitisha malipo yako.','You will enter the app as soon as we confirm your payment.')}</p></div></div>
+    <div class="svc-row"><div><b>${S_('Kifurushi','Package')}</b><small>${S_('Ulichochagua','Your choice')}</small></div><div style="text-align:right"><b>${info}</b></div></div>
+    <div class="svc-row"><div><b>${S_('Jumla ya kulipa','Total to pay')}</b></div><div class="svc-fee">TZS ${E(PK_N(q.total))}</div></div>
+    ${rej?'':`<div class="svc-row"><div><b>${S_('Lipa kwa','Pay to')}</b><small>${S_('Tumia email yako kama kumbukumbu','Use your email as the reference')}</small></div><div style="text-align:right"><b>${E((SVC.me&&SVC.me.pay_text)||'')}</b></div></div>`}
+    <div class="svc-row"><div><b>${S_('Akaunti yako','Your account')}</b></div><div>${E(String((currentSupabaseUser&&currentSupabaseUser.email)||''))}</div></div>
+    ${paid?`<div class="hint-box">${ic('check')}<span>${S_('Tumepokea taarifa ya malipo yako. Tunakagua na tutakuruhusu hivi karibuni.','We received your payment notice. We are checking it and will let you in soon.')}</span></div>`:(rej?'':`<div class="help">${S_('Ukishalipa, bonyeza "Nimelipa". Tutakagua malipo na kuthibitisha.','After you pay, press "I have paid". We will check the payment and confirm.')}</div>`)}
+    <div class="svc-actions" style="margin-top:12px">${rej?'':`<button class="primary" type="button" onclick="pkgPaidWall('${E(q.id)}')" ${paid?'disabled':''}>${S_('Nimelipa','I have paid')}</button>`}<button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button><button class="gray" type="button" onclick="pkgRecheck()">${S_('Angalia tena','Check again')}</button></div>
+    <div class="svc-actions" style="margin-top:10px"><button class="gray" type="button" onclick="svcManage()">${S_('Badilisha kifurushi','Change package')}</button><button class="gray" type="button" onclick="logout()">${S_('Toka','Sign out')}</button></div></div></div>`;
+}
+window.pkgPaidWall=async function(id){
+  const x=await supabaseClient.rpc('pkg_request_paid',{p_id:id});
+  if(x.error) return toast('Could not send: '+x.error.message,true);
+  SVC.pkgMine=(SVC.pkgMine||[]).map(r=>r.id===id?Object.assign({},r,x.data||{status:'paid'}):r);
+  toast(S_('Asante. Tutakagua malipo na kuthibitisha.','Thank you. We will check the payment and confirm.')); pkgWall();
+};
+window.pkgRecheck=async function(){
+  await svcRefresh();
+  if(window.loadEventsFromSupabase){ try{ await window.loadEventsFromSupabase(); }catch(e){} }
+  const act=document.querySelector('.view.active'); svcGuard(act?act.id:'dashboard');
+  if(!$('svcWall')){ toast(S_('Malipo yamethibitishwa. Karibu!','Payment confirmed. Welcome!')); try{ window.showView(svcHome()); }catch(e){} } else toast(S_('Bado hayajathibitishwa. Tafadhali subiri.','Not confirmed yet. Please wait.'));
 };
 /* ---------- Admin Console: services, prices, remove member ---------- */
 window.renderAdminSvc=async function(){
