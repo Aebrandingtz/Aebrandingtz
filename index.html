@@ -2185,7 +2185,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.29</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.30</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2638,6 +2638,10 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="panel-heading"><div><h2>Packages and prices</h2><p>Your packages. Change a price or name any time and press Save. The new price is used for all new quotes; events already agreed keep the limit you set for them.</p></div>
       <div class="toolbar"><button class="primary" type="button" onclick="admPkgAdd()"><svg class="i"><use href="#i-plus"/></svg>Add package</button></div></div>
     <div id="adminPkgs"></div>
+  </div>
+  <div class="panel" id="adminReqPanel">
+    <div class="panel-heading"><div><h2>Package requests</h2><p>What customers chose when they signed up: package, number of guests and total. After you receive the payment, set the status to Approved and set the guest limit in the table below.</p></div></div>
+    <div id="adminReqs"></div>
   </div>
   <div class="panel" id="adminLimitPanel">
     <div class="panel-heading"><div><h2>Guest limits per event</h2><p>Choose the package the customer bought and the number of guests you agreed. You see at once who has added more than agreed. Customers cannot change these settings.</p></div></div>
@@ -6796,7 +6800,8 @@ window.loadAdminData = async function(force){
     let subs=[]; try{ subs=await fetchAll(()=>supabaseClient.from('photographer_subscriptions').select('email,active_until,note,updated_at').order('active_until',{ascending:false})); }catch(e){ subs=null; }
     let ov=null; try{ const r=await supabaseClient.rpc('admin_customer_overview'); if(!r.error&&Array.isArray(r.data)) ov=Object.fromEntries(r.data.map(x=>[x.id,x])); }catch(e){ ov=null; }
     let pkgs=[]; try{ const r=await supabaseClient.from('service_packages').select('*').order('sort',{ascending:true}).order('name'); if(!r.error) pkgs=r.data||[]; }catch(e){}
-    window.__admin={events,profiles,guests,subs,ov,pkgs,at:Date.now()}; renderAdmin();
+    let reqs=[]; try{ const r=await supabaseClient.from('package_requests').select('*').order('created_at',{ascending:false}).limit(300); if(!r.error) reqs=r.data||[]; }catch(e){}
+    window.__admin={events,profiles,guests,subs,ov,pkgs,reqs,at:Date.now()}; renderAdmin();
   }catch(e){ $('adminTable').innerHTML=emptyState('Data could not be loaded',String(e.message||e)); }
 };
 window.renderAdmin = function(){
@@ -8287,7 +8292,7 @@ window.renderAdminLimits=function(){
   const rows=ev.map(e=>{ const n=cnt[e.id]||0, lim=e.guest_limit, p=pm[e.package_id], over=lim!=null&&n>lim, full=lim!=null&&n===lim&&e.limit_mode!=='off';
     const agreed=p&&lim!=null?pkgTotal(p,lim):null, now=p?pkgTotal(p,n):null, extra=(over&&p)?(now-agreed):null;
     const st=lim==null?'<span class="status idle">No limit set</span>':(over?`<span class="status bad">+${n-lim} more than agreed</span>`:(full?'<span class="status warn">At the limit</span>':'<span class="status ok">Within limit</span>'));
-    return {over,tr:`<tr${over?' style="background:#fff5f4"':''}><td><b>${E(e.event_name||'')}</b><div class="muted" style="font-size:12px">${E((owner[e.owner_id]||{}).full_name||(owner[e.owner_id]||{}).email||'')}</div></td>
+    return {over,tr:`<tr${over?' style="background:#fff5f4"':''}><td><b>${E(e.event_name||'')}</b><div class="muted" style="font-size:12px">${E((owner[e.owner_id]||{}).full_name||(owner[e.owner_id]||{}).email||'')}</div>${(()=>{ const q=(d.reqs||[]).find(x=>x.user_id===e.owner_id&&(x.status==='requested'||x.status==='paid')); return q?`<div style="font-size:12.5px;margin-top:4px"><span class="tag gold">${q.status==='paid'?'Says paid':'Requested'}</span> ${E(q.package_name)} · ${q.guests} guests · TZS ${PK_N(q.total)} <button class="gray" type="button" style="padding:2px 8px;font-size:12px" onclick="admUseReq('${E(e.id)}','${E(q.id)}')">Use</button></div>`:''; })()}</td>
       <td><select id="lm_${e.id}_pkg" style="max-width:150px"><option value="">— none —</option>${P.filter(x=>x.active||x.id===e.package_id).map(x=>`<option value="${E(x.id)}" ${x.id===e.package_id?'selected':''}>${E(x.name)}</option>`).join('')}</select></td>
       <td><input type="number" min="0" inputmode="numeric" id="lm_${e.id}_lim" value="${lim==null?'':lim}" placeholder="e.g. 120" style="width:90px"></td>
       <td><b${over?' style="color:#b42318"':''}>${n}</b></td>
@@ -8305,9 +8310,18 @@ window.admLimitSave=async function(eid){
   if(lim==null&&mode==='block') return toast('To block extra guests you must write the agreed number of guests.',true);
   const r=await supabaseClient.rpc('admin_set_event_limit',{p_event:eid,p_package:pk,p_limit:lim,p_mode:mode});
   if(r.error) return toast('Could not save: '+r.error.message,true);
+  const rq=window.__admReqFor&&window.__admReqFor[eid]; if(rq){ try{ await supabaseClient.rpc('admin_set_request_status',{p_id:rq,p_status:'approved',p_event:eid}); }catch(e){} delete window.__admReqFor[eid]; }
   toast('Saved.'); try{ auditLog('limit_saved',eid+' '+lim+' '+mode); }catch(e){} loadAdminData(true);
 };
-(function(){ const f=window.renderAdmin; window.renderAdmin=function(){ const o=f.apply(this,arguments); try{ renderAdminPkgs(); renderAdminLimits(); }catch(e){ console.warn('admin limits',e); } return o; }; })();
+window.renderAdminReqs=function(){
+  const d=window.__admin; if(!d||!isAdmin) return; const box=$('adminReqs'); if(!box) return;
+  const owner=Object.fromEntries(d.profiles.map(p=>[p.id,p])), R=d.reqs||[];
+  const lbl={requested:'Requested',paid:'Says paid',approved:'Approved',rejected:'Rejected'};
+  box.innerHTML=R.length?`<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Package</th><th>Guests</th><th>Total (TZS)</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>${R.map(q=>{ const o=owner[q.user_id]||{}; return `<tr><td><b>${E(o.full_name||o.email||'—')}</b><div class="muted" style="font-size:12px">${E(o.phone||o.email||'')}</div></td><td>${E(q.package_name)}</td><td>${q.guests}</td><td>${PK_N(q.total)}</td><td>${E(new Date(q.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}))}</td><td><select id="rq_${q.id}" style="max-width:140px">${Object.keys(lbl).map(k=>`<option value="${k}" ${q.status===k?'selected':''}>${lbl[k]}</option>`).join('')}</select></td><td><button class="primary" type="button" onclick="admReqSave('${E(q.id)}')">Save</button></td></tr>`; }).join('')}</tbody></table></div>`:'<div class="help">No package requests yet.</div>';
+};
+window.admReqSave=async function(id){ const st=$('rq_'+id).value; const r=await supabaseClient.rpc('admin_set_request_status',{p_id:id,p_status:st}); if(r.error) return toast('Could not save: '+r.error.message,true); toast('Saved.'); loadAdminData(true); };
+window.admUseReq=function(eid,rid){ const d=window.__admin, q=(d.reqs||[]).find(x=>x.id===rid); if(!q) return; const pk=$('lm_'+eid+'_pkg'), li=$('lm_'+eid+'_lim'); if(pk&&q.package_id) pk.value=q.package_id; if(li) li.value=q.guests; (window.__admReqFor=window.__admReqFor||{})[eid]=rid; toast('Filled in. Choose what happens at the limit, then press Save.'); };
+(function(){ const f=window.renderAdmin; window.renderAdmin=function(){ const o=f.apply(this,arguments); try{ renderAdminPkgs(); renderAdminReqs(); renderAdminLimits(); }catch(e){ console.warn('admin limits',e); } return o; }; })();
 
 /* the customer sees how many guests the package covers */
 window.renderGuestLimitNote=function(){
@@ -9211,7 +9225,7 @@ document.addEventListener('keydown',e=>{
    ========================================================================= */
 const SVC_HOST_VIEWS=new Set(['dashboard','events','create','tasks','guests','seating','cards','messaging','rsvp','photos','wishes','reports','contributions']);
 const SVC_INFO={
-  host:{n:'Event host',d:'Create events, guest lists, invitations, cards, check-in and reports.'},
+  host:{n:'Event host',d:'Create events, guest lists, invitations, cards, check-in and reports. You choose your package and price.'},
   cohost:{n:'Co-host',d:'Help a host run their event. The host adds your email to their event.'},
   treasurer:{n:'Treasurer',d:'Record contributions and expenses for an event you were invited to.'},
   photographer:{n:'Photographer',d:'Online photo galleries and photo uploads for your clients.'},
@@ -9220,7 +9234,7 @@ const SVC_INFO={
 };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='host');
+const SVC_PICK=SVC_ORDER; /* V127.30: the host card is back; choosing it asks for a package and the number of guests */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9264,6 +9278,7 @@ window.svcRefresh=async function(){
     const r=await supabaseClient.rpc('svc_me');
     if(r.error) throw r.error;
     SVC.me=r.data; svcApply();
+    try{ pkgBannerLoad(); }catch(e){}
   }catch(e){ console.warn('svc_me:',e); }
   return SVC.me;
 };
@@ -9306,29 +9321,42 @@ function svcShowChooser(first){
   el.innerHTML=`<div class="svc-box"><h1>${first?'What do you need SHEREHE HUB for?':'My services'}</h1>
     <p>${first?'Choose the service you need. You will only see that part of the app. You can add another service later.':'Add or remove services. Paid services need an active subscription.'}</p>
     <div class="svc-grid">${SVC_PICK.map(k=>svcCardHtml(k,SVC.picked.has(k))).join('')}</div>
+    <div id="svcPkgBox"></div>
     <div class="svc-actions"><button class="primary" id="svcGo" type="button" onclick="svcSave()" ${SVC.picked.size?'':'disabled'}>${first?'Continue':'Save'}</button>${first?'':'<button class="gray" type="button" onclick="svcCloseChooser()">Cancel</button>'}<button class="gray" type="button" onclick="logout()">Sign out</button></div></div>`;
+  try{ svcPkgLoad(); }catch(e){}
 }
 window.svcPick=function(k){
   if(SVC.picked.has(k)) SVC.picked.delete(k); else SVC.picked.add(k);
   const c=document.querySelector('#svcChooser .svc-card[data-k="'+k+'"]'); if(c){ const on=SVC.picked.has(k); c.classList.toggle('on',on); c.setAttribute('aria-pressed',on?'true':'false'); c.querySelector('.svc-tick').textContent=on?'✓':''; }
   const g=$('svcGo'); if(g) g.disabled=!SVC.picked.size;
+  try{ svcPkgRender(); }catch(e){}
 };
 window.svcCloseChooser=function(){ const el=$('svcChooser'); if(el) el.remove(); };
 window.svcManage=function(){ if(SVC.me) svcShowChooser(false); };
 window.svcSave=async function(){
   if(SVC.busy) return; SVC.busy=true;
   const g=$('svcGo'); if(g){ g.disabled=true; g.textContent='Saving…'; }
+  let req=null;
   try{
     const now=SVC.me&&SVC.me.state||{};
+    const hadHost=!!(now.host&&now.host.chosen), wantHost=SVC.picked.has('host');
+    const askPkg=wantHost&&(!hadHost||SVC.pkgTouched);
+    if(askPkg){
+      const gu=Math.round(Number(SVC.pkgGuests)||0);
+      if(!SVC.pkgSel){ toast(S_('Chagua kifurushi chako kwanza.','Please choose your package first.'),true); SVC.busy=false; if(g){ g.disabled=false; g.textContent=($('svcChooser')&&$('svcChooser').dataset.first==='1')?'Continue':'Save'; } return; }
+      if(gu<1){ toast(S_('Andika idadi ya wageni.','Enter the number of guests.'),true); SVC.busy=false; if(g){ g.disabled=false; g.textContent=($('svcChooser')&&$('svcChooser').dataset.first==='1')?'Continue':'Save'; } return; }
+    }
     for(const k of SVC_PICK){
       const had=!!(now[k]&&now[k].chosen), want=SVC.picked.has(k);
       if(want&&!had){ const r=await supabaseClient.rpc('svc_choose',{p_service:k}); if(r.error) throw r.error; }
       if(!want&&had){ const r=await supabaseClient.rpc('svc_unchoose',{p_service:k}); if(r.error) throw r.error; }
     }
+    if(askPkg){ const rr=await supabaseClient.rpc('pkg_request',{p_package:SVC.pkgSel,p_guests:Math.round(Number(SVC.pkgGuests))}); if(rr.error) throw rr.error; req=rr.data; SVC.pkgTouched=false; }
     const first=$('svcChooser')&&$('svcChooser').dataset.first==='1';
     svcCloseChooser();
     await svcRefresh();
     if(first&&window.loadEventsFromSupabase){ try{ await window.loadEventsFromSupabase(); }catch(e){} }
+    if(req){ window.showView(svcHome()); svcShowPkgPay(req); return; }
     window.showView(svcHome());
   }catch(e){ toast('Could not save: '+(e.message||e)); const g2=$('svcGo'); if(g2){ g2.disabled=false; g2.textContent='Save'; } }
   finally{ SVC.busy=false; }
@@ -9397,6 +9425,60 @@ function svcShowBlocked(){
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&SVC.me&&!SVC.me.admin&&($('svcWall')||$('svcBlocked'))) svcRefresh(); });
 })();
 
+/* V127.30: customer chooses package + guests when choosing the Event host service; pays by M-Pesa; admin confirms */
+SVC.pkgs=null; SVC.pkgSel=null; SVC.pkgGuests=''; SVC.pkgTouched=false;
+window.svcPkgLoad=async function(){
+  if(SVC.pkgs===null&&supabaseClient){ try{ const r=await supabaseClient.from('service_packages').select('id,name,sort,price_per_guest,bulk_after,bulk_price,includes').eq('active',true).order('sort',{ascending:true}); SVC.pkgs=r.error?[]:(r.data||[]); }catch(e){ SVC.pkgs=[]; } }
+  svcPkgRender();
+};
+window.svcPkgRender=function(){
+  const box=$('svcPkgBox'); if(!box) return;
+  if(!SVC.picked.has('host')){ box.innerHTML=''; return; }
+  const P=SVC.pkgs; const had=!!(SVC.me&&SVC.me.state&&SVC.me.state.host&&SVC.me.state.host.chosen);
+  if(P===null){ box.innerHTML=`<p class="muted">${S_('Inapakia vifurushi…','Loading packages…')}</p>`; return; }
+  if(!P.length){ box.innerHTML=`<div class="help">${S_('Vifurushi bado havijawekwa. Endelea; tutawasiliana nawe.','Packages are not set up yet. Continue and we will contact you.')}</div>`; return; }
+  const sel=P.find(p=>p.id===SVC.pkgSel), g=Math.round(Number(SVC.pkgGuests)||0), tot=sel&&g>0?pkgTotal(sel,g):0;
+  const per=p=>`TZS ${PK_N(p.price_per_guest)} ${S_('kwa mgeni','per guest')}`+(p.bulk_after&&p.bulk_price!=null?` · ${S_('zaidi ya','over')} ${p.bulk_after}: TZS ${PK_N(p.bulk_price)}`:'');
+  box.innerHTML=`<div class="panel" style="margin-bottom:14px"><div class="panel-heading"><div><h2>${S_('Chagua kifurushi chako','Choose your package')}</h2><p>${had?S_('Una huduma hii tayari. Chagua kifurushi kipya ukitaka kuongeza wageni.','You already have this service. Choose a package only if you want a new one.'):S_('Bei ni kwa kila mgeni (kadi). Utaona jumla kabla ya kulipa.','The price is per guest (card). You will see the total before you pay.')}</p></div></div>
+    <div class="svc-grid">${P.map(p=>`<button type="button" class="svc-card${p.id===SVC.pkgSel?' on':''}" onclick="svcPkgPick('${E(p.id)}')" aria-pressed="${p.id===SVC.pkgSel?'true':'false'}"><span class="svc-tick">${p.id===SVC.pkgSel?'✓':''}</span><b>${E(p.name)}</b><span class="svc-price">${E(per(p))}</span>${p.includes?`<span>${E(p.includes)}</span>`:''}</button>`).join('')}</div>
+    <div class="field" style="max-width:260px"><label for="svcPkgGuests">${S_('Idadi ya wageni (kadi)','Number of guests (cards)')}</label><input id="svcPkgGuests" type="number" min="1" inputmode="numeric" value="${E(SVC.pkgGuests)}" placeholder="${S_('mf. 120','e.g. 120')}" oninput="svcPkgGuestsIn(this.value)"></div>
+    <div id="svcPkgTotal" class="hint-box" style="margin-top:8px">${tot?`${ic('check')}<span>${S_('Jumla','Total')}: <b>TZS ${PK_N(tot)}</b> (${E(sel.name)} · ${g} ${S_('wageni','guests')})</span>`:`${ic('info')}<span>${S_('Chagua kifurushi na uandike idadi ya wageni uone jumla.','Choose a package and enter the guests to see the total.')}</span>`}</div></div>`;
+};
+window.svcPkgPick=function(id){ SVC.pkgSel=id; SVC.pkgTouched=true; svcPkgRender(); };
+window.svcPkgGuestsIn=function(v){ SVC.pkgGuests=v; SVC.pkgTouched=true; const P=SVC.pkgs||[], sel=P.find(p=>p.id===SVC.pkgSel), g=Math.round(Number(v)||0), tot=sel&&g>0?pkgTotal(sel,g):0, el=$('svcPkgTotal');
+  if(el) el.innerHTML=tot?`${ic('check')}<span>${S_('Jumla','Total')}: <b>TZS ${PK_N(tot)}</b> (${E(sel.name)} · ${g} ${S_('wageni','guests')})</span>`:`${ic('info')}<span>${S_('Chagua kifurushi na uandike idadi ya wageni uone jumla.','Choose a package and enter the guests to see the total.')}</span>`; };
+function pkgWaLink(r){ const m=SVC.me||{}, num=String(m.wa||'255764009731').replace(/\D/g,''); return 'https://wa.me/'+num+'?text='+encodeURIComponent('Habari SHEREHE HUB, nimechagua kifurushi cha '+r.package_name+' kwa wageni '+r.guests+' (jumla TZS '+PK_N(r.total)+'). Email yangu: '+String((currentSupabaseUser&&currentSupabaseUser.email)||'')); }
+window.svcShowPkgPay=function(r){
+  let el=$('svcPkgPay'); if(!el){ el=document.createElement('div'); el.id='svcPkgPay'; el.className='svc-screen'; el.style.zIndex=141; document.body.appendChild(el); }
+  window.__pkgPay=r;
+  el.innerHTML=`<div class="svc-box" style="max-width:560px;margin-top:6vh"><div class="panel"><div class="panel-heading"><div><h2>${S_('Ombi lako la kifurushi','Your package request')}</h2><p>${S_('Lipa kwa M-Pesa kisha bonyeza "Nimelipa". Tutakagua malipo na kuthibitisha.','Pay by M-Pesa, then press "I have paid". We will check the payment and confirm.')}</p></div></div>
+    <div class="svc-row"><div><b>${S_('Kifurushi','Package')}</b><small>${r.guests} ${S_('wageni','guests')}</small></div><div style="text-align:right"><b>${E(r.package_name)}</b></div></div>
+    <div class="svc-row"><div><b>${S_('Jumla ya kulipa','Total to pay')}</b></div><div class="svc-fee">TZS ${E(PK_N(r.total))}</div></div>
+    <div class="svc-row"><div><b>${S_('Lipa kwa','Pay to')}</b><small>${S_('Tumia email yako kama kumbukumbu','Use your email as the reference')}</small></div><div style="text-align:right"><b>${E((SVC.me&&SVC.me.pay_text)||'')}</b></div></div>
+    <div class="svc-row"><div><b>${S_('Akaunti yako','Your account')}</b></div><div>${E(String((currentSupabaseUser&&currentSupabaseUser.email)||''))}</div></div>
+    <div class="svc-actions" style="margin-top:12px"><button class="primary" type="button" id="pkgPaidBtn" onclick="pkgPaid()">${S_('Nimelipa','I have paid')}</button><button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(r))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button><button class="gray" type="button" onclick="svcPkgPayClose()">${S_('Endelea kwenye mfumo','Continue to the app')}</button></div></div></div>`;
+};
+window.svcPkgPayClose=function(){ const el=$('svcPkgPay'); if(el) el.remove(); try{ pkgBannerLoad(true); }catch(e){} };
+window.pkgPaid=async function(){
+  const r=window.__pkgPay; if(!r) return; const b=$('pkgPaidBtn'); if(b) b.disabled=true;
+  const x=await supabaseClient.rpc('pkg_request_paid',{p_id:r.id});
+  if(x.error){ if(b) b.disabled=false; return toast('Could not send: '+x.error.message,true); }
+  toast(S_('Asante. Tutakagua malipo na kuthibitisha kifurushi chako.','Thank you. We will check the payment and confirm your package.'));
+  svcPkgPayClose();
+};
+window.pkgBannerLoad=async function(){
+  const sec=$('dashboard'); if(!sec||!supabaseClient||!currentSupabaseUser) return;
+  let box=$('pkgReqBanner'); if(!box){ box=document.createElement('div'); box.id='pkgReqBanner'; const tl=sec.querySelector('.topline'); if(!tl||!tl.parentNode) return; tl.parentNode.insertBefore(box,tl.nextSibling); }
+  if(isAdmin||(SVC.me&&SVC.me.admin)){ box.innerHTML=''; return; }
+  let q=null; try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(1); if(!r.error&&r.data&&r.data[0]) q=r.data[0]; }catch(e){}
+  window.__pkgLast=q;
+  if(!q){ box.innerHTML=''; return; }
+  const info=`<b>${E(q.package_name)}</b> · ${q.guests} ${S_('wageni','guests')} · TZS ${PK_N(q.total)}`;
+  const st=q.status;
+  if(st==='approved'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#bfe3cf;background:#effaf3">${ic('check')}<span>${S_('Kifurushi chako kimethibitishwa','Your package is confirmed')}: ${info}</span></div>`; return; }
+  if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
+  box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
+};
 /* ---------- Admin Console: services, prices, remove member ---------- */
 window.renderAdminSvc=async function(){
   const box=$('adminSvc'); if(!box) return;
