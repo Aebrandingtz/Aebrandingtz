@@ -2057,7 +2057,7 @@ body.svc-photog #collNavGroup{display:block!important}
     <span class="brand-mark" role="img" aria-label="SHEREHE HUB"></span>
     <h1>SHEREHE HUB TZ</h1>
     <p>Event Invitation &amp; Guest Management Portal</p>
-    <p><a class="auth-tickets-link" href="#tickets">Browse event tickets</a></p>
+    <p hidden><a class="auth-tickets-link" href="#tickets">Browse event tickets</a></p>
   </header>
   <div class="auth-card">
   <section class="auth-art" aria-label="About SHEREHE HUB TZ">
@@ -2185,7 +2185,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.27</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.28</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2943,7 +2943,7 @@ async function signInWithGoogle(){
 
 const KEY="SHEREHE_HUB_FULL_V1";
 let db={events:[]};
-let selectedType="Wedding", currentEventId=(function(){try{return localStorage.getItem(KEY+"_cur")||null}catch(e){return null}})(), dragging=false, dragOffset={x:0,y:0};
+let selectedType="Wedding", currentEventId=(function(){try{return sessionStorage.getItem(KEY+"_cur")||null}catch(e){return null}})(), dragging=false, dragOffset={x:0,y:0};
 let posterData={main:null, double:null};
 let dragState={main:{dragging:false,offset:{x:0,y:0}}, double:{dragging:false,offset:{x:0,y:0}}};
 function variantIds(v){const s=v==='double'?'2':'';return {file:'fPoster'+s,canvas:'posterCanvas'+s,fileName:'posterFileName'+s,size:'nameSize'+s,font:'nameFont'+s,color:'nameColor'+s,box:'nameBox'+s};}
@@ -3016,8 +3016,9 @@ function moveDrag(e,variant){
   b.style.left=Math.max(5,Math.min(95,x))+"%";b.style.top=Math.max(5,Math.min(95,y))+"%";
 }
 
-window.__evNone=(function(){try{return localStorage.getItem(KEY+"_none")==="1"}catch(e){return false}})();
-function persistState(){try{localStorage.setItem(KEY+"_cur",currentEventId||"");localStorage.setItem(KEY+"_none",(!currentEventId&&window.__evNone)?"1":"0")}catch(e){}}
+/* V127.28: every new visit starts with no event chosen; a choice is only remembered while this tab/app stays open */
+window.__evNone=(function(){try{return !sessionStorage.getItem(KEY+"_cur")}catch(e){return true}})();
+function persistState(){try{sessionStorage.setItem(KEY+"_cur",currentEventId||"")}catch(e){}}
 function saveDB(){persistState();refreshAll()}
 function toast(m){let t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
 function showView(id,btn){if(id==="admin"&&!isAdmin){toast("You do not have access to the Admin Console.");return}document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("aside button").forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active");if(id==="guests"||id==="cards"||id==="reports")populateEventSelects();refreshAll()}
@@ -3316,6 +3317,7 @@ async function _loadEventsOnce(){
 
   if(!currentSupabaseUser || currentSupabaseUser.id !== _uid) return;   /* signed out or switched user while loading */
   window.__staffMode = _sm; window.__staffRoles = _sr; window.__loadedUid = _uid;
+  if(_sm && !currentEventId) window.__evNone = false; /* team members have their event chosen for them */
   db.events = (data || []).map(e => ({
     id: e.id,
     owner_id: e.owner_id,
@@ -4499,7 +4501,7 @@ const _logout = window.supabaseLogout;
 window.supabaseLogout = async function(){
   await _logout();
   try{ localStorage.removeItem(KEY+'_cur'); }catch(e){}
-  db.events=[]; currentEventId=null; window.__admin=null; setAuthMode('login');
+  db.events=[]; currentEventId=null; window.__evNone=true; window.__admin=null; setAuthMode('login');
   $('authPassword').value=''; showView('dashboard'); refreshAll();
 };
 
