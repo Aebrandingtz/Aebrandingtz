@@ -2190,7 +2190,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.32</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.33</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2582,6 +2582,7 @@ body.svc-photog #collNavGroup{display:block!important}
     <div><h1>Reports</h1><p class="muted" id="reportEventMeta">Summary of guests, RSVPs, invitations and check-ins.</p></div>
     <div class="topline-actions">
       <select id="reportEventSelect" aria-label="Event"></select>
+      <button class="primary no-cohost" id="evPackBtn" onclick="evPackOpen()"><svg class="i"><use href="#i-send"/></svg>Tuma taarifa zote WhatsApp</button>
       <button class="gray no-cohost" onclick="exportEventReportExcel()"><svg class="i"><use href="#i-sheet"/></svg>Excel</button>
       <button class="primary" id="evReportPdfBtn" onclick="downloadEventReportPdf()"><svg class="i"><use href="#i-download"/></svg>Full report (PDF)</button>
       <button class="dark no-cohost" onclick="printEventReport()"><svg class="i"><use href="#i-download"/></svg>Print</button>
@@ -7182,6 +7183,51 @@ window.onAudienceChange = function(){
 };
 
 /* ---------- door staff ---------- */
+
+/* V127.33 — send the whole event pack to the owner's WhatsApp */
+window.evPackBuild=async function(ev){
+  const q=async(t,f)=>{ try{ if(!supabaseClient) return []; const r=await f(supabaseClient.from(t).select('*').eq('event_id',ev.id)); return r.error?[]:(r.data||[]); }catch(e){ return []; } };
+  const [contributors,contribs,exps,tasks]=await Promise.all([q('contributors',x=>x),q('contributions',x=>x),q('expenses',x=>x),q('event_tasks',x=>x)]);
+  const gs=ev.guests||[], st=reportStats(ev);
+  const paid=contribs.filter(c=>!c.status||c.status==='paid'||c.status==='completed');
+  const raised=paid.reduce((a,c)=>a+Number(c.amount||0),0), spent=exps.filter(x=>x.status==='paid').reduce((a,c)=>a+Number(c.amount||0),0);
+  const sum=[['SHEREHE HUB — TAARIFA YA TUKIO'],['Tukio',ev.name],['Aina',ev.type||''],['Mahali',ev.venue||''],['Tarehe',ev.date?fmtDate(ev.date):''],[],['Wageni wote',st.total],['Wanakuja',st.att],['Hawaji',st.no],['Hawajajibu',st.pending],['Waliofika (check-in)',st.checked],['Kadi zilizotumwa',st.sent],[],['Michango (TZS)',raised],['Matumizi yaliyolipwa (TZS)',spent],['Salio (TZS)',raised-spent],['Kazi zilizobaki',tasks.filter(t=>!t.done).length]];
+  const wb=XLSX.utils.book_new(), add=(a,n,w)=>{ const ws=XLSX.utils.aoa_to_sheet(a); ws['!cols']=w.map(x=>({wch:x})); XLSX.utils.book_append_sheet(wb,ws,n); };
+  add(sum,'Muhtasari',[30,28]);
+  add([['Jina','Simu','Aina ya kadi','Msimbo','Kadi','RSVP','Idadi','Chakula','Check-in']].concat(gs.map(g=>[g.name,g.phone||'',g.type||'',g.code||'',g.sent?'Imetumwa':'Bado',g.rsvp||'Pending',g.rsvpAttendees||'',g.meal||'',g.checkedIn?'Amefika':'Bado'])),'Wageni',[26,16,12,12,12,12,8,18,12]);
+  add([['Jina','Simu','Ahadi (TZS)']].concat(contributors.map(c=>[c.name||c.full_name||'',c.phone||'',Number(c.pledge||c.pledged||0)])),'Wachangiaji',[28,16,16]);
+  add([['Tarehe','Jina','Simu','Kiasi (TZS)','Njia','Hali']].concat(contribs.map(c=>[c.created_at?new Date(c.created_at).toLocaleDateString('en-GB'):'',c.payer_name||'',c.payer_phone||'',Number(c.amount||0),c.provider||'',c.status||''])),'Malipo',[12,26,16,14,14,12]);
+  add([['Tarehe','Maelezo','Kundi','Kiasi (TZS)','Hali']].concat(exps.map(e=>[e.spent_on||'',e.description||'',e.category||'',Number(e.amount||0),e.status||''])),'Matumizi',[12,34,18,14,12]);
+  add([['Kazi','Mhusika','Mwisho','Imekamilika']].concat(tasks.map(t=>[t.title||t.task||'',t.assignee||'',t.due_on||'',t.done?'Ndio':'Hapana'])),'Kazi',[36,18,12,12]);
+  const arr=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  const fname=(ev.name||'tukio').replace(/[^a-z0-9]+/gi,'-')+'-taarifa-zote.xlsx';
+  const blob=new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const text=`Habari! Hii ni taarifa ya tukio lako *${ev.name}* kutoka SHEREHE HUB.\n\nWageni: ${st.total} (wanakuja ${st.att}, hawajajibu ${st.pending})\nKadi zilizotumwa: ${st.sent}\nMichango: TZS ${PK_N(raised)}\nMatumizi: TZS ${PK_N(spent)}\nSalio: TZS ${PK_N(raised-spent)}\n\nFaili ya Excel yenye taarifa zote (wageni, michango, matumizi, kazi) imeambatishwa.\nwww.sherehehubtz.com`;
+  return {blob,fname,text,file:new File([blob],fname,{type:blob.type})};
+};
+window.evPackOpen=async function(){
+  const ev=reportEvent(); if(!ev){ toast('Chagua tukio kwanza.'); return; }
+  let ph=''; const ow=evOwner(ev.id);
+  if(currentSupabaseUser&&ow===currentSupabaseUser.id) ph=PROFILE.phone||'';
+  else { try{ const r=await supabaseClient.from('profiles').select('phone').eq('id',ow).maybeSingle(); ph=(r.data&&r.data.phone)||''; }catch(e){} }
+  const old=document.getElementById('evPackDlg'); if(old) old.remove();
+  const d=document.createElement('div'); d.id='evPackDlg'; d.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  d.innerHTML=`<div style="background:#fff;border-radius:16px;max-width:430px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)"><h2 style="margin:0 0 6px;font-size:19px">Tuma taarifa zote kwa WhatsApp</h2><p class="muted" style="margin:0 0 12px;font-size:13.5px">Faili moja ya Excel: muhtasari, wageni, wachangiaji, malipo, matumizi na kazi za <b>${E(ev.name)}</b>.</p><label style="font-size:13px;font-weight:600">Namba ya WhatsApp ya mwenye tukio</label><input id="evPackPh" value="${E(ph)}" placeholder="0712 345 678" style="width:100%;margin:4px 0 12px;padding:10px;border:1.5px solid #cfd6ea;border-radius:10px;font:inherit"><div id="evPackMsg" class="muted" style="font-size:12.5px;margin-bottom:10px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" id="evPackGo">Tuma sasa</button><button class="gray" onclick="document.getElementById('evPackDlg').remove()">Funga</button></div><p class="muted" style="font-size:12px;margin:12px 0 0">Kwenye simu: faili hufunguka moja kwa moja kwenye WhatsApp (chagua mwenye tukio). Kwenye kompyuta: faili hupakuliwa na WhatsApp hufunguka na ujumbe tayari; liambatishe faili hilo.</p></div>`;
+  document.body.appendChild(d);
+  document.getElementById('evPackGo').onclick=async function(){
+    const b=this, msg=document.getElementById('evPackMsg'); b.disabled=true; msg.textContent='Naandaa faili…';
+    try{
+      const pk=await evPackBuild(ev), num=normalizeTzPhone(document.getElementById('evPackPh').value||'').replace(/\D/g,'');
+      if(navigator.canShare&&navigator.canShare({files:[pk.file]})){
+        try{ await navigator.share({files:[pk.file],text:pk.text,title:ev.name}); msg.textContent='Imeshirikiwa.'; try{ auditLog&&auditLog('event_pack_shared',{event:ev.id}); }catch(e){} b.disabled=false; return; }catch(e){ if(e&&e.name==='AbortError'){ msg.textContent='Umeghairi.'; b.disabled=false; return; } }
+      }
+      const a=document.createElement('a'); a.href=URL.createObjectURL(pk.blob); a.download=pk.fname; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+      window.open('https://wa.me/'+(num||'')+'?text='+encodeURIComponent(pk.text),'_blank','noopener');
+      msg.textContent='Faili imepakuliwa ('+pk.fname+'). Liambatishe kwenye mazungumzo ya WhatsApp yaliyofunguka.';
+    }catch(e){ msg.textContent='Imeshindwa: '+(e&&e.message||e); }
+    b.disabled=false;
+  };
+};
 window.evOwner = id => ((db.events||[]).find(e=>e.id===id)||{}).owner_id || currentSupabaseUser.id;
 window.staffRole = () => !window.__staffMode ? null : (window.__photoOnly ? 'photographer' : ((window.__staffRoles||{})[currentEventId]||'checkin'));
 window.applyStaffMode = function(){
@@ -9242,7 +9288,7 @@ const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard',
 const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.32: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.33: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9492,7 +9538,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.32: the customer cannot use the app until the package payment is confirmed */
+/* V127.33: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
