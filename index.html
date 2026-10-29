@@ -1824,6 +1824,8 @@ body.photo-only .app-sidebar .nav[data-view="photos"]{display:none!important}
 .tk-buybox{position:sticky;top:76px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:0 14px 34px -22px rgba(20,32,90,.45)}
 .tk-buybox h3{font-size:17px;margin-bottom:10px}
 .tk-type{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1.5px solid var(--line);border-radius:var(--r-md);padding:12px;margin-bottom:10px}
+.tk-type{border-left:6px solid var(--tc,var(--line));background:color-mix(in srgb,var(--tc,#fff) 7%,#fff)}
+.tk-type .tk-tprice{color:var(--tc,var(--navy))}
 .tk-type.off{opacity:.6;background:var(--line-2)}
 .tk-tinfo{min-width:0;font-size:14px}.tk-tinfo p{margin:4px 0 0;color:var(--muted);font-size:13px}.tk-tinfo small{color:var(--faint)}
 .tk-kind{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin:0 4px}
@@ -1981,8 +1983,11 @@ body.svc-photog #collNavGroup{display:block!important}
 .svc-box>p{margin:0 0 18px;color:var(--muted);font-size:14.5px}
 .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:18px}
 .svc-card{position:relative;text-align:left;align-items:flex-start;justify-content:flex-start;background:var(--surface,#fff);border:2px solid var(--line,#e3e8f4);border-radius:14px;padding:16px 16px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;color:var(--ink);font:inherit;min-height:150px}
-.svc-card:hover{border-color:var(--blue,#2c4bd6)}
-.svc-card.on{border-color:var(--blue,#2c4bd6);background:var(--blue-soft,#eaf0ff)}
+.svc-card{border-top:6px solid var(--sc,var(--line,#e3e8f4))}
+.svc-card:hover{border-color:var(--sc,var(--blue,#2c4bd6))}
+.svc-card.on{border-color:var(--sc,var(--blue,#2c4bd6));background:color-mix(in srgb,var(--sc,#2c4bd6) 10%,#fff)}
+.svc-card .svc-price{color:var(--sc,var(--blue-d,#1d2f7a))}
+.svc-card.on .svc-tick{background:var(--sc,var(--blue,#2c4bd6));border-color:var(--sc,var(--blue,#2c4bd6))}
 .svc-card b{font-size:16px}
 .svc-card span{font-size:13px;color:var(--muted)}
 .svc-card .svc-price{margin-top:auto;font-weight:700;color:var(--blue-d,#1d2f7a);font-size:13.5px}
@@ -2185,7 +2190,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.31</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.32</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9232,9 +9237,12 @@ const SVC_INFO={
   tickets:{n:'Event tickets',d:'Sell tickets for your event and scan them at the gate.'},
   sms:{n:'Bulk SMS',d:'Send SMS to guests, parents, members and customers. You only pay for the SMS you send.'}
 };
+const SVC_COL={host:'#2c4bd6',cohost:'#2c4bd6',treasurer:'#0f766e',photographer:'#be123c',tickets:'#b7791f',sms:'#15803d'};
+const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard','#6d28d9'],['premium|vip','#b7791f']];
+const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.31: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.32: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9315,7 +9323,7 @@ function svcApply(){
 /* ---------- chooser (first screen after sign-up, and "My services") ---------- */
 function svcCardHtml(k,on){
   const i=SVC_INFO[k], st=svcSt(k);
-  return `<button type="button" class="svc-card${on?' on':''}" data-k="${k}" onclick="svcPick('${k}')" aria-pressed="${on?'true':'false'}"><span class="svc-tick">${on?'✓':''}</span><b>${E(i.n)}</b><span>${E(i.d)}</span>${svcPlan(k).kind==='free'?'':`<span class="svc-price">${E(svcPriceText(k))}</span>`}</button>`;
+  return `<button type="button" class="svc-card${on?' on':''}" data-k="${k}" style="--sc:${SVC_COL[k]||'#2c4bd6'}" onclick="svcPick('${k}')" aria-pressed="${on?'true':'false'}"><span class="svc-tick">${on?'✓':''}</span><b>${E(i.n)}</b><span>${E(i.d)}</span>${svcPlan(k).kind==='free'?'':`<span class="svc-price">${E(svcPriceText(k))}</span>`}</button>`;
 }
 function svcShowChooser(first){
   let el=$('svcChooser'); if(!el){ el=document.createElement('div'); el.id='svcChooser'; el.className='svc-screen'; document.body.appendChild(el); }
@@ -9445,7 +9453,7 @@ window.svcPkgRender=function(){
   const sel=P.find(p=>p.id===SVC.pkgSel), g=Math.round(Number(SVC.pkgGuests)||0), tot=sel&&g>0?pkgTotal(sel,g):0;
   const per=p=>`TZS ${PK_N(p.price_per_guest)} ${S_('kwa mgeni','per guest')}`+(p.bulk_after&&p.bulk_price!=null?` · ${S_('zaidi ya','over')} ${p.bulk_after}: TZS ${PK_N(p.bulk_price)}`:'');
   box.innerHTML=`<div class="panel" style="margin-bottom:14px"><div class="panel-heading"><div><h2>${S_('Chagua kifurushi chako','Choose your package')}</h2><p>${had?S_('Una huduma hii tayari. Chagua kifurushi kipya ukitaka kuongeza wageni.','You already have this service. Choose a package only if you want a new one.'):S_('Bei ni kwa kila mgeni (kadi). Utaona jumla kabla ya kulipa.','The price is per guest (card). You will see the total before you pay.')}</p></div></div>
-    <div class="svc-grid">${P.map(p=>`<button type="button" class="svc-card${p.id===SVC.pkgSel?' on':''}" onclick="svcPkgPick('${E(p.id)}')" aria-pressed="${p.id===SVC.pkgSel?'true':'false'}"><span class="svc-tick">${p.id===SVC.pkgSel?'✓':''}</span><b>${E(p.name)}</b><span class="svc-price">${E(per(p))}</span>${p.includes?`<span>${E(p.includes)}</span>`:''}</button>`).join('')}</div>
+    <div class="svc-grid">${P.map((p,pi)=>`<button type="button" class="svc-card${p.id===SVC.pkgSel?' on':''}" style="--sc:${pkgCol(p,pi)}" onclick="svcPkgPick('${E(p.id)}')" aria-pressed="${p.id===SVC.pkgSel?'true':'false'}"><span class="svc-tick">${p.id===SVC.pkgSel?'✓':''}</span><b>${E(p.name)}</b><span class="svc-price">${E(per(p))}</span>${p.includes?`<span>${E(p.includes)}</span>`:''}</button>`).join('')}</div>
     <div class="field" style="max-width:260px"><label for="svcPkgGuests">${S_('Idadi ya wageni (kadi)','Number of guests (cards)')}</label><input id="svcPkgGuests" type="number" min="1" inputmode="numeric" value="${E(SVC.pkgGuests)}" placeholder="${S_('mf. 120','e.g. 120')}" oninput="svcPkgGuestsIn(this.value)"></div>
     <div id="svcPkgTotal" class="hint-box" style="margin-top:8px">${tot?`${ic('check')}<span>${S_('Jumla','Total')}: <b>TZS ${PK_N(tot)}</b> (${E(sel.name)} · ${g} ${S_('wageni','guests')})</span>`:`${ic('info')}<span>${S_('Chagua kifurushi na uandike idadi ya wageni uone jumla.','Choose a package and enter the guests to see the total.')}</span>`}</div></div>`;
 };
@@ -9484,7 +9492,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.31: the customer cannot use the app until the package payment is confirmed */
+/* V127.32: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
@@ -9645,6 +9653,15 @@ const TKT={
 };
 const tkt=(k,...a)=>{ const v=(TKT[invLang()]||TKT.sw)[k]; if(v===undefined) return TKT.en[k]===undefined?k:(typeof TKT.en[k]==='function'?TKT.en[k](...a):TKT.en[k]); return typeof v==='function'?v(...a):v; };
 const tkCat=c=>(TK_CATS[c]||TK_CATS.other)[invLang()==='en'?1:0];
+const TK_TIERS=[[/vvip|v\.?v\.?i\.?p|royal|platinum/i,'#6d28d9','VVIP'],[/vip|gold|premium/i,'#b7791f','VIP'],[/table|meza|mezani|group|kundi|family|familia/i,'#0f766e','Table'],[/early|mapema|promo/i,'#15803d','Early'],[/student|mwanafunzi|child|watoto|free|bure/i,'#64748b',''],[/regular|kawaida|general|standard|normal|ordinary/i,'#2c4bd6','Regular']];
+const TK_RANK=['#15803d','#2c4bd6','#0f766e','#b7791f','#6d28d9','#be123c'];
+function tkTier(t){
+  const nm=(t.name||'')+' '+(t.kind||'');
+  for(const x of TK_TIERS){ if(x[0].test(nm)) return {c:x[1],l:x[2]}; }
+  const ps=[...new Set(((TP.ev&&TP.ev.types)||[]).map(y=>Number(y.price_tzs)||0))].sort((m,n)=>m-n);
+  const i=Math.max(0,ps.indexOf(Number(t.price_tzs)||0)), n=Math.max(1,ps.length-1);
+  return {c:TK_RANK[Math.min(TK_RANK.length-1,Math.round(i/n*(TK_RANK.length-1)))],l:''};
+}
 const tkKind=k=>(TK_KINDS[k]||TK_KINDS.regular)[invLang()==='en'?1:0];
 const tkLocale=()=>invLang()==='en'?'en-GB':'sw-TZ';
 const tkMoney=n=>'TSh '+Number(n||0).toLocaleString('en-US');
@@ -9759,7 +9776,8 @@ function tkSalesBanner(ev){
 function tkTypeRow(t,canBuy){
   const q=TP.qty[t.id]||0, st=t.state, ok=canBuy&&st==='on_sale', max=Math.min(t.max_per_order,t.available);
   const badge=st==='sold_out'?`<span class="tk-badge bad">${tkt('state_sold_out')}</span>`:st==='not_started'?`<span class="tk-badge">${tkt('state_not_started')}</span>`:st==='ended'?`<span class="tk-badge">${tkt('state_ended')}</span>`:(t.available<=10?`<span class="tk-badge warn">${tkt('qty_left',t.available)}</span>`:'');
-  return `<div class="tk-type${ok?'':' off'}"><div class="tk-tinfo"><b>${E(t.name)}</b> <span class="tk-kind">${E(tkKind(t.kind))}</span> ${badge}
+  const tr=tkTier(t);
+  return `<div class="tk-type${ok?'':' off'}" data-tier="${E(tr.l||'-')}" style="--tc:${tr.c}"><div class="tk-tinfo"><b>${E(t.name)}</b> <span class="tk-kind">${E(tkKind(t.kind))}</span> ${badge}
     ${t.description?`<p>${E(t.description)}</p>`:''}${t.admits>1?`<small>${tkt('admits',t.admits)}</small>`:''}</div>
     <div class="tk-tbuy"><b class="tk-tprice">${Number(t.price_tzs)===0?tkt('free'):tkMoney(t.price_tzs)}</b>
     <div class="tk-step" role="group" aria-label="${E(t.name)}"><button type="button" aria-label="−" ${(!ok||q<=0)?'disabled':''} onclick="tkQty(${jq(t.id)},-1)">−</button><output>${q}</output><button type="button" aria-label="+" ${(!ok||q>=max)?'disabled':''} onclick="tkQty(${jq(t.id)},1)">+</button></div></div></div>`;
