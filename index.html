@@ -1059,6 +1059,13 @@ body.cohost-mode .no-cohost,body.cohost-mode #staffPanel,body.cohost-mode #admin
 body.cohost-mode #contributions .icon.del,body.cohost-mode #contribModal .icon.del{display:none!important}
 body.cohost-mode [data-view="contributions"],body.cohost-mode [data-view="messaging"],body.cohost-mode #contributions,body.cohost-mode #auditBox,body.cohost-mode [data-view="reports"],body.cohost-mode #reports,body.cohost-mode [data-view="rsvp"],body.cohost-mode [data-view="cards"],body.cohost-mode #rsvp,body.cohost-mode #cards{display:none!important}
 /* V80 tasks / budget / audit */
+.tk-chipbox{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1.5px solid var(--line,#cfd6ea);border-radius:10px;padding:6px 8px;background:#fff;min-height:44px}
+.tk-chipbox:focus-within{border-color:var(--blue,#2c4bd6);box-shadow:0 0 0 3px rgba(44,75,214,.15)}
+.tk-chipbox input{border:0!important;outline:0!important;box-shadow:none!important;flex:1;min-width:120px;padding:4px!important;background:transparent!important}
+.tk-chip{display:inline-flex;align-items:center;gap:4px;border:1.5px solid #b9c4ee;background:#eef2ff;color:#1d2f7a;border-radius:8px;padding:3px 4px 3px 9px;font-size:13px;font-style:normal;font-weight:600}
+.tk-chip button{border:0;background:transparent;color:#5a6aa8;cursor:pointer;font-size:15px;line-height:1;padding:0 4px}
+.tk-chip.ro{padding:3px 9px;font-weight:600;margin:2px 4px 0 0}
+.tk-chips{display:flex;flex-wrap:wrap}
 .tk-row{display:flex;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line,#e6e9f0)}
 .tk-row:last-child{border-bottom:0}
 .tk-row input[type=checkbox]{width:20px;height:20px;flex:none}
@@ -2190,7 +2197,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.36</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.37</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2603,7 +2610,7 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="panel-heading"><div><h2>Add a task</h2><p>For example: book the hall, confirm the MC, collect the cake.</p></div></div>
     <div class="pay-grid">
       <div class="field"><label for="tkTitle">Task</label><input id="tkTitle" placeholder="e.g. Confirm the MC" autocomplete="off" onkeydown="if(event.key==='Enter')addTask()"></div>
-      <div class="field"><label for="tkWho">Who is responsible?</label><input id="tkWho" placeholder="e.g. Mama Neema" autocomplete="off"></div>
+      <div class="field"><label for="tkWho">Who is responsible?</label><div id="tkWhoBox"></div></div>
       <div class="field"><label for="tkDue">Deadline</label><input id="tkDue" type="date"></div>
     </div>
     <div class="toolbar" style="margin-top:16px"><button class="primary" onclick="addTask()"><svg class="i"><use href="#i-check"/></svg>Add task</button></div>
@@ -7186,7 +7193,7 @@ window.onAudienceChange = function(){
 
 /* ---------- door staff ---------- */
 
-/* V127.36 — send the whole event pack to the owner's WhatsApp */
+/* V127.37 — send the whole event pack to the owner's WhatsApp */
 window.evPackBuild=async function(ev){
   const r=await downloadEventReportPdf({asBlob:true}); if(!r||!r.blob) throw new Error('PDF haikutengenezwa. Hakikisha una mtandao.');
   const st=reportStats(ev), blob=r.blob;
@@ -8400,29 +8407,87 @@ window.renderTasks = function(){
   const done = TK.list.filter(t=>t.done).length, late = TK.list.filter(t=>!t.done&&t.due_on&&t.due_on<today).length;
   if(stats) stats.innerHTML = `<div class="report-stat"><span>Tasks</span><b>${TK.list.length}</b></div><div class="report-stat"><span>Done</span><b>${done}</b><small>${TK.list.length?Math.round(done/TK.list.length*100):0}%</small></div><div class="report-stat"><span>Still open</span><b>${TK.list.length-done}</b></div><div class="report-stat"><span>Late</span><b ${late?'class="tk-late"':''}>${late}</b></div>`;
   renderTplBox(ev);
+  if($('tkWhoBox') && !$('tkWhoBox').firstChild) tkChipsRefresh('tkWho');
   const people = tkPeople();
   if(TK.filter && TK.filter!=='__none' && !people.includes(TK.filter)) TK.filter='';
   const list = tkFiltered();
-  const bar = TK.list.length ? `<div class="tk-bar"><div class="field" style="margin:0"><label for="tkFilter">Show tasks for</label><select id="tkFilter" onchange="tkSetFilter(this.value)"><option value="">Everyone</option>${people.map(p=>`<option value="${E(p)}" ${TK.filter===p?'selected':''}>${E(p)}</option>`).join('')}${TK.list.some(t=>!t.assignee)?`<option value="__none" ${TK.filter==='__none'?'selected':''}>Nobody assigned</option>`:''}</select></div><button class="gray" onclick="tkPrint()">${ic('sheet')}Print tasks</button></div>` : '';
+  const bar = TK.list.length ? `<div class="tk-bar"><div class="field" style="margin:0"><label for="tkFilter">Show tasks for</label><select id="tkFilter" onchange="tkSetFilter(this.value)"><option value="">Everyone</option>${people.map(p=>`<option value="${E(p)}" ${TK.filter===p?'selected':''}>${E(p)}</option>`).join('')}${TK.list.some(t=>!t.assignee)?`<option value="__none" ${TK.filter==='__none'?'selected':''}>Nobody assigned</option>`:''}</select></div><button class="primary" onclick="tkPdf()">${ic('download')}Download PDF</button><button class="gray" onclick="tkPrint()">${ic('sheet')}Print tasks</button></div>` : '';
   const row = t => { const isLate=!t.done&&t.due_on&&t.due_on<today;
-    if(TK.edit===t.id) return `<div class="tk-row tk-editing"><div class="tk-edit-grid"><input id="tkEdTitle" value="${E(t.title)}" maxlength="200" aria-label="Task" onkeydown="if(event.key==='Enter')tkEditSave('${t.id}')"><input id="tkEdWho" value="${E(t.assignee||'')}" maxlength="80" placeholder="Who is responsible?" aria-label="Who is responsible?" list="tkPeopleList"><input id="tkEdDue" type="date" value="${E(t.due_on||'')}" aria-label="Deadline"></div><div class="tk-edit-btns"><button class="primary" onclick="tkEditSave('${t.id}')">${ic('check')}Save</button><button class="gray" onclick="tkEditCancel()">Cancel</button></div></div>`;
-    return `<div class="tk-row ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Done" onchange="toggleTask('${t.id}',this.checked)"><div class="tk-main"><b>${E(t.title)}</b><span>${t.assignee?E(t.assignee):'Nobody assigned'}${t.due_on?` · <span class="${isLate?'tk-late':''}">${isLate?'Overdue · ':'Due '}${E(fmtDay(t.due_on))}</span>`:''}</span></div>${t.done?'':`<button class="icon gray" title="Remind on WhatsApp" aria-label="Remind on WhatsApp" onclick="tkRemind('${t.id}')">${ic('chat')}</button>`}<button class="icon gray" title="Edit" aria-label="Edit" onclick="tkEdit('${t.id}')">${ic('edit')}</button><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteTask('${t.id}')">${ic('trash')}</button></div>`; };
+    if(TK.edit===t.id) return `<div class="tk-row tk-editing"><div class="tk-edit-grid"><input id="tkEdTitle" value="${E(t.title)}" maxlength="200" aria-label="Task" onkeydown="if(event.key==='Enter')tkEditSave('${t.id}')"><div id="tkEdWhoBox">${tkChipsHtml('tkEdWho',t.assignee)}</div><input id="tkEdDue" type="date" value="${E(t.due_on||'')}" aria-label="Deadline"></div><div class="tk-edit-btns"><button class="primary" onclick="tkEditSave('${t.id}')">${ic('check')}Save</button><button class="gray" onclick="tkEditCancel()">Cancel</button></div></div>`;
+    return `<div class="tk-row ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Done" onchange="toggleTask('${t.id}',this.checked)"><div class="tk-main"><b>${E(t.title)}</b><span>${t.assignee?`<span class="tk-chips">${tkSplit(t.assignee).map(n=>`<i class="tk-chip ro">${E(n)}</i>`).join('')}</span>`:'Nobody assigned'}${t.due_on?` · <span class="${isLate?'tk-late':''}">${isLate?'Overdue · ':'Due '}${E(fmtDay(t.due_on))}</span>`:''}</span></div>${t.done?'':`<button class="icon gray" title="Remind on WhatsApp" aria-label="Remind on WhatsApp" onclick="tkRemind('${t.id}')">${ic('chat')}</button>`}<button class="icon gray" title="Edit" aria-label="Edit" onclick="tkEdit('${t.id}')">${ic('edit')}</button><button class="icon del" title="Delete" aria-label="Delete" onclick="deleteTask('${t.id}')">${ic('trash')}</button></div>`; };
   box.innerHTML = bar + `<datalist id="tkPeopleList">${people.map(p=>`<option value="${E(p)}">`).join('')}</datalist>` + (list.length ? list.map(row).join('') : (TK.list.length ? emptyState('No tasks here','Nothing is assigned to this person.') : emptyState('No tasks yet','Add the first task above and give it a person and a deadline.')));
 };
-function tkPeople(){ return [...new Set(TK.list.map(t=>(t.assignee||'').trim()).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'en',{sensitivity:'base'})); }
-function tkFiltered(){ return TK.list.filter(t=>!TK.filter || (TK.filter==='__none'?!t.assignee:(t.assignee||'').trim()===TK.filter)); }
+window.TKC=window.TKC||{};
+function tkChipsHtml(id,init){
+  if(init!==undefined) window.TKC[id]=tkSplit(init);
+  const a=window.TKC[id]||[];
+  return `<div class="tk-chipbox" onclick="document.getElementById('${id}').focus()">${a.map((n,i)=>`<span class="tk-chip">${E(n)}<button type="button" aria-label="Remove" onclick="event.stopPropagation();tkChipDel('${id}',${i})">×</button></span>`).join('')}<input id="${id}" autocomplete="off" list="tkPeopleList" placeholder="${a.length?'':'e.g. Mama Neema — press Enter to add'}" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();event.stopPropagation();tkChipAdd('${id}')}else if(event.key==='Backspace'&&!this.value){tkChipDel('${id}',-1)}"></div>`;
+}
+window.tkChipAdd=function(id){ const el=document.getElementById(id); if(!el) return; const parts=tkSplit(el.value); if(!parts.length) return; const a=window.TKC[id]=window.TKC[id]||[]; parts.forEach(n=>{ if(!a.some(x=>x.toLowerCase()===n.toLowerCase())) a.push(n.slice(0,60)); }); el.value=''; tkChipsRefresh(id,true); };
+window.tkChipDel=function(id,i){ const a=window.TKC[id]||[]; if(i<0) a.pop(); else a.splice(i,1); tkChipsRefresh(id,true); };
+function tkChipsRefresh(id,focus){ const host=document.getElementById(id+'Box'); if(!host) return; host.innerHTML=tkChipsHtml(id); if(focus){ const e=document.getElementById(id); if(e) e.focus(); } }
+function tkChipVal(id){ const el=document.getElementById(id); if(el&&el.value.trim()) tkChipAdd(id); return (window.TKC[id]||[]).join(', ').slice(0,300); }
+function tkSplit(v){ return String(v||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean); }
+function tkPeople(){ return [...new Set(TK.list.flatMap(t=>tkSplit(t.assignee)))].sort((a,b)=>String(a).localeCompare(String(b),'en',{sensitivity:'base'})); }
+function tkFiltered(){ return TK.list.filter(t=>!TK.filter || (TK.filter==='__none'?!t.assignee:tkSplit(t.assignee).includes(TK.filter))); }
 window.tkSetFilter = function(v){ TK.filter=v; TK.edit=null; renderTasks(); };
 window.tkEdit = function(id){ TK.edit=id; renderTasks(); setTimeout(()=>{ const i=$('tkEdTitle'); if(i){ i.focus(); i.select(); } },30); };
 window.tkEditCancel = function(){ TK.edit=null; renderTasks(); };
 window.tkEditSave = async function(id){
   const t = TK.list.find(x=>x.id===id); if(!t) return;
   const title = ($('tkEdTitle').value||'').trim(); if(!title) return toast('Please write the task first.');
-  const patch = {title:title.slice(0,200), assignee:($('tkEdWho').value||'').trim().slice(0,80)||null, due_on:$('tkEdDue').value||null};
+  const patch = {title:title.slice(0,200), assignee:tkChipVal('tkEdWho')||null, due_on:$('tkEdDue').value||null};
   const r = await supabaseClient.from('event_tasks').update(patch).eq('id',id);
   if(r.error) return toast('Failed: '+r.error.message);
   Object.assign(t,patch); TK.edit=null;
   TK.list.sort((a,b)=>(a.done-b.done)||String(a.due_on||'9999').localeCompare(String(b.due_on||'9999')));
   renderTasks(); toast('Task updated.');
+};
+window.tkPdf = async function(){
+  const ev = getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
+  const list = tkFiltered(); if(!list.length) return toast('There are no tasks to download yet.');
+  if(!navigator.onLine) return toast('Creating the PDF needs an internet connection.');
+  try{
+    const JsPDF = await ctEnsurePdfLib();
+    const sw = isSwLang();
+    const L = sw ? {title:'Kazi za kamati',none:'Hakuna aliyepewa',task:'Kazi',due:'Mwisho',st:'Hali',done:'Imekamilika',open:'Bado',late:'Imechelewa',tasks:'kazi',open_:'zilizo wazi',gen:'Imetengenezwa na SHEREHE HUB',pg:'Ukurasa'}
+                : {title:'Committee tasks',none:'Nobody assigned',task:'Task',due:'Deadline',st:'Status',done:'Done',open:'Open',late:'Overdue',tasks:'tasks',open_:'open',gen:'Generated by SHEREHE HUB',pg:'Page'};
+    const today = new Date().toISOString().slice(0,10);
+    const groups = new Map(); list.forEach(t=>{ const k=(t.assignee||'').trim(); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(t); });
+    const keys = [...groups.keys()].sort((a,b)=>a===''?1:b===''?-1:String(a).localeCompare(String(b),'en',{sensitivity:'base'}));
+    const stat = t => t.done?L.done:(t.due_on&&t.due_on<today?L.late:L.open);
+    const doc = new JsPDF({unit:'pt',format:'a4'}); const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=40;
+    doc.setFillColor(30,58,138); doc.rect(0,0,W,78,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(19); doc.text(pdfTxt(L.title),M,34);
+    doc.setFont('helvetica','normal'); doc.setFontSize(11.5); doc.text(pdfTxt(ev.name||''),M,54,{maxWidth:W-2*M});
+    doc.setFontSize(9.5); doc.setTextColor(210,220,245); doc.text(pdfTxt([ev.date?fmtDate(ev.date):'',ev.venue].filter(Boolean).join('  |  ')),M,68,{maxWidth:W-2*M});
+    let y=100;
+    for(const k of keys){
+      const arr=groups.get(k), op=arr.filter(t=>!t.done).length, names=k?tkSplit(k):[L.none];
+      /* name boxes */
+      doc.setFont('helvetica','bold'); doc.setFontSize(10);
+      const boxes=[]; let cx=M+10, cy=0, rows=1; const bh=20, gap=6;
+      names.forEach(n=>{ const t=pdfTxt(n), w=doc.getTextWidth(t)+16; if(cx+w>W-M-10 && cx>M+10){ cx=M+10; rows++; } boxes.push({t,w,x:cx,r:rows-1}); cx+=w+gap; });
+      const hh=rows*(bh+gap)+8+16;
+      if(y+hh+60>H-44){ doc.addPage(); y=48; }
+      doc.setFillColor(243,245,250); doc.setDrawColor(200,208,230); doc.roundedRect(M,y,W-2*M,hh,6,6,'FD');
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(100,110,130);
+      doc.text(`${arr.length} ${L.tasks} (${op} ${L.open_})`,W-M-10,y+13,{align:'right'});
+      boxes.forEach(b=>{ const by=y+20+b.r*(bh+gap); doc.setFillColor(255,255,255); doc.setDrawColor(30,58,138); doc.setLineWidth(1); doc.roundedRect(b.x,by,b.w,bh,5,5,'FD'); doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(30,58,138); doc.text(b.t,b.x+8,by+13.5); });
+      doc.autoTable({ startY:y+hh+4, margin:{left:M,right:M,bottom:44},
+        head:[['',L.task,L.due,L.st]],
+        body:arr.map(t=>['',pdfTxt(t.title),t.due_on?pdfTxt(fmtDay(t.due_on)):'—',stat(t)]),
+        theme:'grid', styles:{font:'helvetica',fontSize:9.5,cellPadding:5,textColor:[30,35,50],lineColor:[210,215,230]},
+        headStyles:{fillColor:[30,58,138],textColor:255,fontStyle:'bold'},
+        columnStyles:{0:{cellWidth:24},2:{cellWidth:84},3:{cellWidth:78}},
+        didDrawCell:d=>{ if(d.section==='body'&&d.column.index===0){ doc.setDrawColor(90,100,125); doc.setLineWidth(.8); doc.rect(d.cell.x+7,d.cell.y+d.cell.height/2-5,10,10); } },
+        didParseCell:d=>{ if(d.section==='body'&&d.column.index===3){ const v=d.cell.raw; d.cell.styles.fontStyle='bold'; d.cell.styles.textColor=v===L.done?[22,128,80]:(v===L.late?[185,28,28]:[100,110,130]); } } });
+      y=doc.lastAutoTable.finalY+20;
+    }
+    const pages=doc.internal.getNumberOfPages(), stamp=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    for(let p=1;p<=pages;p++){ doc.setPage(p); doc.setFontSize(8.5); doc.setTextColor(130,138,155); doc.setFont('helvetica','normal'); doc.text(L.gen+'  |  '+stamp,M,H-22); doc.text(`${L.pg} ${p}/${pages}`,W-M,H-22,{align:'right'}); }
+    doc.save((ev.name||'event').replace(/[^\w.-]+/g,'_')+'-'+(sw?'kazi-za-kamati':'committee-tasks')+'.pdf'); toast(sw?'PDF imepakuliwa.':'PDF downloaded.');
+  }catch(e){ console.warn('tasks pdf',e); toast('Could not create the PDF. Check your internet connection and try again.'); }
 };
 window.tkPrint = function(){
   const ev = getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
@@ -8436,7 +8501,7 @@ window.tkPrint = function(){
   const keys = [...groups.keys()].sort((a,b)=>a===''?1:b===''?-1:String(a).localeCompare(String(b),'en',{sensitivity:'base'}));
   const stat = t => t.done?L.done:(t.due_on&&t.due_on<today?L.late:L.open);
   const body = keys.map(k=>{ const arr=groups.get(k), op=arr.filter(t=>!t.done).length;
-    return `<h2>${E(k||L.none)} — ${arr.length} ${L.tasks} (${op} ${L.open_})</h2><table><thead><tr><th style="width:22px"></th><th>${L.task}</th><th style="width:110px">${L.due}</th><th style="width:90px">${L.st}</th></tr></thead><tbody>${arr.map(t=>`<tr><td><span class="bx"></span></td><td>${E(t.title)}</td><td>${t.due_on?E(fmtDay(t.due_on)):'—'}</td><td>${stat(t)}</td></tr>`).join('')}</tbody></table>`; }).join('');
+    return `<h2>${k?tkSplit(k).map(n=>`<span style="display:inline-block;border:1px solid #888;border-radius:5px;padding:1px 7px;margin:0 4px 3px 0">${E(n)}</span>`).join(''):E(L.none)} — ${arr.length} ${L.tasks} (${op} ${L.open_})</h2><table><thead><tr><th style="width:22px"></th><th>${L.task}</th><th style="width:110px">${L.due}</th><th style="width:90px">${L.st}</th></tr></thead><tbody>${arr.map(t=>`<tr><td><span class="bx"></span></td><td>${E(t.title)}</td><td>${t.due_on?E(fmtDay(t.due_on)):'—'}</td><td>${stat(t)}</td></tr>`).join('')}</tbody></table>`; }).join('');
   $('printSheet').innerHTML = `<h1>${E(ev.name)} — ${L.title}</h1><div class="ps-sub">${ev.date?E(fmtDate(ev.date))+' · ':''}${E(ev.venue||'')} · ${L.printed} ${E(new Date().toLocaleString('en-GB'))}</div>${body}`;
   document.body.classList.add('printing-list');
   const clean=()=>{ document.body.classList.remove('printing-list'); window.removeEventListener('afterprint',clean); };
@@ -8446,10 +8511,10 @@ window.tkPrint = function(){
 window.addTask = async function(){
   const ev = getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
   const title = ($('tkTitle').value||'').trim(); if(!title) return toast('Please write the task first.');
-  const row = {event_id:ev.id, title:title.slice(0,200), assignee:($('tkWho').value||'').trim().slice(0,80)||null, due_on:$('tkDue').value||null};
+  const row = {event_id:ev.id, title:title.slice(0,200), assignee:tkChipVal('tkWho')||null, due_on:$('tkDue').value||null};
   const r = await supabaseClient.from('event_tasks').insert(row).select('*').single();
   if(r.error) return toast(/does not exist|schema cache/i.test(r.error.message)?'Tasks are not set up yet. Run SHEREHE_HUB_V80.sql in Supabase.':'Failed: '+r.error.message);
-  $('tkTitle').value=''; $('tkWho').value=''; $('tkDue').value='';
+  $('tkTitle').value=''; window.TKC.tkWho=[]; tkChipsRefresh('tkWho'); $('tkDue').value='';
   TK.list.push(r.data); TK.list.sort((a,b)=>(a.done-b.done)||String(a.due_on||'9999').localeCompare(String(b.due_on||'9999'))); renderTasks();
 };
 window.toggleTask = async function(id, done){
@@ -9280,7 +9345,7 @@ const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard',
 const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.36: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.37: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9530,7 +9595,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.36: the customer cannot use the app until the package payment is confirmed */
+/* V127.37: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
