@@ -2197,7 +2197,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.50</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.51</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2431,6 +2431,7 @@ body.svc-photog #collNavGroup{display:block!important}
       <div class="field" id="ctToneBox" style="display:none"><label for="ctTone">Message style</label><select id="ctTone" onchange="onCtToneChange()"><option value="friendly">Friendly</option><option value="formal">Formal</option><option value="short">Short (saves SMS)</option></select></div>
     </div>
     <div class="field" id="welcomeTplBox"><label for="welcomeTpl">Message templates</label><select id="welcomeTpl" onchange="applyWelcomeTpl(this.value)"><option value="">— Choose a ready-made message —</option><option value="warm">Welcome — warm (full details)</option><option value="formal">Welcome — formal invitation</option><option value="short">Welcome — short (saves SMS)</option><option value="dayof">Day of the event — we are waiting for you</option><option value="reset">Back to the automatic message</option></select><small class="muted" id="welcomeTplNote" style="display:block;margin-top:4px">You can edit the message after choosing a template. Each guest’s name, link and door code are filled in automatically.</small></div>
+    <div class="field" id="waCardBox"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:500"><input type="checkbox" id="waCardChk" checked style="margin-top:3px"><span>Send the card picture together with the message (WhatsApp on a phone)</span></label></div>
     <div class="field"><label for="bulkMessage">Message</label><textarea id="bulkMessage" rows="6" oninput="this.dataset.dirty='1'"></textarea></div>
     <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{day}}</code> <code>{{time}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{map}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
     <div id="messageHelp" class="hint-box" style="margin-top:14px"></div>
@@ -5456,6 +5457,7 @@ window.renderMessagingHelp = function(){
   const sb=$('sendBulkBtn'); if(sb && !sb.disabled){ const th=['arrived','absent'].includes($('messageAudience')?.value); sb.innerHTML=ic('send')+(ct?'Send contribution messages':th?'Send thank-you messages':'Send invitations'); }
   const ph=$('ctPlaceholders'); if(ph) ph.style.display=ct?'':'none';
   const tb=$('ctToneBox'); if(tb) tb.style.display=ct?'':'none';
+  const wc=$('waCardBox'); if(wc) wc.style.display=ct?'none':'';
   const wt=$('welcomeTplBox'); if(wt) wt.style.display=(ct||['arrived','absent'].includes($('messageAudience')?.value))?'none':'';
 };
 window.renderMessaging = function(){
@@ -5500,6 +5502,18 @@ function copyMsgSafe(message,channel){
   if(channel==='whatsapp') return;
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(message).then(()=>toast(invLang()==='sw'?'Ujumbe kamili umenakiliwa. Kama SMS haijajaa, bandika (paste) ujumbe.':'Full message copied. If the SMS looks cut, paste it.'),()=>{}); } }catch(e){}
 }
+/* WhatsApp on a phone: share the guest's card picture together with the message text (wa.me cannot attach a picture) */
+async function waShareCard(ev,g,message){
+  try{
+    if(g._ct||!navigator.share||!navigator.canShare||!(navigator.maxTouchPoints>0)) return 'na';
+    const chk=$('waCardChk'); if(chk&&!chk.checked) return 'na';
+    const c=await buildCardCanvas(ev,g); const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('png')),'image/png'));
+    const file=new File([blob],('Kadi-'+String(g.name||'guest').replace(/[^a-zA-Z0-9._-]/g,'_')+'.png'),{type:'image/png'});
+    if(!navigator.canShare({files:[file]})) return 'na';
+    await navigator.share({files:[file],text:message,title:ev.name});
+    return 'ok';
+  }catch(e){ return (e&&e.name==='AbortError')?'cancel':'na'; }
+}
 function openLink(url,channel){
   if(channel==='whatsapp'){ window.open(url,'_blank','noopener'); }
   else{ const a=document.createElement('a'); a.href=url; a.style.display='none'; document.body.appendChild(a); a.click(); a.remove(); }
@@ -5510,7 +5524,7 @@ async function sendOne(channel,gid){
   if(phone.replace(/\D/g,'').length<9){ toast('This guest does not have a valid phone number.'); return; }
   if(!g.code) await syncGuestCodes(ev);
   const message=buildGuestMessage(ev,g), label=channel==='whatsapp'?'WhatsApp':'SMS';
-  if((window.__apiOffCh||{})[channel]){ copyMsgSafe(message,channel); openLink(manualLink(channel,phone,message),channel); markSent(g,channel); logGuestMessage(ev,g,label,message,'Manual'); doRefresh(); toast(label+' opened for '+g.name+'.'); return; }
+  if((window.__apiOffCh||{})[channel]){ let sh='na'; if(channel==='whatsapp') sh=await waShareCard(ev,g,message); if(sh==='cancel') return; if(sh==='na'){ copyMsgSafe(message,channel); openLink(manualLink(channel,phone,message),channel); } markSent(g,channel); logGuestMessage(ev,g,label,message,'Manual'); doRefresh(); toast(label+' opened for '+g.name+'.'); return; }
   toast('Sending '+label+' to '+g.name+'…');
   const api=await sendViaApi(channel,ev,g,phone,message);
   if(api.ok){ markSent(g,channel); logGuestMessage(ev,g,label,message,'Sent',api.provider_message_id); doRefresh(); toast(label+' sent to '+g.name+'.'); }
@@ -5523,10 +5537,12 @@ async function sendOne(channel,gid){
 }
 window.sendWA = gid => sendOne('whatsapp',gid);
 window.sendSMS = gid => sendOne('sms',gid);
-window.manualSend = function(channel,gid,btn){
+window.manualSend = async function(channel,gid,btn){
   const ev=getEvent(currentEventId), g=ev?.guests.find(x=>x.id===gid)||(ev&&isCtAud()?audienceList(ev).find(x=>x.id===gid):null); if(!g) return;
   const phone=normalizeTzPhone(g.phone), message=fillTemplate($('bulkMessage').value||buildBulkTemplate(ev),ev,g);
-  copyMsgSafe(message,channel); openLink(manualLink(channel,phone,message),channel);
+  let sh='na'; if(channel==='whatsapp') sh=await waShareCard(ev,g,message);
+  if(sh==='cancel') return;
+  if(sh==='na'){ copyMsgSafe(message,channel); openLink(manualLink(channel,phone,message),channel); }
   markSent(g,channel); logGuestMessage(ev,g,channel==='whatsapp'?'WhatsApp':'SMS',message,'Manual');
   const row=btn.closest('.queue-item'); if(row){ row.classList.add('done'); btn.disabled=true; btn.textContent='Opened'; }
   refreshAll();
@@ -7290,7 +7306,7 @@ window.onAudienceChange = function(){
 
 /* ---------- door staff ---------- */
 
-/* V127.50 — send the whole event pack to the owner's WhatsApp */
+/* V127.51 — send the whole event pack to the owner's WhatsApp */
 window.evPackBuild=async function(ev){
   const r=await downloadEventReportPdf({asBlob:true}); if(!r||!r.blob) throw new Error('PDF haikutengenezwa. Hakikisha una mtandao.');
   const st=reportStats(ev), blob=r.blob;
@@ -9462,7 +9478,7 @@ const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard',
 const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.50: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.51: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9712,7 +9728,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.50: the customer cannot use the app until the package payment is confirmed */
+/* V127.51: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
@@ -14916,7 +14932,7 @@ window.SW_EXACT = {
 "Making a poster":"Kutengeneza poster",
 "Manage guests":"Simamia wageni",
 "Manual check-in for guests without a QR code or phone.":"Check-in ya mkono kwa wageni wasio na QR code au simu.",
-"Call guest":"Mpigie mgeni","Sent, no reply yet (to call)":"Wametumiwa, hawajajibu (wapigiwe)","Called":"Amepigiwa","Answered":"Amepokea","No answer":"Hakupokea","Call later":"Piga baadaye","Wrong number":"Namba si sahihi","Photographer (own account, no event needed)":"Mpiga picha (akaunti yake, hahitaji tukio)","Host (own account, creates own events)":"Mwenyeji (akaunti yake, anatengeneza matukio yake)","Message":"Ujumbe",
+"Call guest":"Mpigie mgeni","Sent, no reply yet (to call)":"Wametumiwa, hawajajibu (wapigiwe)","Called":"Amepigiwa","Answered":"Amepokea","No answer":"Hakupokea","Call later":"Piga baadaye","Wrong number":"Namba si sahihi","Photographer (own account, no event needed)":"Mpiga picha (akaunti yake, hahitaji tukio)","Host (own account, creates own events)":"Mwenyeji (akaunti yake, anatengeneza matukio yake)","Send the card picture together with the message (WhatsApp on a phone)":"Tuma picha ya kadi pamoja na ujumbe (WhatsApp ya simu)","Message":"Ujumbe",
 "Message templates":"Violezo vya ujumbe",
 "— Choose a ready-made message —":"— Chagua ujumbe uliotayarishwa —",
 "Welcome — warm (full details)":"Karibu — kwa upendo (maelezo kamili)",
