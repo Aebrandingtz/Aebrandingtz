@@ -2197,7 +2197,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.43</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.44</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2430,6 +2430,7 @@ body.svc-photog #collNavGroup{display:block!important}
       <div class="field"><label for="messageAudience">Recipients</label><select id="messageAudience" onchange="onAudienceChange()"><option value="pending">Not sent yet (includes those it did not reach)</option><option value="sms_unsent">SMS did not go through / not sent by SMS</option><option value="wa_unsent">Not sent by WhatsApp</option><option value="noreply">Invited, no reply yet (reminder)</option><option value="attending">Said Yes, not arrived yet (event-day reminder)</option><option value="all">All guests</option><option value="arrived">Guests who arrived (thank-you)</option><option value="absent">Invited but did not arrive (thank-you)</option><optgroup label="Contributors"><option value="ct_owing">Contributors who still owe (reminder)</option><option value="ct_overdue">Contributors past their due date (reminder)</option><option value="ct_all">All contributors (statement)</option><option value="ct_partial">Paid part, balance remaining (progress)</option><option value="ct_nopay">Pledged but not paid yet (gentle reminder)</option><option value="ct_final">Final call before the event (balance due)</option><option value="ct_thanks">Everyone who gave (thank-you)</option><option value="ct_cleared">Contributors fully paid (thank-you)</option></optgroup></select></div>
       <div class="field" id="ctToneBox" style="display:none"><label for="ctTone">Message style</label><select id="ctTone" onchange="onCtToneChange()"><option value="friendly">Friendly</option><option value="formal">Formal</option><option value="short">Short (saves SMS)</option></select></div>
     </div>
+    <div class="field" id="welcomeTplBox"><label for="welcomeTpl">Message templates</label><select id="welcomeTpl" onchange="applyWelcomeTpl(this.value)"><option value="">— Choose a ready-made message —</option><option value="warm">Welcome — warm (full details)</option><option value="formal">Welcome — formal invitation</option><option value="short">Welcome — short (saves SMS)</option><option value="dayof">Day of the event — we are waiting for you</option><option value="reset">Back to the automatic message</option></select><small class="muted" id="welcomeTplNote" style="display:block;margin-top:4px">You can edit the message after choosing a template. Each guest’s name, link and door code are filled in automatically.</small></div>
     <div class="field"><label for="bulkMessage">Message</label><textarea id="bulkMessage" rows="6" oninput="this.dataset.dirty='1'"></textarea></div>
     <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{day}}</code> <code>{{time}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{map}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
     <div id="messageHelp" class="hint-box" style="margin-top:14px"></div>
@@ -5299,6 +5300,19 @@ window.renderRsvp = function(){ sortGuests();
 };
 
 /* ---------- messaging ---------- */
+const WELCOME_TPL={
+ warm:'Karibu sana {{name}}!\nTunafurahi kukukaribisha kwenye {{event}}, tukishirikiana furaha, upendo na baraka.\n\nSiku: {{day}}\nTarehe: {{date}}\nSaa: {{time}}\nUkumbi: {{venue}}\n\nFungua mwaliko wako (kadi {{card_type}}) na uthibitishe kuhudhuria:\n{{link}}\nNamba yako ya mlangoni: {{code}}\n\nTunakusubiri kwa mikono miwili. Karibu!',
+ formal:'Ndugu {{name}}, kwa heshima na taadhima tunakukaribisha kwenye {{event}}.\nTarehe: {{date}}, saa {{time}}.\nUkumbi: {{venue}}.\n\nTafadhali thibitisha kuhudhuria kupitia kiungo hiki:\n{{link}}\nNamba yako ya mlangoni: {{code}}\n\nUwepo wako utakuwa heshima kubwa kwetu. Karibu sana.',
+ short:'Karibu {{name}}! Umealikwa {{event}}, {{date}}, {{venue}}. Mwaliko wako: {{link}} Namba: {{code}}',
+ dayof:'Habari {{name}}! Leo ni siku kubwa: {{event}}, saa {{time}} katika {{venue}}.\nLeta kadi yako ya QR au tumia namba yako ya mlangoni: {{code}}\nKadi yako: {{link}}\nTunakusubiri kwa hamu. Karibu!'
+};
+window.applyWelcomeTpl=function(k){
+  const m=$('bulkMessage'), ev=getEvent(currentEventId); if(!m) return;
+  if(k==='reset'){ delete m.dataset.dirty; if(ev) m.value=buildBulkTemplate(ev); const sel=$('welcomeTpl'); if(sel) sel.value=''; renderMessagingHelp(); return; }
+  if(!WELCOME_TPL[k]) return;
+  m.value=WELCOME_TPL[k]; m.dataset.dirty='1'; renderMessagingHelp();
+  const n=$('welcomeTplNote'); if(n) n.textContent=(invLang()==='sw'?'Kiolezo kimewekwa. Unaweza kukihariri. Ujumbe mrefu hutozwa SMS zaidi ya moja.':'Template applied. You can edit it. Long messages are charged as more than one SMS.');
+};
 window.buildBulkTemplate = function(ev){
   const aud=$('messageAudience')?.value, photosLine = ev && ev.galleryOpen ? ' Tazama na pakua picha za sherehe hapa: {{photos}}' : '';
   if(aud==='ct_owing') return ctTemplate('owing');
@@ -5391,6 +5405,7 @@ window.renderMessagingHelp = function(){
   const sb=$('sendBulkBtn'); if(sb && !sb.disabled){ const th=['arrived','absent'].includes($('messageAudience')?.value); sb.innerHTML=ic('send')+(ct?'Send contribution messages':th?'Send thank-you messages':'Send invitations'); }
   const ph=$('ctPlaceholders'); if(ph) ph.style.display=ct?'':'none';
   const tb=$('ctToneBox'); if(tb) tb.style.display=ct?'':'none';
+  const wt=$('welcomeTplBox'); if(wt) wt.style.display=(ct||['arrived','absent'].includes($('messageAudience')?.value))?'none':'';
 };
 window.renderMessaging = function(){
   const ev=getEvent(currentEventId), msg=$('bulkMessage');
@@ -7212,7 +7227,7 @@ window.onAudienceChange = function(){
 
 /* ---------- door staff ---------- */
 
-/* V127.43 — send the whole event pack to the owner's WhatsApp */
+/* V127.44 — send the whole event pack to the owner's WhatsApp */
 window.evPackBuild=async function(ev){
   const r=await downloadEventReportPdf({asBlob:true}); if(!r||!r.blob) throw new Error('PDF haikutengenezwa. Hakikisha una mtandao.');
   const st=reportStats(ev), blob=r.blob;
@@ -9380,7 +9395,7 @@ const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard',
 const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.43: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.44: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9630,7 +9645,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.43: the customer cannot use the app until the package payment is confirmed */
+/* V127.44: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
@@ -14835,6 +14850,14 @@ window.SW_EXACT = {
 "Manage guests":"Simamia wageni",
 "Manual check-in for guests without a QR code or phone.":"Check-in ya mkono kwa wageni wasio na QR code au simu.",
 "Message":"Ujumbe",
+"Message templates":"Violezo vya ujumbe",
+"— Choose a ready-made message —":"— Chagua ujumbe uliotayarishwa —",
+"Welcome — warm (full details)":"Karibu — kwa upendo (maelezo kamili)",
+"Welcome — formal invitation":"Karibu — mwaliko rasmi",
+"Welcome — short (saves SMS)":"Karibu — fupi (inaokoa SMS)",
+"Day of the event — we are waiting for you":"Siku ya tukio — tunakusubiri",
+"Back to the automatic message":"Rudi kwenye ujumbe wa kawaida",
+"You can edit the message after choosing a template. Each guest’s name, link and door code are filled in automatically.":"Unaweza kuhariri ujumbe baada ya kuchagua kiolezo. Jina, kiungo na namba ya mlangoni ya kila mgeni huwekwa kiotomatiki.",
 "Message those who missed":"Waandikie waliokosa",
 "Message to guests":"Ujumbe kwa wageni",
 "Message us on WhatsApp and we will help you.":"Tuandikie WhatsApp tutakusaidia.",
