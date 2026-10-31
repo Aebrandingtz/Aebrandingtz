@@ -2197,7 +2197,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.47</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.48</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3407,7 +3407,9 @@ async function _loadEventsOnce(){
         table: g.table_no || "",
         group: g.guest_group || "",
         code: g.guest_code || "",
-        called: g.called_at || ""
+        called: g.called_at || "",
+        callResult: g.call_result || "",
+        callCount: Number(g.call_count) || 0
       });
     });
   }
@@ -4842,16 +4844,53 @@ function rsvpBadge(g){
 function inviteBadge(g){
   if(!g.sent) return `<span class="status pending">Not sent</span>`;
   const via = g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'';
-  const cl=g.called?`<span class="status ok" style="margin-left:4px" title="${E('Called '+new Date(g.called).toLocaleString())}">${invLang()==='sw'?'Amepigiwa':'Called'}</span>`:'';
+  const cl=callBadge(g);
   return `<span class="status sent">Sent${via}</span>${cl}`;
 }
-window.guestCall = async function(gid){
+const CALL_LBL={answered:['Amepokea','Answered','ok'],no_answer:['Hakupokea','No answer','pending'],later:['Piga baadaye','Call later','pending'],wrong:['Namba si sahihi','Wrong number','no']};
+function callBadge(g){
+  if(!g.callResult) return '';
+  const l=CALL_LBL[g.callResult]; if(!l) return '';
+  const sw=invLang()==='sw', n=g.callCount>1?' ×'+g.callCount:'';
+  return `<span class="status ${l[2]}" style="margin-left:4px"${g.called?` title="${E(new Date(g.called).toLocaleString())}"`:''}>${E((sw?l[0]:l[1])+(g.callResult==='answered'?'':n))}</span>`;
+}
+window.guestCall = function(gid){
   const ev=getEvent(currentEventId), g=ev?.guests.find(x=>String(x.id)===String(gid)); if(!ev||!g) return;
   const ph=normalizeTzPhone(g.phone); if(!ph||ph.replace(/\D/g,'').length<9){ toast(invLang()==='sw'?'Mgeni huyu hana namba sahihi ya simu.':'This guest has no valid phone number.'); return; }
-  const now=new Date().toISOString(); g.called=now; renderGuests();
-  try{ const r=await supabaseClient.from('guests').update({called_at:now}).eq('id',gid).eq('event_id',ev.id); if(r.error) toast(invLang()==='sw'?'Simu inapigwa, lakini alama ya "Amepigiwa" haikuhifadhiwa.':'Calling, but the "Called" mark was not saved.'); }catch(e){}
   const a=document.createElement('a'); a.href='tel:'+ph.replace(/[^\d+]/g,''); document.body.appendChild(a); a.click(); a.remove();
+  callAsk(gid);
 };
+function callAsk(gid,step){
+  const ev=getEvent(currentEventId), g=ev?.guests.find(x=>String(x.id)===String(gid)); if(!g) return;
+  const sw=invLang()==='sw', T=(a,b)=>sw?a:b;
+  let m=$('callAskModal'); if(!m){ m=document.createElement('div'); m.id='callAskModal'; m.className='modal'; document.body.appendChild(m); }
+  const btn=(label,fn,cls)=>`<button class="${cls||'gray'}" style="width:100%;justify-content:center;margin-top:8px" onclick="${fn}">${label}</button>`;
+  let body;
+  if(step==='rsvp'){
+    body=`<h2>${E(g.name)}</h2><p class="muted">${T('Atahudhuria?','Will he/she attend?')}</p>`
+      +btn(T('✅ Atahudhuria','✅ Attending'),`callRsvp('${g.id}','Yes')`,'primary')
+      +btn(T('❌ Hatahudhuria','❌ Not attending'),`callRsvp('${g.id}','No')`)
+      +btn(T('Bado hajaamua','Not decided yet'),`callDone()`);
+  } else {
+    body=`<h2>${E(g.name)}</h2><p class="muted">${E(g.phone||'')} · ${T('Simu ilikuwaje?','How did the call go?')}</p>`
+      +btn(T('✅ Amepokea','✅ Answered'),`callResult('${g.id}','answered')`,'primary')
+      +btn(T('📵 Hakupokea','📵 No answer'),`callResult('${g.id}','no_answer')`)
+      +btn(T('🔁 Nipigie baadaye','🔁 Call later'),`callResult('${g.id}','later')`)
+      +btn(T('⚠️ Namba si sahihi','⚠️ Wrong number'),`callResult('${g.id}','wrong')`)
+      +btn(T('Sikupiga / Funga','Did not call / Close'),`callDone()`);
+  }
+  m.innerHTML=`<div class="modal-box" style="max-width:380px"><button class="modal-close" onclick="callDone()" aria-label="Close">×</button>${body}</div>`;
+  m.classList.add('open');
+}
+window.callDone=function(){ const m=$('callAskModal'); if(m) m.classList.remove('open'); };
+window.callResult=async function(gid,res){
+  const ev=getEvent(currentEventId), g=ev?.guests.find(x=>String(x.id)===String(gid)); if(!g) return;
+  const now=new Date().toISOString(); g.called=now; g.callResult=res; g.callCount=(g.callCount||0)+1;
+  renderGuests();
+  try{ const r=await supabaseClient.from('guests').update({called_at:now,call_result:res,call_count:g.callCount}).eq('id',gid).eq('event_id',ev.id); if(r.error) toast(invLang()==='sw'?'Haikuhifadhiwa: '+r.error.message:'Not saved: '+r.error.message); }catch(e){}
+  if(res==='answered' && (!g.rsvp||g.rsvp==='Pending')) callAsk(gid,'rsvp'); else callDone();
+};
+window.callRsvp=async function(gid,st){ callDone(); await window.hostSetRsvp(gid,st); try{ closeGuestDetailModal(); }catch(e){} };
 function guestCell(g){
   return `<div class="guest-cell"><span class="avatar">${E(initials(g.name))}</span><div style="min-width:0"><span class="cell-name">${E(g.name)}</span><span class="cell-sub">${E([g.phone||'No phone number',g.code,g.table,g.group].filter(Boolean).join(' · '))}</span></div></div>`;
 }
@@ -4868,7 +4907,7 @@ window.renderGuests = function(){ sortGuests();
   const q=(window.guestSearch||'').trim().toLowerCase(), f=window.guestFilter||'All';
   const list=ev.guests.filter(g=>{
     const m=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.table||'').toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q)||String(g.code||'').toLowerCase().includes(q);
-    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn)||(f==='NotSent'&&!g.sent)||(f==='ToCall'&&g.sent&&(!g.rsvp||g.rsvp==='Pending')&&!g.checkedIn);
+    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn)||(f==='NotSent'&&!g.sent)||(f==='ToCall'&&g.sent&&(!g.rsvp||g.rsvp==='Pending')&&!g.checkedIn&&g.callResult!=='answered');
     return m&&ok;
   });
   if(!list.length){
@@ -7251,7 +7290,7 @@ window.onAudienceChange = function(){
 
 /* ---------- door staff ---------- */
 
-/* V127.47 — send the whole event pack to the owner's WhatsApp */
+/* V127.48 — send the whole event pack to the owner's WhatsApp */
 window.evPackBuild=async function(ev){
   const r=await downloadEventReportPdf({asBlob:true}); if(!r||!r.blob) throw new Error('PDF haikutengenezwa. Hakikisha una mtandao.');
   const st=reportStats(ev), blob=r.blob;
@@ -9419,7 +9458,7 @@ const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard',
 const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.47: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.48: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9669,7 +9708,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.47: the customer cannot use the app until the package payment is confirmed */
+/* V127.48: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
@@ -14873,7 +14912,7 @@ window.SW_EXACT = {
 "Making a poster":"Kutengeneza poster",
 "Manage guests":"Simamia wageni",
 "Manual check-in for guests without a QR code or phone.":"Check-in ya mkono kwa wageni wasio na QR code au simu.",
-"Call guest":"Mpigie mgeni","Sent, no reply yet (to call)":"Wametumiwa, hawajajibu (wapigiwe)","Called":"Amepigiwa","Message":"Ujumbe",
+"Call guest":"Mpigie mgeni","Sent, no reply yet (to call)":"Wametumiwa, hawajajibu (wapigiwe)","Called":"Amepigiwa","Answered":"Amepokea","No answer":"Hakupokea","Call later":"Piga baadaye","Wrong number":"Namba si sahihi","Message":"Ujumbe",
 "Message templates":"Violezo vya ujumbe",
 "— Choose a ready-made message —":"— Chagua ujumbe uliotayarishwa —",
 "Welcome — warm (full details)":"Karibu — kwa upendo (maelezo kamili)",
