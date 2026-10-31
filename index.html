@@ -2197,7 +2197,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.40</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.41</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -7194,7 +7194,7 @@ window.onAudienceChange = function(){
 
 /* ---------- door staff ---------- */
 
-/* V127.40 — send the whole event pack to the owner's WhatsApp */
+/* V127.41 — send the whole event pack to the owner's WhatsApp */
 window.evPackBuild=async function(ev){
   const r=await downloadEventReportPdf({asBlob:true}); if(!r||!r.blob) throw new Error('PDF haikutengenezwa. Hakikisha una mtandao.');
   const st=reportStats(ev), blob=r.blob;
@@ -7498,18 +7498,19 @@ window.buildPrintSheet = function(by,who){
   const nat=(a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'});
   list.sort((a,b)=>nat(a.name,b.name));
   const people=g=>cardParty(g)>1?(g.rsvp==='Yes'&&g.rsvpAttendees?g.rsvpAttendees:cardParty(g)):1;
-  const row=g=>`<tr><td style="width:22px"><span class="bx"></span></td><td>${E(g.name)}</td><td>${E(cardLabel(g))}${cardParty(g)>1?' ('+cardParty(g)+')':''}</td><td>${E(g.phone||'')}</td><td>${E(by==='group'?(g.table||''):(g.group||''))}</td><td>${g.rsvp==='Yes'?'Yes':g.rsvp==='No'?'No':'—'}</td></tr>`;
-  const head=`<thead><tr><th></th><th>Guest</th><th>Card</th><th>Phone</th><th>${by==='group'?'Table':'Group'}</th><th>RSVP</th></tr></thead>`;
+  let seq=0;
+  const row=(g,both)=>`<tr><td style="width:28px;text-align:right">${++seq}</td><td style="width:22px"><span class="bx"></span></td><td>${E(g.name)}</td><td>${E(cardLabel(g))}${cardParty(g)>1?' ('+cardParty(g)+')':''}</td><td style="font-family:monospace;font-weight:700;letter-spacing:.04em">${E(g.code||'—')}</td><td>${E(g.phone||'')}</td><td>${E(both?[g.table,g.group].filter(Boolean).join(' · '):(by==='group'?(g.table||''):(g.group||'')))}</td><td>${g.rsvp==='Yes'?'Yes':g.rsvp==='No'?'No':'—'}</td></tr>`;
+  const head=(lab)=>`<thead><tr><th>No.</th><th></th><th>Guest</th><th>Card</th><th>Code</th><th>Phone</th><th>${lab}</th><th>RSVP</th></tr></thead>`;
   let body='';
   if(by==='name'){
-    body=`<table>${head.replace('<th>Group</th>','<th>Table / Group</th>')}<tbody>${list.map(g=>row(g).replace(/<td>[^<]*<\/td><td>(Yes|No|—)<\/td><\/tr>$/,`<td>${E([g.table,g.group].filter(Boolean).join(' · '))}</td><td>$1</td></tr>`)).join('')}</tbody></table>`;
+    body=`<table>${head('Table / Group')}<tbody>${list.map(g=>row(g,true)).join('')}</tbody></table>`;
   }else{
     const key=g=>(by==='group'?g.group:g.table)||'';
     const groups=new Map(); list.forEach(g=>{ const k=key(g); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(g); });
     const keys=[...groups.keys()].sort((a,b)=>a===''?1:b===''?-1:nat(a,b));
     body=keys.map(k=>{
       const arr=groups.get(k), n=arr.reduce((s,g)=>s+people(g),0);
-      return `<h2>${k?E(k):(by==='group'?'No group':'No table assigned')} — ${arr.length} guest${arr.length===1?'':'s'} (${n} ${n===1?'person':'people'})</h2><table>${head}<tbody>${arr.map(row).join('')}</tbody></table>`;
+      return `<h2>${k?E(k):(by==='group'?'No group':'No table assigned')} — ${arr.length} guest${arr.length===1?'':'s'} (${n} ${n===1?'person':'people'})</h2><table>${head(by==='group'?'Table':'Group')}<tbody>${arr.map(g=>row(g,false)).join('')}</tbody></table>`;
     }).join('');
   }
   const total=list.reduce((s,g)=>s+people(g),0);
@@ -9359,7 +9360,7 @@ const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard',
 const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.40: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.41: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9609,7 +9610,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.40: the customer cannot use the app until the package payment is confirmed */
+/* V127.41: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
