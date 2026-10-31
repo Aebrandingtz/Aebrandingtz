@@ -2197,7 +2197,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.46</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.47</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2334,7 +2334,7 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="guest-bar">
       <div class="search"><svg class="i"><use href="#i-search"/></svg><input id="guestSearchBox" placeholder="Search by name or phone…" oninput="guestSearch=this.value;renderGuests()"></div>
       <select id="guestFilterBox" onchange="guestFilter=this.value;renderGuests()" aria-label="Filter">
-        <option value="All">All guests</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option><option value="NotSent">Card not sent yet</option>
+        <option value="All">All guests</option><option value="Attending">Attending</option><option value="Pending">RSVP pending</option><option value="Not Attending">Not attending</option><option value="Checked-in">Checked in</option><option value="NotSent">Card not sent yet</option><option value="ToCall">Sent, no reply yet (to call)</option>
       </select>
       <span class="spacer"></span>
       <button class="green no-cohost" onclick="openSendCards()"><svg class="i"><use href="#i-send"/></svg>Send cards</button>
@@ -3406,7 +3406,8 @@ async function _loadEventsOnce(){
         checkedIn: !!g.checked_in,
         table: g.table_no || "",
         group: g.guest_group || "",
-        code: g.guest_code || ""
+        code: g.guest_code || "",
+        called: g.called_at || ""
       });
     });
   }
@@ -4841,8 +4842,16 @@ function rsvpBadge(g){
 function inviteBadge(g){
   if(!g.sent) return `<span class="status pending">Not sent</span>`;
   const via = g.sent_whatsapp?' · WhatsApp':g.sent_sms?' · SMS':'';
-  return `<span class="status sent">Sent${via}</span>`;
+  const cl=g.called?`<span class="status ok" style="margin-left:4px" title="${E('Called '+new Date(g.called).toLocaleString())}">${invLang()==='sw'?'Amepigiwa':'Called'}</span>`:'';
+  return `<span class="status sent">Sent${via}</span>${cl}`;
 }
+window.guestCall = async function(gid){
+  const ev=getEvent(currentEventId), g=ev?.guests.find(x=>String(x.id)===String(gid)); if(!ev||!g) return;
+  const ph=normalizeTzPhone(g.phone); if(!ph||ph.replace(/\D/g,'').length<9){ toast(invLang()==='sw'?'Mgeni huyu hana namba sahihi ya simu.':'This guest has no valid phone number.'); return; }
+  const now=new Date().toISOString(); g.called=now; renderGuests();
+  try{ const r=await supabaseClient.from('guests').update({called_at:now}).eq('id',gid).eq('event_id',ev.id); if(r.error) toast(invLang()==='sw'?'Simu inapigwa, lakini alama ya "Amepigiwa" haikuhifadhiwa.':'Calling, but the "Called" mark was not saved.'); }catch(e){}
+  const a=document.createElement('a'); a.href='tel:'+ph.replace(/[^\d+]/g,''); document.body.appendChild(a); a.click(); a.remove();
+};
 function guestCell(g){
   return `<div class="guest-cell"><span class="avatar">${E(initials(g.name))}</span><div style="min-width:0"><span class="cell-name">${E(g.name)}</span><span class="cell-sub">${E([g.phone||'No phone number',g.code,g.table,g.group].filter(Boolean).join(' · '))}</span></div></div>`;
 }
@@ -4859,7 +4868,7 @@ window.renderGuests = function(){ sortGuests();
   const q=(window.guestSearch||'').trim().toLowerCase(), f=window.guestFilter||'All';
   const list=ev.guests.filter(g=>{
     const m=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.table||'').toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q)||String(g.code||'').toLowerCase().includes(q);
-    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn)||(f==='NotSent'&&!g.sent);
+    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn)||(f==='NotSent'&&!g.sent)||(f==='ToCall'&&g.sent&&(!g.rsvp||g.rsvp==='Pending')&&!g.checkedIn);
     return m&&ok;
   });
   if(!list.length){
@@ -4874,6 +4883,7 @@ window.renderGuests = function(){ sortGuests();
     <td class="actions"><div class="row-actions">
       <button class="icon wa no-cohost" title="Send WhatsApp" aria-label="Send WhatsApp" onclick="sendWA('${g.id}')">${ic('whatsapp')}</button>
       <button class="icon no-cohost" title="Send SMS" aria-label="Send SMS" onclick="sendSMS('${g.id}')">${ic('message')}</button>
+      <button class="icon no-cohost" title="Call guest" aria-label="Call guest" onclick="guestCall('${g.id}')"><svg class="i"><use href="#i-phone"/></svg></button>
       <button class="icon" title="View details" aria-label="View details" onclick="openGuestDetails('${g.id}')">${ic('user')}</button>
       <button class="icon" title="Edit" aria-label="Edit" onclick="openEditGuest('${g.id}')">${ic('edit')}</button>
       <button class="icon del no-cohost" title="Delete" aria-label="Delete" onclick="deleteGuest('${g.id}')">${ic('trash')}</button>
@@ -7241,7 +7251,7 @@ window.onAudienceChange = function(){
 
 /* ---------- door staff ---------- */
 
-/* V127.46 — send the whole event pack to the owner's WhatsApp */
+/* V127.47 — send the whole event pack to the owner's WhatsApp */
 window.evPackBuild=async function(ev){
   const r=await downloadEventReportPdf({asBlob:true}); if(!r||!r.blob) throw new Error('PDF haikutengenezwa. Hakikisha una mtandao.');
   const st=reportStats(ev), blob=r.blob;
@@ -9409,7 +9419,7 @@ const PKG_COL=[['kadi|card','#64748b'],['normal|kawaida','#2c4bd6'],['standard',
 const pkgCol=(p,i)=>{ const n=(p.name||'').toLowerCase(); for(const x of PKG_COL){ if(new RegExp(x[0]).test(n)) return x[1]; } return ['#64748b','#2c4bd6','#6d28d9','#b7791f','#0f766e','#be123c'][i%6]; };
 const SVC_ORDER=['host','cohost','treasurer','photographer','tickets','sms'];
 /* V123: the Event host card is no longer offered in the chooser (existing hosts keep working through has_events / their saved choice) */
-const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.46: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
+const SVC_PICK=SVC_ORDER.filter(k=>k!=='cohost'); /* V127.47: Event host (with package choice) replaces the separate Co-host card in the chooser; invited co-hosts keep working through the host's invitation */
 const SVC_HOME={host:'dashboard',tickets:'tickets',sms:'sms',photographer:'collections'};
 const SVC=window.SVC={me:null,picked:new Set(),busy:false};
 const svcMoney=n=>Number(n||0).toLocaleString('en-US');
@@ -9659,7 +9669,7 @@ window.pkgBannerLoad=async function(){
   if(st==='rejected'){ box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f3c3be;background:#fff5f4">${ic('alert')}<span>${S_('Ombi lako la kifurushi halikukubaliwa. Tuandikie WhatsApp tukusaidie.','Your package request was not accepted. Message us on WhatsApp.')} ${info}</span> <button class="gray" type="button" onclick="window.open(${jq(pkgWaLink(q))},'_blank','noopener')">${ic('whatsapp')}WhatsApp</button></div>`; return; }
   box.innerHTML=`<div class="hint-box" style="margin-bottom:12px;border-color:#f0d9a8;background:#fff8e8;flex-wrap:wrap">${ic('info')}<span>${st==='paid'?S_('Tumepokea taarifa ya malipo yako. Tunakagua.','We received your payment notice. We are checking it.'):S_('Ombi lako linasubiri malipo','Your request is waiting for payment')}: ${info}</span>${st==='paid'?'':`<button class="primary" type="button" onclick="svcShowPkgPay(window.__pkgLast)">${S_('Lipa sasa','Pay now')}</button>`}<button class="gray" type="button" onclick="svcManage()">${S_('Badilisha','Change')}</button></div>`;
 };
-/* V127.46: the customer cannot use the app until the package payment is confirmed */
+/* V127.47: the customer cannot use the app until the package payment is confirmed */
 window.pkgLoadMine=async function(){
   SVC.pkgMine=null; if(!supabaseClient||!currentSupabaseUser||isAdmin||(SVC.me&&SVC.me.admin)) return;
   try{ const r=await supabaseClient.from('package_requests').select('*').eq('user_id',currentSupabaseUser.id).order('created_at',{ascending:false}).limit(20); if(!r.error) SVC.pkgMine=r.data||[]; }catch(e){}
@@ -14863,7 +14873,7 @@ window.SW_EXACT = {
 "Making a poster":"Kutengeneza poster",
 "Manage guests":"Simamia wageni",
 "Manual check-in for guests without a QR code or phone.":"Check-in ya mkono kwa wageni wasio na QR code au simu.",
-"Message":"Ujumbe",
+"Call guest":"Mpigie mgeni","Sent, no reply yet (to call)":"Wametumiwa, hawajajibu (wapigiwe)","Called":"Amepigiwa","Message":"Ujumbe",
 "Message templates":"Violezo vya ujumbe",
 "— Choose a ready-made message —":"— Chagua ujumbe uliotayarishwa —",
 "Welcome — warm (full details)":"Karibu — kwa upendo (maelezo kamili)",
