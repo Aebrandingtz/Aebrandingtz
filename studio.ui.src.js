@@ -22,7 +22,7 @@ const CSS=`#stRoot{position:fixed;inset:0;z-index:100000;background:#101418;colo
 #stOrig{position:absolute;inset:0;width:100%;height:100%}
 .sx-strip{display:flex;gap:6px;padding:8px;overflow-x:auto;background:#171c22;border-top:1px solid #26303a;min-height:92px}
 .sx-th{position:relative;flex:0 0 auto;width:74px;height:74px;border-radius:6px;overflow:hidden;border:2px solid transparent;cursor:pointer;background:#222}
-.sx-th.on{border-color:#2f6df6}.sx-th img{width:100%;height:100%;object-fit:cover}.sx-th input{position:absolute;top:3px;left:3px}.sx-th i{position:absolute;right:3px;bottom:3px;font-style:normal;font-size:10px;background:#0009;border-radius:4px;padding:0 4px}
+.sx-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 8px;background:#171c22;border-top:1px solid #26303a}.sx-bar .sx-b{padding:5px 9px;font-size:12px}.sx-bar .cnt{color:#8fa0ad;font-size:12px;margin-right:4px}.sx-th .x{position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:16px;text-align:center;border-radius:9px;background:rgba(0,0,0,.65);color:#fff;font-size:13px;font-style:normal}.sx-th.on{border-color:#2f6df6}.sx-th img{width:100%;height:100%;object-fit:cover}.sx-th input{position:absolute;top:3px;left:3px}.sx-th i{position:absolute;right:3px;bottom:3px;font-style:normal;font-size:10px;background:#0009;border-radius:4px;padding:0 4px}
 .sx-side{width:340px;max-width:44vw;background:#171c22;border-left:1px solid #26303a;display:flex;flex-direction:column;min-height:0}
 .sx-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px;border-bottom:1px solid #26303a}
 .sx-tabs button{background:none;border:0;color:#aab6c0;padding:6px 9px;border-radius:6px;cursor:pointer}.sx-tabs button.on{background:#26303a;color:#fff}
@@ -155,8 +155,20 @@ async function loadEdit(it){ if(!it.id||it.local||it.dbTried) return; it.dbTried
 async function select(i){ S.cur=i; S.hist=[]; S.hi=-1; const it=cur(); renderStrip(); if(!it) return; $('stView').classList.add('busy'); try{ await ensure(it); await loadEdit(it); }catch(e){ toast('Picha haikufunguka: '+(e.message||e)); return; }
   if(!it.edited&&it.P.exposure===0&&!it.P.contrast&&it.stats&&!it.autoDone){ it.P=E.autoParams(it.stats,S.style,S.strength/100); it.autoDone=1; }
   snapshot(); buildPane(); render(); }
-function renderStrip(){ const st=$('stStrip'); if(!st) return; st.innerHTML=S.items.length?S.items.map((it,i)=>`<div class="sx-th ${i===S.cur?'on':''}" data-i="${i}"><img src="${esc(it.thumb||'')}" alt=""><input type="checkbox" data-s="${i}" ${it.sel?'checked':''}>${it.edited?'<i>✓</i>':''}</div>`).join(''):'<div class="sx-note">Hakuna picha. Bonyeza "Fungua picha kutoka kifaa".</div>';
-  st.querySelectorAll('.sx-th').forEach(el=>el.onclick=e=>{ if(e.target.tagName==='INPUT'){ S.items[+e.target.dataset.s].sel=e.target.checked; return; } select(+el.dataset.i); }); }
+function renderStrip(){ const st=$('stStrip'); if(!st) return; st.innerHTML=S.items.length?S.items.map((it,i)=>`<div class="sx-th ${i===S.cur?'on':''}" data-i="${i}"><img src="${esc(it.thumb||'')}" alt=""><input type="checkbox" data-s="${i}" ${it.sel?'checked':''}><b class="x" data-x="${i}" style="font-weight:400">×</b>${it.edited?'<i>✓</i>':''}</div>`).join(''):'<div class="sx-note">Hakuna picha. Bonyeza "Fungua picha kutoka kifaa".</div>';
+  st.querySelectorAll('.sx-th').forEach(el=>el.onclick=e=>{ if(e.target.dataset.x!==undefined){ removeItems([+e.target.dataset.x]); return; } if(e.target.tagName==='INPUT'){ const i=+e.target.dataset.s; if(e.shiftKey&&S.last>=0){ const [a,b]=[Math.min(S.last,i),Math.max(S.last,i)]; for(let k=a;k<=b;k++) S.items[k].sel=true; renderStrip(); } else { S.items[i].sel=e.target.checked; S.last=i; renderBar(); } return; } select(+el.dataset.i); });
+  renderBar(); }
+function renderBar(){ const bar=$('stBar'); if(!bar) return; const n=S.items.filter(i=>i.sel).length;
+  bar.innerHTML=`<span class="cnt">${n} zimechaguliwa / ${S.items.length}</span><button class="sx-b" id="stSelAll">Chagua zote</button><button class="sx-b" id="stSelNone">Ondoa uchaguzi</button><button class="sx-b pri" id="stApplyAll" title="">Tumia mwonekano wa picha hii kwa zilizochaguliwa</button><button class="sx-b" id="stSyncLight">Sawazisha mwanga/rangi (auto kwa zote)</button><button class="sx-b" id="stDelSel" style="color:#ff8a8a">Futa zilizochaguliwa (kwenye Studio)</button>`;
+  $('stSelAll').onclick=()=>{ S.items.forEach(i=>i.sel=true); renderStrip(); }; $('stSelNone').onclick=()=>{ S.items.forEach(i=>i.sel=false); renderStrip(); };
+  $('stApplyAll').onclick=applyToSel; $('stSyncLight').onclick=()=>{ if(!S.items.some(i=>i.sel)) return toast('Chagua picha kwanza (weka tiki).'); batchAuto(); };
+  $('stDelSel').onclick=()=>{ const idx=S.items.map((it,i)=>it.sel?i:-1).filter(i=>i>=0); if(!idx.length) return toast('Weka tiki kwenye picha unazotaka kufuta.'); removeItems(idx); }; }
+function applyToSel(){ const src=cur(); if(!src) return toast('Chagua picha ya mfano kwanza.'); const tg=S.items.filter(i=>i.sel&&i!==src); if(!tg.length) return toast('Weka tiki kwenye picha nyingine unazotaka (zaidi ya hii).');
+  const js=JSON.stringify(E.clone(src.P)); tg.forEach(it=>{ it.P=E.reviveLut(JSON.parse(js)); it.edited=1; it.autoDone=1; }); renderStrip(); toast('Mwonekano umetumika kwa picha '+tg.length+'. Bonyeza picha uone, kisha Export.'); }
+function removeItems(idx){ const set=new Set(idx); if(!confirm('Kuondoa picha '+set.size+' kutoka Studio? (Hazifutwi kwenye Collection wala kifaani — ni orodha ya Studio tu.)')) return;
+  const curIt=cur(); S.items=S.items.filter((_,i)=>!set.has(i)); S.last=-1; const ni=curIt?S.items.indexOf(curIt):-1;
+  if(ni>=0){ S.cur=ni; renderStrip(); return; } S.cur=-1; renderStrip(); if(S.items.length) select(0); else { const cv=$('stCanvas'); if(cv){ cv.width=2; cv.height=2; } buildPane(); } }
+
 
 /* ---------- RAW (CR2/NEF/ARW/DNG/...): use the camera's embedded full-size JPEG preview ---------- */
 const RAWEXT=/\.(cr2|cr3|nef|nrw|arw|srf|sr2|dng|orf|rw2|raf|pef|srw)$/i;
@@ -192,7 +204,7 @@ function build(){ injectCss(); let r=$('stRoot'); if(r) r.remove(); r=document.c
    <label class="sx-b" style="display:inline-flex;align-items:center">Fungua picha kutoka kifaa<input type="file" id="stLocal" accept="image/*,.cr2,.cr3,.nef,.nrw,.arw,.srf,.sr2,.dng,.orf,.rw2,.raf,.pef,.srw" multiple hidden></label>
    <button class="sx-b pri" onclick="Studio.close()">Funga</button></div>
    <div class="sx-main"><div class="sx-stage"><div class="sx-view" id="stView"><div class="sx-wrap"><canvas id="stCanvas" width="2" height="2"></canvas><canvas id="stOrig" width="2" height="2" style="display:none"></canvas></div></div>
-   <div class="sx-note" style="padding:0 12px"><input type="range" id="stSplitR" min="0" max="100" value="50" style="width:200px;display:none"></div><div class="sx-strip" id="stStrip"></div></div>
+   <div class="sx-note" style="padding:0 12px"><input type="range" id="stSplitR" min="0" max="100" value="50" style="width:200px;display:none"></div><div class="sx-bar" id="stBar"></div><div class="sx-strip" id="stStrip"></div></div>
    <div class="sx-side"><div class="sx-tabs" id="stTabs"></div><div class="sx-pane" id="stPane"></div></div></div>`;
   document.body.appendChild(r);
   $('stTabs').onclick=e=>{ const b=e.target.closest('[data-t]'); if(b){ S.tab=b.dataset.t; buildPane(); } };
