@@ -1359,7 +1359,13 @@ button.icon svg.i{width:16px;height:16px}
 .toolbar button,.guest-bar button{min-height:38px}
 .guest-bar .search input,.guest-bar select,.topline select{min-height:38px}
 .ev2 .event-actions,.card-item .event-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.event-card.ev-muted{opacity:.62}.event-card.ev-muted:hover{opacity:1}
+.event-card.ev-muted{opacity:.7}.event-card.ev-muted:hover{opacity:1}.event-card.ev-muted .poster-wrap{filter:grayscale(.55)}
+.ev-seg-wrap{grid-column:1/-1}.ev-seg{display:inline-flex;gap:4px;padding:4px;border-radius:14px;background:var(--line-2,#e9edf5);max-width:100%}
+.ev-seg button{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--muted,#5b6479);font:600 14px/1 var(--font,inherit);padding:10px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s}
+.ev-seg button .i{width:16px;height:16px}.ev-seg button em{font-style:normal;font-size:12px;font-weight:700;min-width:22px;padding:3px 7px;border-radius:999px;background:rgba(20,32,90,.08);text-align:center}
+.ev-seg button.on{background:#fff;color:var(--blue-d,#1d2f7a);box-shadow:0 1px 3px rgba(20,32,90,.14)}.ev-seg button.on em{background:var(--blue-d,#1d2f7a);color:#fff}
+.ev-seg button:not(.on):hover{color:var(--ink,#1c2233)}.ev-seg-note{margin:10px 2px 0;font-size:13px;color:var(--muted,#5b6479)}
+@media(max-width:520px){.ev-seg{display:flex;width:100%}.ev-seg button{flex:1;justify-content:center;padding:10px 8px;font-size:13px}}
 .ev2 .event-actions button,.card-item .event-actions button{width:100%;min-width:0;flex:none}
 .ev2 .event-actions button.icon,.card-item .event-actions button.icon{height:36px}
 .card-item .event-actions button:nth-child(2){grid-column:span 2}
@@ -2198,7 +2204,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.58</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.59</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -4740,9 +4746,10 @@ window.renderDashboard = function(){
 window.renderEventCards = function(containerId){
   const box=$(containerId); if(!box) return;
   const mutedN=db.events.filter(e=>e.muted).length, isDash=containerId==='dashboardEvents';
-  const list = isDash ? db.events.filter(e=>!e.muted).slice(0,3) : db.events.filter(e=>!e.muted||EVMUTE.show);
-  const muteBar = (!isDash&&mutedN)?`<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="gray" onclick="toggleMutedEvents()">${EVMUTE.show?'Ficha sherehe zilizowekwa kando':'Onyesha sherehe zilizowekwa kando'} (${mutedN})</button><span class="muted" style="font-size:13px">Hazionekani kwenye orodha, dashibodi wala chaguo za sherehe.</span></div>`:'';
-  if(!list.length){ if(muteBar){ box.innerHTML=muteBar+`<div style="grid-column:1/-1">${emptyState('Hakuna sherehe inayoendelea','Sherehe zote zimewekwa kando. Bonyeza kitufe hapo juu kuziona.','')}</div>`; return; } box.innerHTML=`<div style="grid-column:1/-1">${emptyState('No events yet','Create your first event to get started.',`<button class="primary" onclick="showView('create')">${ic('plus')}Create event</button>`)}</div>`; return; }
+  const list = isDash ? db.events.filter(e=>!e.muted).slice(0,3) : (EVMUTE.show?db.events.filter(e=>e.muted):db.events.filter(e=>!e.muted));
+  const actN=db.events.length-mutedN;
+  const muteBar = (!isDash&&mutedN)?`<div class="ev-seg-wrap"><div class="ev-seg" role="tablist"><button role="tab" class="${EVMUTE.show?'':'on'}" aria-selected="${!EVMUTE.show}" onclick="setMutedTab(false)">${ic('calendar')}<span>Zinazoendelea</span><em>${actN}</em></button><button role="tab" class="${EVMUTE.show?'on':''}" aria-selected="${!!EVMUTE.show}" onclick="setMutedTab(true)">${ic('lock')}<span>Zilizowekwa kando</span><em>${mutedN}</em></button></div>${EVMUTE.show?'<p class="ev-seg-note">Hizi hazionekani kwenye dashibodi wala kwenye chaguo za sherehe. Bonyeza <b>Rudisha</b> kuirudisha sherehe.</p>':''}</div>`:'';
+  if(!list.length){ if(muteBar){ box.innerHTML=muteBar+`<div style="grid-column:1/-1">${EVMUTE.show?emptyState('Hakuna sherehe iliyowekwa kando','Sherehe utakazoweka kando zitaonekana hapa.',''):emptyState('Hakuna sherehe inayoendelea','Sherehe zote zimewekwa kando. Fungua kichupo cha "Zilizowekwa kando" kuziona.','')}</div>`; return; } box.innerHTML=`<div style="grid-column:1/-1">${emptyState('No events yet','Create your first event to get started.',`<button class="primary" onclick="showView('create')">${ic('plus')}Create event</button>`)}</div>`; return; }
   box.innerHTML=muteBar+list.map(e=>{
     const d=e.date?new Date(e.date):null, valid=d&&!isNaN(d);
     const chip = valid?`<div class="date-chip"><b>${d.getDate()}</b><em>${d.toLocaleString('en-GB',{month:'short'}).toUpperCase()}</em></div>`:'';
@@ -4762,7 +4769,8 @@ window.renderEventCards = function(containerId){
   }).join('');
 };
 window.EVMUTE=window.EVMUTE||{show:false};
-window.toggleMutedEvents=function(){ EVMUTE.show=!EVMUTE.show; renderEventCards('eventsGrid'); };
+window.setMutedTab=function(on){ EVMUTE.show=!!on; renderEventCards('eventsGrid'); };
+window.toggleMutedEvents=function(){ setMutedTab(!EVMUTE.show); };
 window.muteEvent=async function(id,on,quiet){
   const ev=getEvent(id); if(!ev) return false;
   if(window.__offlineMode||!navigator.onLine){ toast('Hii inahitaji mtandao.'); return false; }
@@ -4770,6 +4778,7 @@ window.muteEvent=async function(id,on,quiet){
   if(r.error){ toast('Haikufanikiwa: '+r.error.message); return false; }
   ev.muted=!!on; try{ OFFLINE.snapshot(); }catch(e){}
   if(on&&currentEventId===id){ const nx=db.events.find(e=>!e.muted&&e.id!==id); currentEventId=nx?nx.id:null; window.__evNone=!nx; }
+  if(EVMUTE.show&&!db.events.some(e=>e.muted)) EVMUTE.show=false;
   populateEventSelects(); renderEventCards('eventsGrid'); renderEventCards('dashboardEvents'); if(typeof refreshAll==='function') refreshAll();
   if(!quiet) toast(on?'Sherehe imewekwa kando. Unaweza kuirudisha wakati wowote.':'Sherehe imerudishwa kwenye orodha.');
   return true;
