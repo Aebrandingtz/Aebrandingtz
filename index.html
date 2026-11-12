@@ -1359,6 +1359,7 @@ button.icon svg.i{width:16px;height:16px}
 .toolbar button,.guest-bar button{min-height:38px}
 .guest-bar .search input,.guest-bar select,.topline select{min-height:38px}
 .ev2 .event-actions,.card-item .event-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.event-card.ev-muted{opacity:.62}.event-card.ev-muted:hover{opacity:1}
 .ev2 .event-actions button,.card-item .event-actions button{width:100%;min-width:0;flex:none}
 .ev2 .event-actions button.icon,.card-item .event-actions button.icon{height:36px}
 .card-item .event-actions button:nth-child(2){grid-column:span 2}
@@ -2197,7 +2198,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.56</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.57</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3358,6 +3359,7 @@ async function _loadEventsOnce(){
     galleryOpen: !!e.gallery_open,
     guestLimit: (e.guest_limit==null?null:Number(e.guest_limit)), limitMode: e.limit_mode||'warn',
     showTable: e.show_table!==false,
+    muted: !!e.muted,
     rsvpDeadline: e.rsvp_deadline || null,
     mealOptions: Array.isArray(e.meal_options) ? e.meal_options.filter(Boolean) : [],
     publicPage: !!e.public_page,
@@ -4605,9 +4607,10 @@ document.addEventListener('mousedown',e=>{
 window.populateEventSelects = function(){
   if(currentEventId && !getEvent(currentEventId)) currentEventId=null;
   if(currentEventId) window.__evNone=false;
-  if(!currentEventId && !window.__evNone && db.events[0]) currentEventId=db.events[0].id;
+  if(!currentEventId && !window.__evNone && (db.events.find(e=>!e.muted)||db.events[0])) currentEventId=(db.events.find(e=>!e.muted)||db.events[0]).id;
+  const shownEv=db.events.filter(e=>!e.muted||e.id===currentEventId);
   const noneLbl=(typeof invLang==='function'&&invLang()==='en')?'None':'Hakuna';
-  const opts = db.events.length ? (`<option value=""${currentEventId?'':' selected'}>${noneLbl}</option>`+db.events.map(e=>`<option value="${e.id}" ${e.id===currentEventId?'selected':''}>${E(e.name)} — ${E(e.type)}</option>`).join('')) : '<option value="">No events yet</option>';
+  const opts = db.events.length ? (`<option value=""${currentEventId?'':' selected'}>${noneLbl}</option>`+shownEv.map(e=>`<option value="${e.id}" ${e.id===currentEventId?'selected':''}>${E(e.name)} — ${E(e.type)}${e.muted?' (kando)':''}</option>`).join('')) : '<option value="">No events yet</option>';
   ['guestEventSelect','cardEventSelect','reportEventSelect','messageEventSelect','contributionEventSelect','checkinEventSelect','photoEventSelect','seatEventSelect','wishEventSelect','taskEventSelect'].forEach(id=>{
     const s=$(id); if(s && s.innerHTML!==opts) s.innerHTML=opts;
   });
@@ -4683,8 +4686,8 @@ window.renderDashboard = function(){
     return;
   }
   const now=Date.now()-24*3600*1000;
-  const upcoming=evs.filter(e=>e.date && new Date(e.date).getTime()>=now).sort((a,b)=>new Date(a.date)-new Date(b.date));
-  const ev = upcoming[0] || evs.find(e=>e.id===currentEventId) || evs[0];
+  const upcoming=evs.filter(e=>!e.muted && e.date && new Date(e.date).getTime()>=now).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const ev = upcoming[0] || evs.find(e=>e.id===currentEventId&&!e.muted) || evs.find(e=>!e.muted) || evs[0];
   const isUp = upcoming.includes(ev);
   const st=reportStats(ev);
   const d = ev.date ? daysUntil(ev.date) : null;
@@ -4721,9 +4724,11 @@ window.renderDashboard = function(){
 /* ---------- event cards ---------- */
 window.renderEventCards = function(containerId){
   const box=$(containerId); if(!box) return;
-  const list = containerId==='dashboardEvents' ? db.events.slice(0,3) : db.events;
-  if(!list.length){ box.innerHTML=`<div style="grid-column:1/-1">${emptyState('No events yet','Create your first event to get started.',`<button class="primary" onclick="showView('create')">${ic('plus')}Create event</button>`)}</div>`; return; }
-  box.innerHTML=list.map(e=>{
+  const mutedN=db.events.filter(e=>e.muted).length, isDash=containerId==='dashboardEvents';
+  const list = isDash ? db.events.filter(e=>!e.muted).slice(0,3) : db.events.filter(e=>!e.muted||EVMUTE.show);
+  const muteBar = (!isDash&&mutedN)?`<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="gray" onclick="toggleMutedEvents()">${EVMUTE.show?'Ficha sherehe zilizowekwa kando':'Onyesha sherehe zilizowekwa kando'} (${mutedN})</button><span class="muted" style="font-size:13px">Hazionekani kwenye orodha, dashibodi wala chaguo za sherehe.</span></div>`:'';
+  if(!list.length){ if(muteBar){ box.innerHTML=muteBar+`<div style="grid-column:1/-1">${emptyState('Hakuna sherehe inayoendelea','Sherehe zote zimewekwa kando. Bonyeza kitufe hapo juu kuziona.','')}</div>`; return; } box.innerHTML=`<div style="grid-column:1/-1">${emptyState('No events yet','Create your first event to get started.',`<button class="primary" onclick="showView('create')">${ic('plus')}Create event</button>`)}</div>`; return; }
+  box.innerHTML=muteBar+list.map(e=>{
     const d=e.date?new Date(e.date):null, valid=d&&!isNaN(d);
     const chip = valid?`<div class="date-chip"><b>${d.getDate()}</b><em>${d.toLocaleString('en-GB',{month:'short'}).toUpperCase()}</em></div>`:'';
     const du = valid?daysUntil(e.date):null;
@@ -4731,15 +4736,27 @@ window.renderEventCards = function(containerId){
     const img = e.poster?`<i class="pw-bg" style="background-image:url('${E(e.poster)}')"></i><img loading="lazy" src="${E(e.poster)}" alt="Poster for ${E(e.name)}">`:`<div class="poster-ph">${ic('image')}</div>`;
     const tot=e.guests.length, sentN=e.guests.filter(g=>g.sent).length;
     const prog = tot?`<div class="ev-prog"><div class="stat-bar"><i style="width:${pct(sentN,tot)}%"></i></div><span>${sentN} of ${tot} invited</span></div>`:'';
-    return `<div class="event-card ev2"><div class="poster-wrap">${img}${chip}${badge}</div>
+    return `<div class="event-card ev2${e.muted?' ev-muted':''}"><div class="poster-wrap">${img}${chip}${e.muted?'<span class="ev-badge off">Imewekwa kando</span>':badge}</div>
       <h3>${E(e.name)}</h3>
       <div class="tags"><span class="tag blue">${E(e.type)}</span><span class="tag">${ic('users')}${tot} guests</span></div>
       ${valid?`<div class="event-meta">${ic('clock')}${E(fmtDate(e.date))}</div>`:''}
       ${e.venue?`<div class="event-meta">${ic('pin')}${E(e.venue)}</div>`:''}
       ${prog}
       <div class="event-actions"><button class="primary" onclick="openEventHub('${e.id}','guests')">Guests</button><button class="gray" onclick="openEventHub('${e.id}','cards')">Cards</button>
-      <button class="gray icon" title="Edit event" aria-label="Edit event" onclick="openEditEvent('${e.id}')">${ic('edit')}</button><button class="gray icon no-cohost" title="Duplicate event" aria-label="Duplicate event" onclick="duplicateEvent('${e.id}')">${ic('copy')}</button><button class="danger icon no-cohost" title="Delete event" aria-label="Delete event" onclick="deleteEvent('${e.id}')">${ic('trash')}</button></div></div>`;
+      <button class="gray icon" title="Edit event" aria-label="Edit event" onclick="openEditEvent('${e.id}')">${ic('edit')}</button><button class="gray icon no-cohost" title="Duplicate event" aria-label="Duplicate event" onclick="duplicateEvent('${e.id}')">${ic('copy')}</button><button class="gray no-cohost" title="${e.muted?'Rudisha sherehe kwenye orodha':'Weka kando sherehe iliyoisha (haitaonekana kwenye orodha)'}" onclick="muteEvent('${e.id}',${e.muted?'false':'true'})">${e.muted?'Rudisha':'Weka kando'}</button><button class="danger icon no-cohost" title="Delete event" aria-label="Delete event" onclick="deleteEvent('${e.id}')">${ic('trash')}</button></div></div>`;
   }).join('');
+};
+window.EVMUTE=window.EVMUTE||{show:false};
+window.toggleMutedEvents=function(){ EVMUTE.show=!EVMUTE.show; renderEventCards('eventsGrid'); };
+window.muteEvent=async function(id,on){
+  const ev=getEvent(id); if(!ev) return;
+  if(window.__offlineMode||!navigator.onLine){ toast('Hii inahitaji mtandao.'); return; }
+  const r=await supabaseClient.from('events').update({muted:!!on}).eq('id',id).eq('owner_id',evOwner(id));
+  if(r.error){ toast('Haikufanikiwa: '+r.error.message); return; }
+  ev.muted=!!on; try{ OFFLINE.snapshot(); }catch(e){}
+  if(on&&currentEventId===id){ const nx=db.events.find(e=>!e.muted&&e.id!==id); currentEventId=nx?nx.id:null; window.__evNone=!nx; }
+  populateEventSelects(); renderEventCards('eventsGrid'); renderEventCards('dashboardEvents'); if(typeof refreshAll==='function') refreshAll();
+  toast(on?'Sherehe imewekwa kando. Unaweza kuirudisha wakati wowote.':'Sherehe imerudishwa kwenye orodha.');
 };
 
 /* ---------- event edit / delete ---------- */
@@ -7664,7 +7681,7 @@ const OFFLINE = (function(){
   }
   function snapshot(){
     if(!currentSupabaseUser || currentSupabaseUser.offline) return;
-    const events=db.events.map(e=>({id:e.id,owner_id:e.owner_id,name:e.name,type:e.type,date:e.date,venue:e.venue,maps:e.maps,message:e.message,galleryOpen:!!e.galleryOpen,showTable:e.showTable!==false,rsvpDeadline:e.rsvpDeadline||null,mealOptions:e.mealOptions||[],publicPage:!!e.publicPage,poster:e.poster,posterDouble:e.posterDouble,namePos:e.namePos,namePosDouble:e.namePosDouble,
+    const events=db.events.map(e=>({id:e.id,owner_id:e.owner_id,name:e.name,type:e.type,date:e.date,venue:e.venue,maps:e.maps,message:e.message,galleryOpen:!!e.galleryOpen,showTable:e.showTable!==false,muted:!!e.muted,rsvpDeadline:e.rsvpDeadline||null,mealOptions:e.mealOptions||[],publicPage:!!e.publicPage,poster:e.poster,posterDouble:e.posterDouble,namePos:e.namePos,namePosDouble:e.namePosDouble,
       guests:e.guests.map(g=>({id:g.id,name:g.name,phone:g.phone,type:g.type,label:g.label||'',party:g.party||0,table:g.table,group:g.group,rsvp:g.rsvp,rsvpAttendees:g.rsvpAttendees,meal:g.meal||'',checkedIn:!!g.checkedIn,pending:!!g.pending,sent:!!g.sent,sent_whatsapp:!!g.sent_whatsapp,sent_sms:!!g.sent_sms}))}));
     wr(SNAP,{v:1,at:Date.now(),user:{id:currentSupabaseUser.id,email:currentSupabaseUser.email||''},staff:!!window.__staffMode,roles:window.__staffRoles||{},events});
   }
