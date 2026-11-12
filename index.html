@@ -2198,7 +2198,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.57</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.58</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2210,12 +2210,13 @@ body.svc-photog #collNavGroup{display:block!important}
     <div class="topline-actions"><button class="primary no-cohost" onclick="showView('create')"><svg class="i"><use href="#i-plus"/></svg>New event</button></div>
   </div>
   <div class="cards dash-stats">
-    <div class="stat stat-blue"><div class="stat-top"><span>Events</span><i class="stat-ic"><svg class="i"><use href="#i-calendar"/></svg></i></div><b id="sEvents">0</b><small>All events you created</small></div>
+    <div class="stat stat-blue"><div class="stat-top"><span>Events</span><i class="stat-ic"><svg class="i"><use href="#i-calendar"/></svg></i></div><b id="sEvents">0</b><small id="sEventsSub">Sherehe zinazoendelea</small></div>
     <div class="stat stat-teal"><div class="stat-top"><span>Guests</span><i class="stat-ic"><svg class="i"><use href="#i-users"/></svg></i></div><b id="sGuests">0</b><small>Across all events</small></div>
     <div class="stat stat-gold"><div class="stat-top"><span>Invitations sent</span><i class="stat-ic"><svg class="i"><use href="#i-send"/></svg></i></div><b id="sCards">0</b><small id="sCardsSub">Guests who received an invitation</small><div class="stat-bar"><i id="sbCards"></i></div></div>
     <div class="stat stat-green"><div class="stat-top"><span>Checked in</span><i class="stat-ic"><svg class="i"><use href="#i-scan"/></svg></i></div><b id="sRsvp">0</b><small>Arrived at the venue</small><div class="stat-bar"><i id="sbRsvp"></i></div></div>
   </div>
   <div id="coReqBanner"></div>
+  <div id="endedNudge"></div>
   <div id="rsvpNudge"></div>
   <div id="nextActions"></div>
   <div class="dash-grid">
@@ -4654,6 +4655,19 @@ function doRefresh(){ sortGuests();
 }
 
 /* ---------- dashboard ---------- */
+function renderEndedNudge(evs){
+  const box=$('endedNudge'); if(!box) return;
+  const ended=evs.filter(e=>e.date&&daysUntil(e.date)<-1);
+  if(!ended.length||window.isCoHostView){ box.innerHTML=''; return; }
+  const names=ended.slice(0,3).map(e=>E(e.name)).join(', ')+(ended.length>3?` na ${ended.length-3} zaidi`:'');
+  box.innerHTML=`<div class="nudge no-cohost" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:12px 16px;margin-bottom:14px"><div style="flex:1;min-width:220px"><b>Sherehe ${ended.length} zimeisha</b><div class="muted" style="font-size:13px">${names}. Ziweke kando ili zisichanganye takwimu na orodha zako.</div></div><button class="primary" onclick="muteEnded()">Ziweke kando zote (${ended.length})</button><button class="gray" onclick="showView('events')">Chagua mwenyewe</button></div>`;
+}
+window.muteEnded=async function(){
+  const ids=db.events.filter(e=>!e.muted&&e.date&&daysUntil(e.date)<-1).map(e=>e.id); if(!ids.length) return;
+  if(!confirm('Kuweka kando sherehe '+ids.length+' zilizoisha? Hazifutwi; unaweza kuzirudisha wakati wowote.')) return;
+  let n=0; for(const id of ids){ if(await muteEvent(id,true,true)) n++; }
+  if(n){ toast('Sherehe '+n+' zimewekwa kando.'); } 
+};
 function countTo(el,n){
   if(!el) return; n=Number(n)||0;
   const prev=el.dataset.v===undefined?NaN:Number(el.dataset.v);
@@ -4669,11 +4683,12 @@ function countTo(el,n){
   setTimeout(()=>{ if(el.dataset.v===String(n)) el.textContent=n; },dur+120);
 }
 window.renderDashboard = function(){
-  const evs=db.events;
+  const evs=db.events.filter(e=>!e.muted), mutedN=db.events.length-evs.length;
   const guests=evs.reduce((n,e)=>n+e.guests.length,0);
   const sent=evs.reduce((n,e)=>n+e.guests.filter(g=>g.sent).length,0);
   const arrived=evs.reduce((n,e)=>n+e.guests.filter(g=>g.checkedIn).length,0);
-  countTo($('sEvents'),evs.length); countTo($('sGuests'),guests); countTo($('sCards'),sent); countTo($('sRsvp'),arrived);
+  countTo($('sEvents'),evs.length); { const sb=$('sEventsSub'); if(sb) sb.textContent='Zinazoendelea'+(mutedN?` · ${mutedN} zimewekwa kando`:''); }
+  renderEndedNudge(evs); countTo($('sGuests'),guests); countTo($('sCards'),sent); countTo($('sRsvp'),arrived);
   const b1=$('sbCards'), b2=$('sbRsvp');
   if(b1) b1.style.width=pct(sent,guests)+'%';
   if(b2) b2.style.width=pct(arrived,guests)+'%';
@@ -4707,7 +4722,7 @@ window.renderDashboard = function(){
       <div class="ne-tile c"><b>${st.checked}</b><span>Arrived</span></div>
     </div>
     <div class="ne-bar" title="RSVP"><i class="y" style="width:${pct(st.att,st.total)}%"></i><i class="p" style="width:${pct(st.pending,st.total)}%"></i><i class="n" style="width:${pct(st.no,st.total)}%"></i></div></div>
-    <div class="ne-actions"><button class="primary" onclick="openEventHub('${ev.id}','guests')">${ic('users')}Manage guests</button><button class="ghost" onclick="openEventHub('${ev.id}','messaging')">${ic('send')}Send invitations</button><button class="ghost" onclick="openEventHub('${ev.id}','rsvp')">${ic('scan')}Check-in</button></div>`;
+    <div class="ne-actions">${!isUp&&ev.date&&d!==null&&d<-1?`<button class="gray no-cohost" onclick="muteEvent('${ev.id}',true)">Weka kando (imeisha)</button>`:''}<button class="primary" onclick="openEventHub('${ev.id}','guests')">${ic('users')}Manage guests</button><button class="ghost" onclick="openEventHub('${ev.id}','messaging')">${ic('send')}Send invitations</button><button class="ghost" onclick="openEventHub('${ev.id}','rsvp')">${ic('scan')}Check-in</button></div>`;
   const steps=[
     {i:'image', done:!!ev.poster, t:'Event and poster', d:ev.poster?'Poster uploaded':'No poster yet'},
     {i:'users', done:st.total>0, t:'Guests added', d:st.total?`${st.total} guests on the list`:'No guests yet', a:['Add guests','guests']},
@@ -4748,15 +4763,16 @@ window.renderEventCards = function(containerId){
 };
 window.EVMUTE=window.EVMUTE||{show:false};
 window.toggleMutedEvents=function(){ EVMUTE.show=!EVMUTE.show; renderEventCards('eventsGrid'); };
-window.muteEvent=async function(id,on){
-  const ev=getEvent(id); if(!ev) return;
-  if(window.__offlineMode||!navigator.onLine){ toast('Hii inahitaji mtandao.'); return; }
+window.muteEvent=async function(id,on,quiet){
+  const ev=getEvent(id); if(!ev) return false;
+  if(window.__offlineMode||!navigator.onLine){ toast('Hii inahitaji mtandao.'); return false; }
   const r=await supabaseClient.from('events').update({muted:!!on}).eq('id',id).eq('owner_id',evOwner(id));
-  if(r.error){ toast('Haikufanikiwa: '+r.error.message); return; }
+  if(r.error){ toast('Haikufanikiwa: '+r.error.message); return false; }
   ev.muted=!!on; try{ OFFLINE.snapshot(); }catch(e){}
   if(on&&currentEventId===id){ const nx=db.events.find(e=>!e.muted&&e.id!==id); currentEventId=nx?nx.id:null; window.__evNone=!nx; }
   populateEventSelects(); renderEventCards('eventsGrid'); renderEventCards('dashboardEvents'); if(typeof refreshAll==='function') refreshAll();
-  toast(on?'Sherehe imewekwa kando. Unaweza kuirudisha wakati wowote.':'Sherehe imerudishwa kwenye orodha.');
+  if(!quiet) toast(on?'Sherehe imewekwa kando. Unaweza kuirudisha wakati wowote.':'Sherehe imerudishwa kwenye orodha.');
+  return true;
 };
 
 /* ---------- event edit / delete ---------- */
