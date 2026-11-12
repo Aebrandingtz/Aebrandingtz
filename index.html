@@ -2209,7 +2209,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.61</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.62</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -3675,6 +3675,8 @@ function normalizeTzPhone(phone){
   return p;
 }
 function guestInviteUrl(ev,g){
+  /* short link /i/<event>/<guest>/<card> on the live site: WhatsApp shows the event poster, and the link has no '&' to get cut */
+  if(/(^|\.)sherehehubtz\.com$/i.test(location.hostname)) return location.origin+'/i/'+encodeURIComponent(ev.id)+'/'+encodeURIComponent(g.id)+'/'+encodeURIComponent(g.type||'Single');
   return location.href.split('#')[0]+'#invite='+encodeURIComponent(ev.id)+'&guest='+encodeURIComponent(g.id)+'&type='+encodeURIComponent(g.type);
 }
 function mapShareUrl(ev){ return (ev&&ev.maps)||''; }
