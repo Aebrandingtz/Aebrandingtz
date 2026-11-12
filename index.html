@@ -2209,7 +2209,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.60</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.61</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2446,7 +2446,7 @@ body.svc-photog #collNavGroup{display:block!important}
       <div class="field" id="ctToneBox" style="display:none"><label for="ctTone">Message style</label><select id="ctTone" onchange="onCtToneChange()"><option value="friendly">Friendly</option><option value="formal">Formal</option><option value="short">Short (saves SMS)</option></select></div>
     </div>
     <div class="field" id="welcomeTplBox"><label for="welcomeTpl">Message templates</label><select id="welcomeTpl" onchange="applyWelcomeTpl(this.value)"><option value="">— Choose a ready-made message —</option><option value="warm">Welcome — warm (full details)</option><option value="formal">Welcome — formal invitation</option><option value="short">Welcome — short (saves SMS)</option><option value="dayof">Day of the event — we are waiting for you</option><option value="reset">Back to the automatic message</option></select><small class="muted" id="welcomeTplNote" style="display:block;margin-top:4px">You can edit the message after choosing a template. Each guest’s name, link and door code are filled in automatically.</small></div>
-    <div class="field" id="waCardBox"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:500"><input type="checkbox" id="waCardChk" checked style="margin-top:3px"><span>Send the card picture together with the message (WhatsApp on a phone)</span></label></div>
+    <div class="field" id="waCardBox"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:500"><input type="checkbox" id="waCardChk" style="margin-top:3px"><span>Send the card picture together with the message (WhatsApp on a phone). You will have to choose the contact yourself.</span></label></div>
     <div class="field"><label for="bulkMessage">Message</label><textarea id="bulkMessage" rows="6" oninput="this.dataset.dirty='1'"></textarea></div>
     <div class="help">Placeholders filled in automatically: <code>{{name}}</code> <code>{{table}}</code> <code>{{event}}</code> <code>{{date}}</code> <code>{{day}}</code> <code>{{time}}</code> <code>{{venue}}</code> <code>{{card_type}}</code> <code>{{link}}</code> <code>{{deadline}}</code> <code>{{map}}</code> <code>{{photos}}</code><span id="ctPlaceholders" style="display:none"> · Contributors: <code>{{pledged}}</code> <code>{{paid}}</code> <code>{{balance}}</code> <code>{{due}}</code></span></div>
     <div id="messageHelp" class="hint-box" style="margin-top:14px"></div>
@@ -5615,7 +5615,7 @@ function copyMsgSafe(message,channel){
 async function waShareCard(ev,g,message){
   try{
     if(g._ct||!navigator.share||!navigator.canShare||!(navigator.maxTouchPoints>0)) return 'na';
-    const chk=$('waCardChk'); if(chk&&!chk.checked) return 'na';
+    const chk=$('waCardChk'); if(!chk||!chk.checked) return 'na';
     const c=await buildCardCanvas(ev,g); const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('png')),'image/png'));
     const file=new File([blob],('Kadi-'+String(g.name||'guest').replace(/[^a-zA-Z0-9._-]/g,'_')+'.png'),{type:'image/png'});
     if(!navigator.canShare({files:[file]})) return 'na';
@@ -15042,7 +15042,7 @@ window.SW_EXACT = {
 "Making a poster":"Kutengeneza poster",
 "Manage guests":"Simamia wageni",
 "Manual check-in for guests without a QR code or phone.":"Check-in ya mkono kwa wageni wasio na QR code au simu.",
-"Call guest":"Mpigie mgeni","Sent, no reply yet (to call)":"Wametumiwa, hawajajibu (wapigiwe)","Called":"Amepigiwa","Answered":"Amepokea","No answer":"Hakupokea","Call later":"Piga baadaye","Wrong number":"Namba si sahihi","Photographer (own account, no event needed)":"Mpiga picha (akaunti yake, hahitaji tukio)","Host (own account, creates own events)":"Mwenyeji (akaunti yake, anatengeneza matukio yake)","Send the card picture together with the message (WhatsApp on a phone)":"Tuma picha ya kadi pamoja na ujumbe (WhatsApp ya simu)","Message":"Ujumbe",
+"Call guest":"Mpigie mgeni","Sent, no reply yet (to call)":"Wametumiwa, hawajajibu (wapigiwe)","Called":"Amepigiwa","Answered":"Amepokea","No answer":"Hakupokea","Call later":"Piga baadaye","Wrong number":"Namba si sahihi","Photographer (own account, no event needed)":"Mpiga picha (akaunti yake, hahitaji tukio)","Host (own account, creates own events)":"Mwenyeji (akaunti yake, anatengeneza matukio yake)","Send the card picture together with the message (WhatsApp on a phone)":"Tuma picha ya kadi pamoja na ujumbe (WhatsApp ya simu)","Send the card picture together with the message (WhatsApp on a phone). You will have to choose the contact yourself.":"Tuma picha ya kadi pamoja na ujumbe (WhatsApp ya simu). Itabidi uchague mwenyewe mtu wa kumtumia.","Message":"Ujumbe",
 "Message templates":"Violezo vya ujumbe",
 "— Choose a ready-made message —":"— Chagua ujumbe uliotayarishwa —",
 "Welcome — warm (full details)":"Karibu — kwa upendo (maelezo kamili)",
