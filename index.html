@@ -267,6 +267,11 @@ tbody tr:hover td{background:#f6f8fb}
 td.empty{background:transparent!important}
 .cell-name{font-weight:700;color:var(--ink)}
 .cell-sub{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+.gsel-col{width:34px;padding-right:0!important}
+input.gsel{width:18px;height:18px;accent-color:#1f3fae;cursor:pointer;margin:0}
+tr.gsel-on td{background:var(--line-2)}
+.gsel-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin:0 0 12px;border:1px solid var(--line);border-radius:12px;background:var(--line-2);font-weight:600}
+.gsel-bar .spacer{flex:1}
 .row-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:nowrap}
 td:last-child.actions,th.actions{text-align:right}
 .report-table th,.report-table td{padding:10px 14px}
@@ -2204,7 +2209,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.59</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.60</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2353,13 +2358,15 @@ body.svc-photog #collNavGroup{display:block!important}
       <button class="gray no-cohost" onclick="openContribPicker()"><svg class="i"><use href="#i-wallet"/></svg>From contributors</button>
       <button class="gray" onclick="openPrintList()"><svg class="i"><use href="#i-sheet"/></svg>Print list</button>
       <button class="gray" onclick="document.getElementById('guestFile').click()"><svg class="i"><use href="#i-sheet"/></svg>Import Excel</button>
+      <button class="gray no-cohost" id="gDelAllBtn" onclick="bulkDeleteAsk('all')"><svg class="i"><use href="#i-trash"/></svg>Delete all</button>
       <button class="primary" onclick="openAddGuestModal()"><svg class="i"><use href="#i-plus"/></svg>Add guest</button>
     </div>
     <input hidden id="guestFile" type="file" accept=".xlsx,.xls,.csv" onchange="importGuests(this)">
     <div class="hint-box"><svg class="i"><use href="#i-info"/></svg><span>Your Excel/CSV file needs three columns: <b>Name</b>, <b>Phone</b>, <b>Card Type</b> (Single, Double, VIP, Family, Wakwe…). Optional: Table, Group, People. <button class="text-button" style="padding:0 4px" onclick="downloadTemplate()">Download template</button></span></div>
     <div id="guestSummary" class="help" style="margin:0 0 12px"></div>
+    <div id="gSelBar" class="gsel-bar no-cohost" hidden><span id="gSelTxt"></span><span class="spacer"></span><button class="gray" type="button" onclick="gSelClear()">Clear selection</button><button class="danger" type="button" id="gDelSelBtn" onclick="bulkDeleteAsk('sel')"><svg class="i"><use href="#i-trash"/></svg><span id="gDelSelTxt">Delete selected</span></button></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Guest</th><th>Card</th><th>Invitation</th><th>RSVP</th><th>Check-in</th><th class="actions">Actions</th></tr></thead>
+      <thead><tr><th class="gsel-col no-cohost"><input type="checkbox" id="gSelAll" class="gsel" aria-label="Select all" onchange="gSelAllToggle(this.checked)"></th><th>Guest</th><th>Card</th><th>Invitation</th><th>RSVP</th><th>Check-in</th><th class="actions">Actions</th></tr></thead>
       <tbody id="guestRows"></tbody>
     </table></div>
   </div>
@@ -2730,6 +2737,14 @@ body.svc-photog #collNavGroup{display:block!important}
   <h2>Delete guest?</h2>
   <p id="deleteGuestMessage">Do you want to permanently remove this guest?</p>
   <div class="row"><button class="gray" onclick="closeDeleteGuestModal()">Cancel</button><button class="danger" id="confirmDeleteGuestBtn" onclick="confirmDeleteGuest()">Delete guest</button></div>
+</div></div>
+
+<div id="bulkDelModal" class="modal"><div class="modal-box confirm-box">
+  <div class="confirm-icon"><svg class="i"><use href="#i-trash"/></svg></div>
+  <h2 id="bulkDelTitle">Delete guests?</h2>
+  <p id="bulkDelMsg"></p>
+  <div id="bulkDelTypeWrap" hidden style="margin:8px 0"><label for="bulkDelType" style="font-size:13px">Type <b>DELETE</b> to confirm</label><input id="bulkDelType" autocomplete="off" oninput="bulkDelCheck()" style="width:100%;margin-top:6px"></div>
+  <div class="row"><button class="gray" onclick="bulkDelClose()">Cancel</button><button class="danger" id="bulkDelOk" onclick="bulkDelRun()">Delete</button></div>
 </div></div>
 
 <div id="confirmModal" class="modal"><div class="modal-box confirm-box">
@@ -4937,12 +4952,62 @@ window.callRsvp=async function(gid,st){ callDone(); await window.hostSetRsvp(gid
 function guestCell(g){
   return `<div class="guest-cell"><span class="avatar">${E(initials(g.name))}</span><div style="min-width:0"><span class="cell-name">${E(g.name)}</span><span class="cell-sub">${E([g.phone||'No phone number',g.code,g.table,g.group].filter(Boolean).join(' · '))}</span></div></div>`;
 }
+/* ---- bulk select / delete guests ---- */
+window.GSEL=new Set(); let GSEL_EV=null, bulkMode=null;
+function gVisible(){ const ev=getEvent(currentEventId); if(!ev) return []; const q=(window.guestSearch||'').trim().toLowerCase(), f=window.guestFilter||'All';
+  return ev.guests.filter(g=>{const m=!q||g.name.toLowerCase().includes(q)||String(g.phone||'').toLowerCase().includes(q)||String(g.table||'').toLowerCase().includes(q)||String(g.group||'').toLowerCase().includes(q)||String(g.code||'').toLowerCase().includes(q);
+    const ok=f==='All'||cardLabel(g)===f||(f==='Attending'&&g.rsvp==='Yes')||(f==='Pending'&&(!g.rsvp||g.rsvp==='Pending'))||(f==='Not Attending'&&g.rsvp==='No')||(f==='Checked-in'&&g.checkedIn)||(f==='NotSent'&&!g.sent)||(f==='ToCall'&&g.sent&&(!g.rsvp||g.rsvp==='Pending')&&!g.checkedIn&&g.callResult!=='answered');
+    return m&&ok;}); }
+function gSelUI(list){
+  const ev=getEvent(currentEventId);
+  if(GSEL_EV!==currentEventId){ GSEL.clear(); GSEL_EV=currentEventId; }
+  if(ev){ const ids=new Set(ev.guests.map(g=>String(g.id))); [...GSEL].forEach(i=>{ if(!ids.has(i)) GSEL.delete(i); }); }
+  const n=GSEL.size, bar=$('gSelBar'), all=$('gSelAll'), da=$('gDelAllBtn');
+  if(bar){ bar.hidden=!n; const t=$('gSelTxt'); if(t) t.textContent=n+' selected'; const b=$('gDelSelTxt'); if(b) b.textContent='Delete selected ('+n+')'; }
+  if(da){ da.hidden=!(ev&&ev.guests.length); }
+  if(all){ const l=list||[]; const k=l.filter(g=>GSEL.has(String(g.id))).length; all.checked=l.length>0&&k===l.length; all.indeterminate=k>0&&k<l.length; }
+}
+window.gSelToggle=function(id,on){ id=String(id); if(on) GSEL.add(id); else GSEL.delete(id); renderGuests(); };
+window.gSelAllToggle=function(on){ gVisible().forEach(g=>{ if(on) GSEL.add(String(g.id)); else GSEL.delete(String(g.id)); }); renderGuests(); };
+window.gSelClear=function(){ GSEL.clear(); renderGuests(); };
+window.bulkDeleteAsk=function(mode){
+  const ev=getEvent(currentEventId); if(!ev) return toast('Choose an event first.');
+  const n=mode==='all'?ev.guests.length:GSEL.size; if(!n) return toast('Select at least one guest.');
+  bulkMode=mode;
+  $('bulkDelTitle').textContent=mode==='all'?'Delete ALL guests?':'Delete '+n+' guest'+(n>1?'s':'')+'?';
+  $('bulkDelMsg').innerHTML=mode==='all'?`You are about to permanently remove <b>all ${n} guests</b> of <b>${escapeHtml(ev.name)}</b>.<br><small>This cannot be undone.</small>`:`You are about to permanently remove <b>${n}</b> selected guest${n>1?'s':''} from <b>${escapeHtml(ev.name)}</b>.<br><small>This cannot be undone.</small>`;
+  const need=mode==='all'||n>=10; $('bulkDelTypeWrap').hidden=!need; $('bulkDelType').value='';
+  const ok=$('bulkDelOk'); ok.textContent=mode==='all'?'Delete all ('+n+')':'Delete '+n; ok.disabled=need;
+  $('bulkDelModal').classList.add('open');
+};
+window.bulkDelCheck=function(){ $('bulkDelOk').disabled=$('bulkDelType').value.trim().toUpperCase()!=='DELETE'; };
+window.bulkDelClose=function(){ bulkMode=null; $('bulkDelModal').classList.remove('open'); };
+window.bulkDelRun=async function(){
+  const ev=getEvent(currentEventId); if(!ev||!bulkMode) return bulkDelClose();
+  const ids=(bulkMode==='all'?ev.guests.map(g=>String(g.id)):[...GSEL]);
+  const ok=$('bulkDelOk'); ok.disabled=true; ok.textContent='Deleting...';
+  const done=[]; let fail=null;
+  try{
+    for(let i=0;i<ids.length;i+=100){
+      const part=ids.slice(i,i+100);
+      const {data,error}=await supabaseClient.from('guests').delete().in('id',part).eq('event_id',ev.id).select('id');
+      if(error) throw error;
+      (data||[]).forEach(r=>done.push(String(r.id)));
+      if((data||[]).length<part.length) throw new Error('You do not have permission to delete some guests.');
+    }
+  }catch(err){ console.error('SHEREHE HUB bulkDelete:',err); fail=err; }
+  const ds=new Set(done);
+  ev.guests=ev.guests.filter(g=>!ds.has(String(g.id))); ds.forEach(i=>GSEL.delete(i));
+  try{ saveDB(); }catch(e){}
+  bulkDelClose(); renderGuests(); try{ renderCards(); renderRsvp(); renderAdmin(); refreshAll(); }catch(e){}
+  if(fail) alert((done.length?done.length+' removed. ':'')+'Not all guests were deleted. '+(fail.message||fail)); else toast(done.length+' guest'+(done.length===1?'':'s')+' removed.');
+};
 window.renderGuests = function(){ sortGuests();
   const tb=$('guestRows'); if(!tb) return;
   try{ const _e=getEvent(currentEventId); if(_e&&_e.guests.some(g=>!g.code)) syncGuestCodes(_e); }catch(e){}
   const ev=getEvent(currentEventId);
   const sum=$('guestSummary');
-  if(!ev){ tb.innerHTML=`<tr><td colspan="6" class="empty">${db.events.length?'Choose an event.':'Create an event first, then add guests here.'}</td></tr>`; if(sum) sum.textContent=''; return; }
+  if(!ev){ tb.innerHTML=`<tr><td colspan="6" class="empty">${db.events.length?'Choose an event.':'Create an event first, then add guests here.'}</td></tr>`; if(sum) sum.textContent=''; gSelUI([]); return; }
   cardFilterFill(ev);
   { const rb=$('guestResendBtn'); if(rb){ const nn=ev.guests.filter(g=>!g.sent&&normalizeTzPhone(g.phone).replace(/\D/g,'').length>=9).length; rb.hidden=!nn; const t=$('guestResendTxt'); if(t) t.textContent='Send cards to those not sent ('+nn+')'; } }
   const st=reportStats(ev);
@@ -4954,9 +5019,10 @@ window.renderGuests = function(){ sortGuests();
     return m&&ok;
   });
   if(!list.length){
-    tb.innerHTML=`<tr><td colspan="6" class="empty">${ev.guests.length?'No guests match this search.':`<b>No guests yet</b>Click “Add guest” or “Import Excel” to begin.`}</td></tr>`; return;
+    gSelUI(list); tb.innerHTML=`<tr><td colspan="7" class="empty">${ev.guests.length?'No guests match this search.':`<b>No guests yet</b>Click “Add guest” or “Import Excel” to begin.`}</td></tr>`; return;
   }
-  tb.innerHTML=list.map(g=>`<tr>
+  tb.innerHTML=list.map(g=>`<tr class="${GSEL.has(String(g.id))?'gsel-on':''}">
+    <td class="gsel-col no-cohost"><input type="checkbox" class="gsel" aria-label="Select ${E(g.name)}" ${GSEL.has(String(g.id))?'checked':''} onchange="gSelToggle('${g.id}',this.checked)"></td>
     <td>${guestCell(g)}</td>
     <td>${cardTag(g)}</td>
     <td>${inviteBadge(g)}</td>
@@ -4970,6 +5036,7 @@ window.renderGuests = function(){ sortGuests();
       <button class="icon" title="Edit" aria-label="Edit" onclick="openEditGuest('${g.id}')">${ic('edit')}</button>
       <button class="icon del no-cohost" title="Delete" aria-label="Delete" onclick="deleteGuest('${g.id}')">${ic('trash')}</button>
     </div></td></tr>`).join('');
+  gSelUI(list);
 };
 
 function hostRsvpBox(g){
@@ -15740,7 +15807,7 @@ Object.assign(window.SW_EXACT,{"Sends pledged, paid and balance.":"Inatuma ahadi
 window.SW_PAT.push(["Pay the full balance ({0})","Lipa salio lote ({0})"]);
 
 /* V127 expenses workflow + ledger */
-Object.assign(window.SW_EXACT,{"Save expense":"Hifadhi matumizi","Not sent yet (includes those it did not reach)":"Hazijatumwa bado (pamoja na ambao haikuwafikia)","SMS did not go through / not sent by SMS":"SMS haikufika / haijatumwa kwa SMS","Not sent by WhatsApp":"Haijatumwa kwa WhatsApp","Card not sent yet":"Kadi haijatumwa bado","More options (due date, payment reference)":"Zaidi (tarehe ya mwisho, kumbukumbu ya malipo)","Advanced: transaction ledger and activity log":"Zaidi: leja ya miamala na kumbukumbu ya shughuli","Add what was spent above. It is deducted from the money collected and appears in the reports.":"Andika matumizi hapo juu. Yanapunguzwa kwenye pesa zilizokusanywa na yanaonekana kwenye ripoti.","Record what was spent. Expenses marked as paid are deducted from the money collected and appear in every report.":"Andika matumizi. Yaliyowekwa kama yamelipwa yanapunguzwa kwenye pesa zilizokusanywa na yanaonekana kwenye kila ripoti.","Already paid (deduct it from the money collected now). Untick only if it is just a request.":"Tayari yamelipwa (yapunguzwe sasa kwenye pesa zilizokusanywa). Ondoa tiki kama ni ombi tu.","Expenses waiting": "Matumizi yanasubiri", "Available balance": "Salio lililopo", "Collected − paid expenses": "Zilizokusanywa − matumizi yaliyolipwa", "Request an expense. The owner or treasurer approves it and records the payment; only paid expenses are deducted from the money collected.": "Omba matumizi. Mmiliki au mhazini anayaidhinisha na kurekodi malipo; ni matumizi yaliyolipwa tu ndiyo yanayokatwa kwenye pesa iliyokusanywa.", "Request expense": "Omba matumizi", "Paid to": "Amelipwa", "e.g. Karimjee Hall": "mf. Ukumbi wa Karimjee", "Already paid: approve and record the payment now": "Tayari yamelipwa: idhinisha na rekodi malipo sasa", "Request an expense: the owner or treasurer approves it, then it is paid and deducted from the money collected.": "Omba matumizi: mmiliki au mhazini anayaidhinisha, kisha yanalipwa na kukatwa kwenye pesa iliyokusanywa.", "Requested": "Yameombwa", "Rejected": "Yamekataliwa", "Cancelled": "Yamefutwa", "Voided": "Yamebatilishwa", "Reject": "Kataa", "Pay": "Lipa", "Void": "Batilisha", "Reject this expense?": "Kukataa matumizi haya?", "Cancel this expense?": "Kughairi matumizi haya?", "Void this paid expense?": "Kubatilisha matumizi haya yaliyolipwa?", "Cancel expense": "Ghairi matumizi", "Void expense": "Batilisha matumizi", "will not be paid.": "hayatalipwa.", "Record payment": "Rekodi malipo", "Mark as paid": "Weka kama yamelipwa", "Expense approved. Press Pay when it has been paid.": "Matumizi yameidhinishwa. Bonyeza \"Lipa\" yakishalipwa.", "Expense rejected.": "Matumizi yamekataliwa.", "Expense cancelled.": "Matumizi yamefutwa.", "Expense voided.": "Matumizi yamebatilishwa.", "Expense paid and deducted.": "Matumizi yamelipwa na kukatwa.", "Transaction ledger": "Daftari la miamala", "Every money movement in order, with the running balance: payments, reversals, refunds and paid expenses.": "Kila mwendo wa pesa kwa mpangilio, pamoja na salio linaloendelea: malipo, ubatilishaji, marejesho na matumizi yaliyolipwa.", "Show ledger": "Onyesha daftari", "Download CSV": "Pakua CSV", "All types": "Aina zote", "Payments": "Malipo", "Reversals": "Ubatilishaji", "Refunds": "Marejesho", "Voided expenses": "Matumizi yaliyobatilishwa", "Search name, reference or method…": "Tafuta jina, namba au njia…", "Min amount": "Kiasi cha chini", "From date": "Kuanzia tarehe", "To date": "Hadi tarehe", "Received": "Imepokelewa", "Reversed / refunded": "Imebatilishwa / imerudishwa", "Reference": "Namba ya muamala", "Payment": "Malipo", "Reversal": "Ubatilishaji", "Expense": "Matumizi", "Expense voided": "Matumizi yamebatilishwa", "No transactions yet": "Bado hakuna miamala", "Payments, refunds and paid expenses will appear here.": "Malipo, marejesho na matumizi yaliyolipwa yataonekana hapa.", "No matches": "Hakuna zinazolingana", "Change the filters.": "Badilisha vichujio.", "Press \"Show ledger\" first.": "Bonyeza \"Onyesha daftari\" kwanza.", "verified": "imethibitishwa", "pending": "inasubiri", "reversed": "imebatilishwa", "recorded": "imerekodiwa", "paid": "imelipwa", "voided": "imebatilishwa", "Contribution received": "Mchango uliopokelewa", "Expense requested": "Matumizi yameombwa", "Expense approved": "Matumizi yameidhinishwa", "Expense paid": "Matumizi yamelipwa", "Expense rejected": "Matumizi yamekataliwa", "Expense cancelled": "Matumizi yamefutwa", "Expense added": "Matumizi yameongezwa", "This expense is locked. Use Cancel or Void with a reason.": "Matumizi haya yamefungwa. Tumia \"Ghairi\" au \"Batilisha\" pamoja na sababu.", "You cannot approve your own request. Ask the event owner.": "Huwezi kuidhinisha ombi lako mwenyewe. Mwombe mmiliki wa tukio.", "Please choose how it was paid.": "Tafadhali chagua njia ya malipo.", "Please say what the money is for.": "Tafadhali eleza pesa ni ya nini.", "This item cannot be changed in its current state.": "Hili haliwezi kubadilishwa katika hali yake ya sasa."});
+Object.assign(window.SW_EXACT,{"Clear selection":"Ondoa uchaguzi","Delete all":"Futa wote","Delete ALL guests?":"Kufuta wageni WOTE?","Delete guests?":"Kufuta wageni?","Select all":"Chagua wote","Select at least one guest.":"Chagua mgeni mmoja au zaidi.","Type <b>DELETE</b> to confirm":"Andika <b>DELETE</b> kuthibitisha","Cancel":"Ghairi","Save expense":"Hifadhi matumizi","Not sent yet (includes those it did not reach)":"Hazijatumwa bado (pamoja na ambao haikuwafikia)","SMS did not go through / not sent by SMS":"SMS haikufika / haijatumwa kwa SMS","Not sent by WhatsApp":"Haijatumwa kwa WhatsApp","Card not sent yet":"Kadi haijatumwa bado","More options (due date, payment reference)":"Zaidi (tarehe ya mwisho, kumbukumbu ya malipo)","Advanced: transaction ledger and activity log":"Zaidi: leja ya miamala na kumbukumbu ya shughuli","Add what was spent above. It is deducted from the money collected and appears in the reports.":"Andika matumizi hapo juu. Yanapunguzwa kwenye pesa zilizokusanywa na yanaonekana kwenye ripoti.","Record what was spent. Expenses marked as paid are deducted from the money collected and appear in every report.":"Andika matumizi. Yaliyowekwa kama yamelipwa yanapunguzwa kwenye pesa zilizokusanywa na yanaonekana kwenye kila ripoti.","Already paid (deduct it from the money collected now). Untick only if it is just a request.":"Tayari yamelipwa (yapunguzwe sasa kwenye pesa zilizokusanywa). Ondoa tiki kama ni ombi tu.","Expenses waiting": "Matumizi yanasubiri", "Available balance": "Salio lililopo", "Collected − paid expenses": "Zilizokusanywa − matumizi yaliyolipwa", "Request an expense. The owner or treasurer approves it and records the payment; only paid expenses are deducted from the money collected.": "Omba matumizi. Mmiliki au mhazini anayaidhinisha na kurekodi malipo; ni matumizi yaliyolipwa tu ndiyo yanayokatwa kwenye pesa iliyokusanywa.", "Request expense": "Omba matumizi", "Paid to": "Amelipwa", "e.g. Karimjee Hall": "mf. Ukumbi wa Karimjee", "Already paid: approve and record the payment now": "Tayari yamelipwa: idhinisha na rekodi malipo sasa", "Request an expense: the owner or treasurer approves it, then it is paid and deducted from the money collected.": "Omba matumizi: mmiliki au mhazini anayaidhinisha, kisha yanalipwa na kukatwa kwenye pesa iliyokusanywa.", "Requested": "Yameombwa", "Rejected": "Yamekataliwa", "Cancelled": "Yamefutwa", "Voided": "Yamebatilishwa", "Reject": "Kataa", "Pay": "Lipa", "Void": "Batilisha", "Reject this expense?": "Kukataa matumizi haya?", "Cancel this expense?": "Kughairi matumizi haya?", "Void this paid expense?": "Kubatilisha matumizi haya yaliyolipwa?", "Cancel expense": "Ghairi matumizi", "Void expense": "Batilisha matumizi", "will not be paid.": "hayatalipwa.", "Record payment": "Rekodi malipo", "Mark as paid": "Weka kama yamelipwa", "Expense approved. Press Pay when it has been paid.": "Matumizi yameidhinishwa. Bonyeza \"Lipa\" yakishalipwa.", "Expense rejected.": "Matumizi yamekataliwa.", "Expense cancelled.": "Matumizi yamefutwa.", "Expense voided.": "Matumizi yamebatilishwa.", "Expense paid and deducted.": "Matumizi yamelipwa na kukatwa.", "Transaction ledger": "Daftari la miamala", "Every money movement in order, with the running balance: payments, reversals, refunds and paid expenses.": "Kila mwendo wa pesa kwa mpangilio, pamoja na salio linaloendelea: malipo, ubatilishaji, marejesho na matumizi yaliyolipwa.", "Show ledger": "Onyesha daftari", "Download CSV": "Pakua CSV", "All types": "Aina zote", "Payments": "Malipo", "Reversals": "Ubatilishaji", "Refunds": "Marejesho", "Voided expenses": "Matumizi yaliyobatilishwa", "Search name, reference or method…": "Tafuta jina, namba au njia…", "Min amount": "Kiasi cha chini", "From date": "Kuanzia tarehe", "To date": "Hadi tarehe", "Received": "Imepokelewa", "Reversed / refunded": "Imebatilishwa / imerudishwa", "Reference": "Namba ya muamala", "Payment": "Malipo", "Reversal": "Ubatilishaji", "Expense": "Matumizi", "Expense voided": "Matumizi yamebatilishwa", "No transactions yet": "Bado hakuna miamala", "Payments, refunds and paid expenses will appear here.": "Malipo, marejesho na matumizi yaliyolipwa yataonekana hapa.", "No matches": "Hakuna zinazolingana", "Change the filters.": "Badilisha vichujio.", "Press \"Show ledger\" first.": "Bonyeza \"Onyesha daftari\" kwanza.", "verified": "imethibitishwa", "pending": "inasubiri", "reversed": "imebatilishwa", "recorded": "imerekodiwa", "paid": "imelipwa", "voided": "imebatilishwa", "Contribution received": "Mchango uliopokelewa", "Expense requested": "Matumizi yameombwa", "Expense approved": "Matumizi yameidhinishwa", "Expense paid": "Matumizi yamelipwa", "Expense rejected": "Matumizi yamekataliwa", "Expense cancelled": "Matumizi yamefutwa", "Expense added": "Matumizi yameongezwa", "This expense is locked. Use Cancel or Void with a reason.": "Matumizi haya yamefungwa. Tumia \"Ghairi\" au \"Batilisha\" pamoja na sababu.", "You cannot approve your own request. Ask the event owner.": "Huwezi kuidhinisha ombi lako mwenyewe. Mwombe mmiliki wa tukio.", "Please choose how it was paid.": "Tafadhali chagua njia ya malipo.", "Please say what the money is for.": "Tafadhali eleza pesa ni ya nini.", "This item cannot be changed in its current state.": "Hili haliwezi kubadilishwa katika hali yake ya sasa."});
 window.SW_PAT.push(["{#0} request", "Ombi {0}"],["{#0} requests", "Maombi {0}"],["Paid expenses ({#0}) · waiting {1}", "Matumizi yaliyolipwa ({0}) · yanasubiri {1}"],["Paid expenses ({#0})", "Matumizi yaliyolipwa ({0})"],["({0}) will not be paid.", "({0}) hayatalipwa."],["({0}) will be cancelled.", "({0}) yatafutwa."],["({0}) will no longer be deducted from the money collected. The record stays in the history.", "({0}) hayatakatwa tena kwenye pesa iliyokusanywa. Rekodi inabaki kwenye historia."],["{0} was requested. {1}", "{0} imeombwa. {1}"],["{0} paid.", "{0} imelipwa."],["{0} requested.", "{0} imeombwa."],["{0} requested for {1}. {2}", "{0} imeombwa kwa {1}. {2}"],["{0} requested for {1}.", "{0} imeombwa kwa {1}."],["{0} paid for {1}.", "{0} imelipwa kwa {1}."],["Approved: {0}", "Imeidhinishwa na: {0}"]);
 Object.assign(window.SW_EXACT,{"Approved to pay":"Yameidhinishwa kulipwa","Paid out":"Yamelipwa"});
 window.SW_PAT.push(["{0} was requested but not paid. {1}","{0} imeombwa lakini haijalipwa. {1}"],["{0} requested for {1}, but not paid. {2}","{0} imeombwa kwa {1}, lakini haijalipwa. {2}"]);
