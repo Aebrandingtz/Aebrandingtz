@@ -1,7 +1,7 @@
 /* SHEREHE HUB: link previews + short redirects.
    /i/<event>/<guest>/<type>  -> the guest's invitation page (bots get a poster preview)
    /m/<event>                 -> the venue's Google Maps link (bots get the same poster preview)
-   (link-preview robots only see the SHEREHE HUB logo, never the poster or the map) */
+   (link-preview robots see the event poster, title and venue name; never the map link) */
 const SB = 'https://ajxybsfhckdxzslpsnjb.supabase.co';
 const KEY = 'sb_publishable_nCCKoniOySrH3SnxwEkupg_GfsmdBp5';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -36,17 +36,25 @@ module.exports = async (req, res) => {
       return res.end();
     }
 
-    /* link-preview robots: same look as the main page (title, short description and the SHEREHE HUB logo) */
+    /* link-preview robots: the event poster (falls back to the SHEREHE HUB logo when the event has none) */
     const url = origin + (k === 'm' ? '/m/' + e : '/i/' + e + '/' + g + '/' + encodeURIComponent(t));
-    const title = 'SHEREHE HUB \u2014 Event Invitation Management';
-    const desc = 'Create events, manage guests, send WhatsApp/SMS invitations with QR cards and check guests in on the day.';
-    const img = origin + '/icon-512.png';
+    let title = 'SHEREHE HUB \u2014 Event Invitation Management';
+    let desc = 'Create events, manage guests, send WhatsApp/SMS invitations with QR cards and check guests in on the day.';
+    let img = origin + '/icon-512.png', big = false;
+    try {
+      const m = await meta(e);
+      if (m) {
+        const p = safeHttp((/double/i.test(t) && m.poster_url_double) || m.poster_url || m.poster_url_double || '');
+        if (m.name) { title = String(m.name).slice(0, 80); desc = 'Umealikwa / You are invited' + (m.venue ? ' \u2014 ' + String(m.venue).slice(0, 80) : ''); }
+        if (p) { img = p; big = true; }
+      }
+    } catch (x) { /* keep the default preview */ }
     const html = '<!doctype html><html lang="sw"><head><meta charset="utf-8"><title>' + esc(title) + '</title>' +
       '<meta property="og:type" content="website"><meta property="og:site_name" content="SHEREHE HUB TZ">' +
       '<meta property="og:title" content="' + esc(title) + '"><meta property="og:description" content="' + esc(desc) + '">' +
       '<meta property="og:url" content="' + esc(url) + '"><meta property="og:image" content="' + esc(img) + '">' +
-      '<meta property="og:image:width" content="512"><meta property="og:image:height" content="512">' +
-      '<meta name="twitter:card" content="summary"><meta name="twitter:title" content="' + esc(title) + '"><meta name="twitter:image" content="' + esc(img) + '">' +
+      (big ? '' : '<meta property="og:image:width" content="512"><meta property="og:image:height" content="512">') +
+      '<meta name="twitter:card" content="' + (big ? 'summary_large_image' : 'summary') + '"><meta name="twitter:title" content="' + esc(title) + '"><meta name="twitter:image" content="' + esc(img) + '">' +
       '<meta name="description" content="' + esc(desc) + '"></head><body><a href="' + esc(url) + '">' + esc(title) + '</a></body></html>';
     res.statusCode = 200; res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600'); res.setHeader('Vary', 'User-Agent');
     return res.end(html);
