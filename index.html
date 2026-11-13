@@ -2209,7 +2209,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.63</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.64</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -8985,7 +8985,7 @@ setTimeout(installUi, 1500); window.addEventListener('load', () => setTimeout(in
    A collection belongs to its photographer. It does not need a SHEREHE HUB event.
    To attach one to an existing event, the event owner must approve (request flow below).
    ========================================================================= */
-const CO_BUCKET='collection-photos', CO_MAX=1000, CO_EDGE=2000, CO_THUMB=640;
+const CO_BUCKET='collection-photos', CO_MAX=1000, CO_EDGE=2560, CO_THUMB=960;
 const CO_UUID=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const CO_THEMES={
   light:{n:'Light',bg:'#ffffff',fg:'#1b1d28',mu:'#6b7088',ac:'#1b1d28',line:'rgba(0,0,0,.1)'},
@@ -9169,7 +9169,7 @@ async function coShrink(file,edge,q){
   try{ bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }
   catch(e){ bmp=await new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('This image format is not supported by your browser. Please use JPG, PNG or WebP.')); }; im.src=u; }); }
   const bw=bmp.naturalWidth||bmp.width, bh=bmp.naturalHeight||bmp.height, out={};
-  for(const [k,e,qq] of [['full',edge,q],['thumb',CO_THUMB,.78]]){
+  for(const [k,e,qq] of [['full',edge,q],['thumb',CO_THUMB,.82]]){
     const s=Math.min(1,e/Math.max(bw,bh)), w=Math.max(1,Math.round(bw*s)), h=Math.max(1,Math.round(bh*s));
     const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(bmp,0,0,w,h);
     const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',qq)); if(!blob) throw new Error('Could not process this image.');
@@ -9192,7 +9192,7 @@ window.coUpload=async function(files){
     while(list.length){
       const f=list.shift();
       try{
-        const {full,thumb}=await coShrink(f,CO_EDGE,.84);
+        const {full,thumb}=await coShrink(f,CO_EDGE,.90);
         const id=crypto.randomUUID(), path=`${c.id}/${id}.jpg`, tpath=`${c.id}/${id}_t.jpg`;
         const a=await supabaseClient.storage.from(CO_BUCKET).upload(path,full.blob,{contentType:'image/jpeg',upsert:false}); if(a.error) throw a.error;
         const b=await supabaseClient.storage.from(CO_BUCKET).upload(tpath,thumb.blob,{contentType:'image/jpeg',upsert:false}); if(b.error){ await supabaseClient.storage.from(CO_BUCKET).remove([path]); throw b.error; }
