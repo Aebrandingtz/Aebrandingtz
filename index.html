@@ -2209,7 +2209,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.62</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.63</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9007,7 +9007,8 @@ const CO_COVERS={center:'Center',left:'Split',stripe:'Stripe',frame:'Frame',nove
 const CO_DEF={cover:'center',theme:'light',font:'serif',grid:'vertical',size:'regular',gap:'regular',fx:50,fy:50};
 const CO=window.CO={list:null,scope:'mine',cur:null,tab:'photos',photos:{},loaded:{},busy:false,done:0,total:0,err:'',sel:new Set(),selMode:false,reqIn:[],reqOut:{},sub:null,owners:{}};
 const coDesign=c=>Object.assign({},CO_DEF,(c&&c.design)||{});
-const coUrl=id=>location.href.split('#')[0]+'#collection='+encodeURIComponent(id);
+const coUrl=id=>coShort(id);
+function coShort(id){ if(/(^|\.)sherehehubtz\.com$/i.test(location.hostname)) return location.origin+'/c/'+encodeURIComponent(id); return location.href.split('#')[0]+'#collection='+encodeURIComponent(id); }
 const coMe=()=>currentSupabaseUser&&currentSupabaseUser.id;
 const coGet=id=>(CO.list||[]).find(c=>c.id===id);
 
@@ -9500,12 +9501,12 @@ window.cpSendFav=function(){
   const L=invLang(), T=CO_I18N[L], d=CP.data, col=d.collection;
   const nums=d.photos.map((p,i)=>CP.favs.has(p.id)?i+1:0).filter(Boolean).join(', ');
   if(!nums) return toast(T.favnone);
-  const url=location.href.split('#')[0]+'#collection='+encodeURIComponent(col.id), msg=T.favmsg(col.title,nums,url);
+  const url=coShort(col.id), msg=T.favmsg(col.title,nums,url);
   if(col.contact_phone) window.open('https://wa.me/'+cpPhone(col.contact_phone)+'?text='+encodeURIComponent(msg),'_blank','noopener');
   else window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
 };
 window.cpShare=async function(){
-  const T=CO_I18N[invLang()], col=CP.data.collection, url=location.href.split('#')[0]+'#collection='+encodeURIComponent(col.id);
+  const T=CO_I18N[invLang()], col=CP.data.collection, url=coShort(col.id);
   try{ if(navigator.share){ await navigator.share({title:col.title,url}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
   try{ await navigator.clipboard.writeText(url); toast(T.copied); }catch(e){ window.prompt('Link:',url); }
 };
