@@ -2209,7 +2209,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.64</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.65</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -2562,7 +2562,7 @@ body.svc-photog #collNavGroup{display:block!important}
   </div>
   <div class="panel">
     <div class="panel-heading"><div><h2>Contributors</h2><p>Pledged, paid and balance for every person.</p></div>
-      <div class="ct-dl"><button class="primary no-treasurer" onclick="goContribMessages()"><svg class="i"><use href="#i-send"/></svg>Send messages</button><button class="gray" onclick="ctImportOpen()"><svg class="i"><use href="#i-upload"/></svg>Import Excel</button><button class="gray" onclick="downloadContributors()"><svg class="i"><use href="#i-download"/></svg>Excel report</button><button class="gray" id="ctPdfBtn" onclick="downloadContributorsPdf()"><svg class="i"><use href="#i-download"/></svg>PDF report</button></div></div>
+      <div class="ct-dl"><button class="primary no-treasurer" onclick="goContribMessages()"><svg class="i"><use href="#i-send"/></svg>Send messages</button><button class="gray no-treasurer" onclick="ctFromGuestsOpen()"><svg class="i"><use href="#i-users"/></svg>From guests</button><button class="gray" onclick="ctImportOpen()"><svg class="i"><use href="#i-upload"/></svg>Import Excel</button><button class="gray" onclick="downloadContributors()"><svg class="i"><use href="#i-download"/></svg>Excel report</button><button class="gray" id="ctPdfBtn" onclick="downloadContributorsPdf()"><svg class="i"><use href="#i-download"/></svg>PDF report</button></div></div>
     <div class="guest-bar" style="margin-bottom:12px">
       <div class="search"><svg class="i"><use href="#i-search"/></svg><input id="ctSearch" placeholder="Search by name or phone…" oninput="ctSearchSet(this.value)"></div>
       <select id="ctFilter" onchange="ctFilterSet(this.value)" aria-label="Filter"><option value="all">Everyone</option><option value="owing">Still owing</option><option value="cleared">Fully paid</option><option value="gift">Gifts (no pledge)</option><option value="overdue">Overdue</option></select>
@@ -6516,6 +6516,40 @@ window.downloadEventReportPdf = async function(opts){
     doc.save((ev.name||'event').replace(/[^\w.-]+/g,'_')+'-event-report.pdf'); toast(hasMoney?'Event report downloaded.':'Event report downloaded (without money section).');
   }catch(e){ console.warn('event pdf',e); toast('Could not create the PDF. Check your internet connection and try again.'); }
   finally{ if(btn){ btn.disabled=false; btn.innerHTML=old; } }
+};
+
+/* ----- guests -> contributors (the other direction of "From contributors") ----- */
+function ctContribKeys(){ const s=new Set(); CT.contributors.forEach(c=>{ const d=digitsOf(c.phone); if(d) s.add('p:'+d); s.add('n:'+String(c.name||'').trim().toLowerCase()); }); return s; }
+window.ctFromGuestsOpen = async function(){
+  const ev=getEvent(currentEventId); if(!ev) return toast('Please choose an event first.');
+  if(window.__offlineMode||!navigator.onLine) return toast('This needs an internet connection.');
+  if(!(await ctEnsure(ev.id))) return toast('Contributors could not be loaded.');
+  const keys=ctContribKeys();
+  const avail=ev.guests.slice().sort((a,b)=>nameCmp(a.name,b.name)).filter(g=>!((digitsOf(g.phone)&&keys.has('p:'+digitsOf(g.phone)))||keys.has('n:'+String(g.name||'').trim().toLowerCase())));
+  CT._gpick=avail;
+  $('contribModalBox').innerHTML=`<button class="modal-close" onclick="closeContributor()" aria-label="Close">×</button>
+    <div class="guest-modal-head"><div class="guest-modal-icon">${ic('users')}</div><div><h2>Add from guests</h2><p>People in the guest list of <b>${E(ev.name)}</b> who are not contributors yet.</p></div></div>
+    ${avail.length?`<div class="pick-top"><label class="pick-all"><input type="checkbox" id="gpAll" checked onchange="document.querySelectorAll('.gp-cb').forEach(c=>c.checked=this.checked)"> Select all (${avail.length})</label><div class="field pick-type"><label for="gpPledge">Pledged amount (TZS), optional</label><input id="gpPledge" inputmode="numeric" placeholder="0"></div></div>
+    <div class="pick-list">${avail.map(g=>`<label class="pick-item"><input type="checkbox" class="gp-cb" value="${E(g.id)}" checked><span><b>${E(g.name)}</b><small>${E(g.phone||'No phone number')}</small></span></label>`).join('')}</div>
+    <div class="guest-form-actions"><button class="gray" onclick="closeContributor()">Cancel</button><button class="primary" id="gpGo" onclick="ctFromGuestsRun()">Add selected as contributors</button></div>`
+    : `<div class="empty"><b>${ev.guests.length?'Everyone is already a contributor':'No guests yet'}</b>${ev.guests.length?'All guests are on the contributors list.':'Add guests on the Guests page first.'}</div><div class="guest-form-actions"><button class="gray" onclick="closeContributor()">Close</button></div>`}`;
+  $('contribModal').classList.add('open');
+};
+window.ctFromGuestsRun = async function(){
+  const ev=getEvent(currentEventId); if(!ev) return;
+  const ids=new Set([...document.querySelectorAll('.gp-cb:checked')].map(c=>c.value)); if(!ids.size) return toast('Select at least one person.');
+  const pledged=numIn(($('gpPledge')||{}).value)||0;
+  const rows=(CT._gpick||[]).filter(g=>ids.has(g.id)).map(g=>({id:crypto.randomUUID(),event_id:ev.id,name:g.name,phone:g.phone?normalizeTzPhone(g.phone):null,pledged}));
+  const btn=$('gpGo'); if(btn){ btn.disabled=true; btn.textContent='Adding…'; }
+  let ok=0;
+  try{
+    for(let i=0;i<rows.length;i+=100){
+      const chunk=rows.slice(i,i+100), r=await supabaseClient.from('contributors').insert(chunk).select('*'); if(r.error) throw r.error;
+      (r.data&&r.data.length?r.data:chunk).forEach(c=>CT.contributors.push(c)); ok+=chunk.length;
+    }
+    CT._gpick=null; closeContributor(); renderContributions(); try{ ctRefreshSummary(); }catch(e){}
+    toast(`${ok} added to contributors.`);
+  }catch(e){ if(btn){ btn.disabled=false; btn.textContent='Try again'; } toast('Stopped: '+ctErr(e)+(ok?` (${ok} were added before the error)`:'')); loadContributions(); }
 };
 
 /* ----- contributors <-> guest list ----- */
@@ -14982,7 +15016,7 @@ window.SW_EXACT = {
 "Font":"Herufi",
 "Food & drinks":"Chakula na vinywaji",
 "Friends":"Marafiki",
-"From contributors":"Kutoka kwa wachangiaji",
+"From contributors":"Kutoka kwa wachangiaji","From guests":"Kutoka kwa wageni","Add from guests":"Ongeza kutoka kwa wageni","Add selected as contributors":"Ongeza waliochaguliwa kama wachangiaji","Pledged amount (TZS), optional":"Kiasi cha ahadi (TZS), si lazima",
 "Full name":"Jina kamili",
 "Full name *":"Jina kamili *",
 "Full report (PDF)":"Ripoti kamili (PDF)",
