@@ -2209,7 +2209,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.65</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.66</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -9019,7 +9019,7 @@ setTimeout(installUi, 1500); window.addEventListener('load', () => setTimeout(in
    A collection belongs to its photographer. It does not need a SHEREHE HUB event.
    To attach one to an existing event, the event owner must approve (request flow below).
    ========================================================================= */
-const CO_BUCKET='collection-photos', CO_MAX=1000, CO_EDGE=2560, CO_THUMB=960;
+const CO_BUCKET='collection-photos', CO_MAX=1000, CO_EDGE=3000, CO_THUMB=960;
 const CO_UUID=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const CO_THEMES={
   light:{n:'Light',bg:'#ffffff',fg:'#1b1d28',mu:'#6b7088',ac:'#1b1d28',line:'rgba(0,0,0,.1)'},
@@ -9226,7 +9226,7 @@ window.coUpload=async function(files){
     while(list.length){
       const f=list.shift();
       try{
-        const {full,thumb}=await coShrink(f,CO_EDGE,.90);
+        const {full,thumb}=await coShrink(f,CO_EDGE,.92);
         const id=crypto.randomUUID(), path=`${c.id}/${id}.jpg`, tpath=`${c.id}/${id}_t.jpg`;
         const a=await supabaseClient.storage.from(CO_BUCKET).upload(path,full.blob,{contentType:'image/jpeg',upsert:false}); if(a.error) throw a.error;
         const b=await supabaseClient.storage.from(CO_BUCKET).upload(tpath,thumb.blob,{contentType:'image/jpeg',upsert:false}); if(b.error){ await supabaseClient.storage.from(CO_BUCKET).remove([path]); throw b.error; }
