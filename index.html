@@ -8098,7 +8098,7 @@ window.uploadPhotos = async function(files){
       st.done++; renderPhotos();
     }
   };
-  await Promise.all([worker(),worker(),worker()]);
+  await Promise.all(Array.from({length:CO_PAR},worker));
   st.busy=false; renderPhotos();
   toast(`${ok} photo${ok===1?'':'s'} uploaded${failed.length?`, ${failed.length} failed`:''}${cut?`, ${cut} skipped (limit)`:''}.`);
   if(failed.length) setTimeout(()=>alert('Some photos were not uploaded:\n'+failed.slice(0,6).join('\n')),200);
@@ -9020,6 +9020,10 @@ setTimeout(installUi, 1500); window.addEventListener('load', () => setTimeout(in
    To attach one to an existing event, the event owner must approve (request flow below).
    ========================================================================= */
 const CO_BUCKET='collection-photos', CO_MAX=1000, CO_EDGE=3000, CO_THUMB=960;
+const CO_Q={std:{edge:2560,q:.90},hd:{edge:3000,q:.92}};
+function coQGet(){ try{ const v=localStorage.getItem('coQ'); return v==='std'?'std':'hd'; }catch(e){ return 'hd'; } }
+window.coQSet=function(v){ try{ localStorage.setItem('coQ',v); }catch(e){} };
+const CO_PAR=6;
 const CO_UUID=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const CO_THEMES={
   light:{n:'Light',bg:'#ffffff',fg:'#1b1d28',mu:'#6b7088',ac:'#1b1d28',line:'rgba(0,0,0,.1)'},
@@ -9183,6 +9187,9 @@ async function coPatch(c,patch){
 function coTabPhotos(c,ph){
   const pct=CO.total?Math.round(CO.done/CO.total*100):0, cov=c.cover_photo_id;
   const up=coCanUpload()?`<div class="panel"><div class="panel-heading"><div><h2>Upload photos</h2><p>Photos are resized automatically (and a small preview is made for fast loading). Up to ${CO_MAX} per collection.</p></div></div>
+      <div class="co-q" style="display:grid;gap:8px;margin:0 0 12px"><b style="font-size:13px">Photo quality</b>
+        <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="radio" name="coQ" value="hd" ${coQGet()==='hd'?'checked':''} onchange="coQSet('hd')" style="margin-top:3px"><span><b>HD (3000px, 92%)</b><br><small class="muted">Best for printing. Larger files, slower upload.</small></span></label>
+        <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="radio" name="coQ" value="std" ${coQGet()==='std'?'checked':''} onchange="coQSet('std')" style="margin-top:3px"><span><b>Standard (2560px, 90%)</b><br><small class="muted">Looks great on phones. About a third smaller, faster upload.</small></span></label></div>
       <label class="drop" for="coFile" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="event.preventDefault();this.classList.remove('over');coUpload(event.dataTransfer.files)">${ic('upload')}<b>Choose photos</b><span>or drop them here</span></label>
       <input hidden id="coFile" type="file" accept="image/*" multiple onchange="coUpload(this.files);this.value=''">
       <div class="upl-bar" style="display:${CO.busy?'block':'none'}"><i style="width:${pct}%"></i></div>
@@ -9221,12 +9228,12 @@ window.coUpload=async function(files){
   const ph=CO.photos[c.id]||(CO.photos[c.id]=[]), room=CO_MAX-ph.length;
   if(room<=0) return toast(`This collection already has ${CO_MAX} photos (the limit).`);
   let cut=0; if(list.length>room){ cut=list.length-room; list=list.slice(0,room); }
-  CO.busy=true; CO.done=0; CO.total=list.length; const failed=[]; let ok=0; renderCollEditor();
+  const qk=coQGet(); CO.busy=true; CO.done=0; CO.total=list.length; const failed=[]; let ok=0; renderCollEditor();
   const worker=async()=>{
     while(list.length){
       const f=list.shift();
       try{
-        const {full,thumb}=await coShrink(f,CO_EDGE,.92);
+        const _q=CO_Q[qk]; const {full,thumb}=await coShrink(f,_q.edge,_q.q);
         const id=crypto.randomUUID(), path=`${c.id}/${id}.jpg`, tpath=`${c.id}/${id}_t.jpg`;
         const a=await supabaseClient.storage.from(CO_BUCKET).upload(path,full.blob,{contentType:'image/jpeg',upsert:false}); if(a.error) throw a.error;
         const b=await supabaseClient.storage.from(CO_BUCKET).upload(tpath,thumb.blob,{contentType:'image/jpeg',upsert:false}); if(b.error){ await supabaseClient.storage.from(CO_BUCKET).remove([path]); throw b.error; }
@@ -14763,6 +14770,7 @@ window.SW_EXACT = {
 "This collection is a draft. Turn on “Published” at the top before sharing the link.":"Albamu hii ni rasimu. Washa “Imechapishwa” juu kabla ya kushiriki link.",
 "Upload the first photos of this collection.":"Pakia picha za kwanza za albamu hii.",
 "Upload photos":"Pakia picha",
+"Photo quality":"Ubora wa picha","HD (3000px, 92%)":"HD (3000px, 92%)","Best for printing. Larger files, slower upload.":"Bora kwa kuchapisha. Faili kubwa, kupakia polepole.","Standard (2560px, 90%)":"Kawaida (2560px, 90%)","Looks great on phones. About a third smaller, faster upload.":"Inapendeza kwenye simu. Ndogo kwa takriban theluthi, kupakia haraka.",
 "Photographer collections":"Albamu za wapiga picha",
 "Please type a name for the collection.":"Tafadhali andika jina la albamu.",
 "Collection created. Now upload the photos.":"Albamu imetengenezwa. Sasa pakia picha.",
