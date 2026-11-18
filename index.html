@@ -2291,7 +2291,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.76</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.77</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -16980,7 +16980,7 @@ function memRowsHtml(){
   return list.map(m=>{ const r=cr.find(x=>x.m.id===m.id), on=V.sel.has(m.id);
     return `<tr class="${m.active?'':'vk-off'} ${on?'vk-sel':''}"><td><label class="vk-ckl"><input type="checkbox" ${on?'checked':''} onchange="vkSelToggle('${m.id}')" aria-label="${L('Chagua','Select')}"><span><b>${esc(m.name)}</b>${m.role!=='member'?` <span class="vk-role">${ROLES[m.role][L(0,1)]}</span>`:''}${m.active?'':` <span class="vk-role">${L('Amesimamishwa','Suspended')}</span>`}${m.phone?`<div class="muted sm">${esc(m.phone)}</div>`:''}</span></label></td>
     <td class="r">${m.shares}</td><td class="r">${T(memTotal(m.id))}</td><td class="r">${r?(r.st==='paid'?`<span class="vk-st paid">${L('Amemaliza','Paid')}</span>`:`<span class="vk-st ${r.st}">${T(r.bal)}</span>`):'<span class="muted">-</span>'}</td>
-    <td class="r vk-rowact"><button class="gray sm" onclick="vkMemberReport('${m.id}')">${L('Ripoti','Report')}</button><button class="gray sm" onclick="vkMemberForm('${m.id}')" title="${L('Hariri','Edit')}">${ic('edit')}</button><button class="gray sm" onclick="vkMemberToggle('${m.id}')">${m.active?L('Simamisha','Suspend'):L('Rudisha','Restore')}</button></td></tr>`; }).join('');
+    <td class="r vk-rowact">${m.active?`<button class="primary sm" onclick="vkMemPay('${m.id}')">${L('Weka mchango','Add payment')}</button>`:''}<button class="gray sm" onclick="vkMemberReport('${m.id}')">${L('Ripoti','Report')}</button><button class="gray sm" onclick="vkMemberForm('${m.id}')" title="${L('Hariri','Edit')}">${ic('edit')}</button><button class="gray sm" onclick="vkMemberToggle('${m.id}')">${m.active?L('Simamisha','Suspend'):L('Rudisha','Restore')}</button></td></tr>`; }).join('');
 }
 function selBarHtml(){ const n=V.sel.size; return `<div class="vk-selbar ${n?'on':''}"><b>${n} ${L('wamechaguliwa','selected')}</b><span class="vk-selact"><button class="gray sm" onclick="vkSelClear()">${L('Futa uchaguzi','Clear selection')}</button><button class="gray sm" onclick="vkSuspendSel()" ${n?'':'disabled'}>${L('Simamisha waliochaguliwa','Suspend selected')}</button><button class="danger sm" onclick="vkDeleteSel()" ${n?'':'disabled'}>${ic('trash')}${L('Futa waliochaguliwa','Delete selected')} (${n})</button></span></div>`; }
 function membersHtml(){
@@ -16996,6 +16996,7 @@ function membersHtml(){
     <button class="primary" onclick="vkMemberForm()">${ic('plus')}${L('Ongeza mwanachama','Add member')}</button>
     <input id="vkFile" type="file" accept=".xlsx,.xls,.csv" hidden onchange="vkImportFile(this)"></div>
   <div class="hint-box vk-info">${ic('info')}<span>${L('Faili lako la Excel/CSV linahitaji safu: <b>Jina</b>, <b>Simu</b>. Hiari: <b>Hisa</b>, <b>Cheo</b>.','Your Excel/CSV file needs columns: <b>Name</b>, <b>Phone</b>. Optional: <b>Shares</b>, <b>Role</b>.')} <a href="#" onclick="vkTemplate();return false"><b>${L('Pakua mfano','Download template')}</b></a></span></div>
+  ${cy?'':`<div class="hint-box vk-info">${ic('info')}<span>${L('Kuweka michango: kwanza <b>fungua mzunguko</b> (mfano mwezi huu), kisha bonyeza <b>Weka mchango</b> kwa kila mwanachama.','To record contributions: first <b>open a cycle</b> (e.g. this month), then press <b>Add payment</b> on each member.')} <a href="#" onclick="vkCycleForm();return false"><b>${L('Fungua mzunguko','Open a cycle')}</b></a></span></div>`}
   <div id="vkSelBar">${selBarHtml()}</div>
   <div class="vk-tw"><table class="vk-t"><thead><tr><th><label class="vk-ckl"><input type="checkbox" onchange="vkSelAll(this.checked)" aria-label="${L('Chagua wote','Select all')}"><span>${L('Mwanachama','Member')}</span></label></th><th class="r">${L('Hisa','Shares')}</th><th class="r">${L('Alichangia','Contributed')}</th><th class="r">${L('Salio','Balance')}${cy?' ('+esc(cy.label)+')':''}</th><th></th></tr></thead><tbody id="vkMemBody">${memRowsHtml()}</tbody></table></div></div>`;
 }
@@ -17080,6 +17081,7 @@ function memCycles(m){ return cyclesAsc().filter(cy=>cycApplies(m,cy)).map(cy=>{
 function memSum(m){ const c=memCycles(m); return {c,due:c.reduce((a,x)=>a+x.due,0),paid:c.reduce((a,x)=>a+Math.min(x.paid,x.due),0),bal:c.reduce((a,x)=>a+x.bal,0),total:memTotal(m.id)}; }
 const stLbl=x=>x.paid>=x.due&&x.due>0?'paid':(x.paid>0?'part':'unpaid');
 const stTxt=k=>k==='paid'?L('Amemaliza','Paid'):k==='part'?L('Sehemu','Partial'):L('Hajalipa','Unpaid');
+window.vkMemPay=function(id){ const cy=curCycle(); if(!cy){ toast(L('Fungua mzunguko kwanza (mfano: mwezi huu), kisha weka michango.','Open a cycle first (e.g. this month), then add payments.')); vkCycleForm(); return; } vkPayForm(id,cy.id); };
 window.vkMemberReport=function(id){
   const g=grp(), m=V.members.find(x=>x.id===id); if(!g||!m) return; const S=memSum(m);
   const pays=V.pays.filter(p=>p.member_id===id).sort((a,b)=>a.paid_on<b.paid_on?1:-1), cn=cid=>{ const c=V.cycles.find(x=>x.id===cid); return c?c.label:''; };
