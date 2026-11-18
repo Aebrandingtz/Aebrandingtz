@@ -1726,6 +1726,48 @@ body.cp-lock{overflow:hidden}
 .cp-focus{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.4),inset 0 0 0 4px rgba(0,0,0,.25);pointer-events:none;z-index:3}
 .co-prevbox .cp-cimg{cursor:crosshair}
 @media(max-width:700px){.cv-stripe{grid-template-columns:1fr;grid-template-rows:52vh auto}.cv-stripe .cp-cimg{grid-column:1;grid-row:1}.cv-stripe .cp-ctext{grid-column:1;grid-row:2;padding:28px 20px}.cv-left .cp-ctext{padding:28px 22px 40px}}
+
+/* ---- Vikoba ---- */
+.vk-gl{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.vk-gc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;cursor:pointer}.vk-gc:hover{border-color:var(--blue);box-shadow:0 6px 18px -10px rgba(42,69,180,.4)}
+.vk-gc-t{font-weight:700;font-size:17px;margin-bottom:4px;color:var(--ink)}
+.vk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.vk-stats.three{margin:12px 0}
+@media(max-width:620px){.vk-stats{grid-template-columns:1fr}}
+.vk-stats .report-stat.bad b{color:#b91c1c}
+.vk-tabs,.vk-fil{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.vk-tabs button,.vk-fil button{background:var(--line-2);color:var(--ink-2);border:0;border-radius:99px;padding:8px 16px;font-weight:600;font-size:13.5px;box-shadow:none;min-height:0;cursor:pointer}
+.vk-tabs button.on,.vk-fil button.on{background:var(--navy);color:#fff}
+.vk-fil .vk-copy{margin-left:auto;background:#fff;border:1px solid var(--line)}
+.vk-cyc-h{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}.vk-cyc-h select{min-width:200px}
+.vk-cyc-i{display:flex;gap:16px;flex-wrap:wrap;color:var(--ink-2);font-size:13.5px;flex:1}
+.vk-bar{height:10px;border-radius:99px;background:var(--line-2);overflow:hidden}.vk-bar i{display:block;height:100%;background:linear-gradient(90deg,#2a45b4,#1c9a6c);border-radius:99px;transition:width .3s}
+.vk-tw{overflow-x:auto}.vk-t{width:100%;min-width:0;border-collapse:collapse;font-size:14px}.vk-t th{position:static}.vk-t tbody tr:hover td{background:transparent}.vk-t th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#6b7280;padding:8px 10px;border-bottom:1px solid var(--line)}
+.vk-t td{padding:10px;border-bottom:1px solid var(--line-2);vertical-align:top}.vk-t .r{text-align:right}.vk-t .sm,.vk-t td .sm{font-size:12px}
+.vk-off{opacity:.55}
+.vk-rowact{white-space:nowrap}.vk-rowact button{margin-left:6px}
+button.sm{padding:6px 12px;font-size:12.5px;min-height:0}
+.vk-st{display:inline-block;border-radius:99px;padding:3px 10px;font-weight:700;font-size:12.5px}.vk-st.paid{background:#dcfce7;color:#166534}.vk-st.part{background:#fef3c7;color:#92400e}.vk-st.unpaid{background:#fee2e2;color:#991b1b}
+.vk-role{background:var(--line-2);color:var(--ink-2);border-radius:99px;padding:2px 8px;font-size:11.5px;font-weight:600}
+.vk-ph{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}.vk-ph h3{margin:0}
+.vk-hint{font-size:12.5px;color:#6b7280;margin:10px 0 0;line-height:1.5}
+.vk-ov{position:fixed;inset:0;z-index:9998;background:rgba(15,23,60,.55);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.vk-box{width:min(460px,100%);max-height:94vh;overflow:auto;background:#fff;border-radius:16px;padding:22px 20px;box-shadow:0 20px 60px -10px rgba(10,20,70,.5)}
+.vk-box h3{margin:0 0 12px;color:var(--blue)}.vk-box label{display:block;margin:12px 0 4px;font-size:13px;font-weight:600}
+.vk-box input,.vk-box select,.vk-box textarea{width:100%;box-sizing:border-box}
+.vk-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vk-act{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.vk-sum{background:#f5f7fd;border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:13px}
+.vk-warn{background:#fef3c7;color:#92400e;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:12px}
+@media(max-width:620px){
+ .vk-t thead{display:none}.vk-t,.vk-t tbody,.vk-t tr,.vk-t td{display:block;width:100%;box-sizing:border-box}
+ .vk-t tr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#fff}
+ .vk-t td{border:0;padding:3px 0;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:right}
+ .vk-t td:first-child{display:block;text-align:left;font-size:15px;padding-bottom:6px}
+ .vk-t td[data-l]::before{content:attr(data-l);color:#6b7280;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;text-align:left;flex:none}
+ .vk-t td.vk-rowact{justify-content:flex-end;padding-top:10px}.vk-t td[colspan]{display:block;text-align:center}
+ .vk-t .r{text-align:right}
+ .vk-fil .vk-copy{margin-left:0}
+}
 /* bar + grid */
 .cp-main{max-width:1500px;margin:0 auto;padding:0 clamp(10px,2vw,28px) 40px}
 .cp-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 4px;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:var(--gap)}
@@ -2220,6 +2262,11 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" data-svc="host" data-view="reports" onclick="showView('reports',this)"><svg class="i"><use href="#i-chart"/></svg>Reports</button>
   <button class="nav" data-svc="host" data-view="contributions" onclick="showView('contributions',this)"><svg class="i"><use href="#i-wallet"/></svg>Contributions</button>
 
+  <div id="vkNavGroup" style="display:none">
+    <div class="side-label">Vikoba</div>
+    <button class="nav" data-view="vikoba" onclick="showView('vikoba',this)"><svg class="i"><use href="#i-wallet"/></svg>Vikoba</button>
+  </div>
+
   <div id="adminNavGroup" style="display:none">
     <div class="side-label">Administration</div>
     <button class="nav" id="adminNavBtn" data-view="admin" onclick="showView('admin',this)"><svg class="i"><use href="#i-shield"/></svg>Admin Console</button>
@@ -2525,6 +2572,7 @@ body.svc-photog #collNavGroup{display:block!important}
 <section id="collections" class="view"><div id="collBox"></div></section>
 <section id="tickets" class="view"><div id="tkBox"></div></section>
 <section id="sms" class="view"><div id="smBox"></div></section>
+<section id="vikoba" class="view"><div id="vkBox"></div></section>
 
 <!-- ============ GUEST MESSAGES ============ -->
 <section id="wishes" class="view">
@@ -4569,6 +4617,7 @@ const _loadAdminFlag = async function(){
     }catch(e){ console.warn('profile:',e?.message||e); }
   }
   $('adminNavGroup').style.display = isAdmin?'':'none';
+  { const vg=$('vkNavGroup'); if(vg) vg.style.display = isAdmin?'':'none'; }
   renderUserChip();
   if(!isAdmin && isActive('admin')) showView('dashboard');
 };
@@ -4588,6 +4637,7 @@ window.supabaseLogout = async function(){
 
 /* ---------- navigation ---------- */
 const VIEW_META = {
+  vikoba:['Vikoba','Savings groups'],
   dashboard:['Dashboard','Your workspace overview'], events:['My Events','Events you created'],
   create:['Create Event','New event'], guests:['Guests','Guest list'],
   cards:['Cards & QR','Guest cards'], messaging:['Messaging','Send invitations'],
@@ -4599,6 +4649,7 @@ window.showView = function(id,btn){
   if(window.__staffMode){ const r=staffRole(); if(r==='cohost'){ if(id==='create'||id==='admin'||id==='contributions'||id==='messaging'||id==='rsvp'||id==='cards'||id==='reports') id='dashboard'; } else { const want=r==='treasurer'?'contributions':(r==='photographer'?(window.__photoOnly?'collections':'photos'):'rsvp'); if(id!==want && !(r==='photographer' && id==='collections')) id=want; } }
   if(!$(id)) return;
   if(id==='admin' && !isAdmin){ toast('You do not have access to the Admin Console.'); return; }
+  if(id==='vikoba' && !isAdmin){ toast('Vikoba bado haijafunguliwa.'); return; }
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
   document.querySelectorAll('.app-sidebar .nav').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
   const m=VIEW_META[id]||[id,'']; $('pageTitle').textContent=m[0]; $('pageSubtitle').textContent=m[1];
@@ -4610,6 +4661,7 @@ window.showView = function(id,btn){
   if(id==='collections' && window.loadCollections) loadCollections();
   if(id==='tickets' && window.loadTickets) loadTickets();
   if(id==='sms' && window.loadSms) loadSms();
+  if(id==='vikoba' && window.loadVikoba) loadVikoba();
   if(id==='wishes') loadWishes();
   if(id==='tasks' && window.loadTasks) loadTasks();
   if(id==='studio'){ /* Design Studio is switched off for now */ }
@@ -16587,6 +16639,301 @@ window.Studio={
   close(){ S.open=false; const r=$('stRoot'); if(r) r.remove(); document.removeEventListener('keydown',keys); },
   _S:S
 };
+})();
+</script>
+<script>
+/* ===== VIKOBA (savings groups) - stage 1: groups, members & shares, cycle contributions, defaulters, reminders ===== */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const L=(sw,en)=>(typeof invLang==='function'&&invLang()==='en')?en:sw;
+const ic=n=>`<svg class="i"><use href="#i-${n}"/></svg>`;
+const T=n=>'TZS '+Math.round(Number(n||0)).toLocaleString('en-US');
+const toast=m=>{ try{ window.toast(m); }catch(e){ console.log(m); } };
+const emptyState=(t,x,b)=>`<div class="empty"><b>${esc(t)}</b>${esc(x)}${b?`<br>${b}`:''}</div>`;
+const today=()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const MONTHS=['Januari','Februari','Machi','Aprili','Mei','Juni','Julai','Agosti','Septemba','Oktoba','Novemba','Desemba'];
+const ROLES={chair:['Mwenyekiti','Chairperson'],secretary:['Katibu','Secretary'],treasurer:['Mhazini','Treasurer'],member:['Mwanachama','Member']};
+const METHODS=['Cash','M-Pesa','Tigo Pesa','Airtel Money','HaloPesa','Bank'];
+const fmtD=s=>{ if(!s) return ''; const d=new Date(s+'T12:00:00'); return isNaN(d)?s:d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3)+' '+d.getFullYear(); };
+const V={loaded:false,loading:false,err:'',groups:[],gid:null,tab:'cycle',members:[],cycles:[],pays:[],cyc:null,filter:'all',busy:false};
+const grp=()=>V.groups.find(g=>g.id===V.gid);
+const db=()=>window.supabaseClient||(typeof supabaseClient!=='undefined'?supabaseClient:null);
+const errMsg=e=>{ const m=String((e&&e.message)||e||''); if(/vk_/.test(m)) return L('Hatua hii hairuhusiwi (malipo hayabadilishwi, yanabatilishwa tu).','This is not allowed (payments are not edited, only reversed).'); if(/row-level security|permission/i.test(m)) return L('Huna ruhusa ya kufanya hivi.','You are not allowed to do this.'); if(/duplicate key/i.test(m)) return L('Jina hilo tayari lipo.','That name already exists.'); return m||L('Imeshindikana.','Failed.'); };
+async function pageAll(build){ let out=[],from=0; for(;;){ const r=await build().range(from,from+999); if(r.error) throw r.error; const d=r.data||[]; out=out.concat(d); if(d.length<1000) break; from+=1000; } return out; }
+
+/* ---------- loading ---------- */
+window.loadVikoba=async function(){
+  if(!isAdmin){ V.err=''; render(); return; }
+  const c=db(); if(!c) return;
+  V.loading=true; render();
+  try{
+    const r=await c.from('vk_groups').select('*').is('archived_at',null).order('created_at',{ascending:false});
+    if(r.error) throw r.error; V.groups=r.data||[]; V.loaded=true; V.err='';
+    if(V.gid && !grp()) V.gid=null;
+    if(V.gid) await loadGroup(V.gid,true);
+  }catch(e){ V.err=errMsg(e); }
+  V.loading=false; render();
+};
+async function loadGroup(id,silent){
+  const c=db(); V.gid=id;
+  try{
+    const [m,cy,p]=await Promise.all([
+      pageAll(()=>c.from('vk_members').select('*').eq('group_id',id).order('name')),
+      pageAll(()=>c.from('vk_cycles').select('*').eq('group_id',id).order('due_date',{ascending:false}).order('id')),
+      pageAll(()=>c.from('vk_payments').select('*').eq('group_id',id).order('created_at',{ascending:false}).order('id'))
+    ]);
+    V.members=m; V.cycles=cy; V.pays=p;
+    if(!V.cyc||!V.cycles.some(x=>x.id===V.cyc)) V.cyc=V.cycles.length?V.cycles[0].id:null;
+    V.err='';
+  }catch(e){ V.err=errMsg(e); }
+  if(!silent) render();
+}
+window.vkOpen=async function(id){ V.tab='cycle'; V.filter='all'; V.cyc=null; V.gid=id; V.members=[];V.cycles=[];V.pays=[]; render(); await loadGroup(id); };
+window.vkBack=function(){ V.gid=null; render(); };
+window.vkTab=function(t){ V.tab=t; render(); };
+window.vkCyc=function(id){ V.cyc=id; render(); };
+window.vkFilter=function(f){ V.filter=f; render(); };
+
+/* ---------- maths ---------- */
+const live=p=>!p.reversed_at;
+function paidFor(mid,cid){ let s=0; for(const p of V.pays) if(live(p)&&p.kind==='share'&&p.member_id===mid&&p.cycle_id===cid) s+=Number(p.amount); return s; }
+function rows(cid){
+  const cy=V.cycles.find(x=>x.id===cid); if(!cy) return [];
+  return V.members.filter(m=>m.active).map(m=>{ const due=m.shares*Number(cy.share_price), paid=paidFor(m.id,cid), bal=Math.max(0,due-paid); return {m,due,paid,bal,over:Math.max(0,paid-due),st:paid>=due?'paid':(paid>0?'part':'unpaid')}; });
+}
+function fundTotal(){ let s=0; for(const p of V.pays) if(live(p)) s+=Number(p.amount); return s; }
+
+/* ---------- modal ---------- */
+function modal(html){ vkClose(); const o=document.createElement('div'); o.id='vkOv'; o.className='vk-ov'; o.innerHTML='<div class="vk-box" role="dialog" aria-modal="true">'+html+'</div>'; o.addEventListener('mousedown',e=>{ if(e.target===o) vkClose(); }); document.body.appendChild(o); const f=o.querySelector('input,select,textarea'); if(f) setTimeout(()=>f.focus(),30); }
+window.vkClose=vkClose; function vkClose(){ const o=$('vkOv'); if(o) o.remove(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') vkClose(); });
+const val=id=>{ const e=$(id); return e?String(e.value).trim():''; };
+const num=id=>{ const v=val(id).replace(/[,\s]/g,''); const n=Number(v); return isFinite(n)?n:NaN; };
+
+/* ---------- groups ---------- */
+window.vkGroupForm=function(id){
+  const g=id?V.groups.find(x=>x.id===id):null;
+  modal(`<h3>${g?L('Hariri kikundi','Edit group'):L('Kikundi kipya cha vikoba','New savings group')}</h3>
+  <label for="vkg_name">${L('Jina la kikundi','Group name')}</label><input id="vkg_name" maxlength="80" value="${esc(g?g.name:'')}" placeholder="${L('mf. Kikoba cha Umoja','e.g. Umoja Savings Group')}">
+  <div class="vk-2"><div><label for="vkg_price">${L('Bei ya hisa moja (TZS)','Price of one share (TZS)')}</label><input id="vkg_price" inputmode="numeric" value="${g?Math.round(g.share_price):''}" placeholder="5000"></div>
+  <div><label for="vkg_max">${L('Hisa nyingi zaidi kwa mtu','Max shares per member')}</label><input id="vkg_max" inputmode="numeric" value="${g?g.max_shares:5}"></div></div>
+  <label for="vkg_cad">${L('Mzunguko wa michango','Contribution cycle')}</label><select id="vkg_cad"><option value="monthly" ${g&&g.cadence==='weekly'?'':'selected'}>${L('Kila mwezi','Monthly')}</option><option value="weekly" ${g&&g.cadence==='weekly'?'selected':''}>${L('Kila wiki','Weekly')}</option></select>
+  <label for="vkg_note">${L('Siku/mahali pa mkutano (hiari)','Meeting day/place (optional)')}</label><input id="vkg_note" maxlength="120" value="${esc(g&&g.meeting_note||'')}" placeholder="${L('mf. Jumapili ya kwanza, nyumbani kwa mwenyekiti','e.g. First Sunday, chairperson\'s house')}">
+  ${g?`<div class="vk-warn">${L('Kubadilisha bei ya hisa kunaathiri mizunguko mipya tu. Mizunguko iliyopita inabaki na bei yake.','Changing the share price only affects new cycles. Past cycles keep their price.')}</div>`:''}
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkGroupSave('${g?g.id:''}')">${L('Hifadhi','Save')}</button></div>`);
+};
+window.vkGroupSave=async function(id){
+  if(V.busy) return; const name=val('vkg_name'), price=num('vkg_price'), max=Math.round(num('vkg_max'));
+  if(name.length<2) return toast(L('Andika jina la kikundi.','Enter the group name.'));
+  if(!(price>0)) return toast(L('Andika bei ya hisa moja.','Enter the share price.'));
+  if(!(max>=1&&max<=1000)) return toast(L('Idadi ya hisa nyingi zaidi si sahihi.','Max shares is not valid.'));
+  const row={name,share_price:price,max_shares:max,cadence:val('vkg_cad')==='weekly'?'weekly':'monthly',meeting_note:val('vkg_note')||null};
+  V.busy=true;
+  try{
+    const q=id?db().from('vk_groups').update(row).eq('id',id).select('*').single():db().from('vk_groups').insert(row).select('*').single();
+    const r=await q; if(r.error) throw r.error;
+    if(id) V.groups=V.groups.map(g=>g.id===id?r.data:g); else V.groups.unshift(r.data);
+    vkClose(); toast(L('Kikundi kimehifadhiwa.','Group saved.'));
+    if(!id){ V.busy=false; await vkOpen(r.data.id); return; }
+  }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+
+/* ---------- members ---------- */
+window.vkMemberForm=function(id){
+  const g=grp(); if(!g) return; const m=id?V.members.find(x=>x.id===id):null;
+  modal(`<h3>${m?L('Hariri mwanachama','Edit member'):L('Ongeza mwanachama','Add member')}</h3>
+  <label for="vkm_name">${L('Jina','Name')}</label><input id="vkm_name" maxlength="80" value="${esc(m?m.name:'')}">
+  <label for="vkm_phone">${L('Namba ya simu (hiari)','Phone (optional)')}</label><input id="vkm_phone" inputmode="tel" value="${esc(m&&m.phone||'')}" placeholder="0712 345 678">
+  <div class="vk-2"><div><label for="vkm_shares">${L('Idadi ya hisa','Number of shares')}</label><input id="vkm_shares" inputmode="numeric" value="${m?m.shares:1}"></div>
+  <div><label for="vkm_role">${L('Cheo','Role')}</label><select id="vkm_role">${Object.keys(ROLES).map(k=>`<option value="${k}" ${m&&m.role===k?'selected':''}>${ROLES[k][L('0','1')==='0'?0:1]}</option>`).join('')}</select></div></div>
+  <p class="vk-hint">${L('Hisa 1 =','1 share =')} ${T(g.share_price)} ${g.cadence==='weekly'?L('kwa wiki','per week'):L('kwa mwezi','per month')}. ${L('Kiwango cha juu:','Maximum:')} ${g.max_shares}.</p>
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkMemberSave('${m?m.id:''}')">${L('Hifadhi','Save')}</button></div>`);
+};
+function cleanPhone(p){ if(!p) return null; const n=(typeof normalizeTzPhone==='function'?normalizeTzPhone(p):String(p)).replace(/[^0-9+]/g,''); return /^[0-9+]{9,15}$/.test(n)?n:null; }
+window.vkMemberSave=async function(id){
+  const g=grp(); if(!g||V.busy) return; const name=val('vkm_name'), shares=Math.round(num('vkm_shares')), ph=val('vkm_phone');
+  if(name.length<2) return toast(L('Andika jina la mwanachama.','Enter the member name.'));
+  if(!(shares>=1&&shares<=g.max_shares)) return toast(L('Hisa zinatakiwa ziwe 1 hadi ','Shares must be 1 to ')+g.max_shares+'.');
+  const phone=cleanPhone(ph); if(ph&&!phone) return toast(L('Namba ya simu si sahihi.','The phone number is not valid.'));
+  const row={name,phone,shares,role:val('vkm_role')||'member'};
+  V.busy=true;
+  try{
+    const r=await (id?db().from('vk_members').update(row).eq('id',id).select('*').single():db().from('vk_members').insert(Object.assign({group_id:g.id},row)).select('*').single());
+    if(r.error) throw r.error;
+    V.members=(id?V.members.map(x=>x.id===id?r.data:x):V.members.concat([r.data])).sort((a,b)=>a.name.localeCompare(b.name));
+    vkClose(); toast(L('Mwanachama amehifadhiwa.','Member saved.'));
+  }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkMemberToggle=async function(id){
+  const m=V.members.find(x=>x.id===id); if(!m||V.busy) return;
+  const to=!m.active;
+  if(!to && !(await window.confirmDialog({title:L('Kumsimamisha mwanachama?','Suspend this member?'),text:L('Hataonekana kwenye mizunguko mipya, lakini historia ya malipo yake inabaki.','He/she will not appear in new cycles, but the payment history stays.'),ok:L('Msimamishe','Suspend'),tone:'danger'}))) return;
+  V.busy=true;
+  try{ const r=await db().from('vk_members').update({active:to}).eq('id',id).select('*').single(); if(r.error) throw r.error; V.members=V.members.map(x=>x.id===id?r.data:x); toast(to?L('Amerudishwa.','Restored.'):L('Amesimamishwa.','Suspended.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkImportForm=function(){
+  const g=grp(); if(!g) return;
+  modal(`<h3>${L('Ingiza wanachama kwa pamoja','Add many members at once')}</h3>
+  <p class="vk-hint">${L('Andika mmoja kwa kila mstari: jina, namba ya simu, na (hiari) idadi ya hisa. Mfano:','One per line: name, phone and (optional) number of shares. Example:')}<br><code>Asha Juma 0712345678 2</code></p>
+  <textarea id="vki_txt" rows="9" placeholder="Asha Juma 0712345678 2&#10;Baraka Mushi 0765000111"></textarea>
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkImportRun()">${L('Ingiza','Add')}</button></div>`);
+};
+window.vkImportRun=async function(){
+  const g=grp(); if(!g||V.busy) return; const lines=val('vki_txt').split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  if(!lines.length) return toast(L('Hakuna majina.','No names.'));
+  const rowsIn=[], bad=[];
+  for(const ln of lines){
+    let s=ln, phone=null, shares=1;
+    const ms=s.match(/^(.*\S)\s+(\d{1,3})\s*$/);
+    if(ms && ms[1].replace(/\D/g,'').length>=9){ shares=Number(ms[2]); s=ms[1]; }
+    const mp=s.match(/(\+?\d[\d ]{7,15}\d)/); if(mp){ phone=cleanPhone(mp[1].replace(/ /g,'')); s=s.replace(mp[1],' '); }
+    const name=s.replace(/[,;:\t]+/g,' ').replace(/\s+/g,' ').trim();
+    if(name.length<2||shares<1||shares>g.max_shares||(mp&&!phone)){ bad.push(ln); continue; }
+    rowsIn.push({group_id:g.id,name,phone,shares,role:'member'});
+  }
+  if(bad.length) return toast(L('Mistari hii ina tatizo: ','Problem lines: ')+bad.slice(0,3).join(' | '));
+  V.busy=true;
+  try{ const r=await db().from('vk_members').insert(rowsIn).select('*'); if(r.error) throw r.error; V.members=V.members.concat(r.data).sort((a,b)=>a.name.localeCompare(b.name)); vkClose(); toast(r.data.length+L(' wanachama wameongezwa.',' members added.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+
+/* ---------- cycles ---------- */
+function nextCycleSuggestion(g){
+  const last=V.cycles[0]; let d=new Date((last?last.due_date:today())+'T12:00:00');
+  if(last){ if(g.cadence==='weekly') d.setDate(d.getDate()+7); else d.setMonth(d.getMonth()+1); }
+  const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const label=g.cadence==='weekly'?(L('Wiki ya ','Week of ')+fmtD(iso)):(MONTHS[d.getMonth()]+' '+d.getFullYear());
+  return {iso,label};
+}
+window.vkCycleForm=function(){
+  const g=grp(); if(!g) return; const s=nextCycleSuggestion(g);
+  modal(`<h3>${L('Mzunguko mpya wa michango','New contribution cycle')}</h3>
+  <label for="vkc_label">${L('Jina la mzunguko','Cycle name')}</label><input id="vkc_label" maxlength="40" value="${esc(s.label)}">
+  <label for="vkc_due">${L('Mwisho wa kulipa','Due date')}</label><input id="vkc_due" type="date" value="${s.iso}">
+  <p class="vk-hint">${L('Kila mwanachama anadaiwa: hisa zake ×','Each member owes: shares ×')} ${T(g.share_price)}.</p>
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkCycleSave()">${L('Fungua mzunguko','Open cycle')}</button></div>`);
+};
+window.vkCycleSave=async function(){
+  const g=grp(); if(!g||V.busy) return; const label=val('vkc_label'), due=val('vkc_due');
+  if(!label) return toast(L('Andika jina la mzunguko.','Enter a cycle name.')); if(!/^\d{4}-\d{2}-\d{2}$/.test(due)) return toast(L('Chagua tarehe.','Pick a date.'));
+  V.busy=true;
+  try{ const r=await db().from('vk_cycles').insert({group_id:g.id,label,due_date:due,share_price:g.share_price}).select('*').single(); if(r.error) throw r.error; V.cycles.unshift(r.data); V.cycles.sort((a,b)=>String(b.due_date).localeCompare(String(a.due_date))); V.cyc=r.data.id; V.tab='cycle'; vkClose(); toast(L('Mzunguko umefunguliwa.','Cycle opened.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+
+/* ---------- payments ---------- */
+window.vkPayForm=function(mid,cid){
+  const g=grp(), m=V.members.find(x=>x.id===mid), cy=V.cycles.find(x=>x.id===cid); if(!g||!m||!cy) return;
+  const due=m.shares*Number(cy.share_price), paid=paidFor(mid,cid), bal=Math.max(0,due-paid);
+  modal(`<h3>${L('Rekodi malipo','Record payment')}</h3>
+  <div class="vk-sum"><b>${esc(m.name)}</b><span>${esc(cy.label)} · ${L('Deni','Owes')} ${T(due)} · ${L('Amelipa','Paid')} ${T(paid)} · <b>${L('Salio','Balance')} ${T(bal)}</b></span></div>
+  <label for="vkp_amt">${L('Kiasi (TZS)','Amount (TZS)')}</label><input id="vkp_amt" inputmode="numeric" value="${bal||''}">
+  <div class="vk-2"><div><label for="vkp_date">${L('Tarehe','Date')}</label><input id="vkp_date" type="date" value="${today()}"></div>
+  <div><label for="vkp_meth">${L('Njia ya malipo','Method')}</label><select id="vkp_meth">${METHODS.map(x=>`<option>${x}</option>`).join('')}</select></div></div>
+  <label for="vkp_ref">${L('Namba ya muamala (hiari)','Transaction ref (optional)')}</label><input id="vkp_ref" maxlength="60">
+  <label for="vkp_note">${L('Maelezo (hiari)','Note (optional)')}</label><input id="vkp_note" maxlength="200">
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkPaySave('${mid}','${cid}')">${L('Hifadhi malipo','Save payment')}</button></div>`);
+};
+window.vkPaySave=async function(mid,cid){
+  const g=grp(), m=V.members.find(x=>x.id===mid), cy=V.cycles.find(x=>x.id===cid); if(!g||!m||!cy||V.busy) return;
+  const amt=num('vkp_amt'), date=val('vkp_date');
+  if(!(amt>0)) return toast(L('Andika kiasi kilicholipwa.','Enter the amount paid.'));
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) return toast(L('Chagua tarehe.','Pick a date.'));
+  const bal=Math.max(0,m.shares*Number(cy.share_price)-paidFor(mid,cid));
+  if(amt>bal && !(await window.confirmDialog({title:L('Kiasi kinazidi deni','Amount is more than owed'),text:L(`Salio ni ${T(bal)}, lakini unaweka ${T(amt)}. Uendelee?`,`Balance is ${T(bal)}, but you are entering ${T(amt)}. Continue?`),ok:L('Endelea','Continue'),tone:'danger'}))) return;
+  V.busy=true;
+  try{
+    const r=await db().from('vk_payments').insert({group_id:g.id,member_id:mid,cycle_id:cid,kind:'share',amount:amt,paid_on:date,method:val('vkp_meth')||'Cash',ref:val('vkp_ref')||null,note:val('vkp_note')||null}).select('*').single();
+    if(r.error) throw r.error; V.pays.unshift(r.data); vkClose(); toast(L('Malipo yamehifadhiwa.','Payment saved.'));
+  }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkReverseForm=function(pid){
+  const p=V.pays.find(x=>x.id===pid); if(!p||p.reversed_at) return; const m=V.members.find(x=>x.id===p.member_id);
+  modal(`<h3>${L('Batilisha malipo','Reverse payment')}</h3>
+  <div class="vk-sum"><b>${esc(m?m.name:'')}</b><span>${T(p.amount)} · ${fmtD(p.paid_on)} · ${esc(p.method)}</span></div>
+  <p class="vk-hint">${L('Malipo hayafutwi. Yanawekwa alama ya kubatilishwa pamoja na sababu, na hayahesabiwi tena.','The payment is not deleted. It is marked as reversed with the reason and no longer counted.')}</p>
+  <label for="vkr_reason">${L('Sababu ya kubatilisha','Reason')}</label><input id="vkr_reason" maxlength="200" placeholder="${L('mf. Nilikosea kiasi','e.g. Wrong amount')}">
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="danger" onclick="vkReverseSave('${pid}')">${L('Batilisha','Reverse')}</button></div>`);
+};
+window.vkReverseSave=async function(pid){
+  if(V.busy) return; const reason=val('vkr_reason'); if(reason.length<3) return toast(L('Andika sababu.','Enter a reason.'));
+  V.busy=true;
+  try{ const r=await db().from('vk_payments').update({reversed_at:new Date().toISOString(),reverse_reason:reason}).eq('id',pid).select('*').single(); if(r.error) throw r.error; V.pays=V.pays.map(x=>x.id===pid?r.data:x); vkClose(); toast(L('Malipo yamebatilishwa.','Payment reversed.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+
+/* ---------- reminders (WhatsApp deep link / copy) ---------- */
+function remindText(g,cy,r){ return L(`Habari ${r.m.name}, ukumbusho kutoka ${g.name}: mchango wa "${cy.label}" ni ${T(r.due)}, mwisho wa kulipa ${fmtD(cy.due_date)}. Salio lako ni ${T(r.bal)}. Asante.`,`Hello ${r.m.name}, reminder from ${g.name}: the "${cy.label}" contribution is ${T(r.due)}, due ${fmtD(cy.due_date)}. Your balance is ${T(r.bal)}. Thank you.`); }
+window.vkRemind=function(mid){
+  const g=grp(), cy=V.cycles.find(x=>x.id===V.cyc); if(!g||!cy) return; const r=rows(cy.id).find(x=>x.m.id===mid); if(!r||!r.bal) return;
+  const ph=(r.m.phone||'').replace(/[^0-9]/g,''); if(!ph) return toast(L('Mwanachama huyu hana namba ya simu.','This member has no phone number.'));
+  window.open('https://wa.me/'+ph+'?text='+encodeURIComponent(remindText(g,cy,r)),'_blank','noopener');
+};
+window.vkCopyAll=async function(){
+  const g=grp(), cy=V.cycles.find(x=>x.id===V.cyc); if(!g||!cy) return; const list=rows(cy.id).filter(r=>r.bal>0);
+  if(!list.length) return toast(L('Hakuna anayedaiwa.','Nobody owes.'));
+  const t=list.map(r=>`${r.m.name}${r.m.phone?' ('+r.m.phone+')':''}: ${remindText(g,cy,r)}`).join('\n\n');
+  try{ await navigator.clipboard.writeText(t); toast(L('Ukumbusho wa watu ','Reminders for ')+list.length+L(' umenakiliwa.',' people copied.')); }catch(e){ toast(L('Imeshindikana kunakili.','Could not copy.')); }
+};
+
+/* ---------- rendering ---------- */
+function render(){
+  const box=$('vkBox'); if(!box) return;
+  if(!isAdmin){ box.innerHTML=`<div class="panel"><div class="empty"><b>${L('Vikoba bado haijafunguliwa','Vikoba is not open yet')}</b>${L('Kipengele hiki kinakuja hivi karibuni.','This feature is coming soon.')}</div></div>`; return; }
+  if(V.loading&&!V.loaded){ box.innerHTML=`<div class="empty"><b>${L('Inapakia…','Loading…')}</b></div>`; return; }
+  if(V.err&&!V.loaded){ box.innerHTML=`<div class="panel"><div class="empty"><b>${L('Vikoba haikufunguka','Vikoba could not be opened')}</b>${esc(V.err)}<br><button class="primary" onclick="loadVikoba()">${L('Jaribu tena','Try again')}</button></div></div>`; return; }
+  box.innerHTML=(V.err?`<div class="hint-box"><span>${esc(V.err)}</span></div>`:'')+(V.gid&&grp()?groupHtml():listHtml());
+  box.querySelectorAll('table.vk-t').forEach(t=>{ const h=[...t.querySelectorAll('thead th')].map(x=>x.textContent.trim()); t.querySelectorAll('tbody tr').forEach(tr=>{ [...tr.children].forEach((td,i)=>{ if(i>0&&h[i]&&td.colSpan<2) td.setAttribute('data-l',h[i]); }); }); });
+}
+function listHtml(){
+  const cards=V.groups.map(g=>`<div class="vk-gc" role="button" tabindex="0" onclick="vkOpen('${g.id}')" onkeydown="if(event.key==='Enter')vkOpen('${g.id}')"><div class="vk-gc-t">${esc(g.name)}</div><div class="muted">${T(g.share_price)} / ${L('hisa','share')} · ${g.cadence==='weekly'?L('kila wiki','weekly'):L('kila mwezi','monthly')}</div>${g.meeting_note?`<div class="muted">${esc(g.meeting_note)}</div>`:''}</div>`).join('');
+  return `<div class="topline"><div><h1>${L('Vikoba','Savings groups')}</h1><p class="muted">${L('Simamia wanachama, hisa na michango ya kikundi chako cha vikoba.','Manage members, shares and contributions of your savings group.')}</p></div><div class="topline-actions"><button class="primary" onclick="vkGroupForm()">${ic('plus')}${L('Kikundi kipya','New group')}</button></div></div>`+
+    (V.groups.length?`<div class="vk-gl">${cards}</div>`:`<div class="panel">${emptyState(L('Hakuna kikundi bado','No group yet'),L('Tengeneza kikundi chako cha kwanza cha vikoba, kisha ongeza wanachama.','Create your first savings group, then add members.'),`<button class="primary" onclick="vkGroupForm()">${ic('plus')}${L('Kikundi kipya','New group')}</button>`)}</div>`);
+}
+function groupHtml(){
+  const g=grp(), act=V.members.filter(m=>m.active), shares=act.reduce((s,m)=>s+m.shares,0);
+  const tabs=[['cycle',L('Michango','Contributions')],['members',L('Wanachama','Members')],['history',L('Historia','History')]];
+  return `<div class="topline"><div><button class="text-button" onclick="vkBack()">← ${L('Vikundi vyote','All groups')}</button><h1>${esc(g.name)}</h1><p class="muted">${T(g.share_price)} / ${L('hisa','share')} · ${g.cadence==='weekly'?L('kila wiki','weekly'):L('kila mwezi','monthly')}${g.meeting_note?' · '+esc(g.meeting_note):''}</p></div><div class="topline-actions"><button class="gray" onclick="vkGroupForm('${g.id}')">${ic('edit')}${L('Hariri','Edit')}</button></div></div>
+  <div class="vk-stats"><div class="report-stat"><span>${L('Wanachama','Members')}</span><b>${act.length}</b></div><div class="report-stat"><span>${L('Hisa zote','Total shares')}</span><b>${shares}</b></div><div class="report-stat"><span>${L('Fedha zilizokusanywa','Total collected')}</span><b>${T(fundTotal())}</b></div></div>
+  <div class="vk-tabs">${tabs.map(t=>`<button class="${V.tab===t[0]?'on':''}" onclick="vkTab('${t[0]}')">${t[1]}</button>`).join('')}</div>`+
+  (V.tab==='members'?membersHtml():V.tab==='history'?historyHtml():cycleHtml());
+}
+function cycleHtml(){
+  const g=grp();
+  if(!V.members.some(m=>m.active)) return `<div class="panel">${emptyState(L('Ongeza wanachama kwanza','Add members first'),L('Michango inahesabiwa kwa kila mwanachama na hisa zake.','Contributions are counted per member and shares.'),`<button class="primary" onclick="vkTab('members')">${ic('users')}${L('Nenda kwa wanachama','Go to members')}</button>`)}</div>`;
+  if(!V.cycles.length) return `<div class="panel">${emptyState(L('Fungua mzunguko wa kwanza','Open the first cycle'),L('Mzunguko ni kipindi cha michango, mfano mwezi mmoja.','A cycle is a contribution period, e.g. one month.'),`<button class="primary" onclick="vkCycleForm()">${ic('plus')}${L('Mzunguko mpya','New cycle')}</button>`)}</div>`;
+  const cy=V.cycles.find(x=>x.id===V.cyc)||V.cycles[0], all=rows(cy.id);
+  const due=all.reduce((s,r)=>s+r.due,0), paid=all.reduce((s,r)=>s+Math.min(r.paid,r.due),0), pct=due?Math.round(paid*100/due):0;
+  const nPaid=all.filter(r=>r.st==='paid').length, nUn=all.length-nPaid;
+  const f=V.filter, list=all.filter(r=>f==='all'||(f==='owe'&&r.bal>0)||(f==='paid'&&r.st==='paid'));
+  const late=new Date(cy.due_date+'T23:59:59')<new Date();
+  return `<div class="panel"><div class="vk-cyc-h"><div><label for="vkCycSel" style="margin:0">${L('Mzunguko','Cycle')}</label><select id="vkCycSel" onchange="vkCyc(this.value)">${V.cycles.map(c=>`<option value="${c.id}" ${c.id===cy.id?'selected':''}>${esc(c.label)}</option>`).join('')}</select></div>
+    <div class="vk-cyc-i"><span>${L('Mwisho','Due')}: <b>${fmtD(cy.due_date)}</b></span><span>${L('Hisa 1','1 share')}: <b>${T(cy.share_price)}</b></span></div>
+    <button class="primary" onclick="vkCycleForm()">${ic('plus')}${L('Mzunguko mpya','New cycle')}</button></div>
+    <div class="vk-bar"><i style="width:${pct}%"></i></div>
+    <div class="vk-stats three"><div class="report-stat"><span>${L('Linalotakiwa','Expected')}</span><b>${T(due)}</b></div><div class="report-stat"><span>${L('Limekusanywa','Collected')}</span><b>${T(paid)}</b><small>${pct}%</small></div><div class="report-stat ${due-paid>0&&late?'bad':''}"><span>${L('Linadaiwa','Outstanding')}</span><b>${T(Math.max(0,due-paid))}</b><small>${nUn} ${L('watu','people')}${late&&nUn?' · '+L('muda umepita','overdue'):''}</small></div></div>
+    <div class="vk-fil"><button class="${f==='all'?'on':''}" onclick="vkFilter('all')">${L('Wote','All')} (${all.length})</button><button class="${f==='owe'?'on':''}" onclick="vkFilter('owe')">${L('Hawajalipa','Not paid')} (${nUn})</button><button class="${f==='paid'?'on':''}" onclick="vkFilter('paid')">${L('Wamelipa','Paid')} (${nPaid})</button>${nUn?`<button class="gray vk-copy" onclick="vkCopyAll()">${ic('copy')}${L('Nakili ukumbusho wote','Copy all reminders')}</button>`:''}</div>
+    <div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mwanachama','Member')}</th><th class="r">${L('Hisa','Shares')}</th><th class="r">${L('Deni','Owes')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th><th></th></tr></thead><tbody>
+    ${list.map(r=>`<tr><td><b>${esc(r.m.name)}</b>${r.m.role!=='member'?` <span class="vk-role">${ROLES[r.m.role][L('0','1')==='0'?0:1]}</span>`:''}${r.m.phone?`<div class="muted sm">${esc(r.m.phone)}</div>`:''}</td><td class="r">${r.m.shares}</td><td class="r">${T(r.due)}</td><td class="r">${T(r.paid)}</td><td class="r"><span class="vk-st ${r.st}">${r.st==='paid'?L('Amemaliza','Paid'):T(r.bal)}</span>${r.over?`<div class="muted sm">+${T(r.over)} ${L('ziada','extra')}</div>`:''}</td>
+      <td class="r vk-rowact">${r.bal>0?`<button class="primary sm" onclick="vkPayForm('${r.m.id}','${cy.id}')">${L('Lipa','Pay')}</button>${r.m.phone?`<button class="gray sm" title="${L('Mkumbushe kwa WhatsApp','Remind on WhatsApp')}" onclick="vkRemind('${r.m.id}')">${ic('whatsapp')}</button>`:''}`:`<button class="gray sm" onclick="vkPayForm('${r.m.id}','${cy.id}')">+</button>`}</td></tr>`).join('')||`<tr><td colspan="6" class="muted" style="text-align:center;padding:22px">${L('Hakuna wa kuonyesha.','Nobody to show.')}</td></tr>`}
+    </tbody></table></div>
+    <p class="vk-hint">${L('Vikumbusho vinafunguka kwenye WhatsApp ya mwanachama kikiwa kimeandikwa. SMS za moja kwa moja zitaongezwa SMS zikiwashwa kwa wateja.','Reminders open in the member\'s WhatsApp with the text ready. Automatic SMS will be added once SMS is switched on for customers.')}</p></div>`;
+}
+function membersHtml(){
+  return `<div class="panel"><div class="vk-ph"><h3>${L('Wanachama','Members')} (${V.members.filter(m=>m.active).length})</h3><div class="topline-actions"><button class="gray" onclick="vkImportForm()">${ic('users')}${L('Ingiza wengi','Add many')}</button><button class="primary" onclick="vkMemberForm()">${ic('plus')}${L('Mwanachama','Member')}</button></div></div>
+  ${V.members.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Jina','Name')}</th><th>${L('Simu','Phone')}</th><th>${L('Cheo','Role')}</th><th class="r">${L('Hisa','Shares')}</th><th></th></tr></thead><tbody>${V.members.map(m=>`<tr class="${m.active?'':'vk-off'}"><td><b>${esc(m.name)}</b>${m.active?'':` <span class="vk-role">${L('Amesimamishwa','Suspended')}</span>`}</td><td>${esc(m.phone||'')}</td><td>${ROLES[m.role][L('0','1')==='0'?0:1]}</td><td class="r">${m.shares}</td><td class="r vk-rowact"><button class="gray sm" onclick="vkMemberForm('${m.id}')">${ic('edit')}</button><button class="gray sm" onclick="vkMemberToggle('${m.id}')">${m.active?L('Simamisha','Suspend'):L('Rudisha','Restore')}</button></td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna wanachama bado. Ongeza mmoja mmoja au ingiza wengi kwa pamoja.','No members yet. Add them one by one or paste many at once.')}</p>`}</div>`;
+}
+function historyHtml(){
+  const cname=id=>{ const c=V.cycles.find(x=>x.id===id); return c?c.label:''; }, mname=id=>{ const m=V.members.find(x=>x.id===id); return m?m.name:''; };
+  return `<div class="panel"><div class="vk-ph"><h3>${L('Historia ya malipo','Payment history')}</h3></div>${V.pays.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Tarehe','Date')}</th><th>${L('Mwanachama','Member')}</th><th>${L('Mzunguko','Cycle')}</th><th class="r">${L('Kiasi','Amount')}</th><th>${L('Njia','Method')}</th><th></th></tr></thead><tbody>${V.pays.map(p=>`<tr class="${p.reversed_at?'vk-off':''}"><td>${fmtD(p.paid_on)}</td><td>${esc(mname(p.member_id))}</td><td>${esc(cname(p.cycle_id))}</td><td class="r">${p.reversed_at?'<s>':''}${T(p.amount)}${p.reversed_at?'</s>':''}</td><td>${esc(p.method)}${p.ref?`<div class="muted sm">${esc(p.ref)}</div>`:''}</td><td class="r">${p.reversed_at?`<span class="vk-role">${L('Imebatilishwa','Reversed')}</span><div class="muted sm">${esc(p.reverse_reason||'')}</div>`:`<button class="gray sm" onclick="vkReverseForm('${p.id}')">${L('Batilisha','Reverse')}</button>`}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna malipo bado.','No payments yet.')}</p>`}</div>`;
+}
+window.__vkRender=render;
 })();
 </script>
 </body>
