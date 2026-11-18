@@ -1734,6 +1734,11 @@ body.cp-lock{overflow:hidden}
 .vk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.vk-stats.three{margin:12px 0}
 @media(max-width:620px){.vk-stats{grid-template-columns:1fr}}
 .vk-stats .report-stat.bad b{color:#b91c1c}
+.vk-stats.four{grid-template-columns:repeat(4,1fr)}.vk-stats.four .report-stat b{font-size:clamp(19px,1.9vw,26px);white-space:nowrap}@media(max-width:900px){.vk-stats.four{grid-template-columns:repeat(2,1fr)}}@media(max-width:420px){.vk-stats.four{grid-template-columns:1fr}}
+.vk-stats .report-stat small{display:block;color:#6b7280;font-size:12px;margin-top:2px}
+.vk-att{border:1px solid var(--line);border-radius:12px;max-height:40vh;overflow:auto}.vk-attr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line-2)}.vk-attr:last-child{border-bottom:0}.vk-attr select{width:auto!important;min-width:140px}
+.vk-notes{white-space:pre-line;max-width:420px}
+.vk-box:has(.vk-att),.vk-box:has(.vk-stats.four){width:min(620px,100%)}
 .vk-tabs,.vk-fil{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
 .vk-tabs button,.vk-fil button{background:var(--line-2);color:var(--ink-2);border:0;border-radius:99px;padding:8px 16px;font-weight:600;font-size:13.5px;box-shadow:none;min-height:0;cursor:pointer}
 .vk-tabs button.on,.vk-fil button.on{background:var(--navy);color:#fff}
@@ -1781,6 +1786,7 @@ button.sm{padding:6px 12px;font-size:12.5px;min-height:0}
  .vk-t td.vk-rowact{justify-content:flex-end;padding-top:10px}.vk-t td[colspan]{display:block;text-align:center}
  .vk-t .r{text-align:right}
  .vk-fil .vk-copy{margin-left:0}
+ .vk-mx{min-width:0}.vk-t tfoot,.vk-t tfoot tr,.vk-t tfoot td{display:block;width:100%;box-sizing:border-box}.vk-t tfoot tr{background:#f5f7fd}.vk-t tfoot td{display:flex;justify-content:space-between}
 }
 /* bar + grid */
 .cp-main{max-width:1500px;margin:0 auto;padding:0 clamp(10px,2vw,28px) 40px}
@@ -2291,7 +2297,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.77</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.78</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -16673,10 +16679,10 @@ const MN=i=>(lang()==='en'?MEN:MSW)[i];
 const ROLES={chair:['Mwenyekiti','Chairperson'],secretary:['Katibu','Secretary'],treasurer:['Mhazini','Treasurer'],member:['Mwanachama','Member']};
 const METHODS=['Cash','M-Pesa','Tigo Pesa','Airtel Money','HaloPesa','Bank'];
 const fmtD=s=>{ if(!s) return ''; const d=new Date(s+'T12:00:00'); return isNaN(d)?s:d.getDate()+' '+MN(d.getMonth()).slice(0,3)+' '+d.getFullYear(); };
-const V={loaded:false,loading:false,err:'',groups:[],gid:null,tab:'cycle',members:[],cycles:[],pays:[],cyc:null,filter:'all',busy:false};
+const V={loaded:false,loading:false,err:'',groups:[],gid:null,tab:'cycle',members:[],cycles:[],pays:[],loans:[],fines:[],meetings:[],att:[],cyc:null,filter:'all',busy:false,lf:'open',ff:'open',rt:'months',yr:null};
 const grp=()=>V.groups.find(g=>g.id===V.gid);
 const db=()=>window.supabaseClient||(typeof supabaseClient!=='undefined'?supabaseClient:null);
-const errMsg=e=>{ const m=String((e&&e.message)||e||''); if(/vk_/.test(m)) return L('Hatua hii hairuhusiwi (malipo hayabadilishwi, yanabatilishwa tu).','This is not allowed (payments are not edited, only reversed).'); if(/row-level security|permission/i.test(m)) return L('Huna ruhusa ya kufanya hivi.','You are not allowed to do this.'); if(/duplicate key/i.test(m)) return L('Jina hilo tayari lipo.','That name already exists.'); return m||L('Imeshindikana.','Failed.'); };
+const errMsg=e=>{ const m=String((e&&e.message)||e||''); if(/vk_overpay/.test(m)) return L('Kiasi kinazidi salio. Pakia upya ukurasa uone salio sahihi.','The amount is more than the balance. Refresh to see the correct balance.'); if(/vk_loan_has_repayments|vk_fine_has_payments/.test(m)) return L('Ina malipo tayari. Batilisha malipo kwanza kwenye Historia.','It already has payments. Reverse them first in History.'); if(/vk_loan_cancelled|vk_fine_waived/.test(m)) return L('Rekodi hii imeshafutwa/kusamehewa.','This record was already cancelled/waived.'); if(/foreign key|violates/i.test(m)) return L('Haiwezekani: kuna rekodi zinazohusiana nayo.','Not possible: other records depend on it.'); if(/vk_/.test(m)) return L('Hatua hii hairuhusiwi (malipo hayabadilishwi, yanabatilishwa tu).','This is not allowed (payments are not edited, only reversed).'); if(/row-level security|permission/i.test(m)) return L('Huna ruhusa ya kufanya hivi.','You are not allowed to do this.'); if(/duplicate key/i.test(m)) return L('Jina hilo tayari lipo.','That name already exists.'); return m||L('Imeshindikana.','Failed.'); };
 async function pageAll(build){ let out=[],from=0; for(;;){ const r=await build().range(from,from+999); if(r.error) throw r.error; const d=r.data||[]; out=out.concat(d); if(d.length<1000) break; from+=1000; } return out; }
 
 /* ---------- loading ---------- */
@@ -16695,18 +16701,22 @@ window.loadVikoba=async function(){
 async function loadGroup(id,silent){
   const c=db(); V.gid=id;
   try{
-    const [m,cy,p]=await Promise.all([
+    const [m,cy,p,lo,fi,mt,at]=await Promise.all([
       pageAll(()=>c.from('vk_members').select('*').eq('group_id',id).order('name')),
       pageAll(()=>c.from('vk_cycles').select('*').eq('group_id',id).order('due_date',{ascending:false}).order('id')),
-      pageAll(()=>c.from('vk_payments').select('*').eq('group_id',id).order('created_at',{ascending:false}).order('id'))
+      pageAll(()=>c.from('vk_payments').select('*').eq('group_id',id).order('created_at',{ascending:false}).order('id')),
+      pageAll(()=>c.from('vk_loans').select('*').eq('group_id',id).order('issued_on',{ascending:false}).order('id')),
+      pageAll(()=>c.from('vk_fines').select('*').eq('group_id',id).order('fined_on',{ascending:false}).order('id')),
+      pageAll(()=>c.from('vk_meetings').select('*').eq('group_id',id).order('held_on',{ascending:false}).order('id')),
+      pageAll(()=>c.from('vk_attendance').select('*').eq('group_id',id).order('meeting_id').order('member_id'))
     ]);
-    V.members=m; V.cycles=cy; V.pays=p;
+    V.members=m; V.cycles=cy; V.pays=p; V.loans=lo; V.fines=fi; V.meetings=mt; V.att=at;
     if(!V.cyc||!V.cycles.some(x=>x.id===V.cyc)) V.cyc=V.cycles.length?V.cycles[0].id:null;
     V.err='';
   }catch(e){ V.err=errMsg(e); }
   if(!silent) render();
 }
-window.vkOpen=async function(id){ V.tab='cycle'; V.filter='all'; V.cyc=null; V.gid=id; V.members=[];V.cycles=[];V.pays=[]; render(); await loadGroup(id); };
+window.vkOpen=async function(id){ V.tab='cycle'; V.filter='all'; V.cyc=null; V.gid=id; V.members=[];V.cycles=[];V.pays=[];V.loans=[];V.fines=[];V.meetings=[];V.att=[]; V.lf='open'; V.ff='open'; V.rt='months'; render(); await loadGroup(id); };
 window.vkBack=function(){ V.gid=null; render(); };
 window.vkTab=function(t){ V.tab=t; render(); };
 window.vkCyc=function(id){ V.cyc=id; render(); };
@@ -16737,6 +16747,10 @@ window.vkGroupForm=function(id){
   <div><label for="vkg_max">${L('Hisa nyingi zaidi kwa mtu','Max shares per member')}</label><input id="vkg_max" inputmode="numeric" value="${g?g.max_shares:5}"></div></div>
   <label for="vkg_cad">${L('Mzunguko wa michango','Contribution cycle')}</label><select id="vkg_cad"><option value="monthly" ${g&&g.cadence==='weekly'?'':'selected'}>${L('Kila mwezi','Monthly')}</option><option value="weekly" ${g&&g.cadence==='weekly'?'selected':''}>${L('Kila wiki','Weekly')}</option></select>
   <label for="vkg_note">${L('Siku/mahali pa mkutano (hiari)','Meeting day/place (optional)')}</label><input id="vkg_note" maxlength="120" value="${esc(g&&g.meeting_note||'')}" placeholder="${L('mf. Jumapili ya kwanza, nyumbani kwa mwenyekiti','e.g. First Sunday, chairperson\'s house')}">
+  <div class="vk-2"><div><label for="vkg_rate">${L('Riba ya mkopo kwa mwezi (%)','Loan interest per month (%)')}</label><input id="vkg_rate" inputmode="decimal" value="${g?Number(g.loan_rate_pct):10}"></div>
+  <div><label for="vkg_lim">${L('Kikomo cha mkopo (× akiba, 0 = hakuna)','Loan limit (× savings, 0 = none)')}</label><input id="vkg_lim" inputmode="decimal" value="${g?Number(g.loan_limit_x):3}"></div></div>
+  <div class="vk-2"><div><label for="vkg_late">${L('Faini ya kuchelewa mkutano (TZS)','Late-for-meeting fine (TZS)')}</label><input id="vkg_late" inputmode="numeric" value="${g?Math.round(g.late_fine):0}"></div>
+  <div><label for="vkg_abs">${L('Faini ya kutohudhuria (TZS)','Missed-meeting fine (TZS)')}</label><input id="vkg_abs" inputmode="numeric" value="${g?Math.round(g.absent_fine||0):0}"></div></div>
   ${g?`<div class="vk-warn">${L('Kubadilisha bei ya hisa kunaathiri mizunguko mipya tu. Mizunguko iliyopita inabaki na bei yake.','Changing the share price only affects new cycles. Past cycles keep their price.')}</div>`:''}
   <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkGroupSave('${g?g.id:''}')">${L('Hifadhi','Save')}</button></div>`);
 };
@@ -16745,7 +16759,11 @@ window.vkGroupSave=async function(id){
   if(name.length<2) return toast(L('Andika jina la kikundi.','Enter the group name.'));
   if(!(price>0)) return toast(L('Andika bei ya hisa moja.','Enter the share price.'));
   if(!(max>=1&&max<=1000)) return toast(L('Idadi ya hisa nyingi zaidi si sahihi.','Max shares is not valid.'));
-  const row={name,share_price:price,max_shares:max,cadence:val('vkg_cad')==='weekly'?'weekly':'monthly',meeting_note:val('vkg_note')||null};
+  const rate=num('vkg_rate'), lim=num('vkg_lim'), late=num('vkg_late'), abs=num('vkg_abs');
+  if(!(rate>=0&&rate<=100)) return toast(L('Riba inatakiwa iwe 0 hadi 100%.','Interest must be 0 to 100%.'));
+  if(!(lim>=0&&lim<=100)) return toast(L('Kikomo cha mkopo si sahihi.','The loan limit is not valid.'));
+  if(!(late>=0&&late<=1e8)||!(abs>=0&&abs<=1e8)) return toast(L('Kiasi cha faini si sahihi.','The fine amount is not valid.'));
+  const row={name,share_price:price,max_shares:max,cadence:val('vkg_cad')==='weekly'?'weekly':'monthly',meeting_note:val('vkg_note')||null,loan_rate_pct:rate,loan_limit_x:lim,late_fine:late,absent_fine:abs};
   V.busy=true;
   try{
     const q=id?db().from('vk_groups').update(row).eq('id',id).select('*').single():db().from('vk_groups').insert(row).select('*').single();
@@ -16759,7 +16777,7 @@ window.vkGroupSave=async function(id){
 
 window.vkGroupDelete=async function(id){
   if(V.busy) return; const g=V.groups.find(x=>x.id===id); if(!g) return;
-  const hasPay=V.pays.some(p=>p.group_id===id);
+  const hasPay=V.pays.some(p=>p.group_id===id)||(V.gid===id&&V.loans.length>0);
   if(hasPay){
     const ok=await confirmDialog({title:L('Kikundi hiki kina malipo','This group has payments'),text:L('Kumbukumbu za malipo hazifutwi ili hesabu zibaki salama. Kikundi <b>'+esc(g.name)+'</b> kitaondolewa kwenye orodha (kuhifadhiwa) bila kupoteza data.','Payment records are never deleted, to keep the books safe. <b>'+esc(g.name)+'</b> will be removed from the list (archived) without losing any data.'),ok:L('Ondoa kwenye orodha','Archive'),tone:'primary',cancel:L('Ghairi','Cancel')});
     if(!ok) return; V.busy=true;
@@ -16767,7 +16785,7 @@ window.vkGroupDelete=async function(id){
       V.groups=V.groups.filter(x=>x.id!==id); V.gid=null; toast(L('Kikundi kimeondolewa kwenye orodha.','Group archived.')); }catch(e){ toast(errMsg(e)); }
     V.busy=false; render(); return;
   }
-  const ok=await confirmDialog({title:L('Futa kikundi hiki?','Delete this group?'),text:L('Kikundi <b>'+esc(g.name)+'</b> pamoja na wanachama na mizunguko yake kitafutwa kabisa. Hakiwezi kurudishwa.','<b>'+esc(g.name)+'</b> together with its members and cycles will be permanently deleted. This cannot be undone.'),ok:L('Futa kikundi','Delete group'),cancel:L('Ghairi','Cancel')});
+  const ok=await confirmDialog({title:L('Futa kikundi hiki?','Delete this group?'),text:L('Kikundi <b>'+esc(g.name)+'</b> pamoja na wanachama, mizunguko na mikutano yake kitafutwa kabisa. Hakiwezi kurudishwa.','<b>'+esc(g.name)+'</b> together with its members, cycles and meetings will be permanently deleted. This cannot be undone.'),ok:L('Futa kikundi','Delete group'),cancel:L('Ghairi','Cancel')});
   if(!ok) return; V.busy=true;
   try{ const r=await db().rpc('vk_delete_group',{p_id:id}); if(r.error) throw r.error;
     if(r.data==='has_payments'){ toast(L('Kikundi kina malipo, hakiwezi kufutwa.','Group has payments and cannot be deleted.')); }
@@ -16923,7 +16941,7 @@ function render(){
   if(V.loading&&!V.loaded){ box.innerHTML=`<div class="empty"><b>${L('Inapakia…','Loading…')}</b></div>`; return; }
   if(V.err&&!V.loaded){ box.innerHTML=`<div class="panel"><div class="empty"><b>${L('Vikoba haikufunguka','Vikoba could not be opened')}</b>${esc(V.err)}<br><button class="primary" onclick="loadVikoba()">${L('Jaribu tena','Try again')}</button></div></div>`; return; }
   box.innerHTML=(V.err?`<div class="hint-box"><span>${esc(V.err)}</span></div>`:'')+(V.gid&&grp()?groupHtml():listHtml());
-  box.querySelectorAll('table.vk-t').forEach(t=>{ const h=[...t.querySelectorAll('thead th')].map(x=>x.textContent.trim()); t.querySelectorAll('tbody tr').forEach(tr=>{ [...tr.children].forEach((td,i)=>{ if(i>0&&h[i]&&td.colSpan<2) td.setAttribute('data-l',h[i]); }); }); });
+  box.querySelectorAll('table.vk-t').forEach(t=>{ const h=[...t.querySelectorAll('thead th')].map(x=>x.textContent.trim()); t.querySelectorAll('tbody tr, tfoot tr').forEach(tr=>{ [...tr.children].forEach((td,i)=>{ if(i>0&&h[i]&&td.colSpan<2) td.setAttribute('data-l',h[i]); }); }); });
 }
 function listHtml(){
   const cards=V.groups.map(g=>`<div class="vk-gc" role="button" tabindex="0" onclick="vkOpen('${g.id}')" onkeydown="if(event.key==='Enter')vkOpen('${g.id}')"><div class="vk-gc-t">${esc(g.name)}</div><div class="muted">${T(g.share_price)} / ${L('hisa','share')} · ${g.cadence==='weekly'?L('kila wiki','weekly'):L('kila mwezi','monthly')}</div>${g.meeting_note?`<div class="muted">${esc(g.meeting_note)}</div>`:''}</div>`).join('');
@@ -16932,11 +16950,11 @@ function listHtml(){
 }
 function groupHtml(){
   const g=grp(), act=V.members.filter(m=>m.active), shares=act.reduce((s,m)=>s+m.shares,0);
-  const tabs=[['cycle',L('Michango','Contributions')],['members',L('Wanachama','Members')],['report',L('Ripoti','Report')],['history',L('Historia','History')]];
+  const tabs=[['cycle',L('Michango','Contributions')],['members',L('Wanachama','Members')],['loans',L('Mikopo','Loans')],['fines',L('Faini','Fines')],['meetings',L('Mikutano','Meetings')],['report',L('Ripoti','Reports')],['history',L('Historia','History')]];
   return `<div class="topline"><div><button class="text-button" onclick="vkBack()">← ${L('Vikundi vyote','All groups')}</button><h1>${esc(g.name)}</h1><p class="muted">${T(g.share_price)} / ${L('hisa','share')} · ${g.cadence==='weekly'?L('kila wiki','weekly'):L('kila mwezi','monthly')}${g.meeting_note?' · '+esc(g.meeting_note):''}</p></div><div class="topline-actions"><button class="gray" onclick="vkGroupForm('${g.id}')">${ic('edit')}${L('Hariri','Edit')}</button><button class="gray" style="color:#b3261e" onclick="vkGroupDelete('${g.id}')">${L('Futa kikundi','Delete group')}</button></div></div>
-  <div class="vk-stats"><div class="report-stat"><span>${L('Wanachama','Members')}</span><b>${act.length}</b></div><div class="report-stat"><span>${L('Hisa zote','Total shares')}</span><b>${shares}</b></div><div class="report-stat"><span>${L('Fedha zilizokusanywa','Total collected')}</span><b>${T(fundTotal())}</b></div></div>
+  <div class="vk-stats four"><div class="report-stat"><span>${L('Wanachama','Members')}</span><b>${act.length}</b><small>${shares} ${L('hisa','shares')}</small></div><div class="report-stat"><span>${L('Akiba yote','Total savings')}</span><b>${T(savingsTotal())}</b></div><div class="report-stat"><span>${L('Mikopo iliyo nje','Loans outstanding')}</span><b>${T(loansOut())}</b></div><div class="report-stat"><span>${L('Fedha mkononi','Cash in hand')}</span><b>${T(cashInHand())}</b></div></div>
   <div class="vk-tabs">${tabs.map(t=>`<button class="${V.tab===t[0]?'on':''}" onclick="vkTab('${t[0]}')">${t[1]}</button>`).join('')}</div>`+
-  (V.tab==='members'?membersHtml():V.tab==='history'?historyHtml():V.tab==='report'?reportHtml():cycleHtml());
+  (V.tab==='members'?membersHtml():V.tab==='history'?historyHtml():V.tab==='loans'?loansHtml():V.tab==='fines'?finesHtml():V.tab==='meetings'?meetingsHtml():V.tab==='report'?(`<div class="vk-fil" style="margin-top:0">${[['months',L('Michango kwa mwezi','Contributions by month')],['year',L('Ripoti ya mwaka na mgawanyo','Annual report & share-out')]].map(t=>`<button class="${(V.rt||'months')===t[0]?'on':''}" onclick="vkRT('${t[0]}')">${t[1]}</button>`).join('')}</div>`+(V.rt==='year'?yearHtml():reportHtml())):cycleHtml());
 }
 function cycleHtml(){
   const g=grp();
@@ -16959,7 +16977,8 @@ function cycleHtml(){
     </tbody></table></div>
     <p class="vk-hint">${L('Vikumbusho vinafunguka kwenye WhatsApp ya mwanachama kikiwa kimeandikwa. SMS za moja kwa moja zitaongezwa SMS zikiwashwa kwa wateja.','Reminders open in the member\'s WhatsApp with the text ready. Automatic SMS will be added once SMS is switched on for customers.')}</p></div>`;
 }
-function memTotal(mid){ let s=0; for(const p of V.pays) if(live(p)&&p.member_id===mid) s+=Number(p.amount); return s; }
+function memTotal(mid){ let s=0; for(const p of V.pays) if(live(p)&&p.kind==='share'&&p.member_id===mid) s+=Number(p.amount); return s; }
+function memSavings(mid){ return memTotal(mid); }
 function curCycle(){ return V.cycles.find(x=>x.id===V.cyc)||V.cycles[0]||null; }
 function memFiltered(){
   const q=(V.q||'').toLowerCase().trim(), f=V.mf||'all', cy=curCycle(), cr=cy?rows(cy.id):[];
@@ -17002,7 +17021,7 @@ function membersHtml(){
 }
 function historyHtml(){
   const cname=id=>{ const c=V.cycles.find(x=>x.id===id); return c?c.label:''; }, mname=id=>{ const m=V.members.find(x=>x.id===id); return m?m.name:''; };
-  return `<div class="panel"><div class="vk-ph"><h3>${L('Historia ya malipo','Payment history')}</h3></div>${V.pays.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Tarehe','Date')}</th><th>${L('Mwanachama','Member')}</th><th>${L('Mzunguko','Cycle')}</th><th class="r">${L('Kiasi','Amount')}</th><th>${L('Njia','Method')}</th><th></th></tr></thead><tbody>${V.pays.map(p=>`<tr class="${p.reversed_at?'vk-off':''}"><td>${fmtD(p.paid_on)}</td><td>${esc(mname(p.member_id))}</td><td>${esc(cname(p.cycle_id))}</td><td class="r">${p.reversed_at?'<s>':''}${T(p.amount)}${p.reversed_at?'</s>':''}</td><td>${esc(p.method)}${p.ref?`<div class="muted sm">${esc(p.ref)}</div>`:''}</td><td class="r">${p.reversed_at?`<span class="vk-role">${L('Imebatilishwa','Reversed')}</span><div class="muted sm">${esc(p.reverse_reason||'')}</div>`:`<button class="gray sm" onclick="vkReverseForm('${p.id}')">${L('Batilisha','Reverse')}</button>`}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna malipo bado.','No payments yet.')}</p>`}</div>`;
+  return `<div class="panel"><div class="vk-ph"><h3>${L('Historia ya malipo','Payment history')}</h3></div>${V.pays.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Tarehe','Date')}</th><th>${L('Mwanachama','Member')}</th><th>${L('Aina','Type')}</th><th class="r">${L('Kiasi','Amount')}</th><th>${L('Njia','Method')}</th><th></th></tr></thead><tbody>${V.pays.map(p=>`<tr class="${p.reversed_at?'vk-off':''}"><td>${fmtD(p.paid_on)}</td><td>${esc(mname(p.member_id))}</td><td>${esc(kindLbl(p))}</td><td class="r">${p.reversed_at?'<s>':''}${T(p.amount)}${p.reversed_at?'</s>':''}</td><td>${esc(p.method)}${p.ref?`<div class="muted sm">${esc(p.ref)}</div>`:''}</td><td class="r">${p.reversed_at?`<span class="vk-role">${L('Imebatilishwa','Reversed')}</span><div class="muted sm">${esc(p.reverse_reason||'')}</div>`:`<button class="gray sm" onclick="vkReverseForm('${p.id}')">${L('Batilisha','Reverse')}</button>`}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna malipo bado.','No payments yet.')}</p>`}</div>`;
 }
 /* ---------- members toolbar: search, filter, select, import/export, print, statements ---------- */
 V.q=''; V.mf='all'; V.sel=new Set();
@@ -17021,8 +17040,8 @@ window.vkSuspendSel=async function(){
 };
 window.vkDeleteSel=async function(){
   const ids=[...V.sel]; if(!ids.length||V.busy) return;
-  const withPay=new Set(V.pays.map(p=>p.member_id)), del=ids.filter(id=>!withPay.has(id)), keep=ids.length-del.length;
-  if(!del.length) return toast(L('Wote waliochaguliwa wana historia ya malipo, hawawezi kufutwa. Tumia "Simamisha".','All selected members have payment history and cannot be deleted. Use "Suspend".'));
+  const withPay=new Set(V.pays.map(p=>p.member_id).concat(V.loans.map(l=>l.member_id),V.fines.map(f=>f.member_id),V.att.map(a=>a.member_id))), del=ids.filter(id=>!withPay.has(id)), keep=ids.length-del.length;
+  if(!del.length) return toast(L('Wote waliochaguliwa wana historia ya malipo, mikopo, faini au mahudhurio, hawawezi kufutwa. Tumia "Simamisha".','All selected members have payment, loan, fine or attendance history and cannot be deleted. Use "Suspend".'));
   if(!(await window.confirmDialog({title:L('Kufuta wanachama ','Delete ')+del.length+L('?',' members?'),text:L('Watafutwa kabisa. ','They will be deleted for good. ')+(keep?L(`${keep} wenye malipo hawatafutwa.`,`${keep} with payments will be kept.`):''),ok:L('Futa','Delete'),tone:'danger'}))) return;
   V.busy=true;
   try{ const r=await db().from('vk_members').delete().in('id',del).select('id'); if(r.error) throw r.error; const gone=new Set((r.data||[]).map(x=>x.id)); V.members=V.members.filter(m=>!gone.has(m.id)); V.sel=new Set([...V.sel].filter(id=>!gone.has(id))); toast(gone.size+L(' wamefutwa.',' deleted.')); }catch(e){ toast(errMsg(e)); }
@@ -17086,11 +17105,12 @@ window.vkMemberReport=function(id){
   const g=grp(), m=V.members.find(x=>x.id===id); if(!g||!m) return; const S=memSum(m);
   const pays=V.pays.filter(p=>p.member_id===id).sort((a,b)=>a.paid_on<b.paid_on?1:-1), cn=cid=>{ const c=V.cycles.find(x=>x.id===cid); return c?c.label:''; };
   modal(`<h3>${esc(m.name)}</h3><p class="muted sm" style="margin:-6px 0 10px">${esc(g.name)} · ${m.shares} ${L('hisa','shares')}${m.phone?' · '+esc(m.phone):''}</p>
-  <div class="vk-stats three"><div class="report-stat"><span>${L('Jumla alichangia','Total contributed')}</span><b>${T(S.total)}</b></div><div class="report-stat"><span>${L('Linalotakiwa','Expected')}</span><b>${T(S.due)}</b></div><div class="report-stat ${S.bal>0?'bad':''}"><span>${L('Deni','Outstanding')}</span><b>${T(S.bal)}</b></div></div>
+  <div class="vk-stats four"><div class="report-stat"><span>${L('Akiba (michango)','Savings')}</span><b>${T(S.total)}</b><small>${L('linalotakiwa','expected')} ${T(S.due)}</small></div><div class="report-stat ${S.bal>0?'bad':''}"><span>${L('Deni la michango','Contributions owed')}</span><b>${T(S.bal)}</b></div><div class="report-stat ${memLoanBal(id)>0?'bad':''}"><span>${L('Deni la mkopo','Loan owed')}</span><b>${T(memLoanBal(id))}</b></div><div class="report-stat ${memFineBal(id)>0?'bad':''}"><span>${L('Faini zisizolipwa','Unpaid fines')}</span><b>${T(memFineBal(id))}</b></div></div>
   <h4 style="margin:14px 0 6px">${L('Michango kila mwezi','Contributions per month')}</h4>
   ${S.c.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mwezi/Mzunguko','Month/Cycle')}</th><th class="r">${L('Linatakiwa','Due')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th></tr></thead><tbody>${S.c.map(x=>`<tr><td><b>${esc(x.cy.label)}</b></td><td class="r">${T(x.due)}</td><td class="r">${T(x.paid)}</td><td class="r"><span class="vk-st ${stLbl(x)}">${x.bal>0?T(x.bal):stTxt('paid')}</span></td></tr>`).join('')}</tbody><tfoot><tr><td><b>${L('Jumla','Total')}</b></td><td class="r"><b>${T(S.due)}</b></td><td class="r"><b>${T(S.c.reduce((a,x)=>a+x.paid,0))}</b></td><td class="r"><b>${T(S.bal)}</b></td></tr></tfoot></table></div>`:`<p class="muted">${L('Hakuna mizunguko bado.','No cycles yet.')}</p>`}
+  ${memLoansFinesHtml(id)}
   <h4 style="margin:14px 0 6px">${L('Malipo yote','All payments')}</h4>
-  ${pays.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Tarehe','Date')}</th><th>${L('Mzunguko','Cycle')}</th><th class="r">${L('Kiasi','Amount')}</th><th>${L('Njia','Method')}</th></tr></thead><tbody>${pays.map(p=>`<tr class="${p.reversed_at?'vk-off':''}"><td>${fmtD(p.paid_on)}</td><td>${esc(cn(p.cycle_id))}</td><td class="r">${p.reversed_at?'<s>':''}${T(p.amount)}${p.reversed_at?'</s>':''}</td><td>${esc(p.method||'')}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna malipo bado.','No payments yet.')}</p>`}
+  ${pays.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Tarehe','Date')}</th><th>${L('Aina','Type')}</th><th class="r">${L('Kiasi','Amount')}</th><th>${L('Njia','Method')}</th></tr></thead><tbody>${pays.map(p=>`<tr class="${p.reversed_at?'vk-off':''}"><td>${fmtD(p.paid_on)}</td><td>${esc(kindLbl(p))}</td><td class="r">${p.reversed_at?'<s>':''}${T(p.amount)}${p.reversed_at?'</s>':''}</td><td>${esc(p.method||'')}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna malipo bado.','No payments yet.')}</p>`}
   <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Funga','Close')}</button><button class="gray" onclick="vkPrintMember('${id}')">${ic('sheet')}${L('Chapisha','Print')}</button>${m.phone?`<a class="vk-wa" href="https://wa.me/${esc(m.phone.replace(/[^0-9]/g,''))}?text=${encodeURIComponent(statementText(g,m))}" target="_blank" rel="noopener">WhatsApp</a>`:''}${V.cycles.length?`<button class="primary" onclick="vkPayForm('${id}','${(S.c.slice().reverse().find(x=>x.bal>0)||S.c[S.c.length-1]||{cy:V.cycles[0]}).cy.id}')">${L('Lipa','Pay')}</button>`:''}</div>`);
 };
 const PRCSS='<style>body{font:13px Arial,sans-serif;margin:24px;color:#111}h1{font-size:18px;margin:0 0 4px}p{margin:0 0 12px;color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:6px 8px;text-align:left}th{background:#f0f2f8}td.r,th.r{text-align:right}tfoot td{font-weight:700;background:#f7f7f7}</style>';
@@ -17105,7 +17125,7 @@ function reportHtml(){
   if(!ms.length||!cs.length) return `<div class="panel">${emptyState(L('Ripoti itaonekana hapa','The report will appear here'),L('Ongeza wanachama na ufungue mzunguko ili kuona ripoti ya kila mwezi.','Add members and open a cycle to see the month-by-month report.'),'')}</div>`;
   const colTot=cs.map(cy=>ms.reduce((a,m)=>a+paidFor(m.id,cy.id),0)), colDue=cs.map(cy=>ms.reduce((a,m)=>a+(cycApplies(m,cy)?m.shares*Number(cy.share_price):0),0));
   const sums=ms.map(m=>memSum(m)), gTot=sums.reduce((a,x)=>a+x.total,0), gBal=sums.reduce((a,x)=>a+x.bal,0), gDue=sums.reduce((a,x)=>a+x.due,0);
-  return `<div class="panel"><div class="vk-stats three"><div class="report-stat"><span>${L('Jumla ya fedha za kikundi','Group total funds')}</span><b>${T(fundTotal())}</b></div><div class="report-stat"><span>${L('Linalotakiwa (jumla)','Expected (all cycles)')}</span><b>${T(gDue)}</b></div><div class="report-stat ${gBal>0?'bad':''}"><span>${L('Madeni yote','Total outstanding')}</span><b>${T(gBal)}</b></div></div>
+  return `<div class="panel"><div class="vk-stats three"><div class="report-stat"><span>${L('Akiba yote','Total savings')}</span><b>${T(savingsTotal())}</b></div><div class="report-stat"><span>${L('Linalotakiwa (jumla)','Expected (all cycles)')}</span><b>${T(gDue)}</b></div><div class="report-stat ${gBal>0?'bad':''}"><span>${L('Madeni yote','Total outstanding')}</span><b>${T(gBal)}</b></div></div>
   <div class="vk-fil"><button class="gray" onclick="vkPrintGroup()">${ic('sheet')}${L('Chapisha ripoti','Print report')}</button><button class="gray" onclick="vkExportReport()">${ic('download')}${L('Pakua Excel','Export Excel')}</button><button class="vk-green" onclick="vkStatements()">${ic('send')}${L('Tuma taarifa','Send statements')}</button></div>
   <div class="vk-tw"><table class="vk-t vk-mx"><thead><tr><th>${L('Mwanachama','Member')}</th>${cs.map(c=>`<th class="r">${esc(c.label)}</th>`).join('')}<th class="r">${L('Jumla','Total')}</th><th class="r">${L('Deni','Owes')}</th></tr></thead><tbody>
   ${ms.map((m,i)=>`<tr><td><a href="#" class="vk-ml" onclick="vkMemberReport('${m.id}');return false"><b>${esc(m.name)}</b></a></td>${cs.map(cy=>{ if(!cycApplies(m,cy)) return '<td class="r muted">-</td>'; const due=m.shares*Number(cy.share_price), pd=paidFor(m.id,cy.id); return `<td class="r"><span class="vk-st ${pd>=due?'paid':pd>0?'part':'unpaid'}">${T(pd)}</span></td>`; }).join('')}<td class="r"><b>${T(sums[i].total)}</b></td><td class="r">${sums[i].bal>0?`<span class="vk-st unpaid">${T(sums[i].bal)}</span>`:'<span class="vk-st paid">0</span>'}</td></tr>`).join('')}
@@ -17125,11 +17145,302 @@ window.vkExportReport=async function(){
   }catch(e){ toast(errMsg(e)); }
 };
 
+/* ================= Stage 2: loans, fines, meetings & attendance ================= */
+const paysOf=fn=>V.pays.filter(p=>live(p)&&fn(p));
+const nLoans=n=>n+' '+(n===1?L('mkopo','loan'):L('mikopo','loans')), nFines=n=>n+' '+(n===1?L('faini','fine'):L('faini','fines'));
+function loanPaid(lid){ let s=0; for(const p of V.pays) if(live(p)&&p.loan_id===lid) s+=Number(p.amount); return s; }
+function loanBal(l){ return l.cancelled_at?0:Math.max(0,Number(l.total_due)-loanPaid(l.id)); }
+function loanState(l){ if(l.cancelled_at) return 'cancelled'; if(loanBal(l)<=0) return 'repaid'; if(l.due_on&&l.due_on<today()) return 'overdue'; return 'active'; }
+const LOAN_ST={active:['Unaendelea','Active','part'],overdue:['Umechelewa','Overdue','unpaid'],repaid:['Umelipwa','Repaid','paid'],cancelled:['Umefutwa','Cancelled','']};
+function finePaid(fid){ let s=0; for(const p of V.pays) if(live(p)&&p.fine_id===fid) s+=Number(p.amount); return s; }
+function fineBal(f){ return f.waived_at?0:Math.max(0,Number(f.amount)-finePaid(f.id)); }
+function fineState(f){ if(f.waived_at) return 'waived'; return fineBal(f)<=0?'paid':(finePaid(f.id)>0?'part':'unpaid'); }
+const FINE_ST={unpaid:['Haijalipwa','Unpaid','unpaid'],part:['Sehemu','Partial','part'],paid:['Imelipwa','Paid','paid'],waived:['Imesamehewa','Waived','']};
+const memLoanBal=mid=>V.loans.filter(l=>l.member_id===mid).reduce((a,l)=>a+loanBal(l),0);
+const memFineBal=mid=>V.fines.filter(f=>f.member_id===mid).reduce((a,f)=>a+fineBal(f),0);
+function savingsTotal(){ return paysOf(p=>p.kind==='share').reduce((a,p)=>a+Number(p.amount),0); }
+function cashInHand(){ const inn=paysOf(()=>true).reduce((a,p)=>a+Number(p.amount),0); const out=V.loans.filter(l=>!l.cancelled_at).reduce((a,l)=>a+Number(l.principal),0); return inn-out; }
+function loansOut(){ return V.loans.reduce((a,l)=>a+loanBal(l),0); }
+/* principal-first split of each repayment: [{p, prin, intr}] */
+function loanSplit(l){ const ps=V.pays.filter(p=>live(p)&&p.loan_id===l.id).sort((a,b)=>a.paid_on<b.paid_on?-1:a.paid_on>b.paid_on?1:String(a.created_at).localeCompare(String(b.created_at))); let cum=0; const P=Number(l.principal);
+  return ps.map(p=>{ const a=Number(p.amount), before=cum; cum+=a; const intr=Math.max(0,cum-Math.max(before,P)); return {p,prin:a-intr,intr}; }); }
+function interestCollected(from,to){ let s=0; for(const l of V.loans) for(const x of loanSplit(l)) if((!from||x.p.paid_on>=from)&&(!to||x.p.paid_on<=to)) s+=x.intr; return s; }
+const memberOpts=(sel,all)=>V.members.filter(m=>all||m.active).map(m=>`<option value="${m.id}" ${m.id===sel?'selected':''}>${esc(m.name)}</option>`).join('');
+const stPill=(map,k)=>`<span class="vk-st ${map[k][2]}">${L(map[k][0],map[k][1])}</span>`;
+const isoAddMonths=(iso,n)=>{ const d=new Date(iso+'T12:00:00'), day=d.getDate(); d.setDate(1); d.setMonth(d.getMonth()+n); const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); d.setDate(Math.min(day,last)); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const waPhone=m=>String(m&&m.phone||'').replace(/[^0-9]/g,'');
+
+/* ---------- loans ---------- */
+window.vkLoanForm=function(mid){
+  const g=grp(); if(!g) return; const act=V.members.filter(m=>m.active); if(!act.length) return toast(L('Ongeza wanachama kwanza.','Add members first.'));
+  modal(`<h3>${L('Toa mkopo','Issue a loan')}</h3>
+  <label for="vkl_mem">${L('Mwanachama','Member')}</label><select id="vkl_mem" onchange="vkLoanCalc()">${memberOpts(mid||act[0].id)}</select>
+  <div class="vk-2"><div><label for="vkl_amt">${L('Kiasi cha mkopo (TZS)','Loan amount (TZS)')}</label><input id="vkl_amt" inputmode="numeric" oninput="vkLoanCalc()" placeholder="100000"></div>
+  <div><label for="vkl_rate">${L('Riba kwa mwezi (%)','Interest per month (%)')}</label><input id="vkl_rate" inputmode="decimal" oninput="vkLoanCalc()" value="${Number(g.loan_rate_pct)}"></div></div>
+  <div class="vk-2"><div><label for="vkl_mon">${L('Muda (miezi)','Term (months)')}</label><input id="vkl_mon" inputmode="numeric" oninput="vkLoanCalc()" value="3"></div>
+  <div><label for="vkl_date">${L('Tarehe ya kutoa','Date issued')}</label><input id="vkl_date" type="date" value="${today()}" onchange="vkLoanCalc()"></div></div>
+  <label for="vkl_note">${L('Maelezo (hiari)','Note (optional)')}</label><input id="vkl_note" maxlength="200">
+  <div id="vkl_prev" class="vk-sum" style="margin-top:12px"></div>
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkLoanSave()">${L('Toa mkopo','Issue loan')}</button></div>`);
+  vkLoanCalc();
+};
+function loanInputs(){ const p=num('vkl_amt'), r=num('vkl_rate'), mo=Math.round(num('vkl_mon')), d=val('vkl_date'); return {p,r,mo,d,mid:val('vkl_mem')}; }
+window.vkLoanCalc=function(){
+  const box=$('vkl_prev'); if(!box) return; const g=grp(), x=loanInputs();
+  if(!(x.p>0)||!(x.r>=0&&x.r<=100)||!(x.mo>=1&&x.mo<=60)||!/^\d{4}-\d{2}-\d{2}$/.test(x.d)){ box.innerHTML=`<span class="muted">${L('Jaza kiasi, riba na muda kuona hesabu.','Fill amount, interest and term to see the totals.')}</span>`; return; }
+  const intr=Math.round(x.p*x.r/100*x.mo), tot=x.p+intr, sav=memSavings(x.mid), lim=Number(g.loan_limit_x)||0, owe=memLoanBal(x.mid);
+  box.innerHTML=`<span>${L('Riba','Interest')}: ${x.r}% × ${x.mo} ${L('miezi','months')} = <b>${T(intr)}</b></span><span>${L('Jumla ya kurudisha','Total to repay')}: <b>${T(tot)}</b> · ${L('kila mwezi takriban','about per month')} ${T(Math.ceil(tot/x.mo))}</span><span>${L('Mwisho wa kulipa','Due date')}: <b>${fmtD(isoAddMonths(x.d,x.mo))}</b></span>`+
+    `<span class="muted">${L('Akiba yake','Their savings')}: ${T(sav)}${owe>0?` · <b style="color:#b91c1c">${L('Ana mkopo usiolipwa','Has unpaid loan')} ${T(owe)}</b>`:''}${lim>0&&x.p>sav*lim?` · <b style="color:#b45309">${L('Inazidi kikomo','Above the limit')} (${lim}× ${L('akiba','savings')} = ${T(sav*lim)})</b>`:''}</span>`;
+};
+window.vkLoanSave=async function(){
+  const g=grp(); if(!g||V.busy) return; const x=loanInputs(), m=V.members.find(y=>y.id===x.mid);
+  if(!m) return toast(L('Chagua mwanachama.','Choose a member.'));
+  if(!(x.p>0&&x.p<=1e9)) return toast(L('Andika kiasi cha mkopo.','Enter the loan amount.'));
+  if(!(x.r>=0&&x.r<=100)) return toast(L('Riba inatakiwa iwe 0 hadi 100%.','Interest must be 0 to 100%.'));
+  if(!(x.mo>=1&&x.mo<=60)) return toast(L('Muda unatakiwa uwe miezi 1 hadi 60.','Term must be 1 to 60 months.'));
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(x.d)) return toast(L('Chagua tarehe.','Pick a date.'));
+  const warn=[], sav=memSavings(m.id), lim=Number(g.loan_limit_x)||0, owe=memLoanBal(m.id), cash=cashInHand();
+  if(owe>0) warn.push(L(`${esc(m.name)} ana mkopo usiolipwa wa ${T(owe)}.`,`${esc(m.name)} already owes ${T(owe)} on a loan.`));
+  if(lim>0&&x.p>sav*lim) warn.push(L(`Kiasi kinazidi kikomo cha ${lim}× akiba yake (${T(sav*lim)}).`,`The amount is above the limit of ${lim}× their savings (${T(sav*lim)}).`));
+  if(x.p>cash) warn.push(L(`Fedha mkononi ni ${T(cash)} tu.`,`Cash in hand is only ${T(cash)}.`));
+  if(warn.length && !(await window.confirmDialog({title:L('Angalia kabla ya kutoa','Check before issuing'),text:warn.join('<br>')+'<br><br>'+L('Uendelee kutoa mkopo?','Issue the loan anyway?'),ok:L('Toa mkopo','Issue loan'),tone:'danger'}))) return;
+  V.busy=true;
+  try{ const r=await db().from('vk_loans').insert({group_id:g.id,member_id:m.id,principal:x.p,rate_pct:x.r,months:x.mo,issued_on:x.d,note:val('vkl_note')||null}).select('*').single(); if(r.error) throw r.error;
+    V.loans.unshift(r.data); vkClose(); V.tab='loans'; toast(L('Mkopo umetolewa: ','Loan issued: ')+T(r.data.total_due)+L(' za kurudisha.',' to repay.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkRepayForm=function(lid){
+  const l=V.loans.find(x=>x.id===lid); if(!l) return; const m=V.members.find(x=>x.id===l.member_id), bal=loanBal(l); if(!(bal>0)) return toast(L('Mkopo huu umeshalipwa.','This loan is already repaid.'));
+  modal(`<h3>${L('Rejesho la mkopo','Loan repayment')}</h3>
+  <div class="vk-sum"><b>${esc(m?m.name:'')}</b><span>${L('Mkopo','Loan')} ${T(l.principal)} + ${L('riba','interest')} ${T(l.interest)} = ${T(l.total_due)}</span><span>${L('Amelipa','Paid')} ${T(loanPaid(l.id))} · <b>${L('Salio','Balance')} ${T(bal)}</b> · ${L('mwisho','due')} ${fmtD(l.due_on)}</span></div>
+  <label for="vkp_amt">${L('Kiasi (TZS)','Amount (TZS)')}</label><input id="vkp_amt" inputmode="numeric" value="${Math.round(bal)}">
+  <div class="vk-2"><div><label for="vkp_date">${L('Tarehe','Date')}</label><input id="vkp_date" type="date" value="${today()}"></div>
+  <div><label for="vkp_meth">${L('Njia ya malipo','Method')}</label><select id="vkp_meth">${METHODS.map(x=>`<option>${x}</option>`).join('')}</select></div></div>
+  <label for="vkp_ref">${L('Namba ya muamala (hiari)','Transaction ref (optional)')}</label><input id="vkp_ref" maxlength="60">
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkLinkedPaySave('loan','${lid}')">${L('Hifadhi rejesho','Save repayment')}</button></div>`);
+};
+window.vkFinePayForm=function(fid){
+  const f=V.fines.find(x=>x.id===fid); if(!f) return; const m=V.members.find(x=>x.id===f.member_id), bal=fineBal(f); if(!(bal>0)) return toast(L('Faini hii imeshalipwa.','This fine is already paid.'));
+  modal(`<h3>${L('Lipa faini','Pay fine')}</h3>
+  <div class="vk-sum"><b>${esc(m?m.name:'')}</b><span>${esc(f.reason)} · ${fmtD(f.fined_on)}</span><span>${L('Faini','Fine')} ${T(f.amount)} · <b>${L('Salio','Balance')} ${T(bal)}</b></span></div>
+  <label for="vkp_amt">${L('Kiasi (TZS)','Amount (TZS)')}</label><input id="vkp_amt" inputmode="numeric" value="${Math.round(bal)}">
+  <div class="vk-2"><div><label for="vkp_date">${L('Tarehe','Date')}</label><input id="vkp_date" type="date" value="${today()}"></div>
+  <div><label for="vkp_meth">${L('Njia ya malipo','Method')}</label><select id="vkp_meth">${METHODS.map(x=>`<option>${x}</option>`).join('')}</select></div></div>
+  <label for="vkp_ref">${L('Namba ya muamala (hiari)','Transaction ref (optional)')}</label><input id="vkp_ref" maxlength="60">
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkLinkedPaySave('fine','${fid}')">${L('Hifadhi malipo','Save payment')}</button></div>`);
+};
+window.vkLinkedPaySave=async function(type,id){
+  const g=grp(); if(!g||V.busy) return; const isLoan=type==='loan', o=(isLoan?V.loans:V.fines).find(x=>x.id===id); if(!o) return;
+  const bal=isLoan?loanBal(o):fineBal(o), amt=num('vkp_amt'), date=val('vkp_date');
+  if(!(amt>0)) return toast(L('Andika kiasi kilicholipwa.','Enter the amount paid.'));
+  if(amt>bal) return toast(L('Kiasi kinazidi salio la ','The amount is more than the balance of ')+T(bal)+'.');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) return toast(L('Chagua tarehe.','Pick a date.'));
+  V.busy=true;
+  try{ const row={group_id:g.id,member_id:o.member_id,kind:isLoan?'loan_repay':'fine',amount:amt,paid_on:date,method:val('vkp_meth')||'Cash',ref:val('vkp_ref')||null}; row[isLoan?'loan_id':'fine_id']=id;
+    const r=await db().from('vk_payments').insert(row).select('*').single(); if(r.error) throw r.error; V.pays.unshift(r.data); vkClose(); toast(L('Malipo yamehifadhiwa.','Payment saved.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkCancelForm=function(type,id){
+  const isLoan=type==='loan', o=(isLoan?V.loans:V.fines).find(x=>x.id===id); if(!o) return; const m=V.members.find(x=>x.id===o.member_id);
+  if((isLoan?loanPaid(id):finePaid(id))>0) return toast(isLoan?L('Mkopo wenye marejesho haufutwi. Batilisha marejesho kwanza kwenye Historia.','A loan with repayments cannot be cancelled. Reverse the repayments first in History.'):L('Faini yenye malipo haisamehewi. Batilisha malipo kwanza kwenye Historia.','A fine with payments cannot be waived. Reverse the payments first in History.'));
+  modal(`<h3>${isLoan?L('Futa mkopo','Cancel loan'):L('Samehe faini','Waive fine')}</h3>
+  <div class="vk-sum"><b>${esc(m?m.name:'')}</b><span>${isLoan?T(o.principal)+' · '+fmtD(o.issued_on):esc(o.reason)+' · '+T(o.amount)}</span></div>
+  <p class="vk-hint">${L('Rekodi haifutwi. Inawekwa alama pamoja na sababu na haihesabiwi tena.','The record is not deleted. It is marked with the reason and no longer counted.')}</p>
+  <label for="vkx_reason">${L('Sababu','Reason')}</label><input id="vkx_reason" maxlength="200" placeholder="${isLoan?L('mf. Niliandika kimakosa','e.g. Entered by mistake'):L('mf. Kikao kimeamua kusamehe','e.g. The meeting agreed to waive')}">
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="danger" onclick="vkCancelSave('${type}','${id}')">${isLoan?L('Futa mkopo','Cancel loan'):L('Samehe','Waive')}</button></div>`);
+};
+window.vkCancelSave=async function(type,id){
+  if(V.busy) return; const reason=val('vkx_reason'); if(reason.length<3) return toast(L('Andika sababu.','Enter a reason.')); const isLoan=type==='loan';
+  V.busy=true;
+  try{ const upd=isLoan?{cancelled_at:new Date().toISOString(),cancel_reason:reason}:{waived_at:new Date().toISOString(),waive_reason:reason};
+    const r=await db().from(isLoan?'vk_loans':'vk_fines').update(upd).eq('id',id).select('*').single(); if(r.error) throw r.error;
+    if(isLoan) V.loans=V.loans.map(x=>x.id===id?r.data:x); else V.fines=V.fines.map(x=>x.id===id?r.data:x);
+    vkClose(); toast(isLoan?L('Mkopo umefutwa.','Loan cancelled.'):L('Faini imesamehewa.','Fine waived.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+function loanRemindText(g,l,m){ return L(`Habari ${m.name}, ukumbusho kutoka ${g.name}: mkopo wako wa ${T(l.principal)} (jumla ${T(l.total_due)}) una salio la ${T(loanBal(l))}, mwisho wa kulipa ${fmtD(l.due_on)}. Asante.`,`Hello ${m.name}, reminder from ${g.name}: your loan of ${T(l.principal)} (total ${T(l.total_due)}) has a balance of ${T(loanBal(l))}, due ${fmtD(l.due_on)}. Thank you.`); }
+window.vkLoanRemind=function(lid){ const g=grp(), l=V.loans.find(x=>x.id===lid); if(!g||!l) return; const m=V.members.find(x=>x.id===l.member_id), ph=waPhone(m); if(!ph) return toast(L('Mwanachama huyu hana namba ya simu.','This member has no phone number.')); window.open('https://wa.me/'+ph+'?text='+encodeURIComponent(loanRemindText(g,l,m)),'_blank','noopener'); };
+window.vkLoanFilter=function(f){ V.lf=f; render(); };
+function loansHtml(){
+  const g=grp(), all=V.loans, st=all.map(loanState), f=V.lf||'open';
+  const list=all.filter((l,i)=>f==='all'||(f==='open'&&(st[i]==='active'||st[i]==='overdue'))||st[i]===f);
+  const cnt=k=>st.filter(s=>k==='open'?(s==='active'||s==='overdue'):s===k).length;
+  const issued=all.filter(l=>!l.cancelled_at).reduce((a,l)=>a+Number(l.principal),0);
+  return `<div class="panel"><div class="vk-stats four"><div class="report-stat"><span>${L('Mikopo iliyo nje','Loans outstanding')}</span><b>${T(loansOut())}</b><small>${nLoans(cnt('open'))}</small></div><div class="report-stat ${cnt('overdue')?'bad':''}"><span>${L('Imechelewa','Overdue')}</span><b>${cnt('overdue')}</b></div><div class="report-stat"><span>${L('Riba iliyopatikana','Interest earned')}</span><b>${T(interestCollected())}</b></div><div class="report-stat"><span>${L('Mikopo yote iliyotolewa','All loans issued')}</span><b>${T(issued)}</b></div></div>
+  <div class="vk-fil">${[['open',L('Inayoendelea','Open')],['overdue',L('Imechelewa','Overdue')],['repaid',L('Imelipwa','Repaid')],['cancelled',L('Imefutwa','Cancelled')],['all',L('Yote','All')]].map(x=>`<button class="${f===x[0]?'on':''}" onclick="vkLoanFilter('${x[0]}')">${x[1]} (${x[0]==='all'?all.length:cnt(x[0])})</button>`).join('')}<button class="primary vk-copy" style="margin-left:auto;background:var(--blue);color:#fff;border:0" onclick="vkLoanForm()">${ic('plus')}${L('Toa mkopo','Issue loan')}</button></div>
+  <div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mwanachama','Member')}</th><th class="r">${L('Mkopo','Loan')}</th><th class="r">${L('Riba','Interest')}</th><th class="r">${L('Jumla','Total')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th><th>${L('Mwisho','Due')}</th><th></th></tr></thead><tbody>
+  ${list.map(l=>{ const m=V.members.find(x=>x.id===l.member_id)||{name:'?'}, s=loanState(l), bal=loanBal(l), paid=loanPaid(l.id);
+    return `<tr class="${s==='cancelled'?'vk-off':''}"><td><a href="#" class="vk-ml" onclick="vkMemberReport('${l.member_id}');return false"><b>${esc(m.name)}</b></a><div class="muted sm">${L('Imetolewa','Issued')} ${fmtD(l.issued_on)}${l.note?' · '+esc(l.note):''}${l.cancelled_at?' · '+esc(l.cancel_reason||''):''}</div></td><td class="r">${T(l.principal)}</td><td class="r">${T(l.interest)}<div class="muted sm">${Number(l.rate_pct)}% × ${l.months}</div></td><td class="r">${T(l.total_due)}</td><td class="r">${T(paid)}</td><td class="r"><b>${T(bal)}</b></td><td>${fmtD(l.due_on)}<div>${stPill(LOAN_ST,s)}</div></td>
+    <td class="r vk-rowact">${bal>0?`<button class="primary sm" onclick="vkRepayForm('${l.id}')">${L('Rejesho','Repay')}</button>${waPhone(m)?`<button class="gray sm" title="${L('Mkumbushe kwa WhatsApp','Remind on WhatsApp')}" onclick="vkLoanRemind('${l.id}')">${ic('whatsapp')}</button>`:''}`:''}${!l.cancelled_at&&paid<=0?`<button class="gray sm" onclick="vkCancelForm('loan','${l.id}')">${L('Futa','Cancel')}</button>`:''}</td></tr>`; }).join('')||`<tr><td colspan="8" class="muted" style="text-align:center;padding:22px">${all.length?L('Hakuna mkopo kwenye kundi hili.','No loans in this view.'):L('Hakuna mkopo bado. Bonyeza "Toa mkopo".','No loans yet. Press "Issue loan".')}</td></tr>`}
+  </tbody></table></div>
+  <p class="vk-hint">${L('Riba ni ya kawaida (flat): kiasi × riba ya mwezi × idadi ya miezi. Marejesho yanalipa kwanza mtaji, kisha riba. Mkopo hauwezi kulipwa zaidi ya salio lake.','Interest is flat: amount × monthly rate × months. Repayments go to principal first, then interest. A loan cannot be paid above its balance.')}</p></div>`;
+}
+
+/* ---------- fines ---------- */
+window.vkFineForm=function(mid){
+  const g=grp(); if(!g) return; const act=V.members.filter(m=>m.active); if(!act.length) return toast(L('Ongeza wanachama kwanza.','Add members first.'));
+  const R=[[L('Kuchelewa mkutano','Late for meeting'),g.late_fine],[L('Kutohudhuria mkutano','Missed meeting'),g.absent_fine],[L('Kuchelewa kulipa mchango','Late contribution'),0],[L('Nyingine','Other'),0]];
+  modal(`<h3>${L('Toza faini','Add a fine')}</h3>
+  <label for="vkf_mem">${L('Mwanachama','Member')}</label><select id="vkf_mem">${memberOpts(mid||act[0].id)}</select>
+  <label for="vkf_rsn">${L('Sababu','Reason')}</label><select id="vkf_rsn" onchange="var o=this.options[this.selectedIndex];if(+o.dataset.a>0)document.getElementById('vkf_amt').value=o.dataset.a;document.getElementById('vkf_oth').style.display=this.selectedIndex===3?'':'none'">${R.map((x,i)=>`<option data-a="${Number(x[1])||0}" value="${i}">${esc(x[0])}</option>`).join('')}</select>
+  <input id="vkf_oth" maxlength="120" style="display:none;margin-top:8px" placeholder="${L('Andika sababu','Write the reason')}">
+  <div class="vk-2"><div><label for="vkf_amt">${L('Kiasi (TZS)','Amount (TZS)')}</label><input id="vkf_amt" inputmode="numeric" value="${Number(g.late_fine)>0?Math.round(g.late_fine):''}"></div>
+  <div><label for="vkf_date">${L('Tarehe','Date')}</label><input id="vkf_date" type="date" value="${today()}"></div></div>
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkFineSave()">${L('Toza faini','Add fine')}</button></div>`);
+};
+window.vkFineSave=async function(){
+  const g=grp(); if(!g||V.busy) return; const sel=$('vkf_rsn'), i=sel?sel.selectedIndex:0, reason=i===3?val('vkf_oth'):sel.options[i].text, amt=num('vkf_amt'), d=val('vkf_date'), mid=val('vkf_mem');
+  if(!V.members.some(m=>m.id===mid)) return toast(L('Chagua mwanachama.','Choose a member.'));
+  if(reason.length<2) return toast(L('Andika sababu ya faini.','Write the reason for the fine.'));
+  if(!(amt>0&&amt<=1e8)) return toast(L('Andika kiasi cha faini.','Enter the fine amount.'));
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return toast(L('Chagua tarehe.','Pick a date.'));
+  V.busy=true;
+  try{ const r=await db().from('vk_fines').insert({group_id:g.id,member_id:mid,amount:amt,reason,fined_on:d}).select('*').single(); if(r.error) throw r.error; V.fines.unshift(r.data); vkClose(); V.tab='fines'; toast(L('Faini imewekwa.','Fine added.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkFineFilter=function(f){ V.ff=f; render(); };
+function finesHtml(){
+  const all=V.fines, st=all.map(fineState), f=V.ff||'open';
+  const list=all.filter((x,i)=>f==='all'||(f==='open'&&(st[i]==='unpaid'||st[i]==='part'))||st[i]===f);
+  const cnt=k=>st.filter(s=>k==='open'?(s==='unpaid'||s==='part'):s===k).length;
+  const unpaid=all.reduce((a,x)=>a+fineBal(x),0), got=paysOf(p=>p.kind==='fine').reduce((a,p)=>a+Number(p.amount),0);
+  return `<div class="panel"><div class="vk-stats three"><div class="report-stat ${unpaid>0?'bad':''}"><span>${L('Faini zisizolipwa','Unpaid fines')}</span><b>${T(unpaid)}</b><small>${nFines(cnt('open'))}</small></div><div class="report-stat"><span>${L('Faini zilizolipwa','Fines collected')}</span><b>${T(got)}</b></div><div class="report-stat"><span>${L('Faini zote','All fines')}</span><b>${all.length}</b></div></div>
+  <div class="vk-fil">${[['open',L('Hazijalipwa','Unpaid')],['paid',L('Zimelipwa','Paid')],['waived',L('Zimesamehewa','Waived')],['all',L('Zote','All')]].map(x=>`<button class="${f===x[0]?'on':''}" onclick="vkFineFilter('${x[0]}')">${x[1]} (${x[0]==='all'?all.length:cnt(x[0])})</button>`).join('')}<button class="primary vk-copy" style="margin-left:auto;background:var(--blue);color:#fff;border:0" onclick="vkFineForm()">${ic('plus')}${L('Toza faini','Add fine')}</button></div>
+  <div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mwanachama','Member')}</th><th>${L('Sababu','Reason')}</th><th class="r">${L('Faini','Fine')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th><th></th></tr></thead><tbody>
+  ${list.map(x=>{ const m=V.members.find(y=>y.id===x.member_id)||{name:'?'}, s=fineState(x), bal=fineBal(x), paid=finePaid(x.id);
+    return `<tr class="${s==='waived'?'vk-off':''}"><td><a href="#" class="vk-ml" onclick="vkMemberReport('${x.member_id}');return false"><b>${esc(m.name)}</b></a><div class="muted sm">${fmtD(x.fined_on)}</div></td><td>${esc(x.reason)}${x.waived_at?`<div class="muted sm">${esc(x.waive_reason||'')}</div>`:''}</td><td class="r">${T(x.amount)}</td><td class="r">${T(paid)}</td><td class="r">${stPill(FINE_ST,s)}${bal>0?`<div><b>${T(bal)}</b></div>`:''}</td>
+    <td class="r vk-rowact">${bal>0?`<button class="primary sm" onclick="vkFinePayForm('${x.id}')">${L('Lipa','Pay')}</button>`:''}${!x.waived_at&&paid<=0?`<button class="gray sm" onclick="vkCancelForm('fine','${x.id}')">${L('Samehe','Waive')}</button>`:''}</td></tr>`; }).join('')||`<tr><td colspan="6" class="muted" style="text-align:center;padding:22px">${all.length?L('Hakuna faini kwenye kundi hili.','No fines in this view.'):L('Hakuna faini bado.','No fines yet.')}</td></tr>`}
+  </tbody></table></div>
+  <p class="vk-hint">${L('Faini zilizolipwa ni faida ya kikundi na zinagawanywa wakati wa mgawanyo. Viwango vya faini za mikutano vinawekwa kwenye "Hariri" ya kikundi.','Paid fines are group income and are shared at share-out. Meeting fine amounts are set under the group "Edit".')}</p></div>`;
+}
+
+/* ---------- meetings & attendance ---------- */
+const ATT=[['present','Amehudhuria','Present'],['late','Amechelewa','Late'],['absent','Hakuja','Absent'],['excused','Ana ruhusa','Excused']];
+const attOf=mtid=>V.att.filter(a=>a.meeting_id===mtid);
+window.vkMeetingForm=function(id){
+  const g=grp(); if(!g) return; const mt=id?V.meetings.find(x=>x.id===id):null; const cur=new Map((mt?attOf(mt.id):[]).map(a=>[a.member_id,a.status]));
+  const people=V.members.filter(m=>m.active||cur.has(m.id));
+  if(!people.length) return toast(L('Ongeza wanachama kwanza.','Add members first.'));
+  const autoOk=Number(g.late_fine)>0||Number(g.absent_fine)>0;
+  modal(`<h3>${mt?L('Hariri mkutano','Edit meeting'):L('Mkutano mpya','New meeting')}</h3>
+  <div class="vk-2"><div><label for="vkmt_date">${L('Tarehe','Date')}</label><input id="vkmt_date" type="date" value="${mt?mt.held_on:today()}"></div>
+  <div><label for="vkmt_title">${L('Kichwa (hiari)','Title (optional)')}</label><input id="vkmt_title" maxlength="80" value="${esc(mt&&mt.title||'')}" placeholder="${L('mf. Kikao cha mwezi','e.g. Monthly meeting')}"></div></div>
+  <label>${L('Mahudhurio','Attendance')} <a href="#" style="font-weight:400;margin-left:8px" onclick="document.querySelectorAll('.vk-att select').forEach(s=>s.value='present');return false">${L('Wote wamehudhuria','Mark all present')}</a></label>
+  <div class="vk-att">${people.map(m=>`<div class="vk-attr"><span>${esc(m.name)}</span><select data-m="${m.id}">${ATT.map(a=>`<option value="${a[0]}" ${(cur.get(m.id)||'present')===a[0]?'selected':''}>${L(a[1],a[2])}</option>`).join('')}</select></div>`).join('')}</div>
+  ${autoOk?`<label class="vk-ckl" style="font-weight:400"><input type="checkbox" id="vkmt_fine" checked><span>${L('Toza faini moja kwa moja','Add fines automatically')}: ${L('waliochelewa','late')} ${T(g.late_fine)}, ${L('wasiohudhuria','absent')} ${T(g.absent_fine)}${mt?' '+L('(kwa ambao hawajatozwa kwenye mkutano huu)','(only for those not yet fined for this meeting)'):''}</span></label>`:`<p class="vk-hint">${L('Ukitaka faini za moja kwa moja, weka viwango kwenye "Hariri" ya kikundi.','For automatic fines, set the amounts under the group "Edit".')}</p>`}
+  <label for="vkmt_notes">${L('Kumbukumbu za kikao (hiari)','Minutes (optional)')}</label><textarea id="vkmt_notes" rows="4" maxlength="4000">${esc(mt&&mt.notes||'')}</textarea>
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Ghairi','Cancel')}</button><button class="primary" onclick="vkMeetingSave('${mt?mt.id:''}')">${L('Hifadhi mkutano','Save meeting')}</button></div>`);
+};
+window.vkMeetingSave=async function(id){
+  const g=grp(); if(!g||V.busy) return; const d=val('vkmt_date'); if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return toast(L('Chagua tarehe.','Pick a date.'));
+  const att=[...document.querySelectorAll('.vk-att select')].map(s=>({member_id:s.dataset.m,status:s.value})), autoF=!!($('vkmt_fine')&&$('vkmt_fine').checked);
+  const row={held_on:d,title:val('vkmt_title')||null,notes:val('vkmt_notes')||null};
+  V.busy=true; let mt=null, fined=0;
+  try{
+    const r=await (id?db().from('vk_meetings').update(row).eq('id',id).select('*').single():db().from('vk_meetings').insert(Object.assign({group_id:g.id},row)).select('*').single());
+    if(r.error) throw r.error; mt=r.data; V.meetings=(id?V.meetings.map(x=>x.id===id?mt:x):[mt].concat(V.meetings)).sort((a,b)=>a.held_on<b.held_on?1:-1);
+    const ar=await db().from('vk_attendance').upsert(att.map(a=>Object.assign({meeting_id:mt.id,group_id:g.id},a)),{onConflict:'meeting_id,member_id'}).select('*');
+    if(ar.error) throw ar.error; const got=new Map((ar.data||[]).map(a=>[a.member_id,a])); V.att=V.att.filter(a=>!(a.meeting_id===mt.id&&got.has(a.member_id))).concat(ar.data||[]);
+    if(autoF){
+      const done=new Set(V.fines.filter(f=>f.meeting_id===mt.id).map(f=>f.member_id));
+      const add=att.filter(a=>!done.has(a.member_id)&&((a.status==='late'&&Number(g.late_fine)>0)||(a.status==='absent'&&Number(g.absent_fine)>0))).map(a=>({group_id:g.id,member_id:a.member_id,meeting_id:mt.id,fined_on:d,amount:a.status==='late'?Number(g.late_fine):Number(g.absent_fine),reason:a.status==='late'?L('Kuchelewa mkutano','Late for meeting'):L('Kutohudhuria mkutano','Missed meeting')}));
+      if(add.length){ const fr=await db().from('vk_fines').insert(add).select('*'); if(fr.error) throw fr.error; V.fines=(fr.data||[]).concat(V.fines); fined=(fr.data||[]).length; }
+    }
+    vkClose(); toast(L('Mkutano umehifadhiwa.','Meeting saved.')+(fined?' '+fined+L(' wametozwa faini.',' fined.'):''));
+  }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkMeetingDelete=async function(id){
+  if(V.busy) return; if(V.fines.some(f=>f.meeting_id===id)) return toast(L('Mkutano huu una faini, hauwezi kufutwa.','This meeting has fines and cannot be deleted.'));
+  if(!(await window.confirmDialog({title:L('Futa mkutano?','Delete meeting?'),text:L('Mkutano na mahudhurio yake yatafutwa.','The meeting and its attendance will be deleted.'),ok:L('Futa','Delete'),tone:'danger'}))) return;
+  V.busy=true;
+  try{ const r=await db().from('vk_meetings').delete().eq('id',id).select('id'); if(r.error) throw r.error; if(!(r.data||[]).length) throw new Error(L('Haikufutwa.','Not deleted.')); V.meetings=V.meetings.filter(x=>x.id!==id); V.att=V.att.filter(a=>a.meeting_id!==id); toast(L('Mkutano umefutwa.','Meeting deleted.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+function attCount(mtid){ const c={present:0,late:0,absent:0,excused:0}; attOf(mtid).forEach(a=>c[a.status]++); return c; }
+function meetingsHtml(){
+  const ms=V.meetings, tot=V.att.length, came=V.att.filter(a=>a.status==='present'||a.status==='late').length;
+  return `<div class="panel"><div class="vk-stats three"><div class="report-stat"><span>${L('Mikutano','Meetings')}</span><b>${ms.length}</b></div><div class="report-stat"><span>${L('Kiwango cha mahudhurio','Attendance rate')}</span><b>${tot?Math.round(came*100/tot):0}%</b></div><div class="report-stat"><span>${L('Mkutano wa mwisho','Last meeting')}</span><b style="font-size:18px">${ms[0]?fmtD(ms[0].held_on):'-'}</b></div></div>
+  <div class="vk-fil"><button class="primary vk-copy" style="margin-left:auto;background:var(--blue);color:#fff;border:0" onclick="vkMeetingForm()">${ic('plus')}${L('Mkutano mpya','New meeting')}</button></div>
+  <div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mkutano','Meeting')}</th><th class="r">${L('Walihudhuria','Present')}</th><th class="r">${L('Walichelewa','Late')}</th><th class="r">${L('Hawakuja','Absent')}</th><th class="r">${L('Ruhusa','Excused')}</th><th></th></tr></thead><tbody>
+  ${ms.map(mt=>{ const c=attCount(mt.id), nf=V.fines.filter(f=>f.meeting_id===mt.id).length; return `<tr><td><b>${fmtD(mt.held_on)}</b>${mt.title?` · ${esc(mt.title)}`:''}${mt.notes?`<div class="muted sm vk-notes">${esc(mt.notes)}</div>`:''}${nf?`<div class="muted sm">${nFines(nf)}</div>`:''}</td><td class="r">${c.present}</td><td class="r">${c.late}</td><td class="r">${c.absent}</td><td class="r">${c.excused}</td><td class="r vk-rowact"><button class="gray sm" onclick="vkMeetingForm('${mt.id}')">${ic('edit')}${L('Fungua','Open')}</button>${nf?'':`<button class="gray sm" onclick="vkMeetingDelete('${mt.id}')">${L('Futa','Delete')}</button>`}</td></tr>`; }).join('')||`<tr><td colspan="6" class="muted" style="text-align:center;padding:22px">${L('Hakuna mkutano bado. Bonyeza "Mkutano mpya" kurekodi mahudhurio.','No meetings yet. Press "New meeting" to record attendance.')}</td></tr>`}
+  </tbody></table></div></div>`;
+}
+
+/* ================= Stage 3: annual report & share-out ================= */
+function yearsAvail(){ const ys=new Set(); V.pays.forEach(p=>p.paid_on&&ys.add(p.paid_on.slice(0,4))); V.loans.forEach(l=>ys.add(String(l.issued_on).slice(0,4))); V.meetings.forEach(m=>ys.add(String(m.held_on).slice(0,4))); V.cycles.forEach(c=>ys.add(String(c.due_date).slice(0,4))); ys.add(today().slice(0,4)); return [...ys].sort().reverse(); }
+function yearStats(y){
+  const from=y+'-01-01', to=y+'-12-31', inY=d=>d&&d>=from&&d<=to, P=k=>paysOf(p=>p.kind===k&&inY(p.paid_on)).reduce((a,p)=>a+Number(p.amount),0);
+  const loans=V.loans.filter(l=>!l.cancelled_at&&inY(l.issued_on)), mts=V.meetings.filter(m=>inY(m.held_on)), ids=new Set(mts.map(m=>m.id)), at=V.att.filter(a=>ids.has(a.meeting_id));
+  const fines=V.fines.filter(f=>!f.waived_at&&inY(f.fined_on));
+  return {savings:P('share'),loansN:loans.length,loansAmt:loans.reduce((a,l)=>a+Number(l.principal),0),repaid:P('loan_repay'),interest:interestCollected(from,to),finesCharged:fines.reduce((a,f)=>a+Number(f.amount),0),finesPaid:P('fine'),other:P('other'),meetings:mts.length,attRate:at.length?Math.round(at.filter(a=>a.status==='present'||a.status==='late').length*100/at.length):0};
+}
+/* exact share-out (all time, as of today): sum of net payouts == cash in hand */
+function shareOut(){
+  const loans=V.loans.filter(l=>!l.cancelled_at), fines=V.fines.filter(f=>!f.waived_at);
+  const intAll=loans.reduce((a,l)=>a+Number(l.interest),0), finesAll=fines.reduce((a,f)=>a+Number(f.amount),0), other=paysOf(p=>p.kind==='other').reduce((a,p)=>a+Number(p.amount),0);
+  const profit=intAll+finesAll+other;
+  const ms=V.members.filter(m=>m.active||memSavings(m.id)>0||memLoanBal(m.id)>0||memFineBal(m.id)>0).slice().sort((a,b)=>a.name.localeCompare(b.name));
+  const sav=ms.map(m=>memSavings(m.id)), S=sav.reduce((a,b)=>a+b,0);
+  /* largest-remainder rounding so the profit shares add up exactly */
+  const raw=ms.map((m,i)=>S>0?profit*sav[i]/S:0), fl=raw.map(Math.floor); let rest=Math.round(profit)-fl.reduce((a,b)=>a+b,0);
+  if(S>0) raw.map((r,i)=>[r-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{ if(rest>0){ fl[i]++; rest--; } });
+  const rows=ms.map((m,i)=>{ const share=S>0?fl[i]:0, lb=memLoanBal(m.id), fb=memFineBal(m.id), gross=sav[i]+share; return {m,sav:sav[i],share,gross,lb,fb,net:gross-lb-fb,pct:S>0?sav[i]*100/S:0}; });
+  const sum=k=>rows.reduce((a,r)=>a+r[k],0);
+  return {rows,profit,intAll,finesAll,other,S,tot:{sav:sum('sav'),share:sum('share'),gross:sum('gross'),lb:sum('lb'),fb:sum('fb'),net:sum('net')},cash:cashInHand(),unshared:S>0?0:profit};
+}
+window.vkRT=function(t){ V.rt=t; render(); };
+window.vkYear=function(y){ V.yr=y; render(); };
+function yearHtml(){
+  const ys=yearsAvail(); if(!V.yr||!ys.includes(V.yr)) V.yr=ys[0]; const s=yearStats(V.yr), so=shareOut();
+  const card=(t,v,sub,bad)=>`<div class="report-stat ${bad?'bad':''}"><span>${t}</span><b>${v}</b>${sub?`<small>${sub}</small>`:''}</div>`;
+  const ok=Math.round(so.tot.net)===Math.round(so.cash);
+  return `<div class="panel"><div class="vk-ph"><h3>${L('Ripoti ya mwaka','Annual report')}</h3><select onchange="vkYear(this.value)" style="width:auto">${ys.map(y=>`<option ${y===V.yr?'selected':''}>${y}</option>`).join('')}</select></div>
+  <div class="vk-stats four">${card(L('Akiba iliyokusanywa','Savings collected'),T(s.savings))}${card(L('Mikopo iliyotolewa','Loans issued'),T(s.loansAmt),nLoans(s.loansN))}${card(L('Marejesho ya mikopo','Loan repayments'),T(s.repaid))}${card(L('Riba iliyopatikana','Interest earned'),T(s.interest))}${card(L('Faini zilizotozwa','Fines charged'),T(s.finesCharged))}${card(L('Faini zilizolipwa','Fines paid'),T(s.finesPaid))}${card(L('Mikutano','Meetings'),s.meetings,s.meetings?L('mahudhurio ','attendance ')+s.attRate+'%':'')}${card(L('Fedha mkononi (leo)','Cash in hand (today)'),T(so.cash))}</div>
+  <div class="vk-fil"><button class="gray" onclick="vkPrintYear()">${ic('sheet')}${L('Chapisha / PDF','Print / PDF')}</button><button class="gray" onclick="vkExportYear()">${ic('download')}${L('Pakua Excel','Export Excel')}</button></div></div>
+  <div class="panel" style="margin-top:14px"><div class="vk-ph"><h3>${L('Mgawanyo wa fedha (hadi leo)','Share-out (as of today)')}</h3></div>
+  <div class="vk-stats four">${card(L('Akiba yote','Total savings'),T(so.S))}${card(L('Faida ya kugawa','Profit to share'),T(so.profit),L('riba ','interest ')+T(so.intAll)+' · '+L('faini ','fines ')+T(so.finesAll))}${card(L('Jumla ya kugawa','Total to pay out'),T(so.tot.net))}${card(L('Fedha mkononi','Cash in hand'),T(so.cash),ok?'✓ '+L('zinalingana','they match'):L('hazilingani','mismatch'),!ok)}</div>
+  <div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mwanachama','Member')}</th><th class="r">${L('Akiba','Savings')}</th><th class="r">${L('Gawio la faida','Profit share')}</th><th class="r">${L('Jumla','Gross')}</th><th class="r">${L('Deni la mkopo','Loan owed')}</th><th class="r">${L('Faini','Fines owed')}</th><th class="r">${L('Atapokea','Net payout')}</th></tr></thead><tbody>
+  ${so.rows.map(r=>`<tr><td><a href="#" class="vk-ml" onclick="vkMemberReport('${r.m.id}');return false"><b>${esc(r.m.name)}</b></a><div class="muted sm">${r.pct.toFixed(1)}% ${L('ya akiba','of savings')}</div></td><td class="r">${T(r.sav)}</td><td class="r">${T(r.share)}</td><td class="r">${T(r.gross)}</td><td class="r">${r.lb?'- '+T(r.lb):'0'}</td><td class="r">${r.fb?'- '+T(r.fb):'0'}</td><td class="r"><b ${r.net<0?'style="color:#b91c1c"':''}>${r.net<0?L('Anadaiwa ','Owes ')+T(-r.net):T(r.net)}</b></td></tr>`).join('')||`<tr><td colspan="7" class="muted" style="text-align:center;padding:22px">${L('Hakuna data bado.','No data yet.')}</td></tr>`}
+  </tbody><tfoot><tr><td><b>${L('Jumla','Total')}</b></td><td class="r"><b>${T(so.tot.sav)}</b></td><td class="r"><b>${T(so.tot.share)}</b></td><td class="r"><b>${T(so.tot.gross)}</b></td><td class="r"><b>${T(so.tot.lb)}</b></td><td class="r"><b>${T(so.tot.fb)}</b></td><td class="r"><b>${T(so.tot.net)}</b></td></tr></tfoot></table></div>
+  <p class="vk-hint">${L('Faida = riba ya mikopo yote + faini zote (zisizosamehewa). Inagawanywa kwa uwiano wa akiba ya kila mtu. Madeni ya mkopo na faini yanakatwa kwenye fedha ya mtu husika, kwa hiyo jumla ya kugawa inalingana na fedha mkononi.','Profit = interest on all loans + all fines (not waived). It is shared in proportion to each member\'s savings. Unpaid loans and fines are deducted from that member\'s payout, so the total to pay out equals the cash in hand.')}${so.unshared>0?' <b>'+L('Hakuna akiba bado, kwa hiyo faida haiwezi kugawanywa.','No savings yet, so the profit cannot be shared.')+'</b>':''}</p>
+  <div class="vk-fil"><button class="gray" onclick="vkPrintShareout()">${ic('sheet')}${L('Chapisha mgawanyo / PDF','Print share-out / PDF')}</button><button class="gray" onclick="vkExportShareout()">${ic('download')}${L('Pakua Excel','Export Excel')}</button></div></div>`;
+}
+window.vkPrintYear=function(){
+  const g=grp(); if(!g) return; const s=yearStats(V.yr), so=shareOut();
+  const rr=[[L('Akiba iliyokusanywa','Savings collected'),T(s.savings)],[L('Mikopo iliyotolewa','Loans issued'),T(s.loansAmt)+' ('+s.loansN+')'],[L('Marejesho ya mikopo','Loan repayments'),T(s.repaid)],[L('Riba iliyopatikana','Interest earned'),T(s.interest)],[L('Faini zilizotozwa','Fines charged'),T(s.finesCharged)],[L('Faini zilizolipwa','Fines paid'),T(s.finesPaid)],[L('Mikutano','Meetings'),s.meetings+(s.meetings?' · '+L('mahudhurio ','attendance ')+s.attRate+'%':'')],[L('Mikopo iliyo nje (leo)','Loans outstanding (today)'),T(loansOut())],[L('Fedha mkononi (leo)','Cash in hand (today)'),T(so.cash)]];
+  openPrint(g.name+' '+V.yr,`<h1>${esc(g.name)} — ${L('Ripoti ya mwaka','Annual report')} ${esc(V.yr)}</h1><p>${fmtD(today())}</p><table><tbody>${rr.map(r=>`<tr><td>${r[0]}</td><td class="r"><b>${r[1]}</b></td></tr>`).join('')}</tbody></table>`);
+};
+window.vkPrintShareout=function(){
+  const g=grp(); if(!g) return; const so=shareOut();
+  openPrint(g.name,`<h1>${esc(g.name)} — ${L('Mgawanyo wa fedha','Share-out')}</h1><p>${fmtD(today())} · ${L('Faida ya kugawa','Profit to share')}: ${T(so.profit)} · ${L('Fedha mkononi','Cash in hand')}: ${T(so.cash)}</p><table><thead><tr><th>#</th><th>${L('Jina','Name')}</th><th class="r">${L('Akiba','Savings')}</th><th class="r">${L('Gawio','Profit share')}</th><th class="r">${L('Jumla','Gross')}</th><th class="r">${L('Deni la mkopo','Loan owed')}</th><th class="r">${L('Faini','Fines owed')}</th><th class="r">${L('Atapokea','Net payout')}</th><th>${L('Sahihi','Signature')}</th></tr></thead><tbody>${so.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.m.name)}</td><td class="r">${T(r.sav)}</td><td class="r">${T(r.share)}</td><td class="r">${T(r.gross)}</td><td class="r">${T(r.lb)}</td><td class="r">${T(r.fb)}</td><td class="r"><b>${r.net<0?'-'+T(-r.net):T(r.net)}</b></td><td style="width:90px"></td></tr>`).join('')}</tbody><tfoot><tr><td></td><td>${L('Jumla','Total')}</td><td class="r">${T(so.tot.sav)}</td><td class="r">${T(so.tot.share)}</td><td class="r">${T(so.tot.gross)}</td><td class="r">${T(so.tot.lb)}</td><td class="r">${T(so.tot.fb)}</td><td class="r">${T(so.tot.net)}</td><td></td></tr></tfoot></table>`);
+};
+window.vkExportYear=async function(){
+  const g=grp(); if(!g) return; const s=yearStats(V.yr), so=shareOut();
+  try{ await needXlsx(); const rows=[[g.name+' — '+L('Ripoti ya mwaka','Annual report')+' '+V.yr],[],[L('Akiba iliyokusanywa','Savings collected'),s.savings],[L('Mikopo iliyotolewa','Loans issued'),s.loansAmt],[L('Idadi ya mikopo','Number of loans'),s.loansN],[L('Marejesho ya mikopo','Loan repayments'),s.repaid],[L('Riba iliyopatikana','Interest earned'),s.interest],[L('Faini zilizotozwa','Fines charged'),s.finesCharged],[L('Faini zilizolipwa','Fines paid'),s.finesPaid],[L('Mikutano','Meetings'),s.meetings],[L('Mahudhurio %','Attendance %'),s.attRate],[L('Mikopo iliyo nje (leo)','Loans outstanding (today)'),loansOut()],[L('Fedha mkononi (leo)','Cash in hand (today)'),so.cash]];
+    const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:34},{wch:16}]; const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Annual '+V.yr); XLSX.writeFile(wb,'vikoba-annual-'+V.yr+'-'+g.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.xlsx'); }catch(e){ toast(errMsg(e)); }
+};
+window.vkExportShareout=async function(){
+  const g=grp(); if(!g) return; const so=shareOut();
+  try{ await needXlsx(); const head=[L('Jina','Name'),L('Simu','Phone'),L('Akiba','Savings'),L('% ya akiba','% of savings'),L('Gawio la faida','Profit share'),L('Jumla','Gross'),L('Deni la mkopo','Loan owed'),L('Faini','Fines owed'),L('Atapokea','Net payout')];
+    const data=so.rows.map(r=>[r.m.name,r.m.phone||'',r.sav,Number(r.pct.toFixed(2)),r.share,r.gross,r.lb,r.fb,r.net]); data.push([L('JUMLA','TOTAL'),'',so.tot.sav,100,so.tot.share,so.tot.gross,so.tot.lb,so.tot.fb,so.tot.net]); data.push([]); data.push([L('Faida ya kugawa','Profit to share'),'',so.profit]); data.push([L('Fedha mkononi','Cash in hand'),'',so.cash]);
+    const ws=XLSX.utils.aoa_to_sheet([head].concat(data)); ws['!cols']=head.map((h,i)=>({wch:i===0?26:14})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Share-out'); XLSX.writeFile(wb,'vikoba-shareout-'+g.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.xlsx'); }catch(e){ toast(errMsg(e)); }
+};
+
+
+function kindLbl(p){ if(p.kind==='share'){ const c=V.cycles.find(x=>x.id===p.cycle_id); return L('Mchango','Contribution')+(c?' · '+c.label:''); } if(p.kind==='loan_repay') return L('Rejesho la mkopo','Loan repayment'); if(p.kind==='fine'){ const f=V.fines.find(x=>x.id===p.fine_id); return L('Faini','Fine')+(f?' · '+f.reason:''); } return L('Mengineyo','Other'); }
+function memLoansFinesHtml(id){
+  const ls=V.loans.filter(l=>l.member_id===id), fs=V.fines.filter(f=>f.member_id===id), act=(V.members.find(m=>m.id===id)||{}).active;
+  return `<h4 style="margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center">${L('Mikopo','Loans')}${act?`<button class="gray sm" onclick="vkLoanForm('${id}')">${ic('plus')}${L('Toa mkopo','Issue loan')}</button>`:''}</h4>`+
+  (ls.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Imetolewa','Issued')}</th><th class="r">${L('Jumla','Total')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th><th></th></tr></thead><tbody>${ls.map(l=>`<tr class="${l.cancelled_at?'vk-off':''}"><td><b>${fmtD(l.issued_on)}</b><div class="muted sm">${T(l.principal)} + ${T(l.interest)} · ${L('mwisho','due')} ${fmtD(l.due_on)}</div></td><td class="r">${T(l.total_due)}</td><td class="r">${T(loanPaid(l.id))}</td><td class="r">${stPill(LOAN_ST,loanState(l))}<div><b>${T(loanBal(l))}</b></div></td><td class="r vk-rowact">${loanBal(l)>0?`<button class="primary sm" onclick="vkRepayForm('${l.id}')">${L('Rejesho','Repay')}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hana mkopo.','No loans.')}</p>`)+
+  `<h4 style="margin:14px 0 6px;display:flex;justify-content:space-between;align-items:center">${L('Faini','Fines')}${act?`<button class="gray sm" onclick="vkFineForm('${id}')">${ic('plus')}${L('Toza faini','Add fine')}</button>`:''}</h4>`+
+  (fs.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Sababu','Reason')}</th><th class="r">${L('Faini','Fine')}</th><th class="r">${L('Salio','Balance')}</th><th></th></tr></thead><tbody>${fs.map(f=>`<tr class="${f.waived_at?'vk-off':''}"><td><b>${esc(f.reason)}</b><div class="muted sm">${fmtD(f.fined_on)}</div></td><td class="r">${T(f.amount)}</td><td class="r">${stPill(FINE_ST,fineState(f))}<div><b>${T(fineBal(f))}</b></div></td><td class="r vk-rowact">${fineBal(f)>0?`<button class="primary sm" onclick="vkFinePayForm('${f.id}')">${L('Lipa','Pay')}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hana faini.','No fines.')}</p>`);
+}
 /* Statements: each member's own summary on WhatsApp + one group summary to paste into the group chat */
 function statementText(g,m){
   const cy=curCycle(), r=cy?rows(cy.id).find(x=>x.m.id===m.id):null, tot=memTotal(m.id);
-  return L(`Habari ${m.name}, taarifa yako ya ${g.name}:\n- Hisa zako: ${m.shares}\n- Jumla uliyochangia hadi sasa: ${T(tot)}`+`\n\nMichango kila mwezi:\n`+memCycles(m).map(x=>`- ${x.cy.label}: ${T(x.paid)} / ${T(x.due)}${x.bal>0?` (salio ${T(x.bal)})`:' ✓'}`).join('\n')+`\n\nJumla deni: ${T(memCycles(m).reduce((a,x)=>a+x.bal,0))}\nAsante.`,
-    `Hello ${m.name}, your ${g.name} statement:\n- Your shares: ${m.shares}\n- Total contributed so far: ${T(tot)}`+`\n\nContributions per month:\n`+memCycles(m).map(x=>`- ${x.cy.label}: ${T(x.paid)} / ${T(x.due)}${x.bal>0?` (balance ${T(x.bal)})`:' ✓'}`).join('\n')+`\n\nTotal outstanding: ${T(memCycles(m).reduce((a,x)=>a+x.bal,0))}\nThank you.`);
+  return L(`Habari ${m.name}, taarifa yako ya ${g.name}:\n- Hisa zako: ${m.shares}\n- Jumla uliyochangia hadi sasa: ${T(tot)}`+`\n\nMichango kila mwezi:\n`+memCycles(m).map(x=>`- ${x.cy.label}: ${T(x.paid)} / ${T(x.due)}${x.bal>0?` (salio ${T(x.bal)})`:' ✓'}`).join('\n')+`\n\nDeni la michango: ${T(memCycles(m).reduce((a,x)=>a+x.bal,0))}`+(memLoanBal(m.id)>0?`\nDeni la mkopo: ${T(memLoanBal(m.id))}`:'')+(memFineBal(m.id)>0?`\nFaini zisizolipwa: ${T(memFineBal(m.id))}`:'')+`\nAsante.`,
+    `Hello ${m.name}, your ${g.name} statement:\n- Your shares: ${m.shares}\n- Total contributed so far: ${T(tot)}`+`\n\nContributions per month:\n`+memCycles(m).map(x=>`- ${x.cy.label}: ${T(x.paid)} / ${T(x.due)}${x.bal>0?` (balance ${T(x.bal)})`:' ✓'}`).join('\n')+`\n\nContributions owed: ${T(memCycles(m).reduce((a,x)=>a+x.bal,0))}`+(memLoanBal(m.id)>0?`\nLoan owed: ${T(memLoanBal(m.id))}`:'')+(memFineBal(m.id)>0?`\nUnpaid fines: ${T(memFineBal(m.id))}`:'')+`\nThank you.`);
 }
 function groupSummaryText(g){
   const list=V.members.filter(m=>m.active), cy=curCycle(), cr=cy?rows(cy.id):[], tot=list.reduce((s,m)=>s+memTotal(m.id),0);
