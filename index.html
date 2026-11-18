@@ -177,12 +177,18 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .auth.is-register .register-only{display:block}
 .auth.is-register .login-only{display:none}
 .auth-note{margin-top:18px;font-size:13.5px;color:var(--ink);text-align:center}
-.auth-contact{margin-top:22px;padding-top:16px;border-top:1px solid #e3e6f0;text-align:center}
-.auth-contact .ac-t{font-size:12.5px;font-weight:600;letter-spacing:.04em;color:#6b7280;text-transform:uppercase;margin-bottom:10px}
-.auth-contact .ac-r{display:flex;gap:8px;justify-content:center;align-items:center;margin:6px 0}
-.auth-contact a{text-decoration:none;font-weight:600;font-size:14px;border-radius:999px;padding:7px 16px}
-.auth-contact .ac-call{color:var(--blue);border:1px solid #cfd6f1;min-width:150px}
-.auth-contact .ac-wa{color:#fff;background:#25a244}
+.auth-contact-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:20px;padding:13px 16px;border-radius:10px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);font:600 15px var(--font-body,inherit);cursor:pointer;box-shadow:none}
+.auth-contact-btn svg{width:18px;height:18px}.auth-contact-btn:hover{background:#f3f5fd}
+.ac-ov{position:fixed;inset:0;z-index:9999;background:rgba(15,23,60,.55);display:flex;align-items:center;justify-content:center;padding:18px}
+.ac-box{position:relative;width:min(380px,100%);background:#fff;border-radius:16px;padding:26px 20px 20px;box-shadow:0 20px 60px -10px rgba(10,20,70,.5);text-align:center}
+.ac-box h3{margin:0 0 4px;font-size:20px;color:var(--blue)}.ac-sub{margin:0 0 16px;font-size:13.5px;color:#6b7280}
+.ac-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:0;background:#f1f3f9;color:#4b5563;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:none}
+.ac-x svg{width:16px;height:16px}
+.ac-card{border:1px solid #e3e6f0;border-radius:12px;padding:12px 14px;margin-top:10px;background:#fafbff}
+.ac-num{font-size:19px;font-weight:700;letter-spacing:.02em;color:#1f2937;margin-bottom:10px}
+.ac-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ac-acts a{text-decoration:none;font-weight:600;font-size:14px;border-radius:10px;padding:10px 8px}
+.ac-call{background:var(--blue);color:#fff}.ac-wa{background:#25a244;color:#fff}
 .auth-foot{text-align:center;font-size:12.5px;color:var(--muted);padding:26px 20px 34px}
 
 /* =========================================================================
@@ -2146,9 +2152,13 @@ body.svc-photog #collNavGroup{display:block!important}
       <button type="button" class="primary auth-submit auth-register-btn register-only" onclick="signUp()">Create account</button>
       <p class="auth-note login-only">Not Registered? <button type="button" class="auth-link" onclick="setAuthMode('register')">Click here to register</button></p>
       <p class="auth-note register-only">Already registered? <button type="button" class="auth-link" onclick="setAuthMode('login')">Login</button></p>
-      <div class="auth-contact"><div class="ac-t">Need help? Contact us</div>
-        <div class="ac-r"><a class="ac-call" href="tel:+255764009731">0764 009 731</a><a class="ac-wa" href="https://wa.me/255764009731" target="_blank" rel="noopener">WhatsApp</a></div>
-        <div class="ac-r"><a class="ac-call" href="tel:+255686800731">0686 800 731</a><a class="ac-wa" href="https://wa.me/255686800731" target="_blank" rel="noopener">WhatsApp</a></div></div>
+      <button type="button" class="auth-contact-btn" onclick="openAuthContact()"><svg class="i ico"><use href="#i-phone"/></svg><span>Contact us</span></button>
+      <div class="ac-ov" id="acOv" style="display:none" onclick="if(event.target===this)closeAuthContact()"><div class="ac-box" role="dialog" aria-modal="true" aria-labelledby="acTitle">
+        <button type="button" class="ac-x" aria-label="Close" onclick="closeAuthContact()"><svg class="i ico"><use href="#i-x"/></svg></button>
+        <h3 id="acTitle">Contact us</h3><p class="ac-sub">We are happy to help. Call or WhatsApp us.</p>
+        <div class="ac-card"><div class="ac-num">0764 009 731</div><div class="ac-acts"><a class="ac-call" href="tel:+255764009731">Call</a><a class="ac-wa" href="https://wa.me/255764009731" target="_blank" rel="noopener">WhatsApp</a></div></div>
+        <div class="ac-card"><div class="ac-num">0686 800 731</div><div class="ac-acts"><a class="ac-call" href="tel:+255686800731">Call</a><a class="ac-wa" href="https://wa.me/255686800731" target="_blank" rel="noopener">WhatsApp</a></div></div>
+      </div></div>
     </div>
   </section>
   </div>
@@ -14664,6 +14674,9 @@ window.addEventListener('resize',()=>{ if(EDS.open&&EDS.fit) fitZoom(); });
 </script>
 <script>
 /* ===== Kiswahili dictionary for SHEREHE HUB (exact text -> Swahili) ===== */
+window.openAuthContact=function(){ const o=document.getElementById('acOv'); if(o) o.style.display='flex'; };
+window.closeAuthContact=function(){ const o=document.getElementById('acOv'); if(o) o.style.display='none'; };
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') window.closeAuthContact(); });
 window.SW_EXACT = {
 "Event tickets":"Tiketi za matukio",
 "Tickets":"Tiketi",
@@ -15126,7 +15139,7 @@ window.SW_EXACT = {
 "No poster selected.":"Hakuna poster iliyochaguliwa.",
 "No scans yet":"Bado hakuna skani",
 "Not Registered?":"Hujajisajili?",
-"Need help? Contact us":"Unahitaji msaada? Wasiliana nasi",
+"Contact us":"Wasiliana nasi","We are happy to help. Call or WhatsApp us.":"Tuko tayari kukusaidia. Tupigie au tutumie WhatsApp.","Call":"Piga simu",
 "Not attending":"Hawatahudhuria",
 "Not replied yet":"Bado hawajajibu",
 "Not seated":"Hawajapangwa",
