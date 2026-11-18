@@ -177,6 +177,12 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .auth.is-register .register-only{display:block}
 .auth.is-register .login-only{display:none}
 .auth-note{margin-top:18px;font-size:13.5px;color:var(--ink);text-align:center}
+.auth-contact{margin-top:22px;padding-top:16px;border-top:1px solid #e3e6f0;text-align:center}
+.auth-contact .ac-t{font-size:12.5px;font-weight:600;letter-spacing:.04em;color:#6b7280;text-transform:uppercase;margin-bottom:10px}
+.auth-contact .ac-r{display:flex;gap:8px;justify-content:center;align-items:center;margin:6px 0}
+.auth-contact a{text-decoration:none;font-weight:600;font-size:14px;border-radius:999px;padding:7px 16px}
+.auth-contact .ac-call{color:var(--blue);border:1px solid #cfd6f1;min-width:150px}
+.auth-contact .ac-wa{color:#fff;background:#25a244}
 .auth-foot{text-align:center;font-size:12.5px;color:var(--muted);padding:26px 20px 34px}
 
 /* =========================================================================
@@ -2140,6 +2146,9 @@ body.svc-photog #collNavGroup{display:block!important}
       <button type="button" class="primary auth-submit auth-register-btn register-only" onclick="signUp()">Create account</button>
       <p class="auth-note login-only">Not Registered? <button type="button" class="auth-link" onclick="setAuthMode('register')">Click here to register</button></p>
       <p class="auth-note register-only">Already registered? <button type="button" class="auth-link" onclick="setAuthMode('login')">Login</button></p>
+      <div class="auth-contact"><div class="ac-t">Need help? Contact us</div>
+        <div class="ac-r"><a class="ac-call" href="tel:+255764009731">0764 009 731</a><a class="ac-wa" href="https://wa.me/255764009731" target="_blank" rel="noopener">WhatsApp</a></div>
+        <div class="ac-r"><a class="ac-call" href="tel:+255686800731">0686 800 731</a><a class="ac-wa" href="https://wa.me/255686800731" target="_blank" rel="noopener">WhatsApp</a></div></div>
     </div>
   </section>
   </div>
@@ -15117,6 +15126,7 @@ window.SW_EXACT = {
 "No poster selected.":"Hakuna poster iliyochaguliwa.",
 "No scans yet":"Bado hakuna skani",
 "Not Registered?":"Hujajisajili?",
+"Need help? Contact us":"Unahitaji msaada? Wasiliana nasi",
 "Not attending":"Hawatahudhuria",
 "Not replied yet":"Bado hawajajibu",
 "Not seated":"Hawajapangwa",
