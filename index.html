@@ -1744,7 +1744,7 @@ body.cp-lock{overflow:hidden}
 .vk-tw{overflow-x:auto}.vk-t{width:100%;min-width:0;border-collapse:collapse;font-size:14px}.vk-t th{position:static}.vk-t tbody tr:hover td{background:transparent}.vk-t th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#6b7280;padding:8px 10px;border-bottom:1px solid var(--line)}
 .vk-t td{padding:10px;border-bottom:1px solid var(--line-2);vertical-align:top}.vk-t .r{text-align:right}.vk-t .sm,.vk-t td .sm{font-size:12px}
 .vk-off{opacity:.55}
-.vk-rowact{white-space:nowrap}.vk-rowact button{margin-left:6px}
+.vk-ml{color:inherit;text-decoration:none}.vk-ml:hover{text-decoration:underline}.vk-mx{min-width:max-content}.vk-st.part{background:#fff4d6;color:#8a5a00}.vk-rowact{white-space:nowrap}.vk-rowact button{margin-left:6px}
 button.sm{padding:6px 12px;font-size:12.5px;min-height:0}
 .vk-st{display:inline-block;border-radius:99px;padding:3px 10px;font-weight:700;font-size:12.5px}.vk-st.paid{background:#dcfce7;color:#166534}.vk-st.part{background:#fef3c7;color:#92400e}.vk-st.unpaid{background:#fee2e2;color:#991b1b}
 .vk-role{background:var(--line-2);color:var(--ink-2);border-radius:99px;padding:2px 8px;font-size:11.5px;font-weight:600}
@@ -2291,7 +2291,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.75</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.76</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -16932,11 +16932,11 @@ function listHtml(){
 }
 function groupHtml(){
   const g=grp(), act=V.members.filter(m=>m.active), shares=act.reduce((s,m)=>s+m.shares,0);
-  const tabs=[['cycle',L('Michango','Contributions')],['members',L('Wanachama','Members')],['history',L('Historia','History')]];
+  const tabs=[['cycle',L('Michango','Contributions')],['members',L('Wanachama','Members')],['report',L('Ripoti','Report')],['history',L('Historia','History')]];
   return `<div class="topline"><div><button class="text-button" onclick="vkBack()">← ${L('Vikundi vyote','All groups')}</button><h1>${esc(g.name)}</h1><p class="muted">${T(g.share_price)} / ${L('hisa','share')} · ${g.cadence==='weekly'?L('kila wiki','weekly'):L('kila mwezi','monthly')}${g.meeting_note?' · '+esc(g.meeting_note):''}</p></div><div class="topline-actions"><button class="gray" onclick="vkGroupForm('${g.id}')">${ic('edit')}${L('Hariri','Edit')}</button><button class="gray" style="color:#b3261e" onclick="vkGroupDelete('${g.id}')">${L('Futa kikundi','Delete group')}</button></div></div>
   <div class="vk-stats"><div class="report-stat"><span>${L('Wanachama','Members')}</span><b>${act.length}</b></div><div class="report-stat"><span>${L('Hisa zote','Total shares')}</span><b>${shares}</b></div><div class="report-stat"><span>${L('Fedha zilizokusanywa','Total collected')}</span><b>${T(fundTotal())}</b></div></div>
   <div class="vk-tabs">${tabs.map(t=>`<button class="${V.tab===t[0]?'on':''}" onclick="vkTab('${t[0]}')">${t[1]}</button>`).join('')}</div>`+
-  (V.tab==='members'?membersHtml():V.tab==='history'?historyHtml():cycleHtml());
+  (V.tab==='members'?membersHtml():V.tab==='history'?historyHtml():V.tab==='report'?reportHtml():cycleHtml());
 }
 function cycleHtml(){
   const g=grp();
@@ -16954,7 +16954,7 @@ function cycleHtml(){
     <div class="vk-stats three"><div class="report-stat"><span>${L('Linalotakiwa','Expected')}</span><b>${T(due)}</b></div><div class="report-stat"><span>${L('Limekusanywa','Collected')}</span><b>${T(paid)}</b><small>${pct}%</small></div><div class="report-stat ${due-paid>0&&late?'bad':''}"><span>${L('Linadaiwa','Outstanding')}</span><b>${T(Math.max(0,due-paid))}</b><small>${nUn} ${L('watu','people')}${late&&nUn?' · '+L('muda umepita','overdue'):''}</small></div></div>
     <div class="vk-fil"><button class="${f==='all'?'on':''}" onclick="vkFilter('all')">${L('Wote','All')} (${all.length})</button><button class="${f==='owe'?'on':''}" onclick="vkFilter('owe')">${L('Hawajalipa','Not paid')} (${nUn})</button><button class="${f==='paid'?'on':''}" onclick="vkFilter('paid')">${L('Wamelipa','Paid')} (${nPaid})</button>${nUn?`<button class="gray vk-copy" onclick="vkCopyAll()">${ic('copy')}${L('Nakili ukumbusho wote','Copy all reminders')}</button>`:''}</div>
     <div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mwanachama','Member')}</th><th class="r">${L('Hisa','Shares')}</th><th class="r">${L('Deni','Owes')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th><th></th></tr></thead><tbody>
-    ${list.map(r=>`<tr><td><b>${esc(r.m.name)}</b>${r.m.role!=='member'?` <span class="vk-role">${ROLES[r.m.role][L('0','1')==='0'?0:1]}</span>`:''}${r.m.phone?`<div class="muted sm">${esc(r.m.phone)}</div>`:''}</td><td class="r">${r.m.shares}</td><td class="r">${T(r.due)}</td><td class="r">${T(r.paid)}</td><td class="r"><span class="vk-st ${r.st}">${r.st==='paid'?L('Amemaliza','Paid'):T(r.bal)}</span>${r.over?`<div class="muted sm">+${T(r.over)} ${L('ziada','extra')}</div>`:''}</td>
+    ${list.map(r=>`<tr><td><a href="#" class="vk-ml" onclick="vkMemberReport('${r.m.id}');return false"><b>${esc(r.m.name)}</b></a>${r.m.role!=='member'?` <span class="vk-role">${ROLES[r.m.role][L('0','1')==='0'?0:1]}</span>`:''}${r.m.phone?`<div class="muted sm">${esc(r.m.phone)}</div>`:''}</td><td class="r">${r.m.shares}</td><td class="r">${T(r.due)}</td><td class="r">${T(r.paid)}</td><td class="r"><span class="vk-st ${r.st}">${r.st==='paid'?L('Amemaliza','Paid'):T(r.bal)}</span>${r.over?`<div class="muted sm">+${T(r.over)} ${L('ziada','extra')}</div>`:''}</td>
       <td class="r vk-rowact">${r.bal>0?`<button class="primary sm" onclick="vkPayForm('${r.m.id}','${cy.id}')">${L('Lipa','Pay')}</button>${r.m.phone?`<button class="gray sm" title="${L('Mkumbushe kwa WhatsApp','Remind on WhatsApp')}" onclick="vkRemind('${r.m.id}')">${ic('whatsapp')}</button>`:''}`:`<button class="gray sm" onclick="vkPayForm('${r.m.id}','${cy.id}')">+</button>`}</td></tr>`).join('')||`<tr><td colspan="6" class="muted" style="text-align:center;padding:22px">${L('Hakuna wa kuonyesha.','Nobody to show.')}</td></tr>`}
     </tbody></table></div>
     <p class="vk-hint">${L('Vikumbusho vinafunguka kwenye WhatsApp ya mwanachama kikiwa kimeandikwa. SMS za moja kwa moja zitaongezwa SMS zikiwashwa kwa wateja.','Reminders open in the member\'s WhatsApp with the text ready. Automatic SMS will be added once SMS is switched on for customers.')}</p></div>`;
@@ -16980,7 +16980,7 @@ function memRowsHtml(){
   return list.map(m=>{ const r=cr.find(x=>x.m.id===m.id), on=V.sel.has(m.id);
     return `<tr class="${m.active?'':'vk-off'} ${on?'vk-sel':''}"><td><label class="vk-ckl"><input type="checkbox" ${on?'checked':''} onchange="vkSelToggle('${m.id}')" aria-label="${L('Chagua','Select')}"><span><b>${esc(m.name)}</b>${m.role!=='member'?` <span class="vk-role">${ROLES[m.role][L(0,1)]}</span>`:''}${m.active?'':` <span class="vk-role">${L('Amesimamishwa','Suspended')}</span>`}${m.phone?`<div class="muted sm">${esc(m.phone)}</div>`:''}</span></label></td>
     <td class="r">${m.shares}</td><td class="r">${T(memTotal(m.id))}</td><td class="r">${r?(r.st==='paid'?`<span class="vk-st paid">${L('Amemaliza','Paid')}</span>`:`<span class="vk-st ${r.st}">${T(r.bal)}</span>`):'<span class="muted">-</span>'}</td>
-    <td class="r vk-rowact"><button class="gray sm" onclick="vkMemberForm('${m.id}')" title="${L('Hariri','Edit')}">${ic('edit')}</button><button class="gray sm" onclick="vkMemberToggle('${m.id}')">${m.active?L('Simamisha','Suspend'):L('Rudisha','Restore')}</button></td></tr>`; }).join('');
+    <td class="r vk-rowact"><button class="gray sm" onclick="vkMemberReport('${m.id}')">${L('Ripoti','Report')}</button><button class="gray sm" onclick="vkMemberForm('${m.id}')" title="${L('Hariri','Edit')}">${ic('edit')}</button><button class="gray sm" onclick="vkMemberToggle('${m.id}')">${m.active?L('Simamisha','Suspend'):L('Rudisha','Restore')}</button></td></tr>`; }).join('');
 }
 function selBarHtml(){ const n=V.sel.size; return `<div class="vk-selbar ${n?'on':''}"><b>${n} ${L('wamechaguliwa','selected')}</b><span class="vk-selact"><button class="gray sm" onclick="vkSelClear()">${L('Futa uchaguzi','Clear selection')}</button><button class="gray sm" onclick="vkSuspendSel()" ${n?'':'disabled'}>${L('Simamisha waliochaguliwa','Suspend selected')}</button><button class="danger sm" onclick="vkDeleteSel()" ${n?'':'disabled'}>${ic('trash')}${L('Futa waliochaguliwa','Delete selected')} (${n})</button></span></div>`; }
 function membersHtml(){
@@ -17073,11 +17073,61 @@ window.vkPrintList=function(){
   w.document.close();
 };
 
+/* ---------- per-member report + group report (month by month) ---------- */
+function cycApplies(m,cy){ return paidFor(m.id,cy.id)>0||!m.joined_on||cy.due_date>=String(m.joined_on).slice(0,7)+'-01'; }
+function cyclesAsc(){ return V.cycles.slice().sort((a,b)=>a.due_date<b.due_date?-1:a.due_date>b.due_date?1:0); }
+function memCycles(m){ return cyclesAsc().filter(cy=>cycApplies(m,cy)).map(cy=>{ const due=m.shares*Number(cy.share_price), paid=paidFor(m.id,cy.id); return {cy,due,paid,bal:Math.max(0,due-paid)}; }); }
+function memSum(m){ const c=memCycles(m); return {c,due:c.reduce((a,x)=>a+x.due,0),paid:c.reduce((a,x)=>a+Math.min(x.paid,x.due),0),bal:c.reduce((a,x)=>a+x.bal,0),total:memTotal(m.id)}; }
+const stLbl=x=>x.paid>=x.due&&x.due>0?'paid':(x.paid>0?'part':'unpaid');
+const stTxt=k=>k==='paid'?L('Amemaliza','Paid'):k==='part'?L('Sehemu','Partial'):L('Hajalipa','Unpaid');
+window.vkMemberReport=function(id){
+  const g=grp(), m=V.members.find(x=>x.id===id); if(!g||!m) return; const S=memSum(m);
+  const pays=V.pays.filter(p=>p.member_id===id).sort((a,b)=>a.paid_on<b.paid_on?1:-1), cn=cid=>{ const c=V.cycles.find(x=>x.id===cid); return c?c.label:''; };
+  modal(`<h3>${esc(m.name)}</h3><p class="muted sm" style="margin:-6px 0 10px">${esc(g.name)} · ${m.shares} ${L('hisa','shares')}${m.phone?' · '+esc(m.phone):''}</p>
+  <div class="vk-stats three"><div class="report-stat"><span>${L('Jumla alichangia','Total contributed')}</span><b>${T(S.total)}</b></div><div class="report-stat"><span>${L('Linalotakiwa','Expected')}</span><b>${T(S.due)}</b></div><div class="report-stat ${S.bal>0?'bad':''}"><span>${L('Deni','Outstanding')}</span><b>${T(S.bal)}</b></div></div>
+  <h4 style="margin:14px 0 6px">${L('Michango kila mwezi','Contributions per month')}</h4>
+  ${S.c.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Mwezi/Mzunguko','Month/Cycle')}</th><th class="r">${L('Linatakiwa','Due')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th></tr></thead><tbody>${S.c.map(x=>`<tr><td><b>${esc(x.cy.label)}</b></td><td class="r">${T(x.due)}</td><td class="r">${T(x.paid)}</td><td class="r"><span class="vk-st ${stLbl(x)}">${x.bal>0?T(x.bal):stTxt('paid')}</span></td></tr>`).join('')}</tbody><tfoot><tr><td><b>${L('Jumla','Total')}</b></td><td class="r"><b>${T(S.due)}</b></td><td class="r"><b>${T(S.c.reduce((a,x)=>a+x.paid,0))}</b></td><td class="r"><b>${T(S.bal)}</b></td></tr></tfoot></table></div>`:`<p class="muted">${L('Hakuna mizunguko bado.','No cycles yet.')}</p>`}
+  <h4 style="margin:14px 0 6px">${L('Malipo yote','All payments')}</h4>
+  ${pays.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Tarehe','Date')}</th><th>${L('Mzunguko','Cycle')}</th><th class="r">${L('Kiasi','Amount')}</th><th>${L('Njia','Method')}</th></tr></thead><tbody>${pays.map(p=>`<tr class="${p.reversed_at?'vk-off':''}"><td>${fmtD(p.paid_on)}</td><td>${esc(cn(p.cycle_id))}</td><td class="r">${p.reversed_at?'<s>':''}${T(p.amount)}${p.reversed_at?'</s>':''}</td><td>${esc(p.method||'')}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna malipo bado.','No payments yet.')}</p>`}
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Funga','Close')}</button><button class="gray" onclick="vkPrintMember('${id}')">${ic('sheet')}${L('Chapisha','Print')}</button>${m.phone?`<a class="vk-wa" href="https://wa.me/${esc(m.phone.replace(/[^0-9]/g,''))}?text=${encodeURIComponent(statementText(g,m))}" target="_blank" rel="noopener">WhatsApp</a>`:''}${V.cycles.length?`<button class="primary" onclick="vkPayForm('${id}','${(S.c.slice().reverse().find(x=>x.bal>0)||S.c[S.c.length-1]||{cy:V.cycles[0]}).cy.id}')">${L('Lipa','Pay')}</button>`:''}</div>`);
+};
+const PRCSS='<style>body{font:13px Arial,sans-serif;margin:24px;color:#111}h1{font-size:18px;margin:0 0 4px}p{margin:0 0 12px;color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:6px 8px;text-align:left}th{background:#f0f2f8}td.r,th.r{text-align:right}tfoot td{font-weight:700;background:#f7f7f7}</style>';
+function openPrint(title,html){ const w=window.open('','_blank'); if(!w) return toast(L('Ruhusu dirisha jipya ili kuchapisha.','Allow pop-ups to print.')); w.document.write('<!doctype html><meta charset="utf-8"><title>'+esc(title)+'</title>'+PRCSS+html); w.document.close(); setTimeout(()=>{try{w.print()}catch(e){}},300); }
+window.vkPrintMember=function(id){
+  const g=grp(), m=V.members.find(x=>x.id===id); if(!g||!m) return; const S=memSum(m);
+  openPrint(m.name,`<h1>${esc(m.name)} — ${esc(g.name)}</h1><p>${L('Ripoti ya michango','Contribution report')} · ${fmtD(today())} · ${m.shares} ${L('hisa','shares')}</p><table><thead><tr><th>${L('Mwezi/Mzunguko','Month/Cycle')}</th><th class="r">${L('Linatakiwa','Due')}</th><th class="r">${L('Amelipa','Paid')}</th><th class="r">${L('Salio','Balance')}</th></tr></thead><tbody>${S.c.map(x=>`<tr><td>${esc(x.cy.label)}</td><td class="r">${T(x.due)}</td><td class="r">${T(x.paid)}</td><td class="r">${T(x.bal)}</td></tr>`).join('')}</tbody><tfoot><tr><td>${L('Jumla','Total')}</td><td class="r">${T(S.due)}</td><td class="r">${T(S.c.reduce((a,x)=>a+x.paid,0))}</td><td class="r">${T(S.bal)}</td></tr></tfoot></table>`);
+};
+function reportMembers(){ return V.members.filter(m=>m.active||memTotal(m.id)>0).sort((a,b)=>a.name.localeCompare(b.name)); }
+function reportHtml(){
+  const g=grp(), cs=cyclesAsc(), ms=reportMembers();
+  if(!ms.length||!cs.length) return `<div class="panel">${emptyState(L('Ripoti itaonekana hapa','The report will appear here'),L('Ongeza wanachama na ufungue mzunguko ili kuona ripoti ya kila mwezi.','Add members and open a cycle to see the month-by-month report.'),'')}</div>`;
+  const colTot=cs.map(cy=>ms.reduce((a,m)=>a+paidFor(m.id,cy.id),0)), colDue=cs.map(cy=>ms.reduce((a,m)=>a+(cycApplies(m,cy)?m.shares*Number(cy.share_price):0),0));
+  const sums=ms.map(m=>memSum(m)), gTot=sums.reduce((a,x)=>a+x.total,0), gBal=sums.reduce((a,x)=>a+x.bal,0), gDue=sums.reduce((a,x)=>a+x.due,0);
+  return `<div class="panel"><div class="vk-stats three"><div class="report-stat"><span>${L('Jumla ya fedha za kikundi','Group total funds')}</span><b>${T(fundTotal())}</b></div><div class="report-stat"><span>${L('Linalotakiwa (jumla)','Expected (all cycles)')}</span><b>${T(gDue)}</b></div><div class="report-stat ${gBal>0?'bad':''}"><span>${L('Madeni yote','Total outstanding')}</span><b>${T(gBal)}</b></div></div>
+  <div class="vk-fil"><button class="gray" onclick="vkPrintGroup()">${ic('sheet')}${L('Chapisha ripoti','Print report')}</button><button class="gray" onclick="vkExportReport()">${ic('download')}${L('Pakua Excel','Export Excel')}</button><button class="vk-green" onclick="vkStatements()">${ic('send')}${L('Tuma taarifa','Send statements')}</button></div>
+  <div class="vk-tw"><table class="vk-t vk-mx"><thead><tr><th>${L('Mwanachama','Member')}</th>${cs.map(c=>`<th class="r">${esc(c.label)}</th>`).join('')}<th class="r">${L('Jumla','Total')}</th><th class="r">${L('Deni','Owes')}</th></tr></thead><tbody>
+  ${ms.map((m,i)=>`<tr><td><a href="#" class="vk-ml" onclick="vkMemberReport('${m.id}');return false"><b>${esc(m.name)}</b></a></td>${cs.map(cy=>{ if(!cycApplies(m,cy)) return '<td class="r muted">-</td>'; const due=m.shares*Number(cy.share_price), pd=paidFor(m.id,cy.id); return `<td class="r"><span class="vk-st ${pd>=due?'paid':pd>0?'part':'unpaid'}">${T(pd)}</span></td>`; }).join('')}<td class="r"><b>${T(sums[i].total)}</b></td><td class="r">${sums[i].bal>0?`<span class="vk-st unpaid">${T(sums[i].bal)}</span>`:'<span class="vk-st paid">0</span>'}</td></tr>`).join('')}
+  </tbody><tfoot><tr><td><b>${L('Jumla kila mwezi','Monthly total')}</b></td>${colTot.map(v=>`<td class="r"><b>${T(v)}</b></td>`).join('')}<td class="r"><b>${T(gTot)}</b></td><td class="r"><b>${T(gBal)}</b></td></tr></tfoot></table></div>
+  <p class="vk-hint">${L('Rangi: kijani = amemaliza mwezi huo, njano = sehemu, nyekundu = hajalipa. Bonyeza jina kuona ripoti kamili ya mtu mmoja.','Colours: green = paid in full, yellow = partial, red = unpaid. Tap a name to see that person\'s full report.')}</p></div>`;
+}
+window.vkPrintGroup=function(){
+  const g=grp(); if(!g) return; const cs=cyclesAsc(), ms=reportMembers(), sums=ms.map(memSum);
+  openPrint(g.name,`<h1>${esc(g.name)}</h1><p>${L('Ripoti ya michango ya kikundi','Group contribution report')} · ${fmtD(today())}</p><table><thead><tr><th>#</th><th>${L('Jina','Name')}</th>${cs.map(c=>`<th class="r">${esc(c.label)}</th>`).join('')}<th class="r">${L('Jumla','Total')}</th><th class="r">${L('Deni','Owes')}</th></tr></thead><tbody>${ms.map((m,i)=>`<tr><td>${i+1}</td><td>${esc(m.name)}</td>${cs.map(cy=>`<td class="r">${cycApplies(m,cy)?T(paidFor(m.id,cy.id)):'-'}</td>`).join('')}<td class="r">${T(sums[i].total)}</td><td class="r">${T(sums[i].bal)}</td></tr>`).join('')}</tbody><tfoot><tr><td></td><td>${L('Jumla','Total')}</td>${cs.map(cy=>`<td class="r">${T(ms.reduce((a,m)=>a+paidFor(m.id,cy.id),0))}</td>`).join('')}<td class="r">${T(sums.reduce((a,x)=>a+x.total,0))}</td><td class="r">${T(sums.reduce((a,x)=>a+x.bal,0))}</td></tr></tfoot></table>`);
+};
+window.vkExportReport=async function(){
+  const g=grp(); if(!g) return; const cs=cyclesAsc(), ms=reportMembers();
+  try{ await needXlsx(); const head=[L('Jina','Name'),L('Simu','Phone'),L('Hisa','Shares')].concat(cs.map(c=>c.label),[L('Jumla (TZS)','Total (TZS)'),L('Deni (TZS)','Outstanding (TZS)')]);
+    const data=ms.map(m=>[m.name,m.phone||'',m.shares].concat(cs.map(cy=>cycApplies(m,cy)?paidFor(m.id,cy.id):''),[memSum(m).total,memSum(m).bal]));
+    data.push([L('JUMLA','TOTAL'),'',''].concat(cs.map(cy=>ms.reduce((a,m)=>a+paidFor(m.id,cy.id),0)),[ms.reduce((a,m)=>a+memSum(m).total,0),ms.reduce((a,m)=>a+memSum(m).bal,0)]));
+    const ws=XLSX.utils.aoa_to_sheet([head].concat(data)); ws['!cols']=head.map((h,i)=>({wch:i===0?26:14})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Report'); XLSX.writeFile(wb,'vikoba-report-'+g.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.xlsx');
+  }catch(e){ toast(errMsg(e)); }
+};
+
 /* Statements: each member's own summary on WhatsApp + one group summary to paste into the group chat */
 function statementText(g,m){
   const cy=curCycle(), r=cy?rows(cy.id).find(x=>x.m.id===m.id):null, tot=memTotal(m.id);
-  return L(`Habari ${m.name}, taarifa yako ya ${g.name}:\n- Hisa zako: ${m.shares}\n- Jumla uliyochangia hadi sasa: ${T(tot)}`+(r?`\n- Mzunguko "${cy.label}": umelipa ${T(r.paid)} kati ya ${T(r.due)}${r.bal>0?`, salio ${T(r.bal)} (mwisho ${fmtD(cy.due_date)})`:' (umemaliza)'}`:'')+`\nAsante.`,
-    `Hello ${m.name}, your ${g.name} statement:\n- Your shares: ${m.shares}\n- Total contributed so far: ${T(tot)}`+(r?`\n- Cycle "${cy.label}": paid ${T(r.paid)} of ${T(r.due)}${r.bal>0?`, balance ${T(r.bal)} (due ${fmtD(cy.due_date)})`:' (complete)'}`:'')+`\nThank you.`);
+  return L(`Habari ${m.name}, taarifa yako ya ${g.name}:\n- Hisa zako: ${m.shares}\n- Jumla uliyochangia hadi sasa: ${T(tot)}`+`\n\nMichango kila mwezi:\n`+memCycles(m).map(x=>`- ${x.cy.label}: ${T(x.paid)} / ${T(x.due)}${x.bal>0?` (salio ${T(x.bal)})`:' ✓'}`).join('\n')+`\n\nJumla deni: ${T(memCycles(m).reduce((a,x)=>a+x.bal,0))}\nAsante.`,
+    `Hello ${m.name}, your ${g.name} statement:\n- Your shares: ${m.shares}\n- Total contributed so far: ${T(tot)}`+`\n\nContributions per month:\n`+memCycles(m).map(x=>`- ${x.cy.label}: ${T(x.paid)} / ${T(x.due)}${x.bal>0?` (balance ${T(x.bal)})`:' ✓'}`).join('\n')+`\n\nTotal outstanding: ${T(memCycles(m).reduce((a,x)=>a+x.bal,0))}\nThank you.`);
 }
 function groupSummaryText(g){
   const list=V.members.filter(m=>m.active), cy=curCycle(), cr=cy?rows(cy.id):[], tot=list.reduce((s,m)=>s+memTotal(m.id),0);
