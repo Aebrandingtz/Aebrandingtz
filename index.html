@@ -1757,6 +1757,20 @@ button.sm{padding:6px 12px;font-size:12.5px;min-height:0}
 .vk-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .vk-act{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
 .vk-sum{background:#f5f7fd;border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:13px}
+
+.vk-tool{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.vk-srch{flex:1 1 220px;min-width:180px}.vk-srch input,.vk-tool select{width:100%;box-sizing:border-box}.vk-tool select{width:auto;min-width:200px}
+.vk-green{background:#1e7a4c;color:#fff;border-color:#1e7a4c}.vk-green:hover{background:#176a40}
+.vk-info{margin:0 0 12px}
+.vk-selbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--line-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}.vk-selbar:not(.on){opacity:.85}
+.vk-selact{display:flex;gap:8px;flex-wrap:wrap}
+.vk-ckl{display:flex;gap:10px;align-items:flex-start;cursor:pointer}.vk-ckl input{width:auto;margin-top:3px;flex:none}
+.vk-sel td{background:#eef2ff}
+.vk-stl{max-height:52vh;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.vk-str{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line-2)}.vk-str:last-child{border-bottom:0}
+.vk-wa{background:#25a244;color:#fff;text-decoration:none;font-weight:600;font-size:13px;border-radius:10px;padding:8px 14px;white-space:nowrap}
+.vk-box:has(.vk-stl),.vk-box:has(#vkGrpTxt){width:min(540px,100%)}
+@media(max-width:620px){.vk-tool select,.vk-tool button{flex:1 1 45%}.vk-tool .vk-srch{flex:1 1 100%}.vk-ckl{align-items:flex-start}}
 .vk-warn{background:#fef3c7;color:#92400e;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:12px}
 @media(max-width:620px){
  .vk-t thead{display:none}.vk-t,.vk-t tbody,.vk-t tr,.vk-t td{display:block;width:100%;box-sizing:border-box}
@@ -16927,14 +16941,148 @@ function cycleHtml(){
     </tbody></table></div>
     <p class="vk-hint">${L('Vikumbusho vinafunguka kwenye WhatsApp ya mwanachama kikiwa kimeandikwa. SMS za moja kwa moja zitaongezwa SMS zikiwashwa kwa wateja.','Reminders open in the member\'s WhatsApp with the text ready. Automatic SMS will be added once SMS is switched on for customers.')}</p></div>`;
 }
+function memTotal(mid){ let s=0; for(const p of V.pays) if(live(p)&&p.member_id===mid) s+=Number(p.amount); return s; }
+function curCycle(){ return V.cycles.find(x=>x.id===V.cyc)||V.cycles[0]||null; }
+function memFiltered(){
+  const q=(V.q||'').toLowerCase().trim(), f=V.mf||'all', cy=curCycle(), cr=cy?rows(cy.id):[];
+  return V.members.filter(m=>{
+    if(q){ let qd=q.replace(/\D/g,''); if(qd.startsWith('0')) qd=qd.slice(1); if(!(m.name.toLowerCase().includes(q)||(qd&&String(m.phone||'').replace(/\D/g,'').includes(qd)))) return false; }
+    if(f==='susp') return !m.active;
+    if(f==='all') return true;
+    if(!m.active) return false;
+    const r=cr.find(x=>x.m.id===m.id);
+    if(f==='owe') return !!r&&r.bal>0;
+    if(f==='paid') return !!r&&r.st==='paid';
+    return true;
+  });
+}
+function memRowsHtml(){
+  const list=memFiltered(), cy=curCycle(), cr=cy?rows(cy.id):[];
+  if(!list.length) return `<tr><td colspan="5" class="muted" style="text-align:center;padding:24px">${V.members.length?L('Hakuna anayelingana na utafutaji.','No members match your search.'):L('Hakuna wanachama bado. Ongeza mmoja mmoja au ingiza faili ya Excel.','No members yet. Add them one by one or import an Excel file.')}</td></tr>`;
+  return list.map(m=>{ const r=cr.find(x=>x.m.id===m.id), on=V.sel.has(m.id);
+    return `<tr class="${m.active?'':'vk-off'} ${on?'vk-sel':''}"><td><label class="vk-ckl"><input type="checkbox" ${on?'checked':''} onchange="vkSelToggle('${m.id}')" aria-label="${L('Chagua','Select')}"><span><b>${esc(m.name)}</b>${m.role!=='member'?` <span class="vk-role">${ROLES[m.role][L(0,1)]}</span>`:''}${m.active?'':` <span class="vk-role">${L('Amesimamishwa','Suspended')}</span>`}${m.phone?`<div class="muted sm">${esc(m.phone)}</div>`:''}</span></label></td>
+    <td class="r">${m.shares}</td><td class="r">${T(memTotal(m.id))}</td><td class="r">${r?(r.st==='paid'?`<span class="vk-st paid">${L('Amemaliza','Paid')}</span>`:`<span class="vk-st ${r.st}">${T(r.bal)}</span>`):'<span class="muted">-</span>'}</td>
+    <td class="r vk-rowact"><button class="gray sm" onclick="vkMemberForm('${m.id}')" title="${L('Hariri','Edit')}">${ic('edit')}</button><button class="gray sm" onclick="vkMemberToggle('${m.id}')">${m.active?L('Simamisha','Suspend'):L('Rudisha','Restore')}</button></td></tr>`; }).join('');
+}
+function selBarHtml(){ const n=V.sel.size; return `<div class="vk-selbar ${n?'on':''}"><b>${n} ${L('wamechaguliwa','selected')}</b><span class="vk-selact"><button class="gray sm" onclick="vkSelClear()">${L('Futa uchaguzi','Clear selection')}</button><button class="gray sm" onclick="vkSuspendSel()" ${n?'':'disabled'}>${L('Simamisha waliochaguliwa','Suspend selected')}</button><button class="danger sm" onclick="vkDeleteSel()" ${n?'':'disabled'}>${ic('trash')}${L('Futa waliochaguliwa','Delete selected')} (${n})</button></span></div>`; }
 function membersHtml(){
-  return `<div class="panel"><div class="vk-ph"><h3>${L('Wanachama','Members')} (${V.members.filter(m=>m.active).length})</h3><div class="topline-actions"><button class="gray" onclick="vkImportForm()">${ic('users')}${L('Ingiza wengi','Add many')}</button><button class="primary" onclick="vkMemberForm()">${ic('plus')}${L('Mwanachama','Member')}</button></div></div>
-  ${V.members.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Jina','Name')}</th><th>${L('Simu','Phone')}</th><th>${L('Cheo','Role')}</th><th class="r">${L('Hisa','Shares')}</th><th></th></tr></thead><tbody>${V.members.map(m=>`<tr class="${m.active?'':'vk-off'}"><td><b>${esc(m.name)}</b>${m.active?'':` <span class="vk-role">${L('Amesimamishwa','Suspended')}</span>`}</td><td>${esc(m.phone||'')}</td><td>${ROLES[m.role][L('0','1')==='0'?0:1]}</td><td class="r">${m.shares}</td><td class="r vk-rowact"><button class="gray sm" onclick="vkMemberForm('${m.id}')">${ic('edit')}</button><button class="gray sm" onclick="vkMemberToggle('${m.id}')">${m.active?L('Simamisha','Suspend'):L('Rudisha','Restore')}</button></td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna wanachama bado. Ongeza mmoja mmoja au ingiza wengi kwa pamoja.','No members yet. Add them one by one or paste many at once.')}</p>`}</div>`;
+  const cy=curCycle();
+  return `<div class="panel vk-mp"><div class="vk-tool">
+    <div class="vk-srch"><input id="vkSrch" type="search" placeholder="${L('Tafuta kwa jina au simu…','Search by name or phone…')}" value="${esc(V.q||'')}" oninput="vkQ(this.value)"></div>
+    <select id="vkMF" onchange="vkMF(this.value)"><option value="all" ${V.mf==='all'?'selected':''}>${L('Wanachama wote','All members')}</option><option value="owe" ${V.mf==='owe'?'selected':''}>${L('Hawajalipa mzunguko huu','Not paid this cycle')}</option><option value="paid" ${V.mf==='paid'?'selected':''}>${L('Wamelipa mzunguko huu','Paid this cycle')}</option><option value="susp" ${V.mf==='susp'?'selected':''}>${L('Waliosimamishwa','Suspended')}</option></select>
+    <button class="vk-green" onclick="vkStatements()">${ic('send')}${L('Tuma taarifa','Send statements')}</button>
+    <button class="gray" onclick="vkPrintList()">${ic('sheet')}${L('Chapisha orodha','Print list')}</button>
+    <button class="gray" onclick="vkExport()">${ic('download')}${L('Pakua','Export')}</button>
+    <button class="gray" onclick="document.getElementById('vkFile').click()">${ic('sheet')}${L('Ingiza Excel','Import Excel')}</button>
+    <button class="gray" onclick="vkImportForm()">${ic('users')}${L('Bandika majina','Paste names')}</button>
+    <button class="primary" onclick="vkMemberForm()">${ic('plus')}${L('Ongeza mwanachama','Add member')}</button>
+    <input id="vkFile" type="file" accept=".xlsx,.xls,.csv" hidden onchange="vkImportFile(this)"></div>
+  <div class="hint-box vk-info">${ic('info')}<span>${L('Faili lako la Excel/CSV linahitaji safu: <b>Jina</b>, <b>Simu</b>. Hiari: <b>Hisa</b>, <b>Cheo</b>.','Your Excel/CSV file needs columns: <b>Name</b>, <b>Phone</b>. Optional: <b>Shares</b>, <b>Role</b>.')} <a href="#" onclick="vkTemplate();return false"><b>${L('Pakua mfano','Download template')}</b></a></span></div>
+  <div id="vkSelBar">${selBarHtml()}</div>
+  <div class="vk-tw"><table class="vk-t"><thead><tr><th><label class="vk-ckl"><input type="checkbox" onchange="vkSelAll(this.checked)" aria-label="${L('Chagua wote','Select all')}"><span>${L('Mwanachama','Member')}</span></label></th><th class="r">${L('Hisa','Shares')}</th><th class="r">${L('Alichangia','Contributed')}</th><th class="r">${L('Salio','Balance')}${cy?' ('+esc(cy.label)+')':''}</th><th></th></tr></thead><tbody id="vkMemBody">${memRowsHtml()}</tbody></table></div></div>`;
 }
 function historyHtml(){
   const cname=id=>{ const c=V.cycles.find(x=>x.id===id); return c?c.label:''; }, mname=id=>{ const m=V.members.find(x=>x.id===id); return m?m.name:''; };
   return `<div class="panel"><div class="vk-ph"><h3>${L('Historia ya malipo','Payment history')}</h3></div>${V.pays.length?`<div class="vk-tw"><table class="vk-t"><thead><tr><th>${L('Tarehe','Date')}</th><th>${L('Mwanachama','Member')}</th><th>${L('Mzunguko','Cycle')}</th><th class="r">${L('Kiasi','Amount')}</th><th>${L('Njia','Method')}</th><th></th></tr></thead><tbody>${V.pays.map(p=>`<tr class="${p.reversed_at?'vk-off':''}"><td>${fmtD(p.paid_on)}</td><td>${esc(mname(p.member_id))}</td><td>${esc(cname(p.cycle_id))}</td><td class="r">${p.reversed_at?'<s>':''}${T(p.amount)}${p.reversed_at?'</s>':''}</td><td>${esc(p.method)}${p.ref?`<div class="muted sm">${esc(p.ref)}</div>`:''}</td><td class="r">${p.reversed_at?`<span class="vk-role">${L('Imebatilishwa','Reversed')}</span><div class="muted sm">${esc(p.reverse_reason||'')}</div>`:`<button class="gray sm" onclick="vkReverseForm('${p.id}')">${L('Batilisha','Reverse')}</button>`}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${L('Hakuna malipo bado.','No payments yet.')}</p>`}</div>`;
 }
+/* ---------- members toolbar: search, filter, select, import/export, print, statements ---------- */
+V.q=''; V.mf='all'; V.sel=new Set();
+window.vkQ=function(v){ V.q=v; const b=$('vkMemBody'); if(b) b.innerHTML=memRowsHtml(); };
+window.vkMF=function(v){ V.mf=v; const b=$('vkMemBody'); if(b) b.innerHTML=memRowsHtml(); };
+function selRefresh(){ const b=$('vkSelBar'); if(b) b.innerHTML=selBarHtml(); const t=$('vkMemBody'); if(t) t.innerHTML=memRowsHtml(); }
+window.vkSelToggle=function(id){ V.sel.has(id)?V.sel.delete(id):V.sel.add(id); selRefresh(); };
+window.vkSelAll=function(on){ if(on) memFiltered().forEach(m=>V.sel.add(m.id)); else V.sel.clear(); selRefresh(); };
+window.vkSelClear=function(){ V.sel.clear(); selRefresh(); const c=document.querySelector('#vkBox .vk-t thead input'); if(c) c.checked=false; };
+window.vkSuspendSel=async function(){
+  const ids=[...V.sel].filter(id=>{ const m=V.members.find(x=>x.id===id); return m&&m.active; }); if(!ids.length||V.busy) return toast(L('Hakuna wa kusimamisha.','Nobody to suspend.'));
+  if(!(await window.confirmDialog({title:L('Kuwasimamisha wanachama ','Suspend ')+ids.length+L('?',' members?'),text:L('Hawataonekana kwenye mizunguko mipya. Historia ya malipo yao inabaki.','They will not appear in new cycles. Their payment history stays.'),ok:L('Wasimamishe','Suspend'),tone:'danger'}))) return;
+  V.busy=true;
+  try{ const r=await db().from('vk_members').update({active:false}).in('id',ids).select('*'); if(r.error) throw r.error; const by=new Map(r.data.map(x=>[x.id,x])); V.members=V.members.map(x=>by.get(x.id)||x); V.sel.clear(); toast(r.data.length+L(' wamesimamishwa.',' suspended.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkDeleteSel=async function(){
+  const ids=[...V.sel]; if(!ids.length||V.busy) return;
+  const withPay=new Set(V.pays.map(p=>p.member_id)), del=ids.filter(id=>!withPay.has(id)), keep=ids.length-del.length;
+  if(!del.length) return toast(L('Wote waliochaguliwa wana historia ya malipo, hawawezi kufutwa. Tumia "Simamisha".','All selected members have payment history and cannot be deleted. Use "Suspend".'));
+  if(!(await window.confirmDialog({title:L('Kufuta wanachama ','Delete ')+del.length+L('?',' members?'),text:L('Watafutwa kabisa. ','They will be deleted for good. ')+(keep?L(`${keep} wenye malipo hawatafutwa.`,`${keep} with payments will be kept.`):''),ok:L('Futa','Delete'),tone:'danger'}))) return;
+  V.busy=true;
+  try{ const r=await db().from('vk_members').delete().in('id',del).select('id'); if(r.error) throw r.error; const gone=new Set((r.data||[]).map(x=>x.id)); V.members=V.members.filter(m=>!gone.has(m.id)); V.sel=new Set([...V.sel].filter(id=>!gone.has(id))); toast(gone.size+L(' wamefutwa.',' deleted.')); }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+
+/* Excel / CSV */
+async function needXlsx(){ if(window.XLSX&&XLSX.utils) return; await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload=res; s.onerror=()=>rej(new Error(L('Kisomaji cha Excel hakikupakia. Pakia upya ukurasa.','The Excel reader did not load. Refresh the page.'))); document.head.appendChild(s); }); }
+const hdr=(o,names)=>{ for(const k of Object.keys(o)){ const n=k.toLowerCase().replace(/[^a-z]/g,''); if(names.includes(n)) return o[k]; } return ''; };
+const roleOf=v=>{ const s=String(v||'').toLowerCase(); if(/mwenyekiti|chair/.test(s)) return 'chair'; if(/katibu|secret/.test(s)) return 'secretary'; if(/mhazini|treas/.test(s)) return 'treasurer'; return 'member'; };
+window.vkImportFile=async function(inp){
+  const g=grp(), f=inp.files&&inp.files[0]; inp.value=''; if(!g||!f||V.busy) return;
+  try{
+    await needXlsx(); const buf=await f.arrayBuffer(), wb=XLSX.read(buf,{type:'array'}), js=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+    if(!js.length) return toast(L('Faili halina safu zenye majina.','The file has no rows.'));
+    const have=new Set(V.members.map(m=>m.name.toLowerCase()+'|'+String(m.phone||'')));
+    const out=[], bad=[]; let dup=0;
+    js.forEach((o,i)=>{
+      const name=String(hdr(o,['name','jina','majina','mwanachama','member'])).trim(); const phRaw=String(hdr(o,['phone','simu','namba','number','mobile','tel'])).trim();
+      let shares=Math.round(Number(hdr(o,['shares','hisa'])||1)); if(!(shares>=1)) shares=1;
+      if(!name&&!phRaw) return;
+      const phone=cleanPhone(phRaw); if(name.length<2||(phRaw&&!phone)||shares>g.max_shares){ bad.push((i+2)+': '+(name||phRaw)); return; }
+      const key=name.toLowerCase()+'|'+(phone||''); if(have.has(key)){ dup++; return; } have.add(key);
+      out.push({group_id:g.id,name,phone,shares,role:roleOf(hdr(o,['role','cheo']))});
+    });
+    if(!out.length) return toast(bad.length?(L('Mistari yenye tatizo: ','Problem rows: ')+bad.slice(0,4).join(' | ')):(dup?L('Wote tayari wapo.','They are all already added.'):L('Hakuna wa kuingiza.','Nobody to add.')));
+    V.busy=true; const r=await db().from('vk_members').insert(out).select('*'); if(r.error) throw r.error;
+    V.members=V.members.concat(r.data).sort((a,b)=>a.name.localeCompare(b.name));
+    toast(r.data.length+L(' wameongezwa',' added')+(dup?L(`, ${dup} tayari walikuwepo`,`, ${dup} already existed`):'')+(bad.length?L(`, ${bad.length} wana tatizo (mstari ${bad[0]})`,`, ${bad.length} skipped (row ${bad[0]})`):'')+'.');
+  }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+window.vkTemplate=async function(){
+  try{ await needXlsx(); const ws=XLSX.utils.aoa_to_sheet([[L('Jina','Name'),L('Simu','Phone'),L('Hisa','Shares'),L('Cheo','Role')],['Asha Juma','0712345678',2,L('Mwanachama','Member')],['Baraka Mushi','0765000111',1,L('Mwenyekiti','Chairperson')]]); ws['!cols']=[{wch:26},{wch:16},{wch:8},{wch:16}]; const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Members'); XLSX.writeFile(wb,'vikoba-members-template.xlsx'); }catch(e){ toast(errMsg(e)); }
+};
+window.vkExport=async function(){
+  const g=grp(); if(!g) return; const cy=curCycle(), cr=cy?rows(cy.id):[];
+  try{ await needXlsx();
+    const head=[L('Jina','Name'),L('Simu','Phone'),L('Cheo','Role'),L('Hisa','Shares'),L('Hali','Status'),L('Jumla alichangia (TZS)','Total contributed (TZS)')]; if(cy) head.push(cy.label+' - '+L('Deni','Owes'),cy.label+' - '+L('Amelipa','Paid'),cy.label+' - '+L('Salio','Balance'));
+    const data=V.members.map(m=>{ const r=cr.find(x=>x.m.id===m.id); const row=[m.name,m.phone||'',ROLES[m.role][L(0,1)],m.shares,m.active?L('Hai','Active'):L('Amesimamishwa','Suspended'),memTotal(m.id)]; if(cy) row.push(r?r.due:'',r?r.paid:'',r?r.bal:''); return row; });
+    const ws=XLSX.utils.aoa_to_sheet([head].concat(data)); ws['!cols']=head.map((h,i)=>({wch:i===0?26:16})); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Members'); XLSX.writeFile(wb,'vikoba-'+g.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.xlsx');
+  }catch(e){ toast(errMsg(e)); }
+};
+window.vkPrintList=function(){
+  const g=grp(); if(!g) return; const cy=curCycle(), cr=cy?rows(cy.id):[], list=V.members.filter(m=>m.active);
+  const w=window.open('','_blank'); if(!w) return toast(L('Ruhusu dirisha jipya ili kuchapisha.','Allow pop-ups to print.'));
+  const tot=list.reduce((s,m)=>s+memTotal(m.id),0);
+  w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(g.name)}</title><style>body{font:13px Arial,sans-serif;margin:24px;color:#111}h1{font-size:18px;margin:0 0 4px}p{margin:0 0 12px;color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:6px 8px;text-align:left}th{background:#f0f2f8}td.r,th.r{text-align:right}tfoot td{font-weight:700;background:#f7f7f7}</style><h1>${esc(g.name)}</h1><p>${L('Orodha ya wanachama','Member list')} · ${new Date().toLocaleDateString()} · ${T(g.share_price)} / ${L('hisa','share')}</p><table><thead><tr><th>#</th><th>${L('Jina','Name')}</th><th>${L('Simu','Phone')}</th><th class="r">${L('Hisa','Shares')}</th><th class="r">${L('Alichangia','Contributed')}</th>${cy?`<th class="r">${L('Salio','Balance')} (${esc(cy.label)})</th>`:''}</tr></thead><tbody>${list.map((m,i)=>{ const r=cr.find(x=>x.m.id===m.id); return `<tr><td>${i+1}</td><td>${esc(m.name)}</td><td>${esc(m.phone||'')}</td><td class="r">${m.shares}</td><td class="r">${T(memTotal(m.id))}</td>${cy?`<td class="r">${r?T(r.bal):''}</td>`:''}</tr>`; }).join('')}</tbody><tfoot><tr><td colspan="4">${L('Jumla','Total')}</td><td class="r">${T(tot)}</td>${cy?'<td></td>':''}</tr></tfoot></table><script>setTimeout(function(){window.print()},300)<\/script>`);
+  w.document.close();
+};
+
+/* Statements: each member's own summary on WhatsApp + one group summary to paste into the group chat */
+function statementText(g,m){
+  const cy=curCycle(), r=cy?rows(cy.id).find(x=>x.m.id===m.id):null, tot=memTotal(m.id);
+  return L(`Habari ${m.name}, taarifa yako ya ${g.name}:\n- Hisa zako: ${m.shares}\n- Jumla uliyochangia hadi sasa: ${T(tot)}`+(r?`\n- Mzunguko "${cy.label}": umelipa ${T(r.paid)} kati ya ${T(r.due)}${r.bal>0?`, salio ${T(r.bal)} (mwisho ${fmtD(cy.due_date)})`:' (umemaliza)'}`:'')+`\nAsante.`,
+    `Hello ${m.name}, your ${g.name} statement:\n- Your shares: ${m.shares}\n- Total contributed so far: ${T(tot)}`+(r?`\n- Cycle "${cy.label}": paid ${T(r.paid)} of ${T(r.due)}${r.bal>0?`, balance ${T(r.bal)} (due ${fmtD(cy.due_date)})`:' (complete)'}`:'')+`\nThank you.`);
+}
+function groupSummaryText(g){
+  const list=V.members.filter(m=>m.active), cy=curCycle(), cr=cy?rows(cy.id):[], tot=list.reduce((s,m)=>s+memTotal(m.id),0);
+  const lines=list.map((m,i)=>{ const r=cr.find(x=>x.m.id===m.id); return `${i+1}. ${m.name} - ${T(memTotal(m.id))}`+(r&&r.bal>0?` (${L('salio','balance')} ${T(r.bal)})`:''); });
+  return `*${g.name}* - ${L('Taarifa za michango','Contribution summary')} (${fmtD(today())})\n`+(cy?`${L('Mzunguko','Cycle')}: ${cy.label}\n`:'')+`\n${lines.join('\n')}\n\n${L('Jumla ya fedha','Total funds')}: ${T(tot)}`;
+}
+window.vkStatements=function(){
+  const g=grp(); if(!g) return; const list=V.members.filter(m=>m.active);
+  if(!list.length) return toast(L('Hakuna wanachama wa kutumia taarifa.','No members to send statements to.'));
+  modal(`<h3>${L('Tuma taarifa za wanachama','Send member statements')}</h3>
+  <div class="vk-fil" style="margin-top:0"><button class="${V.stTab!=='group'?'on':''}" onclick="vkStTab('own')">${L('Kila mmoja taarifa yake','Each member\'s own')}</button><button class="${V.stTab==='group'?'on':''}" onclick="vkStTab('group')">${L('Muhtasari wa kikundi','Group summary')}</button></div>
+  <div id="vkStBody">${stBody()}</div>
+  <div class="vk-act"><button class="gray" onclick="vkClose()">${L('Funga','Close')}</button></div>`);
+};
+function stBody(){
+  const g=grp(), list=V.members.filter(m=>m.active);
+  if(V.stTab==='group') return `<p class="vk-hint" style="margin-top:0">${L('Ujumbe mmoja wenye majina yote na michango yao. Nakili kisha ubandike kwenye kundi la WhatsApp.','One message with everyone and their contributions. Copy it and paste it into the WhatsApp group.')}</p><textarea rows="12" readonly id="vkGrpTxt" style="font-size:13px">${esc(groupSummaryText(g))}</textarea><div class="vk-act"><button class="primary" onclick="vkCopyGroup()">${ic('copy')}${L('Nakili muhtasari','Copy summary')}</button><a class="vk-wa" href="https://wa.me/?text=${encodeURIComponent(groupSummaryText(g))}" target="_blank" rel="noopener">WhatsApp</a></div>`;
+  return `<p class="vk-hint" style="margin-top:0">${L('Bonyeza WhatsApp kwa kila mwanachama, ujumbe wake unafunguka ukiwa tayari. Hakuna kinachotumwa bila wewe kubonyeza Tuma.','Press WhatsApp for each member and his/her message opens ready. Nothing is sent until you press Send.')}</p>
+  <div class="vk-stl">${list.map(m=>`<div class="vk-str"><div><b>${esc(m.name)}</b><div class="muted sm">${T(memTotal(m.id))}${m.phone?' · '+esc(m.phone):' · '+L('hana simu','no phone')}</div></div>${m.phone?`<a class="vk-wa" href="https://wa.me/${esc(m.phone.replace(/[^0-9]/g,''))}?text=${encodeURIComponent(statementText(g,m))}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`).join('')}</div>`;
+}
+window.vkStTab=function(t){ V.stTab=t; const b=$('vkStBody'); if(b) b.innerHTML=stBody(); document.querySelectorAll('#vkOv .vk-fil button').forEach((x,i)=>x.classList.toggle('on',(i===1)===(t==='group'))); };
+window.vkCopyGroup=async function(){ const t=$('vkGrpTxt'); if(!t) return; try{ await navigator.clipboard.writeText(t.value); toast(L('Muhtasari umenakiliwa.','Summary copied.')); }catch(e){ t.select(); toast(L('Chagua na unakili mwenyewe.','Select and copy manually.')); } };
+
 window.__vkRender=render;
 window.addEventListener('langchange',()=>{ try{ vkClose(); if($('vkBox')&&(V.loaded||V.gid)) render(); }catch(e){} });
 })();
