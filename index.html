@@ -2291,7 +2291,7 @@ body.svc-photog #collNavGroup{display:block!important}
   <button class="nav" id="helpNavBtn" onclick="openHelp()"><svg class="i"><use href="#i-info"/></svg>Help &amp; guide</button>
   <button class="nav" id="installNavBtn" type="button" style="display:none" onclick="installApp()"><svg class="i"><use href="#i-plus"/></svg>Install app</button>
 
-  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.74</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
+  <div class="side-foot"><b>SHEREHE HUB</b> <span style="opacity:.6;font-size:11px">V127.75</span><br>Workflow: Event → Guests → Cards → Invitations → Check-in</div>
 </aside>
 
 <main id="main">
@@ -16757,6 +16757,24 @@ window.vkGroupSave=async function(id){
   V.busy=false; render();
 };
 
+window.vkGroupDelete=async function(id){
+  if(V.busy) return; const g=V.groups.find(x=>x.id===id); if(!g) return;
+  const hasPay=V.pays.some(p=>p.group_id===id);
+  if(hasPay){
+    const ok=await confirmDialog({title:L('Kikundi hiki kina malipo','This group has payments'),text:L('Kumbukumbu za malipo hazifutwi ili hesabu zibaki salama. Kikundi <b>'+esc(g.name)+'</b> kitaondolewa kwenye orodha (kuhifadhiwa) bila kupoteza data.','Payment records are never deleted, to keep the books safe. <b>'+esc(g.name)+'</b> will be removed from the list (archived) without losing any data.'),ok:L('Ondoa kwenye orodha','Archive'),tone:'primary',cancel:L('Ghairi','Cancel')});
+    if(!ok) return; V.busy=true;
+    try{ const r=await db().from('vk_groups').update({archived_at:new Date().toISOString()}).eq('id',id); if(r.error) throw r.error;
+      V.groups=V.groups.filter(x=>x.id!==id); V.gid=null; toast(L('Kikundi kimeondolewa kwenye orodha.','Group archived.')); }catch(e){ toast(errMsg(e)); }
+    V.busy=false; render(); return;
+  }
+  const ok=await confirmDialog({title:L('Futa kikundi hiki?','Delete this group?'),text:L('Kikundi <b>'+esc(g.name)+'</b> pamoja na wanachama na mizunguko yake kitafutwa kabisa. Hakiwezi kurudishwa.','<b>'+esc(g.name)+'</b> together with its members and cycles will be permanently deleted. This cannot be undone.'),ok:L('Futa kikundi','Delete group'),cancel:L('Ghairi','Cancel')});
+  if(!ok) return; V.busy=true;
+  try{ const r=await db().rpc('vk_delete_group',{p_id:id}); if(r.error) throw r.error;
+    if(r.data==='has_payments'){ toast(L('Kikundi kina malipo, hakiwezi kufutwa.','Group has payments and cannot be deleted.')); }
+    else{ V.groups=V.groups.filter(x=>x.id!==id); V.gid=null; toast(L('Kikundi kimefutwa.','Group deleted.')); } }catch(e){ toast(errMsg(e)); }
+  V.busy=false; render();
+};
+
 /* ---------- members ---------- */
 window.vkMemberForm=function(id){
   const g=grp(); if(!g) return; const m=id?V.members.find(x=>x.id===id):null;
@@ -16915,7 +16933,7 @@ function listHtml(){
 function groupHtml(){
   const g=grp(), act=V.members.filter(m=>m.active), shares=act.reduce((s,m)=>s+m.shares,0);
   const tabs=[['cycle',L('Michango','Contributions')],['members',L('Wanachama','Members')],['history',L('Historia','History')]];
-  return `<div class="topline"><div><button class="text-button" onclick="vkBack()">← ${L('Vikundi vyote','All groups')}</button><h1>${esc(g.name)}</h1><p class="muted">${T(g.share_price)} / ${L('hisa','share')} · ${g.cadence==='weekly'?L('kila wiki','weekly'):L('kila mwezi','monthly')}${g.meeting_note?' · '+esc(g.meeting_note):''}</p></div><div class="topline-actions"><button class="gray" onclick="vkGroupForm('${g.id}')">${ic('edit')}${L('Hariri','Edit')}</button></div></div>
+  return `<div class="topline"><div><button class="text-button" onclick="vkBack()">← ${L('Vikundi vyote','All groups')}</button><h1>${esc(g.name)}</h1><p class="muted">${T(g.share_price)} / ${L('hisa','share')} · ${g.cadence==='weekly'?L('kila wiki','weekly'):L('kila mwezi','monthly')}${g.meeting_note?' · '+esc(g.meeting_note):''}</p></div><div class="topline-actions"><button class="gray" onclick="vkGroupForm('${g.id}')">${ic('edit')}${L('Hariri','Edit')}</button><button class="gray" style="color:#b3261e" onclick="vkGroupDelete('${g.id}')">${L('Futa kikundi','Delete group')}</button></div></div>
   <div class="vk-stats"><div class="report-stat"><span>${L('Wanachama','Members')}</span><b>${act.length}</b></div><div class="report-stat"><span>${L('Hisa zote','Total shares')}</span><b>${shares}</b></div><div class="report-stat"><span>${L('Fedha zilizokusanywa','Total collected')}</span><b>${T(fundTotal())}</b></div></div>
   <div class="vk-tabs">${tabs.map(t=>`<button class="${V.tab===t[0]?'on':''}" onclick="vkTab('${t[0]}')">${t[1]}</button>`).join('')}</div>`+
   (V.tab==='members'?membersHtml():V.tab==='history'?historyHtml():cycleHtml());
